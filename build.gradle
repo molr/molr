@@ -1,0 +1,57 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    group = "cern.molr"
+
+    repositories {
+        maven {
+            url { "http://artifactory.cern.ch" }
+        }
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.16'
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
+project(":api") {
+    
+}
+
+project(":sample") {
+    dependencies {
+        compile project(":api")
+    }
+}
+
+project(":supervisor") {
+    dependencies {
+        compile project(":api")
+    }
+}
+
+project(":server") {
+    dependencies {
+        compile project(":supervisor")
+        compile project(":sample")
+    }
+}
+
+project(":client") {
+    dependencies {
+        compile project(":server")
+        compile project(":sample")
+    }
+}
+
