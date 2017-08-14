@@ -7,7 +7,6 @@ package cern.molr.mission.step;
 import java.time.ZonedDateTime;
 
 import cern.molr.mole.supervisor.JdiController;
-import cern.molr.mole.supervisor.Session;
 import cern.molr.type.either.Either;
 
 /**
@@ -16,7 +15,7 @@ import cern.molr.type.either.Either;
  * @author tiagomr
  * @author nachivpn
  */
-public interface StepSession extends Session{
+public interface StepSession{
 
     JdiController getController();
 
