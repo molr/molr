@@ -36,16 +36,16 @@ public class RemoteSupervisorController{
         Mission m = new MissionImpl(request.getMoleClassName(), request.getMissionContentClassName());
         return supervisorService
         .<I,O>run(m, request.getArgs(), request.getMissionExecutionId())
-        .<MissionExecutionResponse>thenApply(result -> new MissionExecutionResponseSuccess(result))
-        .exceptionally(e -> new MissionExecutionResponseFailure(e));
+        .<MissionExecutionResponse>thenApply(MissionExecutionResponseSuccess::new)
+        .exceptionally(MissionExecutionResponseFailure::new);
     }
 
     @RequestMapping(path = "/cancel", method = RequestMethod.POST)
     public Future<? extends MissionCancelResponse> cancel(@RequestBody  MissionCancelRequest request) {
         return supervisorService
         .cancel(request.getMissionExecutionId())
-        .<MissionCancelResponse>thenApply(ack -> new MissionCancelResponseSuccess(ack))
-        .exceptionally(e -> new MissionCancelResponseFailure(e));
+        .<MissionCancelResponse>thenApply(MissionCancelResponseSuccess::new)
+        .exceptionally(MissionCancelResponseFailure::new);
     }
 
 }
