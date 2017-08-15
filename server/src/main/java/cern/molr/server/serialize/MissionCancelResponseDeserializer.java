@@ -2,11 +2,11 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.rest.result.serialize;
+package cern.molr.server.serialize;
 
-import cern.molr.rest.result.MissionCancelResponse;
-import cern.molr.rest.result.MissionCancelResponseFailure;
-import cern.molr.rest.result.MissionCancelResponseSuccess;
+import cern.molr.server.response.MissionCancelResponse;
+import cern.molr.server.response.MissionCancelResponseFailure;
+import cern.molr.server.response.MissionCancelResponseSuccess;
 import cern.molr.spring.util.TryResponseDeserializer;
 
 public class MissionCancelResponseDeserializer extends TryResponseDeserializer<MissionCancelResponse>{

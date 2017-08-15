@@ -2,15 +2,15 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.rest.request;
+package cern.molr.server.request;
 
-public class MissionResultRequest {
+public class MissionCancelRequest {
 
     private String missionExecutionId;
 
-    public MissionResultRequest(){}
+    public MissionCancelRequest(){}
     
-    public MissionResultRequest(String missionExecutionId){
+    public MissionCancelRequest(String missionExecutionId){
         this.setMissionExecutionId(missionExecutionId);
     }
 

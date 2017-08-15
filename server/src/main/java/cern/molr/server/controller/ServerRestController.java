@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.rest.controller;
+package cern.molr.server.controller;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -13,20 +13,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import cern.molr.exception.MissionExecutionException;
-import cern.molr.rest.bean.MissionExecutionResponseBean;
-import cern.molr.rest.request.MissionCancelRequest;
-import cern.molr.rest.request.MissionExecutionRequest;
-import cern.molr.rest.request.MissionResultRequest;
-import cern.molr.rest.result.MissionCancelResponse;
-import cern.molr.rest.result.MissionCancelResponseFailure;
-import cern.molr.rest.result.MissionCancelResponseSuccess;
-import cern.molr.rest.result.MissionExecutionResponse;
-import cern.molr.rest.result.MissionExecutionResponseFailure;
-import cern.molr.rest.result.MissionExecutionResponseSuccess;
-import cern.molr.rest.result.MissionXResponse;
-import cern.molr.rest.result.MissionXResponseFailure;
-import cern.molr.rest.result.MissionXResponseSuccess;
-import cern.molr.rest.service.ServerRestExecutionService;
+import cern.molr.server.request.MissionCancelRequest;
+import cern.molr.server.request.MissionExecutionRequest;
+import cern.molr.server.request.MissionResultRequest;
+import cern.molr.server.response.MissionCancelResponse;
+import cern.molr.server.response.MissionCancelResponseFailure;
+import cern.molr.server.response.MissionCancelResponseSuccess;
+import cern.molr.server.response.MissionExecutionResponse;
+import cern.molr.server.response.MissionExecutionResponseBean;
+import cern.molr.server.response.MissionExecutionResponseFailure;
+import cern.molr.server.response.MissionExecutionResponseSuccess;
+import cern.molr.server.response.MissionXResponse;
+import cern.molr.server.response.MissionXResponseFailure;
+import cern.molr.server.response.MissionXResponseSuccess;
+import cern.molr.server.service.ServerRestExecutionService;
 import cern.molr.type.Ack;
 
 @RestController

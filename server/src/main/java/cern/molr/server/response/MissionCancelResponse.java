@@ -2,11 +2,11 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.rest.result;
+package cern.molr.server.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import cern.molr.rest.result.serialize.MissionCancelResponseDeserializer;
+import cern.molr.server.serialize.MissionCancelResponseDeserializer;
 import cern.molr.type.Ack;
 import cern.molr.type.trye.TryResponse;
 

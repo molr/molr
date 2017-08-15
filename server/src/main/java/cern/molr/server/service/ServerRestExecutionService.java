@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.rest.service;
+package cern.molr.server.service;
 
 import java.util.Optional;
 import java.util.UUID;
