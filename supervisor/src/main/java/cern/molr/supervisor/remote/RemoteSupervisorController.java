@@ -48,14 +48,4 @@ public class RemoteSupervisorController{
         .exceptionally(e -> new MissionCancelResponseFailure(e));
     }
 
-    //    @RequestMapping(path = "/step", method = RequestMethod.POST)
-    //    public <I, O> CompletableFuture<Either<StepResult, O>> step(Mission m, I args, String missionExecutionId) {
-    //        return supervisorService.step(m, args, missionExecutionId);
-    //    }
-    //
-    //    @RequestMapping(path = "/resume", method = RequestMethod.POST)
-    //    public <I, O> CompletableFuture<O> resume(Mission m, I args, String missionExecutionId) {
-    //        return supervisorService.resume(m, args, missionExecutionId);
-    //    }
-
 }
