@@ -8,9 +8,10 @@ import cern.molr.type.either.Either;
 
 /**
  * {@link Try} is used to an return an "exceptional" result. 
- * A Failure (which contains the exception) is returned when the result computation failed with an exception.
- * A Success (which contains the result) is returned when the result is available.
+ * A {@link Failure} (which contains the exception) is returned when the result computation failed with an exception.
+ * A {@link Success} (which contains the result) is returned when the result is available.
  * NOTE: This type is very useful to propagate exceptions remotely in a robust manner.
+ * 
  * @author nachivpn 
  * @param <T>
  */

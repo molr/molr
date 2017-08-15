@@ -4,6 +4,11 @@
 
 package cern.molr.type;
 
+/**
+ * {@link Ack} is often used as an acknowledgement return type ( instead of void :) )
+ * 
+ * @author nachivpn
+ */
 public class Ack{
 
     private String message = "ACK";
