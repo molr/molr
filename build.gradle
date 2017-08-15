@@ -37,7 +37,7 @@ project(":sample") {
 
 project(":supervisor") {
     dependencies {
-        compile project(":api")
+        compile project(":sample")
     }
 }
 

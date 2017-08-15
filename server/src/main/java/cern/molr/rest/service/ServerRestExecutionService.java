@@ -21,6 +21,7 @@ import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
 import cern.molr.sample.mission.RunnableHelloWriter;
 import cern.molr.supervisor.impl.LocalSupervisor;
+import cern.molr.supervisor.impl.RemoteSupervisor;
 import cern.molr.type.Ack;
 /**
  * Gateway used for communication between {@link MissionExecutionServiceImpl} amd {@link MissionExecutionServiceImpl}
@@ -46,7 +47,7 @@ public class ServerRestExecutionService {
 
     public <I,O> String runMission(String missionDefnClassName, I args) throws UnknownMissionException {
         String missionEId = makeEId();
-        MoleSupervisor moleSupervisor = LocalSupervisor.getNewMoleSupervisor();
+        MoleSupervisor moleSupervisor = new RemoteSupervisor("localhost",8090);
         return registry.getMission(missionDefnClassName).map(mission ->{
             CompletableFuture<O> cf = moleSupervisor.run(mission, args, missionEId);
             registry.registerNewMissionExecution(missionEId, moleSupervisor, cf);
