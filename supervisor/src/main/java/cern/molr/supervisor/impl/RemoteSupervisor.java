@@ -6,11 +6,14 @@ package cern.molr.supervisor.impl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Function;
 
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.mole.supervisor.MoleSupervisor;
+import cern.molr.supervisor.request.MissionCancelRequest;
 import cern.molr.supervisor.request.MissionExecutionRequest;
+import cern.molr.supervisor.response.MissionCancelResponse;
 import cern.molr.supervisor.response.MissionExecutionResponse;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
@@ -48,7 +51,12 @@ public class RemoteSupervisor implements MoleSupervisor{
 
     @Override
     public CompletableFuture<Ack> cancel(String missionExecutionId) {
-        throw new RuntimeException("cancel has not been implemented!");
+        MissionCancelRequest cancelRequest = new MissionCancelRequest(missionExecutionId);
+        return client.post("/cancel", MissionCancelRequest.class, cancelRequest, MissionCancelResponse.class)
+                .thenApply(tryResp -> tryResp.match(
+                        (Throwable e) -> {throw new CompletionException(e);}, 
+                        Function.identity()
+                        ));
     }
 
 }
