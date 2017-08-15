@@ -19,28 +19,8 @@ public class MissionCancelResponseFailure extends Failure<Ack> implements Missio
     /**
      * @param l
      */
-    public MissionCancelResponseFailure(Exception l) {
+    public MissionCancelResponseFailure(Throwable l) {
         super(l);
-    }
-
-    @Override
-    public Exception getException() {
-        return this.l;
-    }
-
-    @Override
-    public void setException(Exception e) {
-        this.l = e;
-    }
-
-    @Override
-    public Ack getResult() {
-        return null;
-    }
-
-    @Override
-    public void setResult(Ack r) {
-        return;
     }
 
 }

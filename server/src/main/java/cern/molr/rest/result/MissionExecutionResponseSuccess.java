@@ -23,24 +23,4 @@ public class MissionExecutionResponseSuccess extends Success<MissionExecutionRes
         super(r);
     }
 
-    @Override
-    public Exception getException() {
-        return null;
-    }
-
-    @Override
-    public void setException(Exception e) {
-        return;
-    }
-
-    @Override
-    public MissionExecutionResponseBean getResult() {
-        return r;
-    }
-
-    @Override
-    public void setResult(MissionExecutionResponseBean r){
-        this.r = r;
-    }
-
 }

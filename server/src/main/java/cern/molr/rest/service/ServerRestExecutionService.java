@@ -104,7 +104,7 @@ public class ServerRestExecutionService {
         registry.getMissionExecutionFuture(missionExecutionId).map(f -> f.cancel(true));
         return optionalSupervisor
                 .orElseThrow(() -> new UnknownMissionException("No such mission running"))
-                .cancel();
+                .cancel(missionExecutionId);
     }
 
 }

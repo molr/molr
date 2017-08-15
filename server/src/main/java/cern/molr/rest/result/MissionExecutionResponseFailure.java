@@ -20,27 +20,8 @@ public class MissionExecutionResponseFailure extends Failure<MissionExecutionRes
     /**
      * @param l
      */
-    public MissionExecutionResponseFailure(Exception l) {
+    public MissionExecutionResponseFailure(Throwable l) {
         super(l);
     }
-
-    @Override
-    public Exception getException() {
-        return this.l;
-    }
-    @Override
-    public void setException(Exception e) {
-        this.l = e;
-    }
-    
-    @Override
-    public MissionExecutionResponseBean getResult() {
-        return null;
-    }
-    @Override
-    public void setResult(MissionExecutionResponseBean r) {
-        return;
-    }
-
 
 }

@@ -20,8 +20,8 @@ import cern.molr.rest.result.MissionCancelResponse;
 import cern.molr.rest.result.MissionExecutionResponse;
 import cern.molr.rest.result.MissionIntegerResponse;
 import cern.molr.rest.result.MissionXResponse;
-import cern.molr.sample.util.MolrWebClient;
 import cern.molr.type.Ack;
+import cern.molr.web.MolrWebClient;
 
 /**
  * Implementation used by the operator to interact with the server
@@ -38,7 +38,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
         MissionExecutionRequest<I> execRequest = new MissionExecutionRequest<>(missionDefnClassName, args);
         return client.post("/mission", MissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
                 .thenApply(tryResp -> tryResp.match(
-                        (Exception e) -> {throw new CompletionException(e);}, 
+                        (Throwable e) -> {throw new CompletionException(e);}, 
                         (MissionExecutionResponseBean resp) -> resp.getMissionExecutionId()))
                 .<RunMissionController<O>> thenApply(missionExecutionId -> new RunMissionController<O>() {
                     @SuppressWarnings("unchecked")
@@ -47,7 +47,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
                             MissionResultRequest resultRequest = new MissionResultRequest(missionExecutionId);
                                 return client.post("/result", MissionResultRequest.class, resultRequest, resultResponseType)
                                         .thenApply(resultResponse -> resultResponse.match(
-                                                (Exception e) -> {throw new CompletionException(e);}, 
+                                                (Throwable e) -> {throw new CompletionException(e);}, 
                                                 resp -> (O) resp));
                     }
 
@@ -56,7 +56,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
                         MissionCancelRequest cancelRequest = new MissionCancelRequest(missionExecutionId);
                         return client.post("/cancel", MissionCancelRequest.class, cancelRequest, MissionCancelResponse.class)
                                 .thenApply(cancelResponse -> cancelResponse.match(
-                                        (Exception e) -> {throw new CompletionException(e);}, 
+                                        (Throwable e) -> {throw new CompletionException(e);}, 
                                         //Return the result as it is
                                         Function.identity()
                                         ));

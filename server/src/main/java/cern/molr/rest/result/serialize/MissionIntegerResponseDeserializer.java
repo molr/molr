@@ -7,6 +7,7 @@ package cern.molr.rest.result.serialize;
 import cern.molr.rest.result.MissionIntegerResponse;
 import cern.molr.rest.result.MissionIntegerResponseFailure;
 import cern.molr.rest.result.MissionIntegerResponseSuccess;
+import cern.molr.spring.util.TryResponseDeserializer;
 
 public class MissionIntegerResponseDeserializer extends TryResponseDeserializer<MissionIntegerResponse>{
 

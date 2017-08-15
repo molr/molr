@@ -32,6 +32,6 @@ public interface MoleSupervisor {
 
     <I,O> CompletableFuture<O> resume(Mission m, I args, String missionExecutionId);
     
-    CompletableFuture<Ack> cancel();
+    CompletableFuture<Ack> cancel(String missionExecutionId);
     
 }

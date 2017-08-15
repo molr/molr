@@ -18,28 +18,8 @@ public class MissionXResponseFailure<X> extends Failure<X> implements MissionXRe
     /**
      * @param l
      */
-    public MissionXResponseFailure(Exception l) {
+    public MissionXResponseFailure(Throwable l) {
         super(l);
-    }
-
-    @Override
-    public Exception getException() {
-        return this.l;
-    }
-
-    @Override
-    public X getResult() {
-        return null;
-    }
-
-    @Override
-    public void setException(Exception e) {
-        this.l = e;
-    }
-
-    @Override
-    public void setResult(X i) {
-        return;
     }
 
 }

@@ -14,5 +14,5 @@ import cern.molr.type.either.Either;
  * @author nachivpn 
  * @param <T>
  */
-public interface Try<T> extends Either<Exception,T>{
+public interface Try<T> extends Either<Throwable,T>{
 }

@@ -22,24 +22,4 @@ public class MissionXResponseSuccess<X> extends Success<X> implements MissionXRe
         super(r);
     }
 
-    @Override
-    public Exception getException() {
-        return null;
-    }
-
-    @Override
-    public X getResult() {
-        return this.r;
-    }
-
-    @Override
-    public void setException(Exception e) {
-        return;
-    }
-
-    @Override
-    public void setResult(X i) {
-        this.r = i;
-    }
-
 }

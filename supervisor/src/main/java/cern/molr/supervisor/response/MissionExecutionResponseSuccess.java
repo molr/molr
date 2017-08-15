@@ -22,24 +22,4 @@ public class MissionExecutionResponseSuccess extends Success<Object> implements 
         super(r);
     }
 
-    @Override
-    public Exception getException() {
-        return null;
-    }
-
-    @Override
-    public void setException(Exception e) {
-        return;
-    }
-
-    @Override
-    public Object getResult() {
-        return r;
-    }
-
-    @Override
-    public void setResult(Object r){
-        this.r = r;
-    }
-
 }

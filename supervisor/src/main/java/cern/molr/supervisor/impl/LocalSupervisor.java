@@ -88,7 +88,7 @@ public class LocalSupervisor implements MoleSupervisor {
     }
 
     @Override
-    public CompletableFuture<Ack> cancel() {
+    public CompletableFuture<Ack> cancel(String missionExecutionId) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     return optionalStepSession.map(stepSession -> {

@@ -12,13 +12,33 @@ import cern.molr.type.either.Right;
  * @author nachivpn 
  * @param <T>
  */
-public class Success<T> extends Right<Exception, T> implements Try<T>{
+public class Success<T> extends Right<Throwable, T> implements TryResponse<T>{
 
     /**
      * @param r
      */
     public Success(T r) {
         super(r);
+    }
+
+    @Override
+    public Throwable getThrowable() {
+        return null;
+    }
+
+    @Override
+    public void setThrowable(Throwable e) {
+        return;
+    }
+
+    @Override
+    public T getResult() {
+        return r;
+    }
+
+    @Override
+    public void setResult(T r) {
+        this.r = r;
     }
 
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.supervisor.util;
+package cern.molr.spring.util;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public abstract class TryResponseDeserializer<T> extends JsonDeserializer<T> {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         ObjectNode root = (ObjectNode) mapper.readTree(jp);
         Class<? extends T> instanceClass = null;
-        if(root.get("exception").isNull()) {
+        if(root.get("throwable").isNull()) {
             instanceClass = getSuccessDeserializer();
         } else { 
             instanceClass = getFailureDeserializer();

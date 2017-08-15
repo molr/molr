@@ -4,7 +4,7 @@
 
 package cern.molr.supervisor.response;
 
-import cern.molr.supervisor.util.TryResponseDeserializer;
+import cern.molr.spring.util.TryResponseDeserializer;
 
 public class MissionExecutionResponseDeserializer extends TryResponseDeserializer<MissionExecutionResponse>{
 
