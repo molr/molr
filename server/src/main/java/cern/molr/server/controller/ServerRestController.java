@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import cern.molr.exception.MissionExecutionException;
+import cern.molr.exception.UnknownMissionException;
+import cern.molr.server.ServerMain;
 import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionExecutionRequest;
 import cern.molr.server.request.MissionResultRequest;
@@ -27,8 +28,12 @@ import cern.molr.server.response.MissionXResponse;
 import cern.molr.server.response.MissionXResponseFailure;
 import cern.molr.server.response.MissionXResponseSuccess;
 import cern.molr.server.service.ServerRestExecutionService;
-import cern.molr.type.Ack;
 
+/**
+ * {@link RestController} for {@link ServerMain} spring application
+ * 
+ * @author nachivpn
+ */
 @RestController
 public class ServerRestController {
 
@@ -44,34 +49,39 @@ public class ServerRestController {
         try {
             String mEId = meGateway.runMission(request.getMissionDefnClassName(), request.getArgs());
             return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
-        } catch (Exception e) {
+        } catch (UnknownMissionException e) {
+            /*
+             * The idea behind not catching Exception is to ensure that any server related 
+             * issues are not off-loaded to be handled by the client (same applies below)
+             * Moreover, the Molr API does NOT define any runtime exceptions 
+             * and catching any would be analogous to suppressing an issue!
+             */
             return new MissionExecutionResponseFailure(e);
         }
-        
+
     }
 
     @RequestMapping(path = "/result", method = RequestMethod.POST)
     public CompletableFuture<MissionXResponse<Object>> result(@RequestBody MissionResultRequest request) {
-        return CompletableFuture.supplyAsync(() ->{
-            try {
-                CompletableFuture<?> resultFuture = meGateway.getResult(request.getMissionExecutionId());
-                return new MissionXResponseSuccess<>(resultFuture.get());
-            } catch (Exception e) {
-                return new MissionXResponseFailure<>(new MissionExecutionException(e));
-            }
-        });
+        try {
+            return meGateway.getResult(request.getMissionExecutionId())
+                    .<MissionXResponse<Object>>thenApply(MissionXResponseSuccess<Object>::new)
+                    .exceptionally(MissionXResponseFailure<Object>::new);
+        } catch (UnknownMissionException e) {
+            return CompletableFuture.supplyAsync(() -> new MissionXResponseFailure<>(e));
+        }
     }
-    
+
     @RequestMapping(path = "/cancel", method = RequestMethod.POST)
     public CompletableFuture<MissionCancelResponse> result(@RequestBody MissionCancelRequest request) {
-        return CompletableFuture.supplyAsync(() ->{
-            try {
-                CompletableFuture<Ack> resultFuture = meGateway.cancel(request.getMissionExecutionId());
-                return new MissionCancelResponseSuccess(resultFuture.get());
-            } catch (Exception e) {
-                return new MissionCancelResponseFailure(e);
-            }
-        });
+        try {
+            return meGateway.cancel(request.getMissionExecutionId())
+                    .<MissionCancelResponse>thenApply(MissionCancelResponseSuccess::new)
+                    .exceptionally(MissionCancelResponseFailure::new);
+        } catch (UnknownMissionException e) {
+            return CompletableFuture.supplyAsync(() -> new MissionCancelResponseFailure(e));
+        }
+        
     }
 
 }
