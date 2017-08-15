@@ -22,6 +22,11 @@ import cern.molr.supervisor.response.MissionExecutionResponse;
 import cern.molr.supervisor.response.MissionExecutionResponseFailure;
 import cern.molr.supervisor.response.MissionExecutionResponseSuccess;
 
+/**
+ * {@link RestController} for {@link RemoteSupervisorMain} spring application
+ * 
+ * @author nachivpn
+ */
 @RestController
 public class RemoteSupervisorController{
 

@@ -21,7 +21,7 @@ import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 
 /**
- * Sample implementation and usage of the supervisor's interfaces to demonstrate communication
+ * {@link LocalSupervisor} is the localized implementation of {@link MoleSupervisor}
  * 
  * @author nachivpn
  */

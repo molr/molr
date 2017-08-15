@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import cern.molr.supervisor.impl.LocalSupervisor;
 
+/**
+ * {@link Service} for {@link RemoteSupervisorMain} spring application
+ * 
+ * @author nachivpn
+ */
 @Service
 public class RemoteSupervisorService extends LocalSupervisor{
 }

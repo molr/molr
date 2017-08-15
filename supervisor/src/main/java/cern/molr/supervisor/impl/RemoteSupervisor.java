@@ -19,6 +19,14 @@ import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 import cern.molr.web.MolrWebClient;
 
+/**
+ * {@link RemoteSupervisor} is the remote implementation of the {@link MoleSupervisor}
+ * 
+ * Ideally, this object would be constructed by the infrastructure delegate which ensures that 
+ * a mole supervisor is up and running on a specific host at a specific port
+ * 
+ * @author nachivpn
+ */
 public class RemoteSupervisor implements MoleSupervisor{
 
     private MolrWebClient client;
