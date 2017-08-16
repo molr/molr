@@ -25,9 +25,9 @@ allprojects {
     }
 }
 
-project(":api") {
-    
-}
+project(":api") {}
+
+project(":commons") {}
 
 project(":sample") {
     dependencies {
@@ -37,7 +37,8 @@ project(":sample") {
 
 project(":supervisor") {
     dependencies {
-        compile project(":sample")
+        compile project(":api")
+        compile project(":commons")
     }
 }
 

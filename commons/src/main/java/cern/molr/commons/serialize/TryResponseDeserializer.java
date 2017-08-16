@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.spring.util;
+package cern.molr.commons.serialize;
 
 import java.io.IOException;
 

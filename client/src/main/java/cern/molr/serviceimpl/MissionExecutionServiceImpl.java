@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.exception.UnsupportedOutputTypeException;
 import cern.molr.mission.run.RunMissionController;
 import cern.molr.mission.service.MissionExecutionService;
@@ -21,7 +22,6 @@ import cern.molr.server.response.MissionExecutionResponseBean;
 import cern.molr.server.response.MissionIntegerResponse;
 import cern.molr.server.response.MissionXResponse;
 import cern.molr.type.Ack;
-import cern.molr.web.MolrWebClient;
 
 /**
  * Implementation used by the operator to interact with the server

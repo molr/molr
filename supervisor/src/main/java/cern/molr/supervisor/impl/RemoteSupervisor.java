@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.mole.supervisor.MoleSupervisor;
@@ -17,7 +18,6 @@ import cern.molr.supervisor.response.MissionCancelResponse;
 import cern.molr.supervisor.response.MissionExecutionResponse;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
-import cern.molr.web.MolrWebClient;
 
 /**
  * {@link RemoteSupervisor} is the remote implementation of the {@link MoleSupervisor}

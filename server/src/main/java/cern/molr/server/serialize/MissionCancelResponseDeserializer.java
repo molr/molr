@@ -4,10 +4,10 @@
 
 package cern.molr.server.serialize;
 
+import cern.molr.commons.serialize.TryResponseDeserializer;
 import cern.molr.server.response.MissionCancelResponse;
 import cern.molr.server.response.MissionCancelResponseFailure;
 import cern.molr.server.response.MissionCancelResponseSuccess;
-import cern.molr.spring.util.TryResponseDeserializer;
 
 public class MissionCancelResponseDeserializer extends TryResponseDeserializer<MissionCancelResponse>{
 
