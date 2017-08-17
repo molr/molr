@@ -2,8 +2,9 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.type.trye;
+package cern.molr.commons.trye;
 
+import cern.molr.type.Try;
 import cern.molr.type.either.Left;
 
 /**

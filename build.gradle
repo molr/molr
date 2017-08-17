@@ -27,32 +27,34 @@ allprojects {
 
 project(":api") {}
 
-project(":commons") {}
-
-project(":sample") {
+project(":commons") {
     dependencies {
         compile project(":api")
     }
 }
 
-project(":supervisor") {
+project(":sample") {
     dependencies {
         compile project(":api")
         compile project(":commons")
     }
 }
 
+project(":supervisor") {
+    dependencies {
+        compile project(":sample")
+    }
+}
+
 project(":server") {
     dependencies {
         compile project(":supervisor")
-        compile project(":sample")
     }
 }
 
 project(":client") {
     dependencies {
         compile project(":server")
-        compile project(":sample")
     }
 }
 

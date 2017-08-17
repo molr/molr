@@ -6,7 +6,7 @@ package cern.molr.server.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import cern.molr.type.trye.Success;
+import cern.molr.commons.trye.Success;
 
 @JsonDeserialize(as = MissionXResponseSuccess.class)
 public class MissionXResponseSuccess<X> extends Success<X> implements MissionXResponse<X>{

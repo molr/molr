@@ -4,7 +4,7 @@
 
 package cern.molr.server.serialize;
 
-import cern.molr.commons.serialize.TryResponseDeserializer;
+import cern.molr.commons.trye.TryResponseDeserializer;
 import cern.molr.server.response.MissionCancelResponse;
 import cern.molr.server.response.MissionCancelResponseFailure;
 import cern.molr.server.response.MissionCancelResponseSuccess;

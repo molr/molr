@@ -4,7 +4,7 @@
 
 package cern.molr.supervisor.response;
 
-import cern.molr.commons.serialize.TryResponseDeserializer;
+import cern.molr.commons.trye.TryResponseDeserializer;
 
 public class MissionCancelResponseDeserializer extends TryResponseDeserializer<MissionCancelResponse>{
 

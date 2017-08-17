@@ -6,7 +6,7 @@ package cern.molr.supervisor.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import cern.molr.type.trye.TryResponse;
+import cern.molr.commons.trye.TryResponse;
 
 @JsonDeserialize(using = MissionExecutionResponseDeserializer.class)
 public interface MissionExecutionResponse extends TryResponse<Object>{

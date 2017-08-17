@@ -11,7 +11,7 @@ public class OperatorSampleMain {
 
     public static void main(String[] args) throws Exception {
         SampleOperator operator = new SampleOperator(new MissionExecutionServiceImpl());
-        System.out.println("The meaning of life is " + operator.operatorRun2());
+        System.out.println("The meaning of life is " + operator.operatorRun3());
     }
     
 }

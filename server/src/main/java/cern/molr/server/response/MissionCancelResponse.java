@@ -6,9 +6,9 @@ package cern.molr.server.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import cern.molr.commons.trye.TryResponse;
 import cern.molr.server.serialize.MissionCancelResponseDeserializer;
 import cern.molr.type.Ack;
-import cern.molr.type.trye.TryResponse;
 
 @JsonDeserialize(using = MissionCancelResponseDeserializer.class)
 public interface MissionCancelResponse extends TryResponse<Ack>{
