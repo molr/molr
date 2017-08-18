@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.server.service;
+package cern.molr.server;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +20,6 @@ import cern.molr.mole.supervisor.MoleSupervisor;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
 import cern.molr.sample.mission.RunnableHelloWriter;
-import cern.molr.supervisor.impl.MoleSupervisorImpl;
 import cern.molr.supervisor.impl.MoleSupervisorProxy;
 import cern.molr.type.Ack;
 /**

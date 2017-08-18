@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.server.controller;
+package cern.molr.server;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,11 +23,9 @@ import cern.molr.commons.response.MissionGenericResponse;
 import cern.molr.commons.response.MissionGenericResponseFailure;
 import cern.molr.commons.response.MissionGenericResponseSuccess;
 import cern.molr.exception.UnknownMissionException;
-import cern.molr.server.ServerMain;
 import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionExecutionRequest;
 import cern.molr.server.request.MissionResultRequest;
-import cern.molr.server.service.ServerRestExecutionService;
 
 /**
  * {@link RestController} for {@link ServerMain} spring application
