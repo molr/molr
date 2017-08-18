@@ -21,11 +21,11 @@ import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 
 /**
- * {@link LocalSupervisor} is the localized implementation of {@link MoleSupervisor}
+ * {@link MoleSupervisorImpl} is the localized implementation of {@link MoleSupervisor}
  * 
  * @author nachivpn
  */
-public class LocalSupervisor implements MoleSupervisor {
+public class MoleSupervisorImpl implements MoleSupervisor {
 
     private static final Ack ACK = new Ack();
 
@@ -104,7 +104,7 @@ public class LocalSupervisor implements MoleSupervisor {
     }
 
     public static MoleSupervisor getNewMoleSupervisor() {
-        return new LocalSupervisor();
+        return new MoleSupervisorImpl();
     }
 
 }

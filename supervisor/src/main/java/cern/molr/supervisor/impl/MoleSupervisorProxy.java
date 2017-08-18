@@ -20,18 +20,18 @@ import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 
 /**
- * {@link RemoteSupervisor} is the remote implementation of the {@link MoleSupervisor}
+ * {@link MoleSupervisorProxy} is the remote implementation of the {@link MoleSupervisor}
  * 
  * Ideally, this object would be constructed by the infrastructure delegate which ensures that 
  * a mole supervisor is up and running on a specific host at a specific port
  * 
  * @author nachivpn
  */
-public class RemoteSupervisor implements MoleSupervisor{
+public class MoleSupervisorProxy implements MoleSupervisor{
 
     private MolrWebClient client;
 
-    public RemoteSupervisor(String host, int port) {
+    public MoleSupervisorProxy(String host, int port) {
         this.client = new MolrWebClient(host, port);
     }
 

@@ -6,7 +6,7 @@ package cern.molr.supervisor.remote;
 
 import org.springframework.stereotype.Service;
 
-import cern.molr.supervisor.impl.LocalSupervisor;
+import cern.molr.supervisor.impl.MoleSupervisorImpl;
 
 /**
  * {@link Service} for {@link RemoteSupervisorMain} spring application
@@ -14,5 +14,5 @@ import cern.molr.supervisor.impl.LocalSupervisor;
  * @author nachivpn
  */
 @Service
-public class RemoteSupervisorService extends LocalSupervisor{
+public class RemoteSupervisorService extends MoleSupervisorImpl{
 }
