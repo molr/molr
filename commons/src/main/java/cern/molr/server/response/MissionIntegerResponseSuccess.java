@@ -7,6 +7,6 @@ package cern.molr.server.response;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(as = MissionIntegerResponseSuccess.class)
-public class MissionIntegerResponseSuccess extends MissionXResponseSuccess<Integer> implements MissionIntegerResponse{
+public class MissionIntegerResponseSuccess extends MissionGenericResponseSuccess<Integer> implements MissionIntegerResponse{
 
 }

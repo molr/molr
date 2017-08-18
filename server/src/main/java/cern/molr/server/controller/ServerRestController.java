@@ -24,9 +24,9 @@ import cern.molr.server.response.MissionExecutionResponse;
 import cern.molr.server.response.MissionExecutionResponseBean;
 import cern.molr.server.response.MissionExecutionResponseFailure;
 import cern.molr.server.response.MissionExecutionResponseSuccess;
-import cern.molr.server.response.MissionXResponse;
-import cern.molr.server.response.MissionXResponseFailure;
-import cern.molr.server.response.MissionXResponseSuccess;
+import cern.molr.server.response.MissionGenericResponse;
+import cern.molr.server.response.MissionGenericResponseFailure;
+import cern.molr.server.response.MissionGenericResponseSuccess;
 import cern.molr.server.service.ServerRestExecutionService;
 
 /**
@@ -62,13 +62,13 @@ public class ServerRestController {
     }
 
     @RequestMapping(path = "/result", method = RequestMethod.POST)
-    public CompletableFuture<MissionXResponse<Object>> result(@RequestBody MissionResultRequest request) {
+    public CompletableFuture<MissionGenericResponse<Object>> result(@RequestBody MissionResultRequest request) {
         try {
             return meGateway.getResult(request.getMissionExecutionId())
-                    .<MissionXResponse<Object>>thenApply(MissionXResponseSuccess<Object>::new)
-                    .exceptionally(MissionXResponseFailure<Object>::new);
+                    .<MissionGenericResponse<Object>>thenApply(MissionGenericResponseSuccess<Object>::new)
+                    .exceptionally(MissionGenericResponseFailure<Object>::new);
         } catch (UnknownMissionException e) {
-            return CompletableFuture.supplyAsync(() -> new MissionXResponseFailure<>(e));
+            return CompletableFuture.supplyAsync(() -> new MissionGenericResponseFailure<>(e));
         }
     }
 

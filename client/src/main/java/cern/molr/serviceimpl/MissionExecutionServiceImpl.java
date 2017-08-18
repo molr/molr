@@ -20,7 +20,7 @@ import cern.molr.server.response.MissionCancelResponse;
 import cern.molr.server.response.MissionExecutionResponse;
 import cern.molr.server.response.MissionExecutionResponseBean;
 import cern.molr.server.response.MissionIntegerResponse;
-import cern.molr.server.response.MissionXResponse;
+import cern.molr.server.response.MissionGenericResponse;
 import cern.molr.type.Ack;
 
 /**
@@ -34,7 +34,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
 
     @Override
     public <I, O> CompletableFuture<RunMissionController<O>> runToCompletion(String missionDefnClassName, I args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException {
-        Class<? extends MissionXResponse<?>> resultResponseType = getMissionResultResponseType(cO);
+        Class<? extends MissionGenericResponse<?>> resultResponseType = getMissionResultResponseType(cO);
         MissionExecutionRequest<I> execRequest = new MissionExecutionRequest<>(missionDefnClassName, args);
         return client.post("/mission", MissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
                 .thenApply(tryResp -> tryResp.match(
@@ -70,7 +70,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
         return null;
     }
 
-    private Class<? extends MissionXResponse<?>> getMissionResultResponseType(Class<?> c) throws UnsupportedOutputTypeException {
+    private Class<? extends MissionGenericResponse<?>> getMissionResultResponseType(Class<?> c) throws UnsupportedOutputTypeException {
         if(c.equals(Integer.class))
             return MissionIntegerResponse.class;
         else

@@ -8,17 +8,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import cern.molr.commons.trye.TryResponseFailure;
 
-@JsonDeserialize(as = MissionXResponseFailure.class)
-public class MissionXResponseFailure<X> extends TryResponseFailure<X> implements MissionXResponse<X>{
+@JsonDeserialize(as = MissionGenericResponseFailure.class)
+public class MissionGenericResponseFailure<X> extends TryResponseFailure<X> implements MissionGenericResponse<X>{
 
-    public MissionXResponseFailure() {
+    public MissionGenericResponseFailure() {
         super(null);
     }
     
     /**
      * @param l
      */
-    public MissionXResponseFailure(Throwable l) {
+    public MissionGenericResponseFailure(Throwable l) {
         super(l);
     }
 

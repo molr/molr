@@ -6,5 +6,5 @@ package cern.molr.server.response;
 
 import cern.molr.commons.trye.TryResponse;
 
-public interface MissionXResponse<T> extends TryResponse<T> {
+public interface MissionGenericResponse<T> extends TryResponse<T> {
 }
