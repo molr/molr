@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import cern.molr.commons.MissionImpl;
+import cern.molr.commons.response.MissionCancelResponse;
+import cern.molr.commons.response.MissionCancelResponseFailure;
+import cern.molr.commons.response.MissionCancelResponseSuccess;
+import cern.molr.commons.response.MissionGenericResponse;
+import cern.molr.commons.response.MissionGenericResponseFailure;
+import cern.molr.commons.response.MissionGenericResponseSuccess;
 import cern.molr.mission.Mission;
-import cern.molr.server.response.MissionCancelResponse;
-import cern.molr.server.response.MissionCancelResponseFailure;
-import cern.molr.server.response.MissionCancelResponseSuccess;
-import cern.molr.server.response.MissionGenericResponse;
-import cern.molr.server.response.MissionGenericResponseFailure;
-import cern.molr.server.response.MissionGenericResponseSuccess;
 import cern.molr.supervisor.request.MissionCancelRequest;
 import cern.molr.supervisor.request.MissionExecutionRequest;
 

@@ -8,12 +8,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
+import cern.molr.commons.response.MissionCancelResponse;
+import cern.molr.commons.response.MissionObjectResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.mole.supervisor.MoleSupervisor;
-import cern.molr.server.response.MissionCancelResponse;
-import cern.molr.server.response.MissionObjectResponse;
 import cern.molr.supervisor.request.MissionCancelRequest;
 import cern.molr.supervisor.request.MissionExecutionRequest;
 import cern.molr.type.Ack;
