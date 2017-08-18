@@ -8,6 +8,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
+import cern.molr.commons.response.MissionCancelResponse;
+import cern.molr.commons.response.MissionExecutionResponse;
+import cern.molr.commons.response.MissionExecutionResponseBean;
+import cern.molr.commons.response.MissionGenericResponse;
+import cern.molr.commons.response.MissionIntegerResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.exception.UnsupportedOutputTypeException;
 import cern.molr.mission.run.RunMissionController;
@@ -16,11 +21,6 @@ import cern.molr.mission.step.StepMissionController;
 import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionExecutionRequest;
 import cern.molr.server.request.MissionResultRequest;
-import cern.molr.server.response.MissionCancelResponse;
-import cern.molr.server.response.MissionExecutionResponse;
-import cern.molr.server.response.MissionExecutionResponseBean;
-import cern.molr.server.response.MissionIntegerResponse;
-import cern.molr.server.response.MissionGenericResponse;
 import cern.molr.type.Ack;
 
 /**

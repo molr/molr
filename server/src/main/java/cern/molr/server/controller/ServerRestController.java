@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import cern.molr.commons.response.MissionCancelResponse;
+import cern.molr.commons.response.MissionCancelResponseFailure;
+import cern.molr.commons.response.MissionCancelResponseSuccess;
+import cern.molr.commons.response.MissionExecutionResponse;
+import cern.molr.commons.response.MissionExecutionResponseBean;
+import cern.molr.commons.response.MissionExecutionResponseFailure;
+import cern.molr.commons.response.MissionExecutionResponseSuccess;
+import cern.molr.commons.response.MissionGenericResponse;
+import cern.molr.commons.response.MissionGenericResponseFailure;
+import cern.molr.commons.response.MissionGenericResponseSuccess;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.server.ServerMain;
 import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionExecutionRequest;
 import cern.molr.server.request.MissionResultRequest;
-import cern.molr.server.response.MissionCancelResponse;
-import cern.molr.server.response.MissionCancelResponseFailure;
-import cern.molr.server.response.MissionCancelResponseSuccess;
-import cern.molr.server.response.MissionExecutionResponse;
-import cern.molr.server.response.MissionExecutionResponseBean;
-import cern.molr.server.response.MissionExecutionResponseFailure;
-import cern.molr.server.response.MissionExecutionResponseSuccess;
-import cern.molr.server.response.MissionGenericResponse;
-import cern.molr.server.response.MissionGenericResponseFailure;
-import cern.molr.server.response.MissionGenericResponseSuccess;
 import cern.molr.server.service.ServerRestExecutionService;
 
 /**
