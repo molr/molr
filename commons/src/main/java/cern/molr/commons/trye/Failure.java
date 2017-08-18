@@ -13,7 +13,11 @@ import cern.molr.type.either.Left;
  * @author nachivpn 
  * @param <T>
  */
-public class Failure<T> extends Left<Throwable, T> implements TryResponse<T>{
+public class Failure<T> extends Left<Throwable, T> implements Try<T>{
+   
+    public Failure() {
+        super(null);
+    }
     
     /**
      * @param l
@@ -21,26 +25,5 @@ public class Failure<T> extends Left<Throwable, T> implements TryResponse<T>{
     public Failure(Throwable l) {
         super(l);
     }
-
-    @Override
-    public Throwable getThrowable() {
-        return l;
-    }
-
-    @Override
-    public void setThrowable(Throwable e) {
-        this.l = e;
-    }
-
-    @Override
-    public T getResult() {
-        return null;
-    }
-
-    @Override
-    public void setResult(T r) {
-        return;
-    }
-
 
 }

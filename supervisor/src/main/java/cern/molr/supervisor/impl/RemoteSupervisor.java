@@ -12,10 +12,10 @@ import cern.molr.commons.web.MolrWebClient;
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.mole.supervisor.MoleSupervisor;
+import cern.molr.server.response.MissionCancelResponse;
+import cern.molr.server.response.MissionObjectResponse;
 import cern.molr.supervisor.request.MissionCancelRequest;
 import cern.molr.supervisor.request.MissionExecutionRequest;
-import cern.molr.supervisor.response.MissionCancelResponse;
-import cern.molr.supervisor.response.MissionExecutionResponse;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 
@@ -40,7 +40,7 @@ public class RemoteSupervisor implements MoleSupervisor{
     public <I, O> CompletableFuture<O> run(Mission m, I args, String missionExecutionId) {
         MissionExecutionRequest<I> execRequest = 
                 new MissionExecutionRequest<>(missionExecutionId, m.getMoleClassName(), m.getMissionDefnClassName(), args);
-        return client.post("/run", MissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
+        return client.post("/run", MissionExecutionRequest.class, execRequest, MissionObjectResponse.class)
                 .thenApply(tryResp -> tryResp.match(
                         (Throwable e) -> {throw new CompletionException(e);}, 
                         resp -> (O) resp

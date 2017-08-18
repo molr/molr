@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cern.molr.commons.MissionImpl;
 import cern.molr.mission.Mission;
+import cern.molr.server.response.MissionCancelResponse;
+import cern.molr.server.response.MissionCancelResponseFailure;
+import cern.molr.server.response.MissionCancelResponseSuccess;
+import cern.molr.server.response.MissionXResponse;
+import cern.molr.server.response.MissionXResponseFailure;
+import cern.molr.server.response.MissionXResponseSuccess;
 import cern.molr.supervisor.request.MissionCancelRequest;
 import cern.molr.supervisor.request.MissionExecutionRequest;
-import cern.molr.supervisor.response.MissionCancelResponse;
-import cern.molr.supervisor.response.MissionCancelResponseFailure;
-import cern.molr.supervisor.response.MissionCancelResponseSuccess;
-import cern.molr.supervisor.response.MissionExecutionResponse;
-import cern.molr.supervisor.response.MissionExecutionResponseFailure;
-import cern.molr.supervisor.response.MissionExecutionResponseSuccess;
 
 /**
  * {@link RestController} for {@link RemoteSupervisorMain} spring application
@@ -37,12 +37,12 @@ public class RemoteSupervisorController{
     }
 
     @RequestMapping(path = "/run", method = RequestMethod.POST)
-    public <I,O> Future<? extends MissionExecutionResponse> run(@RequestBody MissionExecutionRequest<I> request) {
+    public <I,O> Future<? extends MissionXResponse<O>> run(@RequestBody MissionExecutionRequest<I> request) {
         Mission m = new MissionImpl(request.getMoleClassName(), request.getMissionContentClassName());
         return supervisorService
         .<I,O>run(m, request.getArgs(), request.getMissionExecutionId())
-        .<MissionExecutionResponse>thenApply(MissionExecutionResponseSuccess::new)
-        .exceptionally(MissionExecutionResponseFailure::new);
+        .<MissionXResponse<O>>thenApply(MissionXResponseSuccess<O>::new)
+        .exceptionally(MissionXResponseFailure::new);
     }
 
     @RequestMapping(path = "/cancel", method = RequestMethod.POST)

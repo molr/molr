@@ -2,11 +2,11 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.supervisor.response;
+package cern.molr.server.response;
 
 import cern.molr.commons.trye.TryResponseDeserializer;
 
-public class MissionExecutionResponseDeserializer extends TryResponseDeserializer<MissionExecutionResponse>{
+public class MissionExecutionResponseDeserializer  extends TryResponseDeserializer<MissionExecutionResponse>{
 
     @Override
     public Class<? extends MissionExecutionResponse> getSuccessDeserializer() {
@@ -17,5 +17,6 @@ public class MissionExecutionResponseDeserializer extends TryResponseDeserialize
     public Class<? extends MissionExecutionResponse> getFailureDeserializer() {
         return MissionExecutionResponseFailure.class;
     }
-
+    
+    
 }

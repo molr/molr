@@ -2,12 +2,9 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.server.serialize;
+package cern.molr.server.response;
 
 import cern.molr.commons.trye.TryResponseDeserializer;
-import cern.molr.server.response.MissionIntegerResponse;
-import cern.molr.server.response.MissionIntegerResponseFailure;
-import cern.molr.server.response.MissionIntegerResponseSuccess;
 
 public class MissionIntegerResponseDeserializer extends TryResponseDeserializer<MissionIntegerResponse>{
 

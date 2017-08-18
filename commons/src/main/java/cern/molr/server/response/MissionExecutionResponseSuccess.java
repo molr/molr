@@ -2,14 +2,14 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.supervisor.response;
+package cern.molr.server.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import cern.molr.commons.trye.Success;
+import cern.molr.commons.trye.TryResponseSuccess;
 
 @JsonDeserialize(as = MissionExecutionResponseSuccess.class)
-public class MissionExecutionResponseSuccess extends Success<Object> implements MissionExecutionResponse{
+public class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean> implements MissionExecutionResponse{
 
     public MissionExecutionResponseSuccess() {
         super(null);
@@ -18,7 +18,7 @@ public class MissionExecutionResponseSuccess extends Success<Object> implements 
     /**
      * @param r
      */
-    public MissionExecutionResponseSuccess(Object r) {
+    public MissionExecutionResponseSuccess(MissionExecutionResponseBean r) {
         super(r);
     }
 

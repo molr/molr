@@ -4,6 +4,7 @@
 
 package cern.molr.commons.trye;
 
+import cern.molr.type.Try;
 import cern.molr.type.either.Right;
 
 /**
@@ -12,34 +13,20 @@ import cern.molr.type.either.Right;
  * @author nachivpn 
  * @param <T>
  */
-public class Success<T> extends Right<Throwable, T> implements TryResponse<T>{
+public class Success<T> extends Right<Throwable, T> implements Try<T>{
 
+    /**
+     * @param r
+     */
+    public Success() {
+        super(null);
+    }
+    
     /**
      * @param r
      */
     public Success(T r) {
         super(r);
     }
-
-    @Override
-    public Throwable getThrowable() {
-        return null;
-    }
-
-    @Override
-    public void setThrowable(Throwable e) {
-        return;
-    }
-
-    @Override
-    public T getResult() {
-        return r;
-    }
-
-    @Override
-    public void setResult(T r) {
-        this.r = r;
-    }
-
 
 }
