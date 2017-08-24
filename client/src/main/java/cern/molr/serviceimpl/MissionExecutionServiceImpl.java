@@ -13,6 +13,8 @@ import cern.molr.commons.response.MissionExecutionResponse;
 import cern.molr.commons.response.MissionExecutionResponseBean;
 import cern.molr.commons.response.MissionGenericResponse;
 import cern.molr.commons.response.MissionIntegerResponse;
+import cern.molr.commons.response.MissionStringResponse;
+import cern.molr.commons.response.MissionVoidResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.exception.UnsupportedOutputTypeException;
 import cern.molr.mission.run.RunMissionController;
@@ -73,6 +75,10 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
     private Class<? extends MissionGenericResponse<?>> getMissionResultResponseType(Class<?> c) throws UnsupportedOutputTypeException {
         if(c.equals(Integer.class))
             return MissionIntegerResponse.class;
+        else if(c.equals(String.class))
+            return MissionStringResponse.class;
+        else if(c.equals(Void.class))
+            return MissionVoidResponse.class;
         else
             throw new UnsupportedOutputTypeException("Error occured on client: " + c.getName() + " is not supported yet!");
     }
