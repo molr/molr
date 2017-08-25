@@ -9,7 +9,7 @@ import cern.molr.mission.step.StepSession;
 import cern.molr.mole.supervisor.MoleSpawner;
 
 /**
- * Mole spawner impl for step mode
+ * {@link MoleSpawner} impl for step mode
  * 
  * @author nachivpn 
  * @param <I>

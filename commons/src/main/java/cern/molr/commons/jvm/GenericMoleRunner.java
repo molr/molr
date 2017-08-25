@@ -12,7 +12,9 @@ import cern.molr.mole.Mole;
 /**
  * {@link GenericMoleRunner} Executes a mission & and writes output to STDOUT.
  * NOT used currently, but needed to implement stepping (and eventually maybe even running) 
- * as the entry point to executing {@link cern.molr.commons.domain.Mission}s.
+ * as {@link GenericMoleRunner} serves as an entry point to executing {@link cern.molr.commons.domain.Mission}s.
+ * Using the {@link GenericMoleRunner} for starting a mission on supervisor,
+ * would need some important changes such as sending the input and output class form the client to server in the request
  * 
  * @author nachivpn
  */

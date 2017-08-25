@@ -21,7 +21,7 @@ import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 
 /**
- * {@link MoleSupervisorImpl} is the localized implementation of {@link MoleSupervisor}
+ * {@link MoleSupervisorImpl} is the localized (actual) implementation of {@link MoleSupervisor}
  * 
  * @author nachivpn
  */

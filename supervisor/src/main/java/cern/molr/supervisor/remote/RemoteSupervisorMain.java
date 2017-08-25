@@ -7,9 +7,11 @@ package cern.molr.supervisor.remote;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import cern.molr.mole.supervisor.MoleSupervisor;
+
 
 /**
- * Entry point for mole supervisor (which runs a mission using a suitable mole)
+ * Remote entry point for the {@link MoleSupervisor}
  * 
  * @author nachivpn
  */

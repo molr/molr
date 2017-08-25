@@ -81,12 +81,9 @@ public class SystemMain implements Closeable {
             return JdiControllerImpl.builder()
                     .setClassPath(request.getClassPath())
                     .setEntryListener(entryListener)
-                    //TODO REMOVE nulls and complete impl!!!
+                    //TODO: nulls to be removed and provided with appropriate arguments
                     .setMission(request.getMission(),null,null)
                     .build();
-//        } catch (IllegalConnectorArgumentsException e) {
-//            System.err.println("Bad connection parameters " + request + " when starting JDI:" + e);
-//            throw e;
         } catch (Exception e) {
             System.err.println("Failure when starting JDI instance:" + e);
             throw e;

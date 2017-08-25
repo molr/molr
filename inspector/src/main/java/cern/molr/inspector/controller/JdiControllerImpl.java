@@ -154,6 +154,8 @@ public class JdiControllerImpl implements JdiController, Closeable {
         }
 
         public Builder setMission(Mission mission, Object missionInputObj, Class<?> missionInputClass) {
+            if(missionInputObj==null || missionInputClass == null)
+                throw new RuntimeException("FIX ME: mission input obj & mission input class cannot be null");
             this.mission = mission;
             this.missionInputObj = missionInputObj;
             this.missionInputClass = missionInputClass;

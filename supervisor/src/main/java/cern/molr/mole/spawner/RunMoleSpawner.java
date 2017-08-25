@@ -12,7 +12,7 @@ import cern.molr.mole.supervisor.MoleSpawner;
 
 /**
  * 
- * Mole spawner impl for run mode
+ * {@link MoleSpawner} impl for run mode
  * @author nachivpn 
  * @param <I>
  * @param <O>
