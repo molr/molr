@@ -10,7 +10,8 @@ import java.util.TimerTask;
 
 /**
  * Kills the host JVM is specified amount of time
- * 
+ * <br>
+ * NOTE: Naive attempt, should eventually be replaced in favor of a shutdown hook
  * @author nachivpn
  */
 public class EventualExit extends TimerTask{

@@ -33,7 +33,7 @@ public class ServerRestExecutionService {
     ServerState registry = new ServerState();
 
     public ServerRestExecutionService() {
-        //TODO remove this init code
+        //TODO remove this init code after implementing a deployment service
         MissionMaterializer m = new AnnotatedMissionMaterializer();
         try {
             registry.registerNewMission(m.materialize(RunnableHelloWriter.class));
