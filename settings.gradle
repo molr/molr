@@ -1,2 +1,2 @@
 
-include "api", "client", "server", "supervisor", "sample", "commons"
+include "api", "client", "server", "supervisor", "sample", "commons", "inspector"

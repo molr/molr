@@ -33,6 +33,13 @@ project(":commons") {
     }
 }
 
+project(":inspector") {
+    dependencies {
+        compile project(":api")
+        compile project(":commons")
+    }
+}
+
 project(":sample") {
     dependencies {
         compile project(":api")
@@ -43,6 +50,7 @@ project(":sample") {
 project(":supervisor") {
     dependencies {
         compile project(":sample")
+        compile project(":inspector")
     }
 }
 

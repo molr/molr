@@ -18,6 +18,6 @@ import cern.molr.mole.supervisor.MoleSpawner;
 public class StepMoleSpawner<I,O> implements MoleSpawner<I,O,StepSession>{
     @Override
     public StepSession spawnMoleRunner(Mission m, I args) throws Exception{
-        return null;
+        throw new RuntimeException("Step mole spawner has not been implemented!");
     }
 }
