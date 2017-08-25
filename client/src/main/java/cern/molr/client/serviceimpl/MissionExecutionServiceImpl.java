@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.serviceimpl;
+package cern.molr.client.serviceimpl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
