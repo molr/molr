@@ -32,7 +32,7 @@ import cern.molr.type.Ack;
  */
 public class MissionExecutionServiceImpl implements MissionExecutionService{
 
-    MolrWebClient client = new MolrWebClient("localhost",8080);
+    MolrWebClient client = new MolrWebClient("localhost",8000);
 
     @Override
     public <I, O> CompletableFuture<RunMissionController<O>> runToCompletion(String missionDefnClassName, I args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException {
@@ -40,7 +40,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService{
         MissionExecutionRequest<I> execRequest = new MissionExecutionRequest<>(missionDefnClassName, args);
         return client.post("/mission", MissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
                 .thenApply(tryResp -> tryResp.match(
-                        (Throwable e) -> {throw new CompletionException(e);}, 
+                        (Throwable e) -> {
+                            throw new CompletionException(e);},
                         (MissionExecutionResponseBean resp) -> resp.getMissionExecutionId()))
                 .<RunMissionController<O>> thenApply(missionExecutionId -> new RunMissionController<O>() {
                     @SuppressWarnings("unchecked")

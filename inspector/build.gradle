@@ -4,10 +4,28 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
+task hello {
+    doLast {
+        println new File("${System.properties['java.home']}/../lib/tools.jar").getCanonicalPath()
+    }
+}
+
 version = "0.1"
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
-    compile files("${System.properties['java.home']}/../lib/tools.jar")
+    compile name: 'jdiscript-0.1'
+}
+
+
+
+dependencies {
+    compile files(new File("${System.properties['java.home']}/../lib/tools.jar").getCanonicalPath())
     compile group: "com.google.code.gson", name: "gson", version: "2.+"
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.+'
     compile (group: 'cern.molr', name: 'jdiscript', version: '0.1')

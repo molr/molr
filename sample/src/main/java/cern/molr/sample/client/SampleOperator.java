@@ -58,8 +58,9 @@ public class SampleOperator {
     
     public Integer operatorRun3() throws Exception{
         CompletableFuture<RunMissionController<Integer>> futureController = 
-                mExecService.<Integer, Integer>runToCompletion("cern.molr.sample.mission.Fibonacci", 
+                mExecService.<Integer, Integer>runToCompletion("cern.molr.sample.mission.Fibonacc",
                         42, Integer.class, Integer.class);
+
         try {
             RunMissionController<Integer> controller = futureController.get();
             CompletableFuture<Ack> cancelResult = controller.cancel();
