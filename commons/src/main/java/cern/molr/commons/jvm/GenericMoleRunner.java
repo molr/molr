@@ -4,19 +4,24 @@
 
 package cern.molr.commons.jvm;
 
+import cern.molr.exception.MissionExecutionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cern.molr.commons.MissionImpl;
 import cern.molr.mole.Mole;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
 /**
  * {@link GenericMoleRunner} Executes a mission & and writes output to STDOUT.
  * NOT used currently, but needed to implement stepping (and eventually maybe even running) 
- * as {@link GenericMoleRunner} serves as an entry point to executing {@link cern.molr.commons.domain.Mission}s.
+ * as {@link GenericMoleRunner} serves as an entry point to executing {@link cern.molr.mission.Mission}s.
  * Using the {@link GenericMoleRunner} for starting a mission on supervisor,
  * would need some important changes such as sending the input and output class form the client to server in the request
  * 
  * @author nachivpn
+ * @author yassine
  */
 public class GenericMoleRunner {
 
@@ -44,13 +49,26 @@ public class GenericMoleRunner {
             
             /*instantiate and run mole*/
             Mole<Object,Object> mole = createMoleInstance(mission.getMoleClassName());
-            Object missionOutput = mole.run(mission, missionInput);
-            
-            /*serialize output & write it to stdout*/
-            String missionOutputString = mapper.writeValueAsString(missionOutput);
-            System.out.print(missionOutputString);
-            
-        } catch (Exception e) {
+
+            CompletableFuture<Object> future=CompletableFuture.supplyAsync(()->{
+                try {
+                    return mole.run(mission, missionInput);
+                } catch (MissionExecutionException e) {
+                    throw new CompletionException(e);
+                }
+            });
+
+            try {
+                /*serialize output & write it to stdout*/
+                String missionOutputString = mapper.writeValueAsString(future.get());
+                System.out.print(missionOutputString);
+            }catch (Exception e){
+                throw e.getCause();
+            }
+
+
+        } catch (Throwable e) {
+            e.printStackTrace();
             System.exit(-1);
         }
 

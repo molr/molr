@@ -10,6 +10,9 @@ import cern.molr.mission.Mission;
 
 /**
  * A request to instantiate an inspector with a given classpath and a {@link Mission} to run.
+ *
+ * @author ?
+ * @author yassine
  */
 public interface InstantiationRequest {
 
@@ -26,5 +29,17 @@ public interface InstantiationRequest {
      * @return A {@link Mission} containing information about what main class to run with what arguments.
      */
     Mission getMission();
+
+    /**
+     * Input object of the mission
+     * @return
+     */
+    Object getInputObject();
+
+    /**
+     * Input type
+     * @return
+     */
+    String getInputClassName();
 
 }

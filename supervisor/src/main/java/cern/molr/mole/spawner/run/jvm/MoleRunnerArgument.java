@@ -2,25 +2,25 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.commons.jvm;
+package cern.molr.mole.spawner.run.jvm;
 
 /**
- * Input argument type for {@link GenericMoleRunner}
+ * Input argument type for {@link MoleRunner}
  * Should be serialized and passed as arg[0]
  * @author nachivpn
  * @author yassine
  */
-public class GenericMoleRunnerArgument {
+public class MoleRunnerArgument {
 
     private String missionObjString;
     private String missionInputObjString;
     private String missionInputClassName;
 
-    public GenericMoleRunnerArgument() {
+    public MoleRunnerArgument() {
     }
 
-    public GenericMoleRunnerArgument(String missionObjString,
-                                     String missionInputObjString, String missionInputClassName) {
+    public MoleRunnerArgument(String missionObjString,
+                              String missionInputObjString, String missionInputClassName) {
         this.setMissionObjString(missionObjString);
         this.setMissionInputObjString(missionInputObjString);
         this.setMissionInputClassName(missionInputClassName);

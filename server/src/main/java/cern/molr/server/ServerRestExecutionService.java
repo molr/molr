@@ -26,7 +26,8 @@ import cern.molr.type.Ack;
 /**
  * Gateway used for communication between server and supervisors
  * 
- * @author nachivpn,yassine
+ * @author nachivpn
+ * @author yassine
  */
 @Service
 public class ServerRestExecutionService {

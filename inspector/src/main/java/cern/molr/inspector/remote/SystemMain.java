@@ -14,6 +14,7 @@ import cern.molr.inspector.entry.EntryListener;
 import cern.molr.inspector.json.MissionTypeAdapter;
 import cern.molr.mission.Mission;
 
+import cern.molr.mole.Mole;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
@@ -26,6 +27,8 @@ import java.util.concurrent.Future;
 /**
  * An entry point for creating a {@link JdiController} which communicates via
  * {@link System#in} and {@link System#out}. {@link System#err} is used to communicate errors from the process.
+ * @author ?
+ * @author yassine
  */
 public class SystemMain implements Closeable {
 
@@ -53,6 +56,7 @@ public class SystemMain implements Closeable {
         });
 
         controller.setOnClose(this::close);
+
     }
 
     private static void logLine(BufferedReader reader) throws IOException {
@@ -70,9 +74,11 @@ public class SystemMain implements Closeable {
             PrintWriter outputWriter = new PrintWriter(System.out);
             EntryListenerWriter writer = new EntryListenerWriter(outputWriter);
 
+
             JdiControllerImpl controller = startJdi(request, writer);
             new JdiControllerReader(new BufferedReader(new InputStreamReader(System.in)), controller);
             new SystemMain(controller, writer);
+
         }
     }
 
@@ -81,8 +87,7 @@ public class SystemMain implements Closeable {
             return JdiControllerImpl.builder()
                     .setClassPath(request.getClassPath())
                     .setEntryListener(entryListener)
-                    //TODO: nulls to be removed and provided with appropriate arguments
-                    .setMission(request.getMission(),null,null)
+                    .setMission(request.getMission(),request.getInputObject(),Class.forName(request.getInputClassName()))
                     .build();
         } catch (Exception e) {
             System.err.println("Failure when starting JDI instance:" + e);

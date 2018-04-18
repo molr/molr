@@ -8,6 +8,7 @@ import cern.molr.client.serviceimpl.MissionExecutionServiceImpl;
 import cern.molr.client.serviceimpl.adapter.MissionExecutionServiceAdapterImpl;
 import cern.molr.sample.client.SampleOperator;
 import cern.molr.sample.client.SampleOperatorAdapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Example implementation of client's usage & functionalities using samples

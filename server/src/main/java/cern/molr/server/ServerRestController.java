@@ -9,8 +9,10 @@ import java.util.concurrent.CompletableFuture;
 import cern.molr.commons.response.*;
 import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.server.request.supervisor.SupervisorRegisterRequest;
+import cern.molr.server.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
 import cern.molr.server.supervisor.SupervisorsManagerImpl;
+import cern.molr.type.Ack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +31,14 @@ import cern.molr.exception.UnknownMissionException;
 import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionExecutionRequest;
 import cern.molr.server.request.MissionResultRequest;
+import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
+import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseFailure;
 
 /**
  * {@link RestController} for {@link ServerMain} spring application
  * 
- * @author nachivpn,yassine
+ * @author nachivpn
+ * @author yassine
  */
 @RestController
 public class ServerRestController {
@@ -76,7 +81,7 @@ public class ServerRestController {
     }
 
     @RequestMapping(path = "/cancel", method = RequestMethod.POST)
-    public CompletableFuture<MissionCancelResponse> result(@RequestBody MissionCancelRequest request) {
+    public CompletableFuture<MissionCancelResponse> cancel(@RequestBody MissionCancelRequest request) {
         try {
             return meGateway.cancel(request.getMissionExecutionId())
                     .<MissionCancelResponse>thenApply(MissionCancelResponseSuccess::new)
@@ -96,7 +101,19 @@ public class ServerRestController {
                 return new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id));
             }).exceptionally(SupervisorRegisterResponseFailure::new);
         } catch (Exception e) {
-            return CompletableFuture.supplyAsync(SupervisorRegisterResponseFailure::new);
+            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(e));
+        }
+    }
+
+    @RequestMapping(path = "/unregister", method = RequestMethod.POST)
+    public CompletableFuture<SupervisorUnregisterResponse> register(@RequestBody SupervisorUnregisterRequest request) {
+        try {
+            return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
+                supervisorsManager.removeSupervisor(request.getId());
+                return new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully"));
+            }).exceptionally(SupervisorUnregisterResponseFailure::new);
+        } catch (Exception e) {
+            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(e));
         }
     }
 

@@ -3,6 +3,11 @@ package cern.molr.server.request.supervisor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A request sent by a supervisor to register itself in MolR Server
+ *
+ * @author yassine
+ */
 public class SupervisorRegisterRequest {
 
     private String host;

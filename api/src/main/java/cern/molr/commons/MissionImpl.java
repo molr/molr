@@ -16,6 +16,7 @@ import cern.molr.mission.Mission;
  *
  * @author tiagomr
  * @author mgalilee
+ * @author yassine
  */
 public class MissionImpl implements Mission {
 
@@ -60,6 +61,14 @@ public class MissionImpl implements Mission {
 
     public List<String> getTasksNames() {
         return new ArrayList<>(tasks);
+    }
+
+    public void setMoleClassName(String moleClassName) {
+        this.moleClassName = moleClassName;
+    }
+
+    public void setMissionDefnClassName(String missionContentClassName) {
+        this.missionContentClassName = missionContentClassName;
     }
 
     @Override

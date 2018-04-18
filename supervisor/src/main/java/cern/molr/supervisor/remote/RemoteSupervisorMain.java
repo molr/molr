@@ -20,7 +20,8 @@ import java.util.Arrays;
 /**
  * Remote entry point for the {@link MoleSupervisor}
  * 
- * @author nachivpn,yassine
+ * @author nachivpn
+ * @author yassine
  */
 @SpringBootApplication
 public class RemoteSupervisorMain {

@@ -7,11 +7,13 @@
 package cern.molr.inspector.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
+import cern.molr.mole.Mole;
 import org.jdiscript.JDIScript;
 import org.jdiscript.util.VMLauncher;
 
@@ -26,6 +28,8 @@ import cern.molr.mission.Mission;
 
 /**
  * A builder to help create and spawn running VM's {@link JdiInstanceBuilder}.
+ * @author ?
+ * @author yassine
  */
 public class JdiInstanceBuilder {
 
@@ -57,18 +61,18 @@ public class JdiInstanceBuilder {
 
             Runtime.getRuntime().addShutdownHook(new Thread(launcher.getProcess()::destroy));
 
-//            TODO UNCOMMENT THIS and COMPLETE!
-//            ClassInstantiationListener instantiationListener =
-//                    new ClassInstantiationListener(mission.getMissionDefnClassName(),
-//                            classType -> mission.getTasksNames().forEach(methodName ->
-//                                    eventHandler.registerClassInstantiation(classType, methodName)));
+            ClassInstantiationListener instantiationListener =
+                    new ClassInstantiationListener(mission.getMissionDefnClassName(),
+                            classType -> Arrays.asList(mission.getClass().getDeclaredMethods()).forEach(method ->
+                                    eventHandler.registerClassInstantiation(classType, method.getName())));
 
             ExecutorService executorService = Executors.newFixedThreadPool(1);
             executorService.submit(() -> {
-//                jdi.onClassPrep(instantiationListener);
+                jdi.onClassPrep(instantiationListener);
                 jdi.run(eventHandler);
             });
             executorService.shutdown();
+
             return jdi;
         } catch (VMStartException | IllegalConnectorArgumentsException e) {
             throw new IOException("Failed to start VM: ", e);

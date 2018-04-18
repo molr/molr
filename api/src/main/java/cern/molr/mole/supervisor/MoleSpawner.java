@@ -9,7 +9,8 @@ import cern.molr.mission.Mission;
 /**
  * The {@link MoleSpawner} runs a given mission by instantiating (or spawning) a mole and asking it to run the mission
  * 
- * @author nachivpn 
+ * @author nachivpn
+ * @author yassine
  * @param <T> - return type of the spawn action (it could be a session)
  */
 public interface MoleSpawner<I,O,T> {
