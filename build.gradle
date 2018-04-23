@@ -10,7 +10,7 @@ allprojects {
 
     repositories {
         maven {
-            url { "http://artifactory.cern.ch" }
+            url { "http://artifactory.cern.ch/mpe-release-local" }
         }
         mavenCentral()
         maven { url "https://repo.spring.io/snapshot" }

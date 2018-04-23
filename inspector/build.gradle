@@ -6,11 +6,6 @@
 
 version = "0.1"
 
-dependencies {
-    compile name: 'jdiscript-0.1'
-}
-
-
 
 dependencies {
     compile files(new File("${System.properties['java.home']}/../lib/tools.jar").getCanonicalPath())
