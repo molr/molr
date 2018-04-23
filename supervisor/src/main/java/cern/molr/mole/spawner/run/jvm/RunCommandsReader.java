@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.time.Duration;
 
 /**
- * A reader which continually listens for commands from a {@link BufferedReader}.
+ * A reader which continually reads commands from a {@link BufferedReader}.
  * @author yassine
  */
 public class RunCommandsReader extends RemoteReader {

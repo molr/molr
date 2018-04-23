@@ -15,6 +15,7 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -63,12 +64,16 @@ public class MoleRunner implements MoleCommandListener {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
                     " the fully qualified domain name of the Mole to be used and the fully qualified domain name of the " +
                     "Mission to be executed");
         }
+        ObjectMapper mapper=new ObjectMapper();
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        System.out.println(mapper.writeValueAsString(new RunEvents.JVMInstantiated()));
         new MoleRunner(args[0]);
         while(true);
     }
@@ -108,16 +113,6 @@ public class MoleRunner implements MoleCommandListener {
             }
         });
 
-        /*
-        new Thread(()->{
-            try {
-
-            }catch (Exception e){
-                e.getCause().printStackTrace();
-                System.exit(-1);
-            }
-        }).start();
-        */
     }
 
     /**

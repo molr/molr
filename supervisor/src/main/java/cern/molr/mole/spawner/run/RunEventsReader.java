@@ -1,10 +1,13 @@
 package cern.molr.mole.spawner.run;
 
+import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.inspector.remote.RemoteReader;
 import cern.molr.mole.Mole;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +18,8 @@ import java.time.Duration;
  * @author yassine
  */
 public class RunEventsReader extends RemoteReader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunEventsReader.class);
 
     private ObjectMapper mapper=new ObjectMapper();
     private MoleExecutionListener listener;
@@ -42,7 +47,7 @@ public class RunEventsReader extends RemoteReader {
             final String line = reader.readLine();
             MoleExecutionEvent event=mapper.readValue(line,MoleExecutionEvent.class);
             listener.onEvent(event);
-            System.out.println(line);
+            LOGGER.info("Reading string event from JVM: {}", line);
         } catch (IOException e) {
             e.printStackTrace();
         }

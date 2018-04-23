@@ -1,4 +1,4 @@
-package cern.molr.server.request.supervisor;
+package cern.molr.commons.request.supervisor;
 
 import java.util.ArrayList;
 import java.util.List;

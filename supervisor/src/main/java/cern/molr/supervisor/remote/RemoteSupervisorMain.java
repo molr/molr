@@ -7,7 +7,7 @@ package cern.molr.supervisor.remote;
 import cern.molr.commons.response.SupervisorRegisterResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.mole.supervisor.MoleSupervisor;
-import cern.molr.server.request.supervisor.SupervisorRegisterRequest;
+import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -19,7 +19,8 @@ import java.util.Arrays;
 
 /**
  * Remote entry point for the {@link MoleSupervisor}
- * 
+ * When the server is ready, it sends a register request to MolR Server
+ * TODO Get the real host address of the server instead of 'localhost'
  * @author nachivpn
  * @author yassine
  */

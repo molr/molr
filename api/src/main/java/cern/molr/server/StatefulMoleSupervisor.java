@@ -3,7 +3,7 @@ package cern.molr.server;
 import cern.molr.mole.supervisor.MoleSupervisor;
 
 /**
- * It represent supervisor which can tell whether is idle or not
+ * It represents a supervisor which can tell whether it is idle or not
  *
  * @author yassine
  */

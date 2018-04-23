@@ -9,7 +9,7 @@ import cern.molr.mole.supervisor.MoleSpawner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * A spawner which run a mission
+ * A spawner which creates a JVM that executes the mission
  * @author yassine
  */
 public class RunSpawner<I> implements MoleSpawner<I,Void,RunSession> {

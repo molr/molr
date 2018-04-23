@@ -1,7 +1,7 @@
 package cern.molr.mole.supervisor;
 
 /**
- * Controller of an execution of a mole being executed on separate JVM
+ * Controller of an execution of a mole being executed in separate JVM
  *
  * @author yassine
  */

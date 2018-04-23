@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- * It adapts {@link CompletableFuture < {@link Ack} >}, used to throw meaningful exceptions
+ * It adapts {@link CompletableFuture <{@link Ack}>}, used to throw meaningful exceptions
  *
  * @author yassine
  */

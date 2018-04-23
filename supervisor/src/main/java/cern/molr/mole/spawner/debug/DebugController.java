@@ -15,7 +15,7 @@ import java.util.Set;
 import static cern.molr.mole.spawner.debug.DebugCommand.START;
 
 /**
- * A controller which control debugging of a mission.
+ * A controller which controls debugging of a mission.
  * It communicates with JVM using output and input streams
  *
  * @author yassine

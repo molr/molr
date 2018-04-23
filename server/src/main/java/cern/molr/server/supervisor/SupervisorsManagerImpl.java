@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implemntation of a SupervisorsManager wchich choose the first idle appropriate supervisor found to run a mission
+ * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
  *
  * @author yassine
  */

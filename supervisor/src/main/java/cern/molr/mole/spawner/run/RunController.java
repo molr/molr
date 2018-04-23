@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * A controller which control running a mission
+ * A controller which controls running of a mission
  * It communicates with JVM using output and input streams
  *
  * @author yassine
@@ -74,7 +74,6 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         listeners.remove(listener);
     }
 
-    @Override
     public MoleExecutionRequestCommandResult start() {
         MoleExecutionCommand command=new RunCommands.Start();
         return sendCommand(command);
@@ -103,7 +102,6 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         }
     }
 
-    @Override
     public MoleExecutionRequestCommandResult terminate() {
         MoleExecutionCommand command=new RunCommands.Terminate();
         return sendCommand(command);

@@ -3,7 +3,7 @@ package cern.molr.mole.spawner.run;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 
 /**
- * Command used to run missions
+ * Commands used to run missions
  * @author yassine
  */
 public abstract class RunCommands {

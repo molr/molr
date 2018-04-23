@@ -1,6 +1,4 @@
-/**
- * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
- */
+package cern.molr.mole.spawner;
 
 import cern.molr.commons.RunWithMole;
 import cern.molr.sample.mole.IntegerFunctionMole;

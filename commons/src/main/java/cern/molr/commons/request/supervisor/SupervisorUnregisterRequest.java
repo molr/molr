@@ -1,4 +1,4 @@
-package cern.molr.server.request.supervisor;
+package cern.molr.commons.request.supervisor;
 
 /**
  * A request sent by a supervisor to unregister itself from MolR server

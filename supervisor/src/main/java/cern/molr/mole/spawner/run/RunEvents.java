@@ -73,4 +73,23 @@ public abstract class RunEvents {
         }
     }
 
+    public static class MissionException implements MoleExecutionEvent{
+        private Throwable throwable;
+
+        public MissionException() {
+        }
+
+        public MissionException(Throwable throwable) {
+            this.throwable = throwable;
+        }
+
+        public Throwable getThrowable() {
+            return throwable;
+        }
+    }
+
+    public static class JVMInstantiated implements MoleExecutionEvent{
+
+    }
+
 }

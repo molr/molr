@@ -8,8 +8,8 @@ import java.util.concurrent.CompletableFuture;
 
 import cern.molr.commons.response.*;
 import cern.molr.exception.NoAppropriateSupervisorFound;
-import cern.molr.server.request.supervisor.SupervisorRegisterRequest;
-import cern.molr.server.request.supervisor.SupervisorUnregisterRequest;
+import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
+import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
 import cern.molr.server.supervisor.SupervisorsManagerImpl;
 import cern.molr.type.Ack;

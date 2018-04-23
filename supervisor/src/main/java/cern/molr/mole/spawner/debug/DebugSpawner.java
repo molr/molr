@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * A spawner which debug on the mission
+ * A spawner which creates debugging JVM of the mission
  * @author yassine
  */
 public class DebugSpawner<I> implements MoleSpawner<I,Void,DebugSession> {

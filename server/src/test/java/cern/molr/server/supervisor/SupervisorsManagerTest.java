@@ -1,8 +1,9 @@
+package cern.molr.server.supervisor;
+
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
-import cern.molr.server.supervisor.SupervisorsManagerImpl;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 import org.junit.Assert;
@@ -15,11 +16,11 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Class for testing SupervisorsManagerImpl
+ * Class for testing {@link SupervisorsManagerImpl}
  *
  * @author yassine
  */
-public class TestSupervisorsManager {
+public class SupervisorsManagerTest {
 
     private SupervisorsManager manager=new SupervisorsManagerImpl();
 

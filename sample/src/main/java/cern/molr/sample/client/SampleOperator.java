@@ -13,6 +13,7 @@ import cern.molr.type.Ack;
  * Sample implementation and usage of the operator's interfaces to demonstrate communication
  * 
  * @author nachivpn
+ * @author yassine
  */
 public class SampleOperator {
 

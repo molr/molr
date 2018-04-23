@@ -6,12 +6,13 @@ import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.supervisor.impl.MoleSupervisorProxy;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
+import cern.molr.mole.supervisor.MoleSupervisor;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Implementation of a proxy MoleSupervisor which is able to return whether it is idle or not based on the state of its completableFuture
- * a better solution would be to ask MoleSupervisor server
+ * a better solution would be to ask {@link MoleSupervisor server}
  *
  * @author yassine
  */
