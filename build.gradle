@@ -18,15 +18,19 @@ allprojects {
     }
 
     dependencies {
-        compile 'org.slf4j:slf4j-api:1.7.16'
-        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.+'
-        compile group: 'org.springframework', name: 'spring-webflux', version: '5.0.5.RELEASE'
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+        compile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
 
-        compile( group: 'org.springframework.boot', name: 'spring-boot-starter-integration', version: '2.0.0.M7')
-        compile 'org.springframework:spring-websocket:5.0.0.RELEASE'
-        compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: '0.7.6.RELEASE'
-        compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.5'
+        compile group: 'org.springframework', name: 'spring-webflux', version: springFrameworkVersion
+        compile group: 'org.springframework', name:'spring-websocket', version: springFrameworkVersion
+
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-integration', version: springBootVersion
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
+
+        compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: reactiveNettyVersion
+        compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: fasterXmlJacksonVersion
+
+        testCompile group: 'junit', name: 'junit', version: jUnitVersion
 
     }
 

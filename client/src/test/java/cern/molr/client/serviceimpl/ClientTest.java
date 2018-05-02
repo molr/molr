@@ -8,17 +8,11 @@ import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
 import cern.molr.sample.mission.Fibonacci;
-import cern.molr.sample.mission.RunnableHelloWriter;
-import cern.molr.server.request.MissionExecutionRequest;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Assert;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -52,7 +46,12 @@ public class ClientTest {
                System.out.println("response to start: "+response);
                commandResponses.add(response);
            });
-           controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
                System.out.println("response to terminate: "+response);
                commandResponses.add(response);
            });
