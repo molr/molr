@@ -9,8 +9,44 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
 public abstract class RunCommands {
     public static class Start implements MoleExecutionCommand {
 
+        private String missionId;
+
+        public Start() {
+        }
+
+        public Start(String missionId) {
+            this.missionId = missionId;
+        }
+
+        @Override
+        public String getId() {
+            return missionId;
+        }
+
+        @Override
+        public void setId(String missionId) {
+            this.missionId = missionId;
+        }
     }
     public static class Terminate implements MoleExecutionCommand {
 
+        private String missionId;
+
+        public Terminate() {
+        }
+
+        public Terminate(String missionId) {
+            this.missionId = missionId;
+        }
+
+        @Override
+        public String getId() {
+            return missionId;
+        }
+
+        @Override
+        public void setId(String missionId) {
+            this.missionId = missionId;
+        }
     }
 }

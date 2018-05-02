@@ -11,9 +11,9 @@ public interface MoleExecutionController {
 
     void removeMoleExecutionListener(MoleExecutionListener listener);
 
-    MoleExecutionRequestCommandResult start();
+    MoleExecutionResponseCommand start();
 
-    MoleExecutionRequestCommandResult sendCommand(MoleExecutionCommand command);
+    MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command);
 
-    MoleExecutionRequestCommandResult terminate();
+    MoleExecutionResponseCommand terminate();
 }

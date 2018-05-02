@@ -32,10 +32,12 @@ public class RemoteSupervisorMain {
     }
 
     @Component
-    public static class MyListener implements ApplicationListener<WebServerInitializedEvent> {
+    public static class Listener implements ApplicationListener<WebServerInitializedEvent> {
 
         @Override
         public void onApplicationEvent(final WebServerInitializedEvent event) {
+
+
             int port = event.getWebServer().getPort();
 
             MolrWebClient client=new MolrWebClient("localhost", 8000);
@@ -43,7 +45,9 @@ public class RemoteSupervisorMain {
                     "cern.molr.sample.mission.RunnableHelloWriter",
                     "cern.molr.sample.mission.IntDoubler",
                     "cern.molr.sample.mission.Fibonacci"));
-            client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
+            client.post("/registerNew",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
+
+
         }
     }
 }

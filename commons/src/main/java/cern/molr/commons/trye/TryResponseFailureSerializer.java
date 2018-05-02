@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 /**
- * Serializer which save real exception class name
+ * Serializer which saves real exception class name
  * @author yassine
  */
 public class TryResponseFailureSerializer<T> extends JsonSerializer<TryResponseFailure<T>> {

@@ -31,12 +31,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Class for testing SupervisorsManagerImpl
  *
+ * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
+ *
  * @author yassine
  */
 public class RunSpawnerTest {
 
-    private <I> MoleExecutionController getController(Class<?> missionClass,I args) throws Exception {
-        RunSpawner<I> spawner=new RunSpawner<>();
+    private <I> MoleExecutionController getController(Class<?> missionClass, I args) throws Exception {
+        RunSpawner<I> spawner= new RunSpawner<>();
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(missionClass);
         MoleSession session=spawner.spawnMoleRunner(mission,args);

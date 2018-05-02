@@ -11,7 +11,9 @@ import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
+import cern.molr.server.supervisor.StatefulMoleSupervisorProxyNew;
 import cern.molr.server.supervisor.SupervisorsManagerImpl;
+import cern.molr.server.supervisor.SupervisorsManagerImplNew;
 import cern.molr.type.Ack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,15 +45,63 @@ import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregis
 @RestController
 public class ServerRestController {
 
+    //TODO should be removed
     private final ServerRestExecutionService meGateway;
+
+    //TODO should be removed
     private SupervisorsManager supervisorsManager=new SupervisorsManagerImpl();
 
-    @Autowired
-    public ServerRestController(ServerRestExecutionService meGateway) {
+    private final ServerRestExecutionServiceNew newGateway;
+    private final SupervisorsManagerNew newSupervisorsManager;
+
+    public ServerRestController(ServerRestExecutionService meGateway,ServerRestExecutionServiceNew newGateway,SupervisorsManagerNew newSupervisorsManager) {
         this.meGateway = meGateway;
         this.meGateway.setSupervisorsManager(supervisorsManager);
+
+        this.newGateway=newGateway;
+        this.newSupervisorsManager=newSupervisorsManager;
     }
 
+
+    @RequestMapping(path = "/instantiate", method = RequestMethod.POST)
+    public <I> MissionExecutionResponse instantiateMission(@RequestBody MissionExecutionRequest<I> request) {
+        try {
+            String mEId = newGateway.instantiate(request.getMissionDefnClassName(), request.getArgs());
+            return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
+        } catch (UnknownMissionException|NoAppropriateSupervisorFound e) {
+            return new MissionExecutionResponseFailure(e);
+        }
+
+    }
+
+    //TODO remove "New" from method name
+    @RequestMapping(path = "/registerNew", method = RequestMethod.POST)
+    public CompletableFuture<SupervisorRegisterResponse> registerNew(@RequestBody SupervisorRegisterRequest request) {
+        try {
+            return CompletableFuture.<SupervisorRegisterResponse>supplyAsync(() ->{
+                StatefulMoleSupervisorNew moleSupervisor = new StatefulMoleSupervisorProxyNew(request.getHost(),request.getPort());
+                String id=newSupervisorsManager.addSupervisor(moleSupervisor,request.getAcceptedMissions());
+                return new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id));
+            }).exceptionally(SupervisorRegisterResponseFailure::new);
+        } catch (Exception e) {
+            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(e));
+        }
+    }
+
+    //TODO remove "New" from method name
+    @RequestMapping(path = "/unregisterNew", method = RequestMethod.POST)
+    public CompletableFuture<SupervisorUnregisterResponse> uNregisterNew(@RequestBody SupervisorUnregisterRequest request) {
+        try {
+            return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
+                newSupervisorsManager.removeSupervisor(request.getId());
+                return new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully"));
+            }).exceptionally(SupervisorUnregisterResponseFailure::new);
+        } catch (Exception e) {
+            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(e));
+        }
+    }
+
+    //TODO should be removed
     @RequestMapping(path = "/mission", method = RequestMethod.POST)
     public <I> MissionExecutionResponse newMission(@RequestBody MissionExecutionRequest<I> request) {
         try {
@@ -69,6 +119,7 @@ public class ServerRestController {
 
     }
 
+    //TODO should be removed
     @RequestMapping(path = "/result", method = RequestMethod.POST)
     public CompletableFuture<MissionGenericResponse<Object>> result(@RequestBody MissionResultRequest request) {
         try {
@@ -80,6 +131,7 @@ public class ServerRestController {
         }
     }
 
+    //TODO should be removed
     @RequestMapping(path = "/cancel", method = RequestMethod.POST)
     public CompletableFuture<MissionCancelResponse> cancel(@RequestBody MissionCancelRequest request) {
         try {
@@ -91,7 +143,7 @@ public class ServerRestController {
         }
     }
 
-
+    //TODO should be removed
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public CompletableFuture<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         try {
@@ -105,8 +157,9 @@ public class ServerRestController {
         }
     }
 
+    //TODO should be removed
     @RequestMapping(path = "/unregister", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorUnregisterResponse> register(@RequestBody SupervisorUnregisterRequest request) {
+    public CompletableFuture<SupervisorUnregisterResponse> uNregister(@RequestBody SupervisorUnregisterRequest request) {
         try {
             return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
                 supervisorsManager.removeSupervisor(request.getId());

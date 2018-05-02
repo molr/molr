@@ -12,8 +12,6 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
-import static cern.molr.mole.spawner.debug.DebugCommand.START;
-
 /**
  * A controller which controls debugging of a mission.
  * It communicates with JVM using output and input streams
@@ -68,14 +66,14 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
     }
 
     @Override
-    public MoleExecutionRequestCommandResult start() {
+    public MoleExecutionResponseCommand start() {
         //printWriter.print();
         printWriter.flush();
-        return new RequestCommandResult.RequestCommandResultSuccess();
+        return new ResponseCommand.ResponseCommandSuccess();
     }
 
     @Override
-    public MoleExecutionRequestCommandResult sendCommand(MoleExecutionCommand command) {
+    public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
         DebugCommand c=(DebugCommand)command;
         switch(c){
             case STEP:
@@ -87,14 +85,14 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
                 printWriter.flush();
                 break;
         }
-        return new RequestCommandResult.RequestCommandResultSuccess();
+        return new ResponseCommand.ResponseCommandSuccess();
     }
 
     @Override
-    public MoleExecutionRequestCommandResult terminate() {
+    public MoleExecutionResponseCommand terminate() {
         printWriter.print(JdiControllerCommand.TERMINATE.ordinal());
         printWriter.flush();
-        return new RequestCommandResult.RequestCommandResultSuccess();
+        return new ResponseCommand.ResponseCommandSuccess();
     }
 
     @Override

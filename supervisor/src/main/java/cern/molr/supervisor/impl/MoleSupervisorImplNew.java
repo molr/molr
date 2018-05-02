@@ -4,7 +4,6 @@ import cern.molr.mission.Mission;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
 import cern.molr.mole.supervisor.*;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -34,7 +33,7 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
     }
 
     @Override
-    public Mono<MoleExecutionRequestCommandResult> instruct(MoleExecutionCommand command, String missionExecutionId) {
+    public Mono<MoleExecutionResponseCommand> instruct(MoleExecutionCommand command) {
         return Mono.just(session.getController().sendCommand(command));
     }
 }

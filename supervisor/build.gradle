@@ -1,6 +1,6 @@
 dependencies {
     compile( group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.0.0.M2')
     compile (group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0')
-    compile (group: 'io.projectreactor.addons', name:'reactor-test', version: '1.0.0.BUILD-SNAPSHOT')
+    //compile (group: 'io.projectreactor.addons', name:'reactor-test', version: '1.0.0.BUILD-SNAPSHOT')
     testCompile project(':supervisor').sourceSets.main.output
 }
