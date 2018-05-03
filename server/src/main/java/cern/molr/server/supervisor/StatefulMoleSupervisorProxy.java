@@ -52,4 +52,5 @@ public class StatefulMoleSupervisorProxy extends MoleSupervisorProxy implements 
     public boolean isIdle() {
         return completableFuture == null || completableFuture.isDone();
     }
+
 }

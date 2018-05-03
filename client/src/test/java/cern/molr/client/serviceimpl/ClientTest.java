@@ -65,4 +65,70 @@ public class ClientTest {
         Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses.get(0).getClass());
         Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses.get(1).getClass());
     }
+
+    /**
+     * To run this test MolR Server must be started at port 8000 (it is defined in file "application.properties" of the module "server")
+     * Supervisor Server must be started after to be registered in MolR
+     * @throws Exception
+     */
+    @Test
+    public void TwoMissionsTest() throws Exception {
+
+        List<MoleExecutionEvent> events1=new ArrayList<>();
+        List<MoleExecutionResponseCommand> commandResponses1=new ArrayList<>();
+
+        List<MoleExecutionEvent> events2=new ArrayList<>();
+
+        MissionExecutionServiceNew service=new MissionExecutionServiceImplNew();
+        Mono<RunMissionControllerNew> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+
+        futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+            controller.getFlux().subscribe((event)->{
+                System.out.println("event(1): "+event);
+                events1.add(event);
+            });
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(1) to start: "+response);
+                commandResponses1.add(response);
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+                System.out.println("response(1) to terminate: "+response);
+                commandResponses1.add(response);
+            });
+        });
+
+        Thread.sleep(5000);
+
+        Mono<RunMissionControllerNew> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+
+
+        futureController2.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+            controller.getFlux().subscribe((event)->{
+                System.out.println("event(2): "+event);
+                events2.add(event);
+            });
+        });
+
+        Thread.sleep(12000);
+
+
+        /*
+        Assert.assertEquals(2, events1.size());
+        Assert.assertEquals(RunEvents.JVMInstantiated.class,events1.get(0).getClass());
+        Assert.assertEquals(RunEvents.MissionStarted.class,events1.get(1).getClass());
+        Assert.assertEquals(2,commandResponses1.size());
+        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses1.get(0).getClass());
+        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses1.get(1).getClass());
+
+
+        Assert.assertEquals(1,events2.size());
+        Assert.assertEquals(RunEvents.MissionException.class,events2.get(0).getClass());
+        */
+
+    }
 }

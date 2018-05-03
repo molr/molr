@@ -1,5 +1,9 @@
 package cern.molr.server.supervisor;
 
+import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
+import cern.molr.commons.response.SupervisorRegisterResponse;
+import cern.molr.commons.response.SupervisorStateResponse;
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.mission.Mission;
 import cern.molr.mission.step.StepResult;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
@@ -11,12 +15,16 @@ import cern.molr.server.StatefulMoleSupervisorNew;
 import cern.molr.supervisor.impl.MoleSupervisorProxy;
 import cern.molr.supervisor.impl.MoleSupervisorProxyNew;
 import cern.molr.supervisor.request.MissionExecutionRequest;
+import cern.molr.supervisor.request.SupervisorStateRequest;
 import cern.molr.type.Ack;
 import cern.molr.type.either.Either;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 /**
  * Implementation of a proxy MoleSupervisor which is able to return whether it is idle or not based on the state of its completableFuture
@@ -40,9 +48,18 @@ public class StatefulMoleSupervisorProxyNew extends MoleSupervisorProxyNew imple
         return super.instruct(command);
     }
 
+
+    //TODO when MolR server is unable to get the state of the supervisor, it should unregister it from supervisors manager
     @Override
-    public boolean isIdle() {
-        //TODO to implement
-        return true;
+    public Optional<State> getState() {
+        try {
+            return client.post("/getState",SupervisorStateRequest.class,new SupervisorStateRequest(),SupervisorStateResponse.class).get().match((throwable)->{
+                throwable.printStackTrace();
+                return Optional.empty();
+            }, Optional::<State>ofNullable);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 }

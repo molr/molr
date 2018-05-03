@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
  */
 public class MoleSupervisorImplNew implements MoleSupervisorNew {
 
-    private MoleSession session;
+    protected MoleSession session;
 
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {

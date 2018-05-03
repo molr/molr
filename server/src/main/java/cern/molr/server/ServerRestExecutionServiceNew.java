@@ -5,6 +5,8 @@
 package cern.molr.server;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
+import cern.molr.commons.response.SupervisorStateResponse;
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.exception.MissionMaterializationException;
 import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.exception.UnknownMissionException;
@@ -14,6 +16,7 @@ import cern.molr.mole.supervisor.*;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
 import cern.molr.sample.mission.RunnableHelloWriter;
+import cern.molr.supervisor.request.SupervisorStateRequest;
 import cern.molr.type.Ack;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -24,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * New Gateway used for communication between server and supervisors
@@ -52,6 +56,7 @@ public class ServerRestExecutionServiceNew {
 
 
     public <I,O> String instantiate(String missionDefnClassName, I args) throws UnknownMissionException,NoAppropriateSupervisorFound {
+
         String missionEId = makeEId();
         Mission mission=getMission(missionDefnClassName);
         Optional<StatefulMoleSupervisorNew> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);

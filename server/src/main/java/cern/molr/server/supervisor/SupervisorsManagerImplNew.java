@@ -1,20 +1,27 @@
 package cern.molr.server.supervisor;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
+import cern.molr.commons.response.SupervisorStateResponse;
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.server.StatefulMoleSupervisorNew;
 import cern.molr.server.SupervisorsManager;
 import cern.molr.server.SupervisorsManagerNew;
+import cern.molr.supervisor.request.SupervisorStateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
@@ -59,8 +66,17 @@ public class SupervisorsManagerImplNew implements SupervisorsManagerNew {
 
     @Override
     public Optional<StatefulMoleSupervisorNew> chooseSupervisor(String missionContentClassName) {
+
         Optional<Vector<StatefulMoleSupervisorNew>> optional=Optional.ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
-        return optional.map((vec)->vec.stream().filter(StatefulMoleSupervisorNew::isIdle).findFirst().orElse(null));
+
+        return optional.flatMap((vec)->{
+            for(StatefulMoleSupervisorNew supervisor:vec){
+                Optional<StatefulMoleSupervisorNew.State> state=supervisor.getState();
+                if(state.isPresent() && state.get().isAvailable())
+                    return Optional.of(supervisor);
+            }
+            return Optional.empty();
+        });
 
     }
 

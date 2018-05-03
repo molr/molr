@@ -64,14 +64,15 @@ public class ServerRestController {
 
 
     @RequestMapping(path = "/instantiate", method = RequestMethod.POST)
-    public <I> MissionExecutionResponse instantiateMission(@RequestBody MissionExecutionRequest<I> request) {
-        try {
-            String mEId = newGateway.instantiate(request.getMissionDefnClassName(), request.getArgs());
-            return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
-        } catch (UnknownMissionException|NoAppropriateSupervisorFound e) {
-            return new MissionExecutionResponseFailure(e);
-        }
-
+    public <I> CompletableFuture<MissionExecutionResponse> instantiateMission(@RequestBody MissionExecutionRequest<I> request) {
+        return CompletableFuture.<MissionExecutionResponse>supplyAsync(()->{
+            try {
+                String mEId = newGateway.instantiate(request.getMissionDefnClassName(), request.getArgs());
+                return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
+            } catch (UnknownMissionException|NoAppropriateSupervisorFound e) {
+                return new MissionExecutionResponseFailure(e);
+            }
+        });
     }
 
     //TODO remove "New" from method name
