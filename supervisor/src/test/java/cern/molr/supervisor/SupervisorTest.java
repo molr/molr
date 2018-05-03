@@ -98,17 +98,17 @@ public class SupervisorTest {
         MissionExecutionRequest<Integer> request=new MissionExecutionRequest<>("1",IntegerFunctionMole.class.getCanonicalName(),Fibonacci.class.getCanonicalName(),42);
         MolrWebSocketClient client=new MolrWebSocketClient("localhost",8080);
 
-        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
-        });
+        }));
 
         Thread.sleep( 4000);
 
-        client.receiveMono("/instruct",MoleExecutionResponseCommand.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe((response)->{
+        client.receiveMono("/instruct",MoleExecutionResponseCommand.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(response)->{
             System.out.println("response to start: "+response);
             responses.add(response);
-        });
+        }));
 
         Thread.sleep( 10000);
 

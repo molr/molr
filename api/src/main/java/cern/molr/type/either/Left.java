@@ -4,12 +4,14 @@
 
 package cern.molr.type.either;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * Type to construct "left" value for {@link Either}
  * 
- * @author nachivpn 
+ * @author nachivpn
+ * @author yassine
  * @param <LL>
  * @param <LR>
  */
@@ -24,6 +26,11 @@ public class Left<LL, LR> implements Either<LL, LR>{
     @Override
     public <T> T match(Function<LL, T> a, Function<LR, T> b) {
         return a.apply(l);
+    }
+
+    @Override
+    public void execute(Consumer<LL> leftConsumer, Consumer<LR> rightConsumer) {
+        leftConsumer.accept(l);
     }
 
     @Override

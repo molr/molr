@@ -2,10 +2,7 @@ package cern.molr.server;
 
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mole.spawner.debug.ResponseCommand;
-import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
-import cern.molr.server.ServerRestExecutionServiceNew;
-import cern.molr.server.request.MissionEventsRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -69,7 +66,7 @@ public class InstructServerHandler implements WebSocketHandler {
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                     try {
-                                        return mapper.writeValueAsString(new ResponseCommand.ResponseCommandResutFailure(e));
+                                        return mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e));
                                     } catch (JsonProcessingException e1) {
                                         e1.printStackTrace();
                                         return "unable to serialize a failure result: source: "+e.getMessage();
@@ -79,7 +76,7 @@ public class InstructServerHandler implements WebSocketHandler {
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
-                                processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandResutFailure(e)));
+                                processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e)));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
                                 processor.onNext("unable to serialize a failure result: source: unknown mission exception");
@@ -88,7 +85,7 @@ public class InstructServerHandler implements WebSocketHandler {
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandResutFailure(new Exception("Unable to deserialize request"))));
+                            processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(new Exception("Unable to deserialize request"))));
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                             processor.onNext("unable to serialize a failure result: source: unable to serialize sent command");

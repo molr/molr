@@ -26,16 +26,16 @@ public interface ResponseCommand extends TryResponse<Ack>,MoleExecutionResponseC
         }
     }
 
-    @JsonDeserialize(as = ResponseCommandResutFailure.class)
-    public static class ResponseCommandResutFailure extends TryResponseFailure<Ack> implements ResponseCommand {
+    @JsonDeserialize(as = ResponseCommandFailure.class)
+    public static class ResponseCommandFailure extends TryResponseFailure<Ack> implements ResponseCommand {
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
-        public ResponseCommandResutFailure() {
+        public ResponseCommandFailure() {
             super(null);
         }
 
-        public ResponseCommandResutFailure(Throwable l) {
+        public ResponseCommandFailure(Throwable l) {
             super(l);
         }
     }

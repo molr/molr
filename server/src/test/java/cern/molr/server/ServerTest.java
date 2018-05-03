@@ -12,6 +12,7 @@ import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mole.IntegerFunctionMole;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.MissionExecutionRequest;
+import cern.molr.type.Try;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,17 +48,22 @@ public class ServerTest {
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
         MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
-        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
-        });
+        }));
+
+
+
+
+
         Thread.sleep(10000);
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct",MoleExecutionResponseCommand.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe((result)->{
+        clientSocket.receiveMono("/instruct",MoleExecutionResponseCommand.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
             System.out.println("response to start: "+result);
             commandResponses.add(result);
-        });
+        }));
 
         Thread.sleep( 20000);
 

@@ -93,12 +93,12 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             }
             else{
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandResutFailure(new Exception(commandStatus.getReason()));
+                return new ResponseCommand.ResponseCommandFailure(new Exception(commandStatus.getReason()));
             }
         } catch (JsonProcessingException e) {
             commandStatus=null;
             e.printStackTrace();
-            return new ResponseCommand.ResponseCommandResutFailure(e);
+            return new ResponseCommand.ResponseCommandFailure(e);
         }
     }
 

@@ -1,32 +1,18 @@
 package cern.molr.mole.spawner;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
-import cern.molr.exception.MissionMaterializationException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
-import cern.molr.mission.step.StepResult;
-import cern.molr.mole.spawner.debug.DebugSpawner;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
 import cern.molr.mole.supervisor.MoleExecutionController;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleExecutionListener;
 import cern.molr.mole.supervisor.MoleSession;
-import cern.molr.sample.mission.Fibonacci;
-import cern.molr.sample.mission.IntDoubler;
-import cern.molr.server.StatefulMoleSupervisor;
-import cern.molr.type.Ack;
-import cern.molr.type.either.Either;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Class for testing SupervisorsManagerImpl

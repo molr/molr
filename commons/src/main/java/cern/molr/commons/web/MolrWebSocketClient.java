@@ -1,6 +1,9 @@
 package cern.molr.commons.web;
 
+import cern.molr.commons.trye.Failure;
+import cern.molr.commons.trye.Success;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
+import cern.molr.type.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -33,12 +36,11 @@ public class MolrWebSocketClient {
 
     /**
      * Method which sends a request to sever ans receive a flux of data from it
-     * TODO find a way to generate errors if an exception is thrown when deserializing events instead of null
      * @param responseType
      * @param <T>
-     * @return
+     * @return try elements, if the serialization of an element throws an exception, this exception is pushed to flux
      */
-    public <I,T> Flux<T> receiveFlux(String path,Class<T> responseType,I request){
+    public <I,T> Flux<Try<T>> receiveFlux(String path, Class<T> responseType, I request){
 
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
@@ -48,17 +50,17 @@ public class MolrWebSocketClient {
          * Processor which which receives data from server
          * TODO choose the best implementation to use
          */
-        FluxProcessor<T,T> processor=TopicProcessor.create();
+        FluxProcessor<Try<T>,Try<T>> processor=TopicProcessor.create();
 
         client.execute(URI.create("ws://"+host+":"+port+path),session -> {
             try {
                 return session.send(Mono.just(session.textMessage(mapper.writeValueAsString(request))))
                         .thenMany(session.receive().map((message)->{
                             try {
-                                return mapper.readValue(message.getPayloadAsText(),responseType);
+                                return new Success<T>(mapper.readValue(message.getPayloadAsText(),responseType));
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                return null;
+                                return new Failure<T>(e);
                             }
                             })).doOnNext(processor::onNext).then();
                 } catch (JsonProcessingException e) {
@@ -78,7 +80,7 @@ public class MolrWebSocketClient {
      * @param <T>
      * @return
      */
-    public <I,T> Mono<T> receiveMono(String path,Class<T> responseType,I request){
+    public <I,T> Mono<Try<T>> receiveMono(String path,Class<T> responseType,I request){
         return receiveFlux(path,responseType,request).next();
     }
 }

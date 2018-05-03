@@ -4,28 +4,22 @@
 
 package cern.molr.client.serviceimpl;
 
-import cern.molr.commons.response.*;
+import cern.molr.commons.response.MissionExecutionResponse;
+import cern.molr.commons.response.MissionExecutionResponseBean;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.exception.UnsupportedOutputTypeException;
-import cern.molr.mission.run.RunMissionController;
 import cern.molr.mission.run.RunMissionControllerNew;
-import cern.molr.mission.service.MissionExecutionService;
 import cern.molr.mission.service.MissionExecutionServiceNew;
-import cern.molr.mission.step.StepMissionController;
-import cern.molr.mole.spawner.run.RunCommands;
+import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
-import cern.molr.server.request.MissionCancelRequest;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.MissionExecutionRequest;
-import cern.molr.server.request.MissionResultRequest;
-import cern.molr.type.Ack;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
@@ -51,12 +45,12 @@ public class MissionExecutionServiceImplNew implements MissionExecutionServiceNe
                             @Override
                             public Flux<MoleExecutionEvent> getFlux() {
                                 MissionEventsRequest eventsRequest=new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace);
+                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(RunEvents.MissionException::new, Function.identity()));
                             }
                             @Override
                             public Mono<MoleExecutionResponseCommand> instruct(MoleExecutionCommand command) {
                                 command.setId(missionExecutionId);
-                                return clientSocket.receiveMono("/instruct",MoleExecutionResponseCommand.class,command);
+                                return clientSocket.receiveMono("/instruct",MoleExecutionResponseCommand.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(ResponseCommand.ResponseCommandFailure::new, Function.identity()));
                             }
                         }));
     }
