@@ -78,9 +78,8 @@ public class ServerRestExecutionServiceNew {
     public static class ServerState {
 
         /* State of the server */
-        /**
-         * Accepted missions
-         */
+
+        //Accepted missions
         private ConcurrentMap<String, Mission> missionRegistry = new ConcurrentHashMap<>();
         private ConcurrentMap<String, Flux<MoleExecutionEvent>> missionExecutionRegistry =  new ConcurrentHashMap<>();
         private ConcurrentMap<String, MoleSupervisorNew> moleSupervisorRegistry =  new ConcurrentHashMap<>();

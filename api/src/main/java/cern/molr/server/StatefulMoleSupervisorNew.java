@@ -1,5 +1,6 @@
 package cern.molr.server;
 
+import cern.molr.mission.Mission;
 import cern.molr.mole.supervisor.MoleSupervisor;
 import cern.molr.mole.supervisor.MoleSupervisorNew;
 
@@ -15,7 +16,9 @@ public interface StatefulMoleSupervisorNew extends MoleSupervisorNew {
 
     Optional<State> getState();
 
-    //Supervisor state
+    /**
+     * Supervisor state
+     */
     class State{
         private boolean available;
         private int numMissions;

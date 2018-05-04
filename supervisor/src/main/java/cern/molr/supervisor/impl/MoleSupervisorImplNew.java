@@ -1,5 +1,6 @@
 package cern.molr.supervisor.impl;
 
+import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.mission.Mission;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
@@ -18,8 +19,16 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
 
     protected SupervisorSessionsManager sessionsManager=new SupervisorSessionsManagerImpl();
 
+    /**
+     * synchronized method because it should use the supervisor state to determine whether the instantiation is accepted
+     * @param mission
+     * @param args
+     * @param missionExecutionId
+     * @param <I>
+     * @return
+     */
     @Override
-    public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+    public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId){
         try {
             MoleSession session;
             RunSpawner<I> spawner=new RunSpawner<>();

@@ -70,7 +70,8 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                 try {
                     MissionMaterializer materializer = new AnnotatedMissionMaterializer();
                     Mission mission=materializer.materialize(Class.forName(request.getMissionContentClassName()));
-                    supervisor.instantiate(mission,request.getArgs(),request.getMissionExecutionId()).map((event)->{
+
+                    supervisor.instantiate(mission, request.getArgs(), request.getMissionExecutionId()).map((event) -> {
                         try {
                             return mapper.writeValueAsString(event);
                         } catch (JsonProcessingException e) {
@@ -79,7 +80,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                                 return mapper.writeValueAsString(new RunEvents.MissionException(e));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                return "unable to serialize a mission exception: source: "+e.getMessage();
+                                return "unable to serialize a mission exception: source: " + e.getMessage();
                             }
                         }
                     }).subscribe(processor::onNext);
