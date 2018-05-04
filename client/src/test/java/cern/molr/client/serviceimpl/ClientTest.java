@@ -78,6 +78,7 @@ public class ClientTest {
         List<MoleExecutionResponseCommand> commandResponses1=new ArrayList<>();
 
         List<MoleExecutionEvent> events2=new ArrayList<>();
+        List<MoleExecutionResponseCommand> commandResponses2=new ArrayList<>();
 
         MissionExecutionServiceNew service=new MissionExecutionServiceImplNew();
         Mono<RunMissionControllerNew> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
@@ -102,7 +103,7 @@ public class ClientTest {
             });
         });
 
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
 
         Mono<RunMissionControllerNew> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
@@ -112,9 +113,22 @@ public class ClientTest {
                 System.out.println("event(2): "+event);
                 events2.add(event);
             });
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(2) to start: "+response);
+                commandResponses2.add(response);
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+                System.out.println("response(2) to terminate: "+response);
+                commandResponses2.add(response);
+            });
         });
 
-        Thread.sleep(12000);
+        Thread.sleep(60000);
 
 
         /*

@@ -49,7 +49,7 @@ public class MissionExecutionServiceImplNew implements MissionExecutionServiceNe
                             }
                             @Override
                             public Mono<MoleExecutionResponseCommand> instruct(MoleExecutionCommand command) {
-                                command.setId(missionExecutionId);
+                                command.setMissionId(missionExecutionId);
                                 return clientSocket.receiveMono("/instruct",MoleExecutionResponseCommand.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(ResponseCommand.ResponseCommandFailure::new, Function.identity()));
                             }
                         }));

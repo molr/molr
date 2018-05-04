@@ -8,7 +8,7 @@ public interface MoleExecutionCommand {
     /**
      * @return id of the mission concerned by the command
      */
-    String getId();
+    String getMissionId();
 
-    void setId(String id);
+    void setMissionId(String missionId);
 }

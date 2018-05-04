@@ -16,8 +16,9 @@ public class RemoteSupervisorServiceNew extends MoleSupervisorImplNew implements
 
     @Override
     public Optional<State> getState() {
-        //simple implementation, would be changed when supervisor will be able to manage many sessions
-        State state=Optional.ofNullable(session).map((session)->new State(false,1)).orElse(new State(true,0));
+        //State example
+        //TODO compute availability status using a specific algorithm
+        State state=sessionsManager.getSessionsNumber()==0?new State(true,0):new State(false,sessionsManager.getSessionsNumber());
         return Optional.of(state);
     }
 }

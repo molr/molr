@@ -16,13 +16,15 @@ import reactor.core.publisher.Mono;
  */
 public class MoleSupervisorImplNew implements MoleSupervisorNew {
 
-    protected MoleSession session;
+    protected SupervisorSessionsManager sessionsManager=new SupervisorSessionsManagerImpl();
 
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
         try {
+            MoleSession session;
             RunSpawner<I> spawner=new RunSpawner<>();
             session=spawner.spawnMoleRunner(mission,args);
+            sessionsManager.addSession(missionExecutionId,session);
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
                 session.getController().addMoleExecutionListener(emitter::next);
             });
@@ -34,6 +36,7 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
 
     @Override
     public Mono<MoleExecutionResponseCommand> instruct(MoleExecutionCommand command) {
+        MoleSession session=sessionsManager.getSession(command.getMissionId());
         return Mono.just(session.getController().sendCommand(command));
     }
 }

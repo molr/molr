@@ -19,12 +19,12 @@ public abstract class RunCommands {
         }
 
         @Override
-        public String getId() {
+        public String getMissionId() {
             return missionId;
         }
 
         @Override
-        public void setId(String missionId) {
+        public void setMissionId(String missionId) {
             this.missionId = missionId;
         }
     }
@@ -40,12 +40,12 @@ public abstract class RunCommands {
         }
 
         @Override
-        public String getId() {
+        public String getMissionId() {
             return missionId;
         }
 
         @Override
-        public void setId(String missionId) {
+        public void setMissionId(String missionId) {
             this.missionId = missionId;
         }
     }

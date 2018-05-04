@@ -34,13 +34,6 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
 
     private final RemoteSupervisorServiceNew supervisor;
 
-    /**
-     * A processor which receives flux events and resend them to client
-     * TODO choose the best implementation to use
-     */
-    private FluxProcessor<String,String> processor=TopicProcessor.create();
-
-
     public InstantiateSupervisorHandler(RemoteSupervisorServiceNew supervisor) {
         this.supervisor = supervisor;
     }
@@ -57,6 +50,12 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+        /**
+         * A processor which receives flux events and resend them to client
+         * TODO choose the best implementation to use
+         */
+        FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
                 .and((session.receive().<Optional<MissionExecutionRequest>>map((message)->{
