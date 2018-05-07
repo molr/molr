@@ -86,9 +86,18 @@ public abstract class RunEvents {
         public Throwable getThrowable() {
             return throwable;
         }
+
+        @Override
+        public String toString(){
+            return throwable.getClass().getName()+": "+throwable.getMessage();
+        }
     }
 
     public static class JVMInstantiated implements MoleExecutionEvent{
+
+    }
+
+    public static class JVMDestroyed implements MoleExecutionEvent{
 
     }
 

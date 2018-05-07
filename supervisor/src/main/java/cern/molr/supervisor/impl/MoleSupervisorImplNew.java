@@ -34,6 +34,10 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
             RunSpawner<I> spawner=new RunSpawner<>();
             session=spawner.spawnMoleRunner(mission,args);
             sessionsManager.addSession(missionExecutionId,session);
+            session.getController().addMoleExecutionListener((event)->{
+                if(event instanceof RunEvents.JVMDestroyed)
+                    sessionsManager.removeSession(session);
+            });
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
                 session.getController().addMoleExecutionListener(emitter::next);
             });

@@ -75,6 +75,15 @@ public class MoleRunner implements MoleCommandListener {
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         System.out.println(mapper.writeValueAsString(new RunEvents.JVMInstantiated()));
         new MoleRunner(args[0]);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            MoleExecutionEvent jvmDestroyed=new RunEvents.JVMDestroyed();
+            try {
+                System.out.println(mapper.writeValueAsString(jvmDestroyed));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }));
         while(true);
     }
 

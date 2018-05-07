@@ -103,7 +103,7 @@ public class ClientTest {
             });
         });
 
-        //Thread.sleep(5000);
+        Thread.sleep(5000);
 
         Mono<RunMissionControllerNew> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 

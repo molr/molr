@@ -18,6 +18,7 @@ import java.util.Optional;
  * Spring service which manages separate JVM.
  * It is stateful, it can tells whether is idle or not
  * @author yassine
+ * TODO remove "New" from class name
  */
 @Service
 public class RemoteSupervisorServiceNew extends MoleSupervisorImplNew implements StatefulMoleSupervisorNew {

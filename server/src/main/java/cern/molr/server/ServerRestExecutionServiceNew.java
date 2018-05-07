@@ -10,6 +10,7 @@ import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
+import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.*;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
@@ -57,6 +58,11 @@ public class ServerRestExecutionServiceNew {
         return optional.map((supervisor)->{
                 Flux<MoleExecutionEvent> flux = supervisor.instantiate(mission, args, missionEId);
                 registry.registerNewMissionExecution(missionEId, supervisor, flux);
+                flux.subscribe((event)->{
+                   if (event instanceof RunEvents.JVMDestroyed){
+                       registry.removeMissionExecution(missionEId);
+                   }
+                });
                 return missionEId;
         }).orElseThrow(() -> new NoAppropriateSupervisorFound("No appropriate supervisor found to run such mission!"));
 
