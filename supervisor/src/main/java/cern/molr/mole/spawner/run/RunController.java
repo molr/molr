@@ -89,11 +89,12 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             }
             if(commandStatus.isAccepted()){
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandSuccess(new Ack("command sent to JVM"));
+                return new ResponseCommand.ResponseCommandSuccess(new Ack("command accepetd by JVM"));
             }
             else{
+                MoleExecutionResponseCommand response=new ResponseCommand.ResponseCommandFailure(new Exception(commandStatus.getReason()));
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandFailure(new Exception(commandStatus.getReason()));
+                return response;
             }
         } catch (JsonProcessingException e) {
             commandStatus=null;

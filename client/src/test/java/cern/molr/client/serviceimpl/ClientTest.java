@@ -117,6 +117,10 @@ public class ClientTest {
                 System.out.println("response(2) to start: "+response);
                 commandResponses2.add(response);
             });
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(2) to start 2: "+response);
+                commandResponses2.add(response);
+            });
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {

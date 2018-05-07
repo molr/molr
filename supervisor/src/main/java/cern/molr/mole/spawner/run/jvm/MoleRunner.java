@@ -5,11 +5,13 @@
 package cern.molr.mole.spawner.run.jvm;
 
 import cern.molr.commons.MissionImpl;
+import cern.molr.exception.CommandNotAcceptedException;
 import cern.molr.exception.MissionExecutionException;
 import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.JVMState;
 import cern.molr.mole.supervisor.MoleCommandListener;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
@@ -39,6 +41,7 @@ public class MoleRunner implements MoleCommandListener {
     private Object missionInput;
     private Class<?> missionInputClass;
     private RunCommandsReader reader;
+    private JVMState jvmState=new JVMStateImpl();
 
     public MoleRunner(String argumentString){
 
@@ -108,6 +111,8 @@ public class MoleRunner implements MoleCommandListener {
         MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
         System.out.println(mapper.writeValueAsString(missionStarted));
 
+        jvmState.changeState();
+
         CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
             try {
                 MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
@@ -149,6 +154,8 @@ public class MoleRunner implements MoleCommandListener {
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try{
+            jvmState.acceptCommand(command);
+
             RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,"accepted");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
@@ -156,6 +163,14 @@ public class MoleRunner implements MoleCommandListener {
                 startMission();
             else if(command instanceof RunCommands.Terminate)
                 terminate();
+        } catch (CommandNotAcceptedException e) {
+            try {
+                RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(false,e.getMessage());
+                System.out.println(mapper.writeValueAsString(commandStatus));
+            } catch (JsonProcessingException e1) {
+                e1.printStackTrace();
+                System.exit(-1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
