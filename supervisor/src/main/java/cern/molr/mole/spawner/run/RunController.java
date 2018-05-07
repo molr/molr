@@ -79,8 +79,14 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         return sendCommand(command);
     }
 
+    /**
+     * Need to be "synchronized" to avoid sending many commands at the same time
+     * The next command is executed after returning current command result
+     * @param command
+     * @return
+     */
     @Override
-    public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
+    synchronized public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
         try {
             printWriter.println(mapper.writeValueAsString(command));
             printWriter.flush();

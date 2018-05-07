@@ -14,7 +14,7 @@ public class JVMStateImpl implements JVMState {
     private boolean missionStarted=false;
 
     @Override
-    synchronized public void acceptCommand(MoleExecutionCommand command) throws CommandNotAcceptedException {
+    public void acceptCommand(MoleExecutionCommand command) throws CommandNotAcceptedException {
         if (command instanceof RunCommands.Start && missionStarted)
             throw new CommandNotAcceptedException("Command not accepted by the JVM: the mission is already started");
     }

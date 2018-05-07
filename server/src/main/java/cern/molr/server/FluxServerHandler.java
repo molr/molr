@@ -37,7 +37,7 @@ public class FluxServerHandler implements WebSocketHandler {
     /**
      * @param session websocket session
      * @return task which sends flux of
-     * TODO return more meaningful exceptions, create class type for each type of exception evemt instead of using MissionException event
+     * TODO return more meaningful exceptions, create class type for each type of exception event instead of using MissionException event
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
