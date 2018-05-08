@@ -47,6 +47,7 @@ public class RemoteSupervisorServiceNew extends MoleSupervisorImplNew implements
         } catch (MissionExecutionNotAccepted e) {
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
                 emitter.next(new RunEvents.MissionException(e));
+                emitter.complete();
             });
         }
     }

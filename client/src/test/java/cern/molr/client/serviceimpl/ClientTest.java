@@ -10,6 +10,7 @@ import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
 import cern.molr.sample.mission.Fibonacci;
 import org.junit.Assert;
 import org.junit.Test;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -85,24 +86,32 @@ public class ClientTest {
 
         Mono<RunMissionControllerNew> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
+
         futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+
+
             controller.getFlux().subscribe((event)->{
                 System.out.println("event(1): "+event);
                 events1.add(event);
             });
+
+
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response(1) to start: "+response);
                 commandResponses1.add(response);
             });
+
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
                 System.out.println("response(1) to terminate: "+response);
                 commandResponses1.add(response);
             });
+
         });
 
         Thread.sleep(5000);
@@ -135,7 +144,33 @@ public class ClientTest {
             });
         });
 
-        Thread.sleep(60000);
+        Thread.sleep(5000);
+
+
+        Mono<RunMissionControllerNew> futureController3=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+
+
+        futureController3.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+            controller.getFlux().subscribe((event)->{
+                System.out.println("event(3): "+event);
+            });
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(3) to start: "+response);
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+                System.out.println("response(3) to terminate: "+response);
+                commandResponses2.add(response);
+            });
+        });
+
+
+
+        Thread.sleep(600000);
 
 
         /*

@@ -31,7 +31,11 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
                     sessionsManager.removeSession(session);
             });
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
-                session.getController().addMoleExecutionListener(emitter::next);
+                session.getController().addMoleExecutionListener((event)->{
+                    emitter.next(event);
+                    if(event instanceof RunEvents.JVMDestroyed)
+                        emitter.complete();
+                });
             });
         } catch (Exception e) {
             e.printStackTrace();

@@ -58,7 +58,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MissionExecutionRequest>>map((message)->{
+                .and((session.receive().take(1).<Optional<MissionExecutionRequest>>map((message)->{
             try {
                 return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionExecutionRequest.class));
             } catch (IOException e) {
@@ -83,22 +83,26 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                                 return "unable to serialize a mission exception: source: " + e.getMessage();
                             }
                         }
-                    }).subscribe(processor::onNext);
+                    }).doOnComplete(processor::onComplete).subscribe(processor::onNext);
                 }catch(Exception e){
                     try {
                         processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(e)));
+                        processor.onComplete();
                     } catch (JsonProcessingException e1) {
                         e1.printStackTrace();
                         processor.onNext("unable to serialize a mission exception: source: "+e.getMessage());
+                        processor.onComplete();
                     }
                 }
             });
             if(!optionalRequest.isPresent()){
                 try {
                     processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("Unable to deserialize request"))));
+                    processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
                     processor.onNext("unable to serialize a mission exception: source: unable to serialize request");
+                    processor.onComplete();
                 }
             }
         }));

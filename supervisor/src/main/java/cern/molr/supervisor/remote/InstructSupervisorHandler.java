@@ -47,7 +47,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().take(1).<Optional<MoleExecutionCommand>>map((message)->{
             try {
                 return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
             } catch (IOException e) {
@@ -68,14 +68,19 @@ public class InstructSupervisorHandler implements WebSocketHandler {
                             return "unable to serialize a failure result: source: "+e.getMessage();
                         }
                     }
-                }).subscribe(processor::onNext);
+                }).subscribe((s)->{
+                    processor.onNext(s);
+                    processor.onComplete();
+                });
             });
             if(!optionalCommand.isPresent()){
                 try {
                     processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(new Exception("Unable to deserialize request"))));
+                    processor.onComplete();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                     processor.onNext("unable to serialize a failure result: source: unable to serialize sent command");
+                    processor.onComplete();
                 }
             }
         }));

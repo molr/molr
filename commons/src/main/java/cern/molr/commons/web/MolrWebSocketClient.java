@@ -1,5 +1,6 @@
 package cern.molr.commons.web;
 
+import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.commons.trye.Failure;
 import cern.molr.commons.trye.Success;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
@@ -7,9 +8,12 @@ import cern.molr.type.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
@@ -52,7 +56,8 @@ public class MolrWebSocketClient {
          */
         FluxProcessor<Try<T>,Try<T>> processor=TopicProcessor.create();
 
-        client.execute(URI.create("ws://"+host+":"+port+path),session -> {
+
+        Disposable d=client.execute(URI.create("ws://"+host+":"+port+path), session -> {
             try {
                 return session.send(Mono.just(session.textMessage(mapper.writeValueAsString(request))))
                         .thenMany(session.receive().map((message)->{
@@ -62,7 +67,7 @@ public class MolrWebSocketClient {
                                 e.printStackTrace();
                                 return new Failure<T>(e);
                             }
-                            })).doOnNext(processor::onNext).then();
+                            })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();
                 } catch (JsonProcessingException e) {
                     return Mono.error(e);
                 }

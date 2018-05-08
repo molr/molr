@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.TopicProcessor;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -49,7 +50,7 @@ public class InstructServerHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().take(1).<Optional<MoleExecutionCommand>>map((message)->{
                     try {
                         return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
                     } catch (IOException e) {
@@ -71,23 +72,30 @@ public class InstructServerHandler implements WebSocketHandler {
                                         return "unable to serialize a failure result: source: "+e.getMessage();
                                     }
                                 }
-                            }).subscribe(processor::onNext);
+                            }).subscribe((t)->{
+                                processor.onNext(t);
+                                processor.onComplete();
+                            });
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
                                 processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e)));
+                                processor.onComplete();
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
                                 processor.onNext("unable to serialize a failure result: source: unknown mission exception");
+                                processor.onComplete();
                             }
                         }
                     });
                     if(!optionalCommand.isPresent()){
                         try {
                             processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(new Exception("Unable to deserialize request"))));
+                            processor.onComplete();
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                             processor.onNext("unable to serialize a failure result: source: unable to serialize sent command");
+                            processor.onComplete();
                         }
                     }
                 }));
