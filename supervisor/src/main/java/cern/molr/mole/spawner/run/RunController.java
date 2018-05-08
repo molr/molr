@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  *
  * @author yassine
  */
-public class RunController implements MoleExecutionController,MoleExecutionListener, Closeable {
+public class RunController implements MoleExecutionController,MoleExecutionListener {
 
     private final Set<MoleExecutionListener> listeners=new HashSet<>();
     private final PrintWriter printWriter;
@@ -48,12 +48,16 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             InputStream processError = process.getErrorStream();
             try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(processError))) {
                 while (!Thread.interrupted()) {
+                    Thread.sleep(10000);
                     logLine(errorReader);
                 }
             } catch (IOException e) {
                 e.printStackTrace(System.err);
+            }catch (InterruptedException e){
+
             }
         });
+
 
     }
 
@@ -129,5 +133,6 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         loggerTask.cancel(true);
         executor.shutdown();
         printWriter.close();
+        reader.close();
     }
 }

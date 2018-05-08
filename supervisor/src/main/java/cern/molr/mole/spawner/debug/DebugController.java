@@ -7,6 +7,7 @@ import cern.molr.inspector.remote.JdiControllerCommand;
 import cern.molr.mole.supervisor.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.HashSet;
@@ -98,5 +99,10 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
     @Override
     public void onEvent(MoleExecutionEvent event) {
         listeners.forEach((l)->l.onEvent(event));
+    }
+
+    @Override
+    public void close() throws IOException {
+
     }
 }

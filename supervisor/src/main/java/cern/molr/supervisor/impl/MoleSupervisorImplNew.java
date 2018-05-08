@@ -9,6 +9,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 /**
  * Implementation of new interface {@link MoleSupervisorNew}
  * TODO remove "New" from class name
@@ -27,8 +29,14 @@ public class MoleSupervisorImplNew implements MoleSupervisorNew {
             session=spawner.spawnMoleRunner(mission,args);
             sessionsManager.addSession(missionExecutionId,session);
             session.getController().addMoleExecutionListener((event)->{
-                if(event instanceof RunEvents.JVMDestroyed)
+                if(event instanceof RunEvents.JVMDestroyed) {
                     sessionsManager.removeSession(session);
+                    try {
+                        session.getController().close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             });
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
                 session.getController().addMoleExecutionListener((event)->{
