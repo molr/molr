@@ -17,9 +17,9 @@ import java.util.Map;
 @Configuration
 public class WebSocketServerConfiguration {
 
-    private final ServerRestExecutionServiceNew service;
+    private final ServerRestExecutionService service;
 
-    public WebSocketServerConfiguration(ServerRestExecutionServiceNew service) {
+    public WebSocketServerConfiguration(ServerRestExecutionService service) {
         this.service = service;
     }
 

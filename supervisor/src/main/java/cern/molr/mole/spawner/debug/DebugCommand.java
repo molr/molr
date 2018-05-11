@@ -12,12 +12,12 @@ public enum DebugCommand implements MoleExecutionCommand{
     private String missionId;
 
     @Override
-    public String getId() {
+    public String getMissionId() {
         return null;
     }
 
     @Override
-    public void setId(String id) {
+    public void setMissionId(String id) {
 
     }
 }

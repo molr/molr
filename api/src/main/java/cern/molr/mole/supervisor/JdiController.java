@@ -4,13 +4,14 @@
 
 package cern.molr.mole.supervisor;
 
-import cern.molr.mission.step.StepResult;
+import cern.molr.mission.controller.custom.StepResult;
 import cern.molr.type.either.Either;
 
 /**
  * Controller used by {@link MoleSupervisor} to control stepping missions
- * 
+ * TODO verify whether this class is relevant
  * @author nachivpn
+ * @author yassine
  */
 public interface JdiController {
     

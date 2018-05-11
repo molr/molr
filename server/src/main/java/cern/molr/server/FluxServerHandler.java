@@ -1,13 +1,8 @@
 package cern.molr.server;
 
-import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.exception.UnknownMissionException;
-import cern.molr.mission.Mission;
-import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.server.request.MissionEventsRequest;
-import cern.molr.supervisor.remote.RemoteSupervisorServiceNew;
-import cern.molr.supervisor.request.MissionExecutionRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -28,7 +23,7 @@ import java.util.Optional;
 @Component
 public class FluxServerHandler implements WebSocketHandler {
 
-    private final ServerRestExecutionServiceNew service;
+    private final ServerRestExecutionService service;
 
     /**
      * A processor which receives flux events and resend them to client
@@ -37,14 +32,12 @@ public class FluxServerHandler implements WebSocketHandler {
     private FluxProcessor<String,String> processor=TopicProcessor.create();
 
 
-    public FluxServerHandler(ServerRestExecutionServiceNew service) {
+    public FluxServerHandler(ServerRestExecutionService service) {
         this.service = service;
     }
 
     /**
-     * @param session websocket session
-     * @return task which sends flux of
-     * TODO return more meaningful exceptions, create class type for each type of exception evemt instead of using MissionException event
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -92,7 +85,7 @@ public class FluxServerHandler implements WebSocketHandler {
                     processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("Unable to deserialize request"))));
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to serialize request");
+                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
                 }
             }
         }));

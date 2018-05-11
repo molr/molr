@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A spawner which creates a JVM that executes the mission
  * @author yassine
  */
-public class RunSpawner<I> implements MoleSpawner<I,Void,RunSession> {
+public class RunSpawner<I> implements MoleSpawner<I,RunSession> {
 
     private static final String CURRENT_CLASSPATH_VALUE = System.getProperty("java.class.path");
     private static final String EXECUTOR_MAIN_CLASS = MoleRunner.class.getName();

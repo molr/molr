@@ -4,25 +4,18 @@ import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.run.RunEvents;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleSupervisorNew;
-import cern.molr.supervisor.impl.MoleSupervisorImplNew;
-import cern.molr.supervisor.request.MissionExecutionRequest;
+import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.reactivestreams.Processor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.TopicProcessor;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -32,7 +25,7 @@ import java.util.Optional;
 @Component
 public class InstantiateSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteSupervisorServiceNew supervisor;
+    private final RemoteMoleSupervisorService supervisor;
 
     /**
      * A processor which receives flux events and resend them to client
@@ -41,15 +34,12 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
     private FluxProcessor<String,String> processor=TopicProcessor.create();
 
 
-    public InstantiateSupervisorHandler(RemoteSupervisorServiceNew supervisor) {
+    public InstantiateSupervisorHandler(RemoteMoleSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 
     /**
-     * For each request received, a JVM is instantiated
-     * @param session websocket session
-     * @return task which sends flux of events and instantiate JVM
-     * TODO return more meaningful exceptions, create class type for each type of exception evemt instead of using MissionException event
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -59,9 +49,9 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MissionExecutionRequest>>map((message)->{
+                .and((session.receive().<Optional<SupervisorMissionExecutionRequest>>map((message)->{
             try {
-                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionExecutionRequest.class));
+                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),SupervisorMissionExecutionRequest.class));
             } catch (IOException e) {
                 e.printStackTrace();
                 return Optional.empty();
@@ -98,7 +88,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                     processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("Unable to deserialize request"))));
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to serialize request");
+                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
                 }
             }
         }));

@@ -19,6 +19,7 @@ import java.util.concurrent.CompletionException;
  * as {@link GenericMoleRunner} serves as an entry point to executing {@link cern.molr.mission.Mission}s.
  * Using the {@link GenericMoleRunner} for starting a mission on supervisor,
  * would need some important changes such as sending the input and output class form the client to server in the request
+ * TODO verify whether this class is relevant, maybe remove it
  * 
  * @author nachivpn
  * @author yassine
@@ -47,7 +48,7 @@ public class GenericMoleRunner {
             Class<?> missionInputClass = Class.forName(argument.getMissionInputClassName());
             Object missionInput = mapper.readValue(argument.getMissionInputObjString(), missionInputClass);
             
-            /*instantiate and run mole*/
+            /*instantiate and run a mole*/
             Mole<Object,Object> mole = createMoleInstance(mission.getMoleClassName());
 
             CompletableFuture<Object> future=CompletableFuture.supplyAsync(()->{

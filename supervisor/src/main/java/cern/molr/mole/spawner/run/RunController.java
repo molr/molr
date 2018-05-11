@@ -1,6 +1,6 @@
 package cern.molr.mole.spawner.run;
 
-import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.*;
 import cern.molr.type.Ack;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -74,13 +74,13 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         listeners.remove(listener);
     }
 
-    public MoleExecutionResponseCommand start() {
+    public MoleExecutionCommandResponse start() {
         MoleExecutionCommand command=new RunCommands.Start();
         return sendCommand(command);
     }
 
     @Override
-    public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
+    public MoleExecutionCommandResponse sendCommand(MoleExecutionCommand command) {
         try {
             printWriter.println(mapper.writeValueAsString(command));
             printWriter.flush();
@@ -89,20 +89,20 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             }
             if(commandStatus.isAccepted()){
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandSuccess(new Ack("command sent to JVM"));
+                return new CommandResponse.CommandResponseSuccess(new Ack("command sent to JVM"));
             }
             else{
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandResutFailure(new Exception(commandStatus.getReason()));
+                return new CommandResponse.CommandResponseResutFailure(new Exception(commandStatus.getReason()));
             }
         } catch (JsonProcessingException e) {
             commandStatus=null;
             e.printStackTrace();
-            return new ResponseCommand.ResponseCommandResutFailure(e);
+            return new CommandResponse.CommandResponseResutFailure(e);
         }
     }
 
-    public MoleExecutionResponseCommand terminate() {
+    public MoleExecutionCommandResponse terminate() {
         MoleExecutionCommand command=new RunCommands.Terminate();
         return sendCommand(command);
     }

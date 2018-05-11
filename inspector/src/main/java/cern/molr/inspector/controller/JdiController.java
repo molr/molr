@@ -6,7 +6,7 @@
 
 package cern.molr.inspector.controller;
 
-import cern.molr.mission.step.StepResult;
+import cern.molr.mission.controller.custom.StepResult;
 
 /**
  * A controller for a JDI instance that can control any running JVM instances by stepping through or terminating them.

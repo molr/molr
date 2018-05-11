@@ -14,12 +14,12 @@ public interface EntryState {
 
     /**
      * The full name of the class relative to the root class path.
-     * @return A {@link String} containing the full package and class name of the class currently being run.
+     * @return A {@link String} containing the full package and class name of the class currently being controller.
      */
     String getClassName();
 
     /**
-     * The name of the method inside the class that is being run.
+     * The name of the method inside the class that is being controller.
      * @return A {@link String} containing the name of the method without any parameters.
      */
     String getMethodName();

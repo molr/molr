@@ -1,9 +1,10 @@
 package cern.molr.exception;
+
+
 import cern.molr.mole.supervisor.MoleSupervisor;
 
-
 /**
- * Throw when server does not find an appropriate {@link MoleSupervisor} to execute a mission
+ * Thrown when the MolR server does not find an appropriate {@link MoleSupervisor} to execute a mission
  * @author yassine
  */
 public class NoAppropriateSupervisorFound extends Exception {

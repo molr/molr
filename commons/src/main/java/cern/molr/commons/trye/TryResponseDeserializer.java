@@ -13,6 +13,12 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * @author ?
+ * @author yassine
+ * TODO remove this class, used deserializing method should deduce automaticly the real instance
+ * @param <T>
+ */
 public abstract class TryResponseDeserializer<T> extends JsonDeserializer<T> {
 
     public abstract Class<? extends T> getSuccessDeserializer();

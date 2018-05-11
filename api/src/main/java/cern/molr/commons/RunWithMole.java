@@ -10,6 +10,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
 
 /**
