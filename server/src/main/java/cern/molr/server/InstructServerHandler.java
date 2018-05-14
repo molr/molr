@@ -66,7 +66,7 @@ public class InstructServerHandler implements WebSocketHandler {
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                     try {
-                                        return mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e));
+                                        return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
                                     } catch (JsonProcessingException e1) {
                                         e1.printStackTrace();
                                         return "unable to serialize a failure result: source: "+e.getMessage();
@@ -76,7 +76,7 @@ public class InstructServerHandler implements WebSocketHandler {
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
-                                processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e)));
+                                processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e)));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
                                 processor.onNext("unable to serialize a failure result: source: unknown mission exception");
@@ -85,7 +85,7 @@ public class InstructServerHandler implements WebSocketHandler {
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(new Exception("Unable to deserialize request"))));
+                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize request"))));
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                             processor.onNext("unable to serialize a failure result: source: unable to deserialize request");
