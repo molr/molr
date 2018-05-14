@@ -57,7 +57,7 @@ public class MolrWebSocketClient {
         FluxProcessor<Try<T>,Try<T>> processor=TopicProcessor.create();
 
 
-        Disposable d=client.execute(URI.create("ws://"+host+":"+port+path), session -> {
+        client.execute(URI.create("ws://"+host+":"+port+path), session -> {
             try {
                 return session.send(Mono.just(session.textMessage(mapper.writeValueAsString(request))))
                         .thenMany(session.receive().map((message)->{

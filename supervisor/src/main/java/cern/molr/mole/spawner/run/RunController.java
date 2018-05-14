@@ -1,6 +1,6 @@
 package cern.molr.mole.spawner.run;
 
-import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.*;
 import cern.molr.type.Ack;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -90,7 +90,7 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
      * @return
      */
     @Override
-    synchronized public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
+    synchronized public MoleExecutionCommandResponse sendCommand(MoleExecutionCommand command) {
         try {
             printWriter.println(mapper.writeValueAsString(command));
             printWriter.flush();
@@ -102,14 +102,14 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
                 return new CommandResponse.CommandResponseSuccess(new Ack("command sent to JVM"));
             }
             else{
-                MoleExecutionResponseCommand response=new ResponseCommand.ResponseCommandFailure(new Exception(commandStatus.getReason()));
+                MoleExecutionCommandResponse response=new CommandResponse.CommandResponseFailure(new Exception(commandStatus.getReason()));
                 commandStatus=null;
                 return response;
             }
         } catch (JsonProcessingException e) {
             commandStatus=null;
             e.printStackTrace();
-            return new CommandResponse.CommandResponseResutFailure(e);
+            return new CommandResponse.CommandResponseFailure(e);
         }
     }
 

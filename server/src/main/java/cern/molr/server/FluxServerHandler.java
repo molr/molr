@@ -1,13 +1,8 @@
 package cern.molr.server;
 
-import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.exception.UnknownMissionException;
-import cern.molr.mission.Mission;
-import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.server.request.MissionEventsRequest;
-import cern.molr.supervisor.remote.RemoteSupervisorServiceNew;
-import cern.molr.supervisor.request.MissionExecutionRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -30,7 +25,7 @@ public class FluxServerHandler implements WebSocketHandler {
 
     private final ServerRestExecutionService service;
 
-    public FluxServerHandler(ServerRestExecutionServiceNew service) {
+    public FluxServerHandler(ServerRestExecutionService service) {
         this.service = service;
     }
 

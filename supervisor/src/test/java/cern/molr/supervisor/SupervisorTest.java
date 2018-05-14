@@ -1,20 +1,20 @@
 package cern.molr.supervisor;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.MissionTest;
-import cern.molr.mole.spawner.debug.ResponseCommand;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
-import cern.molr.mole.supervisor.MoleSupervisorNew;
+import cern.molr.mole.supervisor.MoleSupervisor;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mole.IntegerFunctionMole;
-import cern.molr.supervisor.impl.MoleSupervisorImplNew;
-import cern.molr.supervisor.request.MissionExecutionRequest;
+import cern.molr.supervisor.impl.MoleSupervisorImpl;
+import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,7 +57,7 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start());
+        supervisor.instruct(new RunCommands.Start("1"));
 
         Thread.sleep(20000);
         Assert.assertEquals(3,events.size());
@@ -77,19 +77,18 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start());
-        supervisor.instruct(new RunCommands.Terminate());
+        supervisor.instruct(new RunCommands.Start("1"));
+        supervisor.instruct(new RunCommands.Terminate("1"));
 
         Thread.sleep(20000);
-        Assert.assertEquals(2,events.size());
+        Assert.assertEquals(3,events.size());
     }
 
     /**
      * To execute this test the supervisor server must be started at port 8080 (it is the default port defined in file "application.properties" of the module "supervisor")
-     * @throws InterruptedException
      */
     @Test
-    public void RemoteTest() throws InterruptedException {
+    public void RemoteTest() throws Exception {
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> responses=new ArrayList<>();
@@ -97,17 +96,17 @@ public class SupervisorTest {
         SupervisorMissionExecutionRequest<Integer> request=new SupervisorMissionExecutionRequest<>("1",IntegerFunctionMole.class.getCanonicalName(),Fibonacci.class.getCanonicalName(),42);
         MolrWebSocketClient client=new MolrWebSocketClient("localhost",8080);
 
-        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
-        });
+        }));
 
         Thread.sleep( 4000);
 
-        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe((response)->{
-            System.out.println("response to start: "+response);
-            responses.add(response);
-        });
+        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
+            System.out.println("response to start: "+result);
+            responses.add(result);
+        }));
 
         Thread.sleep( 10000);
 

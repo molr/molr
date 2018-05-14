@@ -22,16 +22,14 @@ import java.util.Optional;
 @Component
 public class InstructSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteMoleSupervisorService supervisor;
+    private final RemoteSupervisorService supervisor;
 
     public InstructSupervisorHandler(RemoteSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 
     /**
-     * For each command received, it is delegated to supervisor
-     * @param session websocket session
-     * @return task which sends flux containing the response and send command to supervisor
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -62,7 +60,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                         try {
-                            return mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e));
+                            return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
                         } catch (JsonProcessingException e1) {
                             e1.printStackTrace();
                             return "unable to serialize a failure result: source: "+e.getMessage();
@@ -75,7 +73,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
             });
             if(!optionalCommand.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(new Exception("Unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize request"))));
                     processor.onComplete();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();

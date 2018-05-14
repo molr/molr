@@ -9,6 +9,7 @@ import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
+import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionException;
+import java.util.function.Function;
 
 /**
  * Implementation used by the operator to interact with the server
@@ -41,12 +43,12 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             @Override
                             public Flux<MoleExecutionEvent> getFlux() {
                                 MissionEventsRequest eventsRequest=new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace);
+                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(RunEvents.MissionException::new, Function.identity()));
                             }
                             @Override
                             public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
                                 command.setMissionId(missionExecutionId);
-                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,command);
+                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(CommandResponse.CommandResponseFailure::new, Function.identity()));
                             }
                         }));
     }

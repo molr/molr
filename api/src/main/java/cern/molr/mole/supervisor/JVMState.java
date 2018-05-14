@@ -15,7 +15,7 @@ public interface JVMState {
     void acceptCommand(MoleExecutionCommand command) throws CommandNotAcceptedException;
 
     /**
-     * Change the current state according to the last command accepted
+     * Change the current state according to the last accepted command
      */
     void changeState();
 

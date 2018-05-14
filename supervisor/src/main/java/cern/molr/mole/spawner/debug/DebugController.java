@@ -1,10 +1,10 @@
 package cern.molr.mole.spawner.debug;
 
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.inspector.entry.EntryListener;
 import cern.molr.inspector.entry.EntryState;
 import cern.molr.inspector.remote.EntryListenerReader;
 import cern.molr.inspector.remote.JdiControllerCommand;
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.*;
 
 import java.io.BufferedReader;

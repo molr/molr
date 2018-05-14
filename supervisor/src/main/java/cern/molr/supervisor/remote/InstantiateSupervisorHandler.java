@@ -4,25 +4,18 @@ import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.run.RunEvents;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleSupervisorNew;
-import cern.molr.supervisor.impl.MoleSupervisorImplNew;
-import cern.molr.supervisor.request.MissionExecutionRequest;
+import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.reactivestreams.Processor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.TopicProcessor;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -32,7 +25,7 @@ import java.util.Optional;
 @Component
 public class InstantiateSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteMoleSupervisorService supervisor;
+    private final RemoteSupervisorService supervisor;
 
     public InstantiateSupervisorHandler(RemoteSupervisorService supervisor) {
         this.supervisor = supervisor;
@@ -55,7 +48,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().take(1).<Optional<MissionExecutionRequest>>map((message)->{
+                .and((session.receive().take(1).<Optional<SupervisorMissionExecutionRequest>>map((message)->{
             try {
                 return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),SupervisorMissionExecutionRequest.class));
             } catch (IOException e) {

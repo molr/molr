@@ -5,6 +5,7 @@ import cern.molr.mole.supervisor.SupervisorSessionsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -25,9 +26,9 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     }
 
     @Override
-    public MoleSession getSession(String missionId) {
+    public Optional<MoleSession> getSession(String missionId) {
         LOGGER.info("Getting a session from sessions manager: mission id {}",missionId);
-        return sessionsRegistry.get(missionId);
+        return Optional.of(sessionsRegistry.get(missionId));
     }
 
     @Override

@@ -26,16 +26,12 @@ public class SupervisorsManagerTest {
     private SupervisorsManager manager=new SupervisorsManagerImpl();
 
     public class StatefulMoleSupervisorTest implements StatefulMoleSupervisor {
-        private boolean idle;
+        private State state;
 
         public StatefulMoleSupervisorTest(boolean idle) {
-            this.idle = idle;
+            state=new State(idle,-1);
         }
 
-        @Override
-        public boolean isIdle() {
-            return idle;
-        }
 
         @Override
         public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
@@ -45,6 +41,11 @@ public class SupervisorsManagerTest {
         @Override
         public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
             return null;
+        }
+
+        @Override
+        public Optional<State> getState() {
+            return Optional.of(state);
         }
     }
 

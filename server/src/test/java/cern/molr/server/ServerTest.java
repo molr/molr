@@ -1,23 +1,21 @@
 package cern.molr.server;
 
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionExecutionResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.mole.spawner.debug.ResponseCommand;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
 import cern.molr.sample.mission.Fibonacci;
-import cern.molr.sample.mole.IntegerFunctionMole;
 import cern.molr.server.request.MissionEventsRequest;
-import cern.molr.server.request.MissionExecutionRequest;
+import cern.molr.server.request.ServerMissionExecutionRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Class for testing the server Api.
@@ -44,7 +42,7 @@ public class ServerTest {
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
         MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
-        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
         }));
@@ -56,7 +54,7 @@ public class ServerTest {
         Thread.sleep(10000);
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe((result)->{
+        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
             System.out.println("response to start: "+result);
             commandResponses.add(result);
         }));

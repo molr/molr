@@ -1,13 +1,17 @@
 package cern.molr.server.supervisor;
 
+import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.mission.Mission;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.supervisor.impl.MoleSupervisorProxy;
+import cern.molr.supervisor.request.SupervisorStateRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 /**
  * Implementation of a proxy MoleSupervisor which is able to return whether it is idle or not
@@ -29,10 +33,19 @@ public class StatefulMoleSupervisorProxy extends MoleSupervisorProxy implements 
         return super.instruct(command);
     }
 
+
+    //TODO when MolR server is unable to get the state of the supervisor, it should unregister it from supervisors manager
     @Override
-    public boolean isIdle() {
-        //TODO to implement
-        return true;
+    public Optional<State> getState() {
+        try {
+            return client.post("/getState",SupervisorStateRequest.class,new SupervisorStateRequest(),SupervisorStateResponse.class).get().match((throwable)->{
+                throwable.printStackTrace();
+                return Optional.empty();
+            }, Optional::<State>ofNullable);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
 }

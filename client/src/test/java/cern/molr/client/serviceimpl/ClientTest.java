@@ -1,8 +1,8 @@
 package cern.molr.client.serviceimpl;
 
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
@@ -10,7 +10,6 @@ import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.sample.mission.Fibonacci;
 import org.junit.Assert;
 import org.junit.Test;
-import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -57,9 +56,10 @@ public class ClientTest {
         });
         Thread.sleep(10000);
 
-        Assert.assertEquals(2, events.size());
+        Assert.assertEquals(3, events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events.get(2).getClass());
         Assert.assertEquals(2,commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(1).getClass());
@@ -71,18 +71,18 @@ public class ClientTest {
      * @throws Exception
      */
     @Test
-    public void TwoMissionsTest() throws Exception {
+    public void ThreeMissionsTest() throws Exception {
 
         List<MoleExecutionEvent> events1=new ArrayList<>();
-        List<MoleExecutionResponseCommand> commandResponses1=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses1=new ArrayList<>();
 
         List<MoleExecutionEvent> events2=new ArrayList<>();
-        List<MoleExecutionResponseCommand> commandResponses2=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses2=new ArrayList<>();
 
-        MissionExecutionServiceNew service=new MissionExecutionServiceImplNew();
+        MissionExecutionService service=new MissionExecutionServiceImpl();
 
 
-        Mono<RunMissionControllerNew> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -115,7 +115,7 @@ public class ClientTest {
         Thread.sleep(5000);
 
 
-        Mono<RunMissionControllerNew> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController2.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -145,7 +145,7 @@ public class ClientTest {
         Thread.sleep(5000);
 
 
-        Mono<RunMissionControllerNew> futureController3=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController3=service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController3.doOnError(Throwable::printStackTrace).subscribe((controller)->{

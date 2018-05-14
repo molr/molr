@@ -4,7 +4,7 @@ import cern.molr.commons.trye.TryResponse;
 import cern.molr.commons.trye.TryResponseDeserializer;
 import cern.molr.commons.trye.TryResponseFailure;
 import cern.molr.commons.trye.TryResponseSuccess;
-import cern.molr.server.StatefulMoleSupervisorNew;
+import cern.molr.server.StatefulMoleSupervisor;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author yassine
  */
 @JsonDeserialize(using = SupervisorStateResponse.SupervisorStateResponseDeserializer.class)
-public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervisorNew.State>{
+public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervisor.State>{
 
     public static class SupervisorStateResponseDeserializer extends TryResponseDeserializer<SupervisorStateResponse>{
 
@@ -31,7 +31,7 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
     }
     
     @JsonDeserialize(as = SupervisorStateResponseSuccess.class)
-    public class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisorNew.State> implements SupervisorStateResponse {
+    public class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
@@ -42,13 +42,13 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
         /**
          * @param r
          */
-        public SupervisorStateResponseSuccess(StatefulMoleSupervisorNew.State r) {
+        public SupervisorStateResponseSuccess(StatefulMoleSupervisor.State r) {
             super(r);
         }
     }
     
     @JsonDeserialize(as = SupervisorStateResponseFailure.class)
-    public class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisorNew.State> implements SupervisorStateResponse {
+    public class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
 
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code

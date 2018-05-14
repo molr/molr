@@ -4,6 +4,7 @@ import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.exception.MissionMaterializationException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
+import cern.molr.mole.spawner.run.RunController;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
 import cern.molr.mole.supervisor.MoleExecutionController;
@@ -75,7 +76,7 @@ public class RunSpawnerTest {
         controller.start();
         controller.terminate();
         Thread.sleep(20000);
-        Assert.assertEquals(2,events.size());
+        Assert.assertEquals(3,events.size());
     }
 
 

@@ -6,15 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor
+ * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
  * @author yassine
  */
 @Service
@@ -55,8 +52,17 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
 
     @Override
     public Optional<StatefulMoleSupervisor> chooseSupervisor(String missionContentClassName) {
+
         Optional<Vector<StatefulMoleSupervisor>> optional=Optional.ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
-        return optional.map((vec)->vec.stream().filter(StatefulMoleSupervisor::isIdle).findFirst().orElse(null));
+
+        return optional.flatMap((vec)->{
+            for(StatefulMoleSupervisor supervisor:vec){
+                Optional<StatefulMoleSupervisor.State> state=supervisor.getState();
+                if(state.isPresent() && state.get().isAvailable())
+                    return Optional.of(supervisor);
+            }
+            return Optional.empty();
+        });
 
     }
 
