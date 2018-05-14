@@ -4,39 +4,39 @@
 
 package cern.molr.server;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import cern.molr.exception.NoAppropriateSupervisorFound;
-import org.springframework.stereotype.Service;
-
 import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.exception.MissionMaterializationException;
+import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
-import cern.molr.mole.supervisor.MoleSupervisor;
+import cern.molr.mole.supervisor.*;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
 import cern.molr.sample.mission.RunnableHelloWriter;
-import cern.molr.type.Ack;
+import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Gateway used for communication between server and supervisors
- * 
- * @author nachivpn
  * @author yassine
  */
 @Service
 public class ServerRestExecutionService {
 
-    ServerState registry = new ServerState();
-    SupervisorsManager supervisorsManager;
+    private ServerState registry = new ServerState();
+    private final SupervisorsManager supervisorsManager;
 
 
-    public ServerRestExecutionService() {
+    public ServerRestExecutionService(SupervisorsManager supervisorsManager) {
         //TODO remove this init code after implementing a deployment service
         MissionMaterializer m = new AnnotatedMissionMaterializer();
         try {
@@ -46,21 +46,19 @@ public class ServerRestExecutionService {
         } catch (MissionMaterializationException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void setSupervisorsManager(SupervisorsManager supervisorsManager){
         this.supervisorsManager=supervisorsManager;
     }
 
-    public <I,O> String runMission(String missionDefnClassName, I args) throws UnknownMissionException,NoAppropriateSupervisorFound {
+
+    public <I,O> String instantiate(String missionDefnClassName, I args) throws UnknownMissionException,NoAppropriateSupervisorFound {
         String missionEId = makeEId();
         Mission mission=getMission(missionDefnClassName);
         Optional<StatefulMoleSupervisor> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);
         return optional.map((supervisor)->{
-                CompletableFuture<O> cf = supervisor.run(mission, args, missionEId);
-                registry.registerNewMissionExecution(missionEId, supervisor, cf);
+                Flux<MoleExecutionEvent> flux = supervisor.instantiate(mission, args, missionEId);
+                registry.registerNewMissionExecution(missionEId, supervisor, flux);
                 return missionEId;
-        }).orElseThrow(() -> new NoAppropriateSupervisorFound("No appropriate supervisor found to run such mission!"));
+        }).orElseThrow(() -> new NoAppropriateSupervisorFound("No appropriate supervisor found to controller such mission!"));
 
     }
 
@@ -68,9 +66,9 @@ public class ServerRestExecutionService {
         return registry.getMission(mName).orElseThrow(() -> new UnknownMissionException("Mission not defined in MolR registry"));
     }
 
-    public CompletableFuture<?> getResult(String mEId) throws UnknownMissionException{
-        Optional<CompletableFuture<?>> optionalResultFuture = registry.getMissionExecutionFuture(mEId);
-        return optionalResultFuture.orElseThrow(() -> new UnknownMissionException("No such mission running"));
+    public Flux<MoleExecutionEvent> getFlux(String mEId) throws UnknownMissionException{
+        Optional<Flux<MoleExecutionEvent>> optionalFlux = registry.getMissionExecutionFlux(mEId);
+        return optionalFlux.orElseThrow(() -> new UnknownMissionException("No such mission running"));
     }
 
     private String makeEId() {
@@ -80,24 +78,27 @@ public class ServerRestExecutionService {
     public static class ServerState {
 
         /* State of the server */
+        /**
+         * Accepted missions
+         */
         private ConcurrentMap<String, Mission> missionRegistry = new ConcurrentHashMap<>();
-        private ConcurrentMap<String, CompletableFuture<?>> missionExecutionRegistry =  new ConcurrentHashMap<>();
+        private ConcurrentMap<String, Flux<MoleExecutionEvent>> missionExecutionRegistry =  new ConcurrentHashMap<>();
         private ConcurrentMap<String, MoleSupervisor> moleSupervisorRegistry =  new ConcurrentHashMap<>();
 
         public void registerNewMission(Mission m) {
             missionRegistry.put(m.getMissionDefnClassName(), m);
         }
 
-        public void registerNewMissionExecution(String missionId, MoleSupervisor ms, CompletableFuture<?> cf) {
-            moleSupervisorRegistry.put(missionId, ms);
-            missionExecutionRegistry.put(missionId, cf);
+        public void registerNewMissionExecution(String missionId, MoleSupervisor supervisor, Flux<MoleExecutionEvent> flux) {
+            moleSupervisorRegistry.put(missionId, supervisor);
+            missionExecutionRegistry.put(missionId, flux);
         }
 
         public Optional<Mission> getMission(String mName) {
             return Optional.ofNullable(missionRegistry.get(mName));
         }
 
-        public Optional<CompletableFuture<?>> getMissionExecutionFuture(String missionEId){
+        public Optional<Flux<MoleExecutionEvent>> getMissionExecutionFlux(String missionEId){
             return Optional.ofNullable(missionExecutionRegistry.get(missionEId));
         }
 
@@ -112,18 +113,20 @@ public class ServerRestExecutionService {
 
     }
 
-    /**
-     * @param missionExecutionId
-     * @return
-     * @throws UnknownMissionException 
-     */
-    public CompletableFuture<Ack> cancel(String missionExecutionId) throws UnknownMissionException {
-        Optional<MoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(missionExecutionId);
-        registry.getMissionExecutionFuture(missionExecutionId).map(f -> f.cancel(true));
-        registry.removeMissionExecution(missionExecutionId);
+    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) throws UnknownMissionException {
+        Optional<MoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(command.getMissionId());
         return optionalSupervisor
                 .orElseThrow(() -> new UnknownMissionException("No such mission running"))
-                .cancel(missionExecutionId);
+                .instruct(command);
+    }
+
+    public String addSupervisor(String host,int port, List<String> missionsAccepted){
+        StatefulMoleSupervisor moleSupervisor = new StatefulMoleSupervisorProxy(host,port);
+        return supervisorsManager.addSupervisor(moleSupervisor,missionsAccepted);
+    }
+
+    public void removeSupervisor(String id){
+        supervisorsManager.removeSupervisor(id);
     }
 
 }

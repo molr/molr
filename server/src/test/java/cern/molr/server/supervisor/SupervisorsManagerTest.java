@@ -1,17 +1,18 @@
 package cern.molr.server.supervisor;
 
 import cern.molr.mission.Mission;
-import cern.molr.mission.step.StepResult;
+import cern.molr.mole.supervisor.MoleExecutionCommand;
+import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
+import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
-import cern.molr.type.Ack;
-import cern.molr.type.either.Either;
 import org.junit.Assert;
 import org.junit.Test;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,24 +37,13 @@ public class SupervisorsManagerTest {
             return idle;
         }
 
-
         @Override
-        public <I, O> CompletableFuture<O> run(Mission m, I args, String missionExecutionId) {
+        public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
             return null;
         }
 
         @Override
-        public <I, O> CompletableFuture<Either<StepResult, O>> step(Mission m, I args, String missionExecutionId) {
-            return null;
-        }
-
-        @Override
-        public <I, O> CompletableFuture<O> resume(Mission m, I args, String missionExecutionId) {
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Ack> cancel(String missionExecutionId) {
+        public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
             return null;
         }
     }

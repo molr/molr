@@ -1,12 +1,12 @@
 package cern.molr.client.serviceimpl;
 
-import cern.molr.mission.run.RunMissionControllerNew;
-import cern.molr.mission.service.MissionExecutionServiceNew;
-import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.mission.controller.ClientMissionController;
+import cern.molr.mission.service.MissionExecutionService;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleExecutionResponseCommand;
+import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.sample.mission.Fibonacci;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,27 +17,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class for testing client api
- *
- * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
+ * Class for testing client Api.
+ * Each test can fail if the thread finishes before getting all results from the supervisor, in that case the sleep duration should be increased
  *
  * @author yassine
  */
 public class ClientTest {
 
     /**
-     * To run this test MolR Server must be started at port 8000 (it is defined in file "application.properties" of the module "server")
-     * Supervisor Server must be started after to be registered in MolR
-     * @throws Exception
+     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
+     * Supervisor Server must be started just after to be registered in MolR server
      */
     @Test
     public void MissionTest() throws Exception {
 
         List<MoleExecutionEvent> events=new ArrayList<>();
-        List<MoleExecutionResponseCommand> commandResponses=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
-        MissionExecutionServiceNew service=new MissionExecutionServiceImplNew();
-        Mono<RunMissionControllerNew> futureController=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        MissionExecutionService service=new MissionExecutionServiceImpl();
+        Mono<ClientMissionController> futureController=service.instantiate(Fibonacci.class.getCanonicalName(),100);
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller)->{
            controller.getFlux().subscribe((event)->{
                System.out.println("event: "+event);
@@ -63,8 +61,8 @@ public class ClientTest {
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(2,commandResponses.size());
-        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses.get(0).getClass());
-        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses.get(1).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(1).getClass());
     }
 
     /**

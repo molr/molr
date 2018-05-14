@@ -1,6 +1,6 @@
 package cern.molr.supervisor.remote;
 
-import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,9 +22,9 @@ import java.util.Optional;
 @Component
 public class InstructSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteSupervisorServiceNew supervisor;
+    private final RemoteMoleSupervisorService supervisor;
 
-    public InstructSupervisorHandler(RemoteSupervisorServiceNew supervisor) {
+    public InstructSupervisorHandler(RemoteSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 
@@ -62,7 +62,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                         try {
-                            return mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e));
+                            return mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e));
                         } catch (JsonProcessingException e1) {
                             e1.printStackTrace();
                             return "unable to serialize a failure result: source: "+e.getMessage();
@@ -75,11 +75,11 @@ public class InstructSupervisorHandler implements WebSocketHandler {
             });
             if(!optionalCommand.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(new Exception("Unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(new Exception("Unable to deserialize request"))));
                     processor.onComplete();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                    processor.onNext("unable to serialize a failure result: source: unable to serialize sent command");
+                    processor.onNext("unable to serialize a failure result: source: unable to deserialize sent command");
                     processor.onComplete();
                 }
             }

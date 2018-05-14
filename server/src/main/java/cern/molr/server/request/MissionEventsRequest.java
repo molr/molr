@@ -5,7 +5,7 @@
 package cern.molr.server.request;
 
 /**
- * Request to get strem of events from server
+ * Request to get stream of events from the MolR server
  */
 public class MissionEventsRequest {
 

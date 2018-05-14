@@ -12,7 +12,7 @@ import cern.molr.exception.MissionExecutionException;
 import cern.molr.mission.Mission;
 
 /**
- * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to run a mission.
+ * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to controller a mission.
  * 
  * @author nachivpn 
  * @param <I>

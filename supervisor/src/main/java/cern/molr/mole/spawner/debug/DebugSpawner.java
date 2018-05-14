@@ -12,10 +12,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * A spawner which creates debugging JVM of the mission
+ * A spawner which creates debugging JVM on the mission
  * @author yassine
  */
-public class DebugSpawner<I> implements MoleSpawner<I,Void,DebugSession> {
+public class DebugSpawner<I> implements MoleSpawner<I,DebugSession> {
 
     private static final String CURRENT_CLASSPATH_VALUE = System.getProperty("java.class.path");
     private static final String INSPECTOR_MAIN_CLASS = SystemMain.class.getName();

@@ -21,7 +21,7 @@ import cern.molr.mole.supervisor.MoleSpawner;
  * @author timartin
  * @author yassine
  */
-public class DebugMoleSpawner<I,O,T> implements MoleSpawner<I,O,StepSession> {
+public class DebugMoleSpawner<I,T> implements MoleSpawner<I,StepSession> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugMoleSpawner.class);
     private static final String CURRENT_CLASSPATH_VALUE = System.getProperty("java.class.path");

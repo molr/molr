@@ -2,6 +2,9 @@ package cern.molr.server.supervisor;
 
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,12 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
- *
+ * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor
  * @author yassine
  */
+@Service
 public class SupervisorsManagerImpl implements SupervisorsManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SupervisorsManagerImpl.class);
 
     private ConcurrentMap<String, StatefulMoleSupervisor> supervisorsRegistry=new ConcurrentHashMap<>();
     private ConcurrentMap<String, Vector<StatefulMoleSupervisor>> possibleSupervisorsRegistry=new ConcurrentHashMap<>();
@@ -29,6 +33,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             possibleSupervisorsRegistry.putIfAbsent(missiomName,new Vector<StatefulMoleSupervisor>());
             possibleSupervisorsRegistry.get(missiomName).add(supervisor);
         });
+        LOGGER.info("A Supervisor Server registred to MolR server id {}",id);
         return id;
     }
 
@@ -38,6 +43,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         possibleSupervisorsRegistry.forEach((mis,vec)->{
             vec.remove(supervisor);
         });
+        LOGGER.info("Supervisor Server {} unregistred from MolR server",id);
     }
 
     @Override
@@ -45,7 +51,6 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         supervisorsRegistry.entrySet().stream().filter((e)-> e.getValue()==supervisor).findFirst().ifPresent((e)->{
             removeSupervisor(e.getKey());
         });
-
     }
 
     @Override

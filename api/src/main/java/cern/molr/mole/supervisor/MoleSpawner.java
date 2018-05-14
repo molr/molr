@@ -7,12 +7,13 @@ package cern.molr.mole.supervisor;
 import cern.molr.mission.Mission;
 
 /**
- * The {@link MoleSpawner} runs a given mission by instantiating (or spawning) a mole and asking it to run the mission
+ * The {@link MoleSpawner} spawns a mission for execution
  * 
  * @author nachivpn
- * @param <T> - return type of the spawn action (it could be a session)
+ * @author yassine
+ * @param <T> - returns type of the spawn action (it could be a JVM session)
  */
-public interface MoleSpawner<I,O,T> {
+public interface MoleSpawner<I,T> {
 
     T spawnMoleRunner(Mission m, I args) throws Exception;
 

@@ -32,17 +32,14 @@ import java.util.Optional;
 @Component
 public class InstantiateSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteSupervisorServiceNew supervisor;
+    private final RemoteMoleSupervisorService supervisor;
 
-    public InstantiateSupervisorHandler(RemoteSupervisorServiceNew supervisor) {
+    public InstantiateSupervisorHandler(RemoteSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 
     /**
-     * For each request received, a JVM is instantiated
-     * @param session websocket session
-     * @return task which sends flux of events and instantiate JVM
-     * TODO return more meaningful exceptions, create class type for each type of exception evemt instead of using MissionException event
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -60,7 +57,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         return session.send(processor.map(session::textMessage))
                 .and((session.receive().take(1).<Optional<MissionExecutionRequest>>map((message)->{
             try {
-                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionExecutionRequest.class));
+                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),SupervisorMissionExecutionRequest.class));
             } catch (IOException e) {
                 e.printStackTrace();
                 return Optional.empty();
@@ -101,7 +98,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                     processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to serialize request");
+                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
                     processor.onComplete();
                 }
             }

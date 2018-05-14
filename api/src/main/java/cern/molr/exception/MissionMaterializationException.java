@@ -8,7 +8,7 @@ package cern.molr.exception;
 
 /**
  * Exception to be used whenever its not possible to
- * {@link cern.molr.commons.mission.MissionMaterializer#materialize(Class)} a {@link cern.molr.commons.domain.Mission}
+ * {@link cern.molr.mission.MissionMaterializer#materialize(Class)} a {@link cern.molr.mission.Mission}
  *
  * @author timartin
  */

@@ -2,7 +2,10 @@ package cern.molr.server;
 
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mole.spawner.debug.ResponseCommand;
+import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
+import cern.molr.server.ServerRestExecutionServiceNew;
+import cern.molr.server.request.MissionEventsRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,16 +27,14 @@ import java.util.Optional;
 @Component
 public class InstructServerHandler implements WebSocketHandler {
 
-    private final ServerRestExecutionServiceNew service;
+    private final ServerRestExecutionService service;
 
-    public InstructServerHandler(ServerRestExecutionServiceNew service) {
+    public InstructServerHandler(ServerRestExecutionService service) {
         this.service = service;
     }
 
     /**
-     * @param session websocket session
-     * @return task which sends flux of
-     * TODO return more meaningful exceptions, create class type for each type of exception evemt instead of using MissionException event
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -66,7 +67,7 @@ public class InstructServerHandler implements WebSocketHandler {
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                     try {
-                                        return mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e));
+                                        return mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e));
                                     } catch (JsonProcessingException e1) {
                                         e1.printStackTrace();
                                         return "unable to serialize a failure result: source: "+e.getMessage();
@@ -79,7 +80,7 @@ public class InstructServerHandler implements WebSocketHandler {
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
-                                processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(e)));
+                                processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(e)));
                                 processor.onComplete();
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
@@ -90,11 +91,11 @@ public class InstructServerHandler implements WebSocketHandler {
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new ResponseCommand.ResponseCommandFailure(new Exception("Unable to deserialize request"))));
+                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseResutFailure(new Exception("Unable to deserialize request"))));
                             processor.onComplete();
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
-                            processor.onNext("unable to serialize a failure result: source: unable to serialize sent command");
+                            processor.onNext("unable to serialize a failure result: source: unable to deserialize sent command");
                             processor.onComplete();
                         }
                     }

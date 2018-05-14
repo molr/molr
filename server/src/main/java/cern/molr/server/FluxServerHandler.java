@@ -28,16 +28,14 @@ import java.util.Optional;
 @Component
 public class FluxServerHandler implements WebSocketHandler {
 
-    private final ServerRestExecutionServiceNew service;
+    private final ServerRestExecutionService service;
 
     public FluxServerHandler(ServerRestExecutionServiceNew service) {
         this.service = service;
     }
 
     /**
-     * @param session websocket session
-     * @return task which sends flux of
-     * TODO return more meaningful exceptions, create class type for each type of exception event instead of using MissionException event
+     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
      */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -94,7 +92,7 @@ public class FluxServerHandler implements WebSocketHandler {
                     processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to serialize request");
+                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
                     processor.onComplete();
                 }
             }

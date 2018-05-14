@@ -10,6 +10,7 @@ import java.io.IOException;
 /**
  * Serializer which saves real exception class name
  * @author yassine
+ * TODO remove this class, used serializing method should automaticly save class names
  */
 public class TryResponseFailureSerializer<T> extends JsonSerializer<TryResponseFailure<T>> {
 

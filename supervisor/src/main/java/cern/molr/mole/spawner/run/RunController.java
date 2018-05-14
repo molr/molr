@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  *
  * @author yassine
  */
-public class RunController implements MoleExecutionController,MoleExecutionListener {
+public class RunController implements MoleExecutionController,MoleExecutionListener, Closeable {
 
     private final Set<MoleExecutionListener> listeners=new HashSet<>();
     private final PrintWriter printWriter;
@@ -78,7 +78,7 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         listeners.remove(listener);
     }
 
-    public MoleExecutionResponseCommand start() {
+    public MoleExecutionCommandResponse start() {
         MoleExecutionCommand command=new RunCommands.Start();
         return sendCommand(command);
     }
@@ -99,7 +99,7 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             }
             if(commandStatus.isAccepted()){
                 commandStatus=null;
-                return new ResponseCommand.ResponseCommandSuccess(new Ack("command accepetd by JVM"));
+                return new CommandResponse.CommandResponseSuccess(new Ack("command sent to JVM"));
             }
             else{
                 MoleExecutionResponseCommand response=new ResponseCommand.ResponseCommandFailure(new Exception(commandStatus.getReason()));
@@ -109,11 +109,11 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         } catch (JsonProcessingException e) {
             commandStatus=null;
             e.printStackTrace();
-            return new ResponseCommand.ResponseCommandFailure(e);
+            return new CommandResponse.CommandResponseResutFailure(e);
         }
     }
 
-    public MoleExecutionResponseCommand terminate() {
+    public MoleExecutionCommandResponse terminate() {
         MoleExecutionCommand command=new RunCommands.Terminate();
         return sendCommand(command);
     }

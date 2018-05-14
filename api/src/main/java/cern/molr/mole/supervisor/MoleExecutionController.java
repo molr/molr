@@ -3,7 +3,7 @@ package cern.molr.mole.supervisor;
 import java.io.Closeable;
 
 /**
- * Controller of an execution of a mole being executed in separate JVM
+ * Controller of an execution of a mole being executed in a separate JVM
  *
  * @author yassine
  */
@@ -13,9 +13,9 @@ public interface MoleExecutionController extends Closeable {
 
     void removeMoleExecutionListener(MoleExecutionListener listener);
 
-    MoleExecutionResponseCommand start();
+    MoleExecutionCommandResponse start();
 
-    MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command);
+    MoleExecutionCommandResponse sendCommand(MoleExecutionCommand command);
 
-    MoleExecutionResponseCommand terminate();
+    MoleExecutionCommandResponse terminate();
 }

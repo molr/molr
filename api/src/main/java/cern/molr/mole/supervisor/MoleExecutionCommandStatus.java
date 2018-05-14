@@ -1,7 +1,7 @@
 package cern.molr.mole.supervisor;
 
 /**
- * Event sent by JVM which tells to supervisor the status of the last command received
+ * Event sent by JVM which tells to supervisor the status of the last received command
  * @author yassine
  */
 public abstract class MoleExecutionCommandStatus implements MoleExecutionEvent{

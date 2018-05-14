@@ -45,21 +45,10 @@ import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregis
 @RestController
 public class ServerRestController {
 
-    //TODO should be removed
-    private final ServerRestExecutionService meGateway;
+    private final ServerRestExecutionService gateway;
 
-    //TODO should be removed
-    private SupervisorsManager supervisorsManager=new SupervisorsManagerImpl();
-
-    private final ServerRestExecutionServiceNew newGateway;
-    private final SupervisorsManagerNew newSupervisorsManager;
-
-    public ServerRestController(ServerRestExecutionService meGateway,ServerRestExecutionServiceNew newGateway,SupervisorsManagerNew newSupervisorsManager) {
-        this.meGateway = meGateway;
-        this.meGateway.setSupervisorsManager(supervisorsManager);
-
-        this.newGateway=newGateway;
-        this.newSupervisorsManager=newSupervisorsManager;
+    public ServerRestController(ServerRestExecutionService gateway) {
+        this.gateway = gateway;
     }
 
 
@@ -75,76 +64,6 @@ public class ServerRestController {
         });
     }
 
-    //TODO remove "New" from method name
-    @RequestMapping(path = "/registerNew", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorRegisterResponse> registerNew(@RequestBody SupervisorRegisterRequest request) {
-        try {
-            return CompletableFuture.<SupervisorRegisterResponse>supplyAsync(() ->{
-                StatefulMoleSupervisorNew moleSupervisor = new StatefulMoleSupervisorProxyNew(request.getHost(),request.getPort());
-                String id=newSupervisorsManager.addSupervisor(moleSupervisor,request.getAcceptedMissions());
-                return new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id));
-            }).exceptionally(SupervisorRegisterResponseFailure::new);
-        } catch (Exception e) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(e));
-        }
-    }
-
-    //TODO remove "New" from method name
-    @RequestMapping(path = "/unregisterNew", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorUnregisterResponse> uNregisterNew(@RequestBody SupervisorUnregisterRequest request) {
-        try {
-            return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
-                newSupervisorsManager.removeSupervisor(request.getId());
-                return new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully"));
-            }).exceptionally(SupervisorUnregisterResponseFailure::new);
-        } catch (Exception e) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(e));
-        }
-    }
-
-    //TODO should be removed
-    @RequestMapping(path = "/mission", method = RequestMethod.POST)
-    public <I> MissionExecutionResponse newMission(@RequestBody MissionExecutionRequest<I> request) {
-        try {
-            String mEId = meGateway.runMission(request.getMissionDefnClassName(), request.getArgs());
-            return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
-        } catch (UnknownMissionException|NoAppropriateSupervisorFound e) {
-            /*
-             * The idea behind not catching Exception is to ensure that any server related 
-             * issues are not off-loaded to be handled by the client (same applies below)
-             * Moreover, the Molr API does NOT define any runtime exceptions 
-             * and catching any would be analogous to suppressing an issue!
-             */
-            return new MissionExecutionResponseFailure(e);
-        }
-
-    }
-
-    //TODO should be removed
-    @RequestMapping(path = "/result", method = RequestMethod.POST)
-    public CompletableFuture<MissionGenericResponse<Object>> result(@RequestBody MissionResultRequest request) {
-        try {
-            return meGateway.getResult(request.getMissionExecutionId())
-                    .<MissionGenericResponse<Object>>thenApply(MissionGenericResponseSuccess<Object>::new)
-                    .exceptionally(MissionGenericResponseFailure<Object>::new);
-        } catch (UnknownMissionException e) {
-            return CompletableFuture.supplyAsync(() -> new MissionGenericResponseFailure<>(e));
-        }
-    }
-
-    //TODO should be removed
-    @RequestMapping(path = "/cancel", method = RequestMethod.POST)
-    public CompletableFuture<MissionCancelResponse> cancel(@RequestBody MissionCancelRequest request) {
-        try {
-            return meGateway.cancel(request.getMissionExecutionId())
-                    .<MissionCancelResponse>thenApply(MissionCancelResponseSuccess::new)
-                    .exceptionally(MissionCancelResponseFailure::new);
-        } catch (UnknownMissionException e) {
-            return CompletableFuture.supplyAsync(() -> new MissionCancelResponseFailure(e));
-        }
-    }
-
-    //TODO should be removed
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public CompletableFuture<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         try {

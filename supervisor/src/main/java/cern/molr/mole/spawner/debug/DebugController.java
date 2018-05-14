@@ -4,6 +4,7 @@ import cern.molr.inspector.entry.EntryListener;
 import cern.molr.inspector.entry.EntryState;
 import cern.molr.inspector.remote.EntryListenerReader;
 import cern.molr.inspector.remote.JdiControllerCommand;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.*;
 
 import java.io.BufferedReader;
@@ -67,14 +68,14 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
     }
 
     @Override
-    public MoleExecutionResponseCommand start() {
+    public MoleExecutionCommandResponse start() {
         //printWriter.print();
         printWriter.flush();
-        return new ResponseCommand.ResponseCommandSuccess();
+        return new CommandResponse.CommandResponseSuccess();
     }
 
     @Override
-    public MoleExecutionResponseCommand sendCommand(MoleExecutionCommand command) {
+    public MoleExecutionCommandResponse sendCommand(MoleExecutionCommand command) {
         DebugCommand c=(DebugCommand)command;
         switch(c){
             case STEP:
@@ -86,14 +87,14 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
                 printWriter.flush();
                 break;
         }
-        return new ResponseCommand.ResponseCommandSuccess();
+        return new CommandResponse.CommandResponseSuccess();
     }
 
     @Override
-    public MoleExecutionResponseCommand terminate() {
+    public MoleExecutionCommandResponse terminate() {
         printWriter.print(JdiControllerCommand.TERMINATE.ordinal());
         printWriter.flush();
-        return new ResponseCommand.ResponseCommandSuccess();
+        return new CommandResponse.CommandResponseSuccess();
     }
 
     @Override

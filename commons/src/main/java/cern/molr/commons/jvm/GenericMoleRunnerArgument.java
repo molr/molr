@@ -7,6 +7,8 @@ package cern.molr.commons.jvm;
 /**
  * Input argument type for {@link GenericMoleRunner}
  * Should be serialized and passed as arg[0]
+ * TODO verify whether this class is relevant, maybe remove it
+ *
  * @author nachivpn
  * @author yassine
  */
