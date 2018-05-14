@@ -1,2 +1,10 @@
 language: java
-jdk: oraclejdk8
+jdk:
+  - oraclejdk8
+sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+before_install:
+  - chmod +x ./gradlew
