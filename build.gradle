@@ -9,9 +9,6 @@ allprojects {
     group = "cern.molr"
 
     repositories {
-        maven {
-            url { "http://artifactory.cern.ch/mpe-release-local" }
-        }
         mavenCentral()
         maven { url "https://repo.spring.io/snapshot" }
         maven { url "https://repo.spring.io/milestone" }
