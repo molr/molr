@@ -11,8 +11,13 @@ import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.ServerMissionExecutionRequest;
+import cern.molr.supervisor.remote.RemoteSupervisorMain;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +28,24 @@ import java.util.List;
  *
  */
 public class ServerTest {
+
+    private ConfigurableApplicationContext contextServer;
+    private ConfigurableApplicationContext contextSupervisor;
+
+    @Before
+    public void initServers() throws Exception{
+        contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        Thread.sleep(10000);
+
+        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8056"});
+        Thread.sleep(10000);
+    }
+
+    @After
+    public void exitServers(){
+        SpringApplication.exit(contextServer);
+        SpringApplication.exit(contextSupervisor);
+    }
 
     /**
      * To execute this test MolR Server must be started at port 8000 (it is the default port defined in file "application.properties" of the module "server")
@@ -46,9 +69,6 @@ public class ServerTest {
             System.out.println("event: "+event);
             events.add(event);
         }));
-
-
-
 
 
         Thread.sleep(10000);

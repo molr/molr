@@ -23,7 +23,7 @@ public class MoleSupervisorProxy implements MoleSupervisor {
 
     public MoleSupervisorProxy(String host, int port) {
         this.socketClient = new MolrWebSocketClient(host, port);
-        this.client =new MolrWebClient("localhost",8080);
+        this.client =new MolrWebClient(host,port);
     }
 
 

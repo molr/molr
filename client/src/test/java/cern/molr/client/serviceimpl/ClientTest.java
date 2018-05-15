@@ -8,8 +8,11 @@ import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.sample.mission.Fibonacci;
-import org.junit.Assert;
-import org.junit.Test;
+import cern.molr.server.ServerMain;
+import cern.molr.supervisor.remote.RemoteSupervisorMain;
+import org.junit.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -23,12 +26,32 @@ import java.util.List;
  */
 public class ClientTest {
 
+    private ConfigurableApplicationContext contextServer;
+    private ConfigurableApplicationContext contextSupervisor;
+
+    @Before
+    public void initServers() throws Exception{
+        contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        Thread.sleep(10000);
+
+        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8056"});
+        Thread.sleep(10000);
+    }
+
+    @After
+    public void exitServers(){
+        SpringApplication.exit(contextServer);
+        SpringApplication.exit(contextSupervisor);
+    }
+
     /**
      * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
      * Supervisor Server must be started just after to be registered in MolR server
      */
     @Test
     public void MissionTest() throws Exception {
+
+
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
@@ -78,6 +101,9 @@ public class ClientTest {
 
         List<MoleExecutionEvent> events2=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses2=new ArrayList<>();
+
+        List<MoleExecutionEvent> events3=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses3=new ArrayList<>();
 
         MissionExecutionService service=new MissionExecutionServiceImpl();
 
@@ -151,9 +177,11 @@ public class ClientTest {
         futureController3.doOnError(Throwable::printStackTrace).subscribe((controller)->{
             controller.getFlux().subscribe((event)->{
                 System.out.println("event(3): "+event);
+                events3.add(event);
             });
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response(3) to start: "+response);
+                commandResponses3.add(response);
             });
             try {
                 Thread.sleep(2000);
@@ -162,27 +190,34 @@ public class ClientTest {
             }
             controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
                 System.out.println("response(3) to terminate: "+response);
-                commandResponses2.add(response);
+                commandResponses3.add(response);
             });
         });
 
 
 
-        Thread.sleep(600000);
+        Thread.sleep(5000);
 
 
-        /*
-        Assert.assertEquals(2, events1.size());
+
+        Assert.assertEquals(3, events1.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events1.get(0).getClass());
         Assert.assertEquals(RunEvents.MissionStarted.class,events1.get(1).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events1.get(2).getClass());
         Assert.assertEquals(2,commandResponses1.size());
-        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses1.get(0).getClass());
-        Assert.assertEquals(ResponseCommand.ResponseCommandSuccess.class,commandResponses1.get(1).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses1.get(0).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses1.get(1).getClass());
 
 
-        Assert.assertEquals(1,events2.size());
-        Assert.assertEquals(RunEvents.MissionException.class,events2.get(0).getClass());
-        */
+        Assert.assertEquals(3, events2.size());
+        Assert.assertEquals(RunEvents.JVMInstantiated.class,events2.get(0).getClass());
+        Assert.assertEquals(RunEvents.MissionStarted.class,events2.get(1).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events2.get(2).getClass());
+        Assert.assertEquals(3,commandResponses2.size());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(0).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseFailure.class,commandResponses2.get(1).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(2).getClass());
+
 
     }
 }

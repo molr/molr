@@ -14,12 +14,19 @@ import cern.molr.mole.supervisor.MoleSupervisor;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mole.IntegerFunctionMole;
 import cern.molr.supervisor.impl.MoleSupervisorImpl;
+import cern.molr.supervisor.remote.RemoteSupervisorMain;
 import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Supplier;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
@@ -90,6 +97,9 @@ public class SupervisorTest {
     @Test
     public void RemoteTest() throws Exception {
 
+        ConfigurableApplicationContext contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8080"});
+        Thread.sleep(10000);
+
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> responses=new ArrayList<>();
 
@@ -117,8 +127,8 @@ public class SupervisorTest {
         Assert.assertEquals(1,responses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,responses.get(0).getClass());
 
+        SpringApplication.exit(contextSupervisor);
+
     }
-
-
 
 }
