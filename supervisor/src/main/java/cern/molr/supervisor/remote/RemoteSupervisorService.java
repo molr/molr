@@ -53,6 +53,7 @@ public class RemoteSupervisorService extends MoleSupervisorImpl implements State
      * @param mission
      * @return
      */
+    @SuppressWarnings("unused")
     private void accept(Mission mission) throws MissionExecutionNotAccepted{
         //TODO compute acceptance status using a specific algorithm
         boolean acceptance= getState().map(StatefulMoleSupervisor.State::isAvailable).orElse(false);

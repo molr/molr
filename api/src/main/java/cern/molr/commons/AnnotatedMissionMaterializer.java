@@ -47,10 +47,8 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             LOGGER.debug("Mole class instantiated");
             String moleClassName = moleClass.getName();
             LOGGER.debug("Running mole discovery method");
-            List<String> methodsNames = mole.discover(classType).stream()
-                    .map(Method::getName)
-                    .collect(Collectors.toList());
-            MissionImpl mission = new MissionImpl(moleClassName, classType.getName(), methodsNames);
+            mole.verify(classType);
+            MissionImpl mission = new MissionImpl(moleClassName, classType.getName());
             LOGGER.debug("Mission created [{}]", mission);
             return mission;
         } catch (Exception exception) {

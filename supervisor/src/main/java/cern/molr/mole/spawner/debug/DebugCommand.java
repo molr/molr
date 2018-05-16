@@ -13,11 +13,11 @@ public enum DebugCommand implements MoleExecutionCommand{
 
     @Override
     public String getMissionId() {
-        return null;
+        return missionId;
     }
 
     @Override
     public void setMissionId(String missionId) {
-
+        this.missionId=missionId;
     }
 }

@@ -99,6 +99,7 @@ public class MoleRunner implements MoleCommandListener {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 
         Mole<Object,Object> mole = createMoleInstance(mission.getMoleClassName());
+        mole.verify(Class.forName(mission.getMissionDefnClassName()));
 
         CompletableFuture<Object> future=CompletableFuture.supplyAsync(()->{
             try {

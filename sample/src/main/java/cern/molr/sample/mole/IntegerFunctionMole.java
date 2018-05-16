@@ -18,13 +18,31 @@ import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
 
 /**
- * Implementation of {@link Mole} which allows for the discovery and execution of classes implementing the
+ * Implementation of {@link Mole} which allows for the execution of classes implementing the
  * {@link Function<Integer,Integer>} interface.
  *
  * @author nachivpn
+ * @author yassine
  * @see Mole
  */
 public class IntegerFunctionMole implements Mole<Integer,Integer> {
+
+    @Override
+    public void verify(Class<?> classType) throws IncompatibleMissionException {
+        if (null == classType) {
+            throw new IllegalArgumentException("Class type cannot be null");
+        }
+        if (Function.class.isAssignableFrom(classType)) {
+            try {
+                Method m = classType.getMethod("apply", Integer.class);
+                if(m.getReturnType() != Integer.class)
+                    throw new IncompatibleMissionException("Mission must implement IntFunction interface");
+            } catch (NoSuchMethodException e) {
+                throw new IncompatibleMissionException(e);
+            }
+        }else
+            throw new IncompatibleMissionException("Mission must implement IntFunction interface");
+    }
 
     @Override
     public Integer run(Mission mission, Integer arg) throws MissionExecutionException {
@@ -36,25 +54,6 @@ public class IntegerFunctionMole implements Mole<Integer,Integer> {
         } catch (Exception e) {
             throw new MissionExecutionException(e);
         }
-    }
-
-    @Override
-    public List<Method> discover(Class<?> classType) throws IncompatibleMissionException {
-        if (null == classType) {
-            throw new IllegalArgumentException("Class type cannot be null");
-        }
-        if (Function.class.isAssignableFrom(classType)) {
-            try {
-                Method m = classType.getMethod("apply", Integer.class);
-                if(m.getReturnType() == Integer.class)
-                    return Collections.singletonList(m);
-                else
-                    throw new IncompatibleMissionException("Mission must implement IntFunction interface");
-            } catch (NoSuchMethodException e) {
-                throw new IncompatibleMissionException(e);
-            }
-        }
-        throw new IncompatibleMissionException("Mission must implement IntFunction interface");
     }
 
 }

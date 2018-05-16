@@ -17,30 +17,29 @@ import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
 
 /**
- * Implementation of {@link Mole} which allows for the discovery and execution of classes implementing the
+ * Implementation of {@link Mole} which allows for the execution of classes implementing the
  * {@link Runnable} interface.
- * <h3>Discovery:</h3> All classes annotated with {@link Runnable} are exposed as services.
- * <h3>Execution:</h3> Allows for the execution of the {@link Runnable#run()} entry point.
  *
  * @author tiagomr
  * @author nachivpn
+ * @author yassine
  * @see Mole
  */
 public class RunnableMole implements Mole<Void,Void> {
 
     @Override
-    public List<Method> discover(Class<?> classType) throws IncompatibleMissionException {
+    public void verify(Class<?> classType) throws IncompatibleMissionException {
         if (null == classType) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
         if (Runnable.class.isAssignableFrom(classType)) {
             try {
-                return Collections.singletonList(classType.getMethod("run"));
+                classType.getMethod("run");
             } catch (NoSuchMethodException e) {
                 throw new IncompatibleMissionException(e);
             }
-        }
-        return Collections.emptyList();
+        }else
+            throw new IncompatibleMissionException("Mission must implement Runnable interface");
     }
 
     @Override

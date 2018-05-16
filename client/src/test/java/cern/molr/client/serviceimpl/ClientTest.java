@@ -49,7 +49,7 @@ public class ClientTest {
      * Supervisor Server must be started just after to be registered in MolR server
      */
     @Test
-    public void MissionTest() throws Exception {
+    public void missionTest() throws Exception {
 
 
 
@@ -94,7 +94,7 @@ public class ClientTest {
      * @throws Exception
      */
     @Test
-    public void ThreeMissionsTest() throws Exception {
+    public void missionsTest() throws Exception {
 
         List<MoleExecutionEvent> events1=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses1=new ArrayList<>();

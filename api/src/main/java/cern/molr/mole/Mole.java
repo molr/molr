@@ -12,15 +12,21 @@ import cern.molr.exception.MissionExecutionException;
 import cern.molr.mission.Mission;
 
 /**
- * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to controller a mission.
+ * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to control a mission.
  * 
- * @author nachivpn 
+ * @author nachivpn
+ * @author yassine
  * @param <I>
  * @param <O>
  */
 public interface Mole<I, O> {
 
-    List<Method> discover(Class<?> classType) throws IncompatibleMissionException;
+    /**
+     * Method which verify if a class type is compatible with the mole
+     * @param classType
+     * @throws IncompatibleMissionException
+     */
+    void verify(Class<?> classType) throws IncompatibleMissionException;
     
     O run(Mission mission, I args) throws MissionExecutionException;
     

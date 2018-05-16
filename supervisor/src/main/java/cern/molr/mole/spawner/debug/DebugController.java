@@ -104,6 +104,6 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
 
     @Override
     public void close() throws IOException {
-
+        printWriter.close();
     }
 }

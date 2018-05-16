@@ -18,7 +18,6 @@ import cern.molr.mission.Mission;
  * @author mgalilee
  * @author yassine
  *
- * TODO verify whether tasks property is relevant, discover method of a mole is useful only for verifying the relation between a mission class and its mole. A double verification would be better (materialization and running)
  */
 public class MissionImpl implements Mission {
 
@@ -32,23 +31,12 @@ public class MissionImpl implements Mission {
      */
     private String missionContentClassName;
 
-    /**
-     * {@link List} of tasks exposed by this service in the specific class
-     */
-    private final List<String> tasks = new ArrayList<>();
-
     public MissionImpl() {
     }
 
     public MissionImpl(String moleClassName, String missionContentClassName) {
         this.moleClassName = moleClassName;
         this.missionContentClassName = missionContentClassName;
-    }
-
-    public MissionImpl(String moleClassName, String missionContentClassName, List<String> tasks) {
-        this.moleClassName = moleClassName;
-        this.missionContentClassName = missionContentClassName;
-        this.tasks.addAll(tasks);
     }
 
     @Override
@@ -59,10 +47,6 @@ public class MissionImpl implements Mission {
     @Override
     public String getMissionDefnClassName() {
         return missionContentClassName;
-    }
-
-    public List<String> getTasksNames() {
-        return new ArrayList<>(tasks);
     }
 
     public void setMoleClassName(String moleClassName) {

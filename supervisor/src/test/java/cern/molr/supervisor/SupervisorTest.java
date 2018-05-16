@@ -23,10 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.function.Supplier;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
@@ -37,7 +33,7 @@ public class SupervisorTest {
 
 
     @Test
-    public void InstantiateTest() throws Exception {
+    public void instantiateTest() throws Exception {
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -54,7 +50,7 @@ public class SupervisorTest {
     }
 
     @Test
-    public void StartFinishTest() throws Exception {
+    public void startFinishTest() throws Exception {
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -74,7 +70,7 @@ public class SupervisorTest {
     }
 
     @Test
-    public void TerminateTest() throws Exception {
+    public void terminateTest() throws Exception {
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -95,7 +91,7 @@ public class SupervisorTest {
      * To execute this test the supervisor server must be started at port 8080 (it is the default port defined in file "application.properties" of the module "supervisor")
      */
     @Test
-    public void RemoteTest() throws Exception {
+    public void remoteTest() throws Exception {
 
         ConfigurableApplicationContext contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8080"});
         Thread.sleep(10000);

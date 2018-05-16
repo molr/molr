@@ -52,7 +52,7 @@ public class ServerTest {
      * Supervisor Server must be started just after to be registered in MolR Server
      */
     @Test
-    public void InstantiateTest() throws Exception{
+    public void instantiateTest() throws Exception{
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
