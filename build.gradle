@@ -2,6 +2,7 @@ allprojects {
     apply plugin: "idea"
     apply plugin: 'java'
     apply plugin: 'eclipse'
+    apply plugin: 'jacoco'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -33,6 +34,15 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+        html.enabled true
+        csv.enabled false
     }
 }
 
