@@ -98,6 +98,14 @@ public abstract class RunEvents {
             return message;
         }
 
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public void setThrowable(Throwable throwable) {
+            this.throwable = throwable;
+        }
+
         @Override
         public String toString(){
             return throwable.getClass().getName()+": "+throwable.getMessage();

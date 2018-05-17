@@ -118,6 +118,7 @@ public class MoleRunner implements MoleCommandListener {
             try {
                 MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
                 System.out.println(mapper.writeValueAsString(missionFinished));
+                System.exit(0);
                 return null;
             } catch (JsonProcessingException e) {
                 e.printStackTrace();

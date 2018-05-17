@@ -81,10 +81,11 @@ public class ServerTest {
 
         Thread.sleep( 20000);
 
-        Assert.assertEquals(3,events.size());
+        Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(RunEvents.MissionFinished.class,events.get(2).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events.get(3).getClass());
         Assert.assertEquals(1,commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
     }

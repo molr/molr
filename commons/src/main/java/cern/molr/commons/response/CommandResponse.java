@@ -6,6 +6,7 @@ import cern.molr.commons.trye.TryResponseSuccess;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.type.Ack;
 import cern.molr.type.ManuallySerializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -34,6 +35,10 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
 
         private String message;
 
+        public CommandResponseFailure() {
+            super(null);
+        }
+
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
@@ -47,12 +52,22 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
             this.message=l.getMessage();
         }
 
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+
         @Override
         public Map<String, String> getJsonMap() {
             Map<String,String> map=new HashMap<>();
             map.put("\"message\"","\""+message+"\"");
             return map;
         }
+        
     }
 
 }

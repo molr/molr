@@ -52,9 +52,10 @@ public class RunSpawnerTest {
         });
         controller.start();
         Thread.sleep(20000);
-        Assert.assertEquals(3,events.size());
+        Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(RunEvents.MissionFinished.class,events.get(2).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events.get(3).getClass());
         Assert.assertEquals(84,((RunEvents.MissionFinished)events.get(2)).getResult());
     }
 

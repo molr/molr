@@ -1,5 +1,7 @@
 package cern.molr.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Map;
 
 /**
@@ -12,6 +14,7 @@ public interface ManuallySerializable {
      * Method which returns the map representing the json object.
      * @return
      */
+    @JsonIgnore
     Map<String,String> getJsonMap();
 
     /**
