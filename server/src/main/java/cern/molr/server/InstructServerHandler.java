@@ -3,6 +3,7 @@ package cern.molr.server;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
+import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,9 +30,6 @@ public class InstructServerHandler implements WebSocketHandler {
         this.service = service;
     }
 
-    /**
-     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
-     */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
@@ -66,7 +64,7 @@ public class InstructServerHandler implements WebSocketHandler {
                                         return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
                                     } catch (JsonProcessingException e1) {
                                         e1.printStackTrace();
-                                        return "unable to serialize a failure result: source: "+e.getMessage();
+                                        return ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to serialize the response"));
                                     }
                                 }
                             }).subscribe((t)->{
@@ -80,18 +78,18 @@ public class InstructServerHandler implements WebSocketHandler {
                                 processor.onComplete();
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                processor.onNext("unable to serialize a failure result: source: unknown mission exception");
+                                processor.onNext(ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unknown mission exception")));
                                 processor.onComplete();
                             }
                         }
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize request"))));
+                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize sent command"))));
                             processor.onComplete();
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
-                            processor.onNext("unable to serialize a failure result: source: unable to deserialize sent command");
+                            processor.onNext(ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to deserialize sent command")));
                             processor.onComplete();
                         }
                     }

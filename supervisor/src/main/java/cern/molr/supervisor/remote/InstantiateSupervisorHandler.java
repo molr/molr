@@ -5,6 +5,7 @@ import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
+import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,9 +32,6 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
         this.supervisor = supervisor;
     }
 
-    /**
-     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
-     */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
@@ -70,7 +68,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                                 return mapper.writeValueAsString(new RunEvents.MissionException(e));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                return "unable to serialize a mission exception: source: " + e.getMessage();
+                                return ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to serialize an event"));
                             }
                         }
                     }).doOnComplete(processor::onComplete).subscribe(processor::onNext);
@@ -80,7 +78,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                         processor.onComplete();
                     } catch (JsonProcessingException e1) {
                         e1.printStackTrace();
-                        processor.onNext("unable to serialize a mission exception: source: "+e.getMessage());
+                        processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
                         processor.onComplete();
                     }
                 }
@@ -91,7 +89,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                     processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
+                    processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to deserialize the request")));
                     processor.onComplete();
                 }
             }

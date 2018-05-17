@@ -3,6 +3,7 @@ package cern.molr.server;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.server.request.MissionEventsRequest;
+import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,9 +30,6 @@ public class FluxServerHandler implements WebSocketHandler {
         this.service = service;
     }
 
-    /**
-     * TODO instead of returning a plain text when the serialization fails, a json representing the exception should be returned
-     */
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
@@ -66,7 +64,7 @@ public class FluxServerHandler implements WebSocketHandler {
                                 return mapper.writeValueAsString(new RunEvents.MissionException(e));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                return "unable to serialize a mission exception: source: "+e.getMessage();
+                                return ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to serialize an event"));
                             }
                         }
                     }).doOnComplete(processor::onComplete).subscribe(processor::onNext);
@@ -76,18 +74,18 @@ public class FluxServerHandler implements WebSocketHandler {
                         processor.onComplete();
                     } catch (JsonProcessingException e1) {
                         e1.printStackTrace();
-                        processor.onNext("unable to serialize a mission exception: source: "+e.getMessage());
+                        processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unknown mission")));
                         processor.onComplete();
                     }
                 }
             });
             if(!optionalRequest.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("Unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("unable to deserialize request"))));
                     processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
+                    processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to deserialize the request")));
                     processor.onComplete();
                 }
             }
