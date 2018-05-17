@@ -26,23 +26,18 @@ public class RunEventsReader extends RemoteReader {
 
 
     public RunEventsReader(BufferedReader reader,MoleExecutionListener listener) {
-        super(reader);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        this.listener=listener;
+        this(reader,DEFAULT_READING_INTERVAL,listener);
     }
 
     public RunEventsReader(BufferedReader reader, Duration readInterval,MoleExecutionListener listener) {
-        super(reader, readInterval);
+        super(reader, readInterval,null);
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         this.listener=listener;
+        start();
     }
 
     @Override
     protected void readCommand(BufferedReader reader) {
-        //Possible call before initialization of mapper and listener
-        //TODO make initialization before launching periodic listener in super class
-        if(mapper==null || listener==null)
-            return;
         try {
             final String line = reader.readLine();
             MoleExecutionEvent event=mapper.readValue(line,MoleExecutionEvent.class);

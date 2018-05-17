@@ -2,6 +2,10 @@ package cern.molr.mole.spawner.run;
 
 import cern.molr.mole.supervisor.MoleExecutionCommandStatus;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
+import cern.molr.type.ManuallySerializable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Events sent by JVM while running a mission
@@ -73,23 +77,37 @@ public abstract class RunEvents {
         }
     }
 
-    public static class MissionException implements MoleExecutionEvent{
+    public static class MissionException implements MoleExecutionEvent,ManuallySerializable {
         private Throwable throwable;
+        private String message;
 
-        public MissionException() {
+        public MissionException(String message) {
+            this.message=message;
         }
 
         public MissionException(Throwable throwable) {
             this.throwable = throwable;
+            this.message=throwable.getMessage();
         }
 
         public Throwable getThrowable() {
             return throwable;
         }
 
+        public String getMessage() {
+            return message;
+        }
+
         @Override
         public String toString(){
             return throwable.getClass().getName()+": "+throwable.getMessage();
+        }
+
+        @Override
+        public Map<String, String> getJsonMap() {
+            Map<String,String> map=new HashMap<>();
+            map.put("\"message\"","\""+message+"\"");
+            return map;
         }
     }
 

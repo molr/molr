@@ -15,17 +15,24 @@ import java.util.function.Consumer;
  * Reads commands from a {@link BufferedReader} and proxies them to a given function in a regular interval. Unless
  * specified, the interval defaults to 100 milliseconds. The reader runs a separate thread to continuously read input
  * from the stream without blocking.
+ *
+ * @author ?
+ * @author yassine
  */
 public abstract class RemoteReader implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReader.class);
 
-    private static final Duration DEFAULT_READING_INTERVAL = Duration.ofMillis(100);
+    protected static final Duration DEFAULT_READING_INTERVAL = Duration.ofMillis(100);
 
     private final ScheduledExecutorService service;
     private final BufferedReader reader;
     private Optional<Runnable> onClose = Optional.empty();
     private Optional<Runnable> onReadingAttempt = Optional.empty();
+
+    private Runnable read;
+    private Duration readingInterval;
+    private boolean started=false;
 
     /**
      * Creates a reader which reads commands from the given reader and forwards them to the controller.
@@ -43,12 +50,23 @@ public abstract class RemoteReader implements AutoCloseable {
      * @param readingInterval The interval with which to read commands. May not be negative.
      */
     public RemoteReader(BufferedReader reader, Duration readingInterval) {
+        this(reader,readingInterval,readingInterval);
+    }
+
+    /**
+     * A constructor which define a delay before launching the periodic reader
+     * @param reader
+     * @param readingInterval
+     * @param initialDelay the time to wait before launching the periodic reader, if it is null, the reader is not started, it should be started manually
+     */
+    public RemoteReader(BufferedReader reader, Duration readingInterval,Duration initialDelay){
         if (readingInterval.isNegative()) {
             throw new IllegalArgumentException("Reading interval cannot be less than 0");
         }
         this.reader = reader;
+        this.readingInterval = readingInterval;
         service = Executors.newSingleThreadScheduledExecutor();
-        Runnable read = () -> {
+        read = () -> {
             try {
                 onReadingAttempt.ifPresent(Runnable::run);
                 if(reader.ready()) {
@@ -58,8 +76,23 @@ public abstract class RemoteReader implements AutoCloseable {
                 LOGGER.warn("Exception trying to read command", exception);
             }
         };
-        service.scheduleAtFixedRate(read, readingInterval.toMillis(),
-                readingInterval.toMillis(), TimeUnit.MILLISECONDS);
+        if(initialDelay!=null) {
+            service.scheduleAtFixedRate(read, initialDelay.toMillis(),
+                    readingInterval.toMillis(), TimeUnit.MILLISECONDS);
+            started = true;
+        }
+
+    }
+
+    /**
+     * Method which allows to manually start the reader
+     */
+    protected void start(){
+        if(!started) {
+            service.scheduleAtFixedRate(read, 0,
+                    readingInterval.toMillis(), TimeUnit.MILLISECONDS);
+            started=true;
+        }
     }
 
     /**

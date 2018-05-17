@@ -28,7 +28,7 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     @Override
     public Optional<MoleSession> getSession(String missionId) {
         LOGGER.info("Getting a session from sessions manager: mission id {}",missionId);
-        return Optional.of(sessionsRegistry.get(missionId));
+        return Optional.ofNullable(sessionsRegistry.get(missionId));
     }
 
     @Override

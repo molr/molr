@@ -6,6 +6,8 @@ import cern.molr.mission.Mission;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
 import cern.molr.mole.supervisor.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -19,6 +21,7 @@ import java.io.IOException;
 public class MoleSupervisorImpl implements MoleSupervisor {
 
     protected SupervisorSessionsManager sessionsManager=new SupervisorSessionsManagerImpl();
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoleSupervisorImpl.class);
 
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId){
@@ -40,6 +43,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             return Flux.create((FluxSink<MoleExecutionEvent> emitter)->{
                 session.getController().addMoleExecutionListener((event)->{
                     emitter.next(event);
+                    LOGGER.info("Event Notification from JVM controller: {}", event);
                     if(event instanceof RunEvents.JVMDestroyed)
                         emitter.complete();
                 });
@@ -52,6 +56,10 @@ public class MoleSupervisorImpl implements MoleSupervisor {
 
     @Override
     public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-        return Mono.just(sessionsManager.getSession(command.getMissionId()).map((session)->session.getController().sendCommand(command)).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("Mission not found in supervisor registry"))));
+        return Mono.just(sessionsManager.getSession(command.getMissionId()).map((session)->{
+            MoleExecutionCommandResponse response=session.getController().sendCommand(command);
+            LOGGER.info("Receiving command response from JVM controller: {}", response);
+            return response;
+        }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));
     }
 }

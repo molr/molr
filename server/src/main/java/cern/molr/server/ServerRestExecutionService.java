@@ -5,6 +5,7 @@
 package cern.molr.server;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
+import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.exception.MissionMaterializationException;
 import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.exception.UnknownMissionException;
@@ -50,7 +51,7 @@ public class ServerRestExecutionService {
     }
 
 
-    public <I,O> String instantiate(String missionDefnClassName, I args) throws UnknownMissionException,NoAppropriateSupervisorFound {
+    public <I,O> String instantiate(String missionDefnClassName, I args) throws MissionExecutionNotAccepted,NoAppropriateSupervisorFound {
         String missionEId = makeEId();
         Mission mission=getMission(missionDefnClassName);
         Optional<StatefulMoleSupervisor> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);
@@ -62,8 +63,8 @@ public class ServerRestExecutionService {
 
     }
 
-    private Mission getMission(String mName)throws UnknownMissionException{
-        return registry.getMission(mName).orElseThrow(() -> new UnknownMissionException("Mission not defined in MolR registry"));
+    private Mission getMission(String mName)throws MissionExecutionNotAccepted{
+        return registry.getMission(mName).orElseThrow(() -> new MissionExecutionNotAccepted("Mission not defined in MolR registry"));
     }
 
     public Flux<MoleExecutionEvent> getFlux(String mEId) throws UnknownMissionException{

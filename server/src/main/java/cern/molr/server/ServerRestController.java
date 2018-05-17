@@ -13,6 +13,7 @@ import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterR
 import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseFailure;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
+import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.exception.NoAppropriateSupervisorFound;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.server.request.ServerMissionExecutionRequest;
@@ -46,7 +47,7 @@ public class ServerRestController {
             try {
                 String mEId = gateway.instantiate(request.getMissionDefnClassName(), request.getArgs());
                 return new MissionExecutionResponseSuccess(new MissionExecutionResponseBean(mEId));
-            } catch (UnknownMissionException|NoAppropriateSupervisorFound e) {
+            } catch (MissionExecutionNotAccepted |NoAppropriateSupervisorFound e) {
                 return new MissionExecutionResponseFailure(e);
             }
         });
