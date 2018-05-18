@@ -23,9 +23,9 @@ public interface StatefulMoleSupervisor extends MoleSupervisor {
         public State() {
         }
 
-        public State(boolean available, int numMissions) {
-            this.available = available;
+        public State(int numMissions, int maxMissions) {
             this.numMissions = numMissions;
+            this.maxMissions = maxMissions;
         }
 
         public boolean isAvailable() {

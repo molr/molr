@@ -10,15 +10,11 @@ import cern.molr.exception.MissionMaterializationException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.Mole;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link MissionMaterializer} that can instantiate {@link Mission}s from {@link Class}es

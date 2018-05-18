@@ -6,7 +6,6 @@ import cern.molr.commons.trye.TryResponseSuccess;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.type.Ack;
 import cern.molr.type.ManuallySerializable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

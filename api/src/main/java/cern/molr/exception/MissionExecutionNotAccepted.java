@@ -1,7 +1,4 @@
 package cern.molr.exception;
-import cern.molr.mole.supervisor.MoleSupervisor;
-
-
 /**
  * Thrown when the supervisor does not accept to execute a mission; for example because of the mission type or the fact that the max number of running missions is achieved
  * @author yassine

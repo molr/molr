@@ -29,7 +29,7 @@ public class SupervisorsManagerTest {
         private State state;
 
         public StatefulMoleSupervisorTest(boolean idle) {
-            state=new State(idle,-1);
+            state=new State(0,idle?1:0);
         }
 
 

@@ -15,7 +15,6 @@ import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregis
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
 import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.exception.NoAppropriateSupervisorFound;
-import cern.molr.exception.UnknownMissionException;
 import cern.molr.server.request.ServerMissionExecutionRequest;
 import cern.molr.type.Ack;
 import org.springframework.web.bind.annotation.RequestBody;

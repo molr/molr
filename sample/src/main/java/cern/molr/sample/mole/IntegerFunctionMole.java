@@ -7,15 +7,13 @@
 package cern.molr.sample.mole;
 
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-
 import cern.molr.exception.IncompatibleMissionException;
 import cern.molr.exception.MissionExecutionException;
 import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
+
+import java.lang.reflect.Method;
+import java.util.function.Function;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the

@@ -22,7 +22,7 @@ public class CustomSampleOperator {
      * Usage of MolR by the operator client (the request-response will be done under the hood later)
      */
 
-    CustomMissionExecutionService mExecService;
+    private CustomMissionExecutionService mExecService;
 
     public CustomSampleOperator(CustomMissionExecutionService mExecService) {
         this.mExecService = mExecService;

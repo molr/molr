@@ -4,8 +4,6 @@
 
 package cern.molr.mole;
 
-import java.lang.reflect.Method;
-import java.util.List;
 
 import cern.molr.exception.IncompatibleMissionException;
 import cern.molr.exception.MissionExecutionException;

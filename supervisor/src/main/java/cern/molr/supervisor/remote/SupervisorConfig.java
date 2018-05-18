@@ -12,9 +12,6 @@ public class SupervisorConfig {
 
     private String[] acceptedMissions;
 
-    public SupervisorConfig() {
-    }
-
     public int getMaxMissions() {
         return maxMissions;
     }
