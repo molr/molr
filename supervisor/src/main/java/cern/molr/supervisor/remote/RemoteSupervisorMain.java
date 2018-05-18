@@ -12,9 +12,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.*;
 
 
 /**
@@ -28,26 +32,58 @@ import java.util.Arrays;
 public class RemoteSupervisorMain {
 
     public static void main(String[] args) {
-        SpringApplication.run(RemoteSupervisorMain.class, args);
+        List<String> l=Arrays.asList(args);
+        List<String> a=new LinkedList<>();
+        a.addAll(l);
+        //a.add("--supervisor.fileConfig=supervisor.properties");
+        SpringApplication.run(RemoteSupervisorMain.class,a.toArray(new String[]{}));
     }
 
     @Component
     public static class Listener implements ApplicationListener<WebServerInitializedEvent> {
 
+        private SupervisorConfig config;
+
+        public Listener(SupervisorConfig config) {
+            this.config = config;
+        }
+
         @Override
         public void onApplicationEvent(final WebServerInitializedEvent event) {
-
 
             int port = event.getWebServer().getPort();
 
             MolrWebClient client=new MolrWebClient("localhost", 8000);
-            SupervisorRegisterRequest request=new SupervisorRegisterRequest("localhost",port, Arrays.asList(
-                    "cern.molr.sample.mission.RunnableHelloWriter",
-                    "cern.molr.sample.mission.IntDoubler",
-                    "cern.molr.sample.mission.Fibonacci"));
+            SupervisorRegisterRequest request=new SupervisorRegisterRequest("localhost",port, Arrays.asList(config.getAcceptedMissions()));
             client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
 
 
         }
     }
+
+    @Configuration
+    @PropertySource(value="classpath:${supervisor.fileConfig:supervisor.properties}",
+            ignoreResourceNotFound=true)
+    public class ConfigCreator {
+
+        private final Environment env;
+
+        public ConfigCreator(Environment env) {
+            this.env=env;
+        }
+
+        @Bean
+        public SupervisorConfig getSupervisorConfig() {
+            SupervisorConfig config = new SupervisorConfig();
+            try {
+                config.setMaxMissions(env.getProperty("maxMissions",Integer.class,1));
+            }catch(Exception e){
+                config.setMaxMissions(1);
+            }
+            //noinspection ConstantConditions
+            config.setAcceptedMissions(Optional.ofNullable(env.getProperty("acceptedMissions")).map((s)->s.split(",")).orElse(new String[]{}));
+            return config;
+        }
+    }
+
 }

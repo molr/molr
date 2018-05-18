@@ -18,6 +18,7 @@ public interface StatefulMoleSupervisor extends MoleSupervisor {
     class State{
         private boolean available;
         private int numMissions;
+        private int maxMissions;
 
         public State() {
         }
@@ -28,19 +29,23 @@ public interface StatefulMoleSupervisor extends MoleSupervisor {
         }
 
         public boolean isAvailable() {
-            return available;
+            return numMissions<maxMissions;
         }
 
-        public int isNumMissions() {
+        public int getNumMissions() {
             return numMissions;
-        }
-
-        public void setAvailable(boolean available) {
-            this.available = available;
         }
 
         public void setNumMissions(int numMissions) {
             this.numMissions = numMissions;
+        }
+
+        public int getMaxMissions() {
+            return maxMissions;
+        }
+
+        public void setMaxMissions(int maxMissions) {
+            this.maxMissions = maxMissions;
         }
     }
 }

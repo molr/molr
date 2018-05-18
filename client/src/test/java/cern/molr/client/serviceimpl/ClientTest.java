@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * Class for testing client Api.
@@ -217,6 +218,108 @@ public class ClientTest {
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(0).getClass());
         Assert.assertEquals(CommandResponse.CommandResponseFailure.class,commandResponses2.get(1).getClass());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(2).getClass());
+
+
+    }
+
+    @Test
+    public void parallelMissionsTest() throws Exception {
+
+        List<MoleExecutionEvent> events1=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses1=new ArrayList<>();
+
+        List<MoleExecutionEvent> events2=new ArrayList<>();
+        List<MoleExecutionCommandResponse> commandResponses2=new ArrayList<>();
+
+        MissionExecutionService service=new MissionExecutionServiceImpl();
+
+        Mono<ClientMissionController> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+
+
+        futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+
+
+            controller.getFlux().subscribe((event)->{
+                System.out.println("event(1): "+event);
+                events1.add(event);
+            });
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(1) to start: "+response);
+                commandResponses1.add(response);
+            });
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+                System.out.println("response(1) to terminate: "+response);
+                commandResponses1.add(response);
+            });
+
+        });
+
+
+
+        Mono<ClientMissionController> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+
+
+        futureController2.doOnError(Throwable::printStackTrace).subscribe((controller)->{
+            controller.getFlux().subscribe((event)->{
+                System.out.println("event(2): "+event);
+                events2.add(event);
+            });
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+                System.out.println("response(2) to start: "+response);
+                commandResponses2.add(response);
+            });
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+                System.out.println("response(2) to terminate: "+response);
+                commandResponses2.add(response);
+            });
+        });
+
+
+        Thread.sleep(10000);
+
+        Assert.assertEquals(3, events1.size());
+        Assert.assertEquals(RunEvents.JVMInstantiated.class,events1.get(0).getClass());
+        Assert.assertEquals(RunEvents.MissionStarted.class,events1.get(1).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events1.get(2).getClass());
+        Assert.assertEquals(2,commandResponses1.size());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses1.get(0).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses1.get(1).getClass());
+
+
+        Assert.assertEquals(3, events2.size());
+        Assert.assertEquals(RunEvents.JVMInstantiated.class,events2.get(0).getClass());
+        Assert.assertEquals(RunEvents.MissionStarted.class,events2.get(1).getClass());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events2.get(2).getClass());
+        Assert.assertEquals(2,commandResponses2.size());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(0).getClass());
+        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(1).getClass());
 
 
     }

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 /**
  * {@link RestController} for {@link ServerMain} spring application
@@ -50,7 +51,7 @@ public class ServerRestController {
             } catch (MissionExecutionNotAccepted |NoAppropriateSupervisorFound e) {
                 return new MissionExecutionResponseFailure(e);
             }
-        });
+        },Executors.newSingleThreadExecutor());
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.POST)

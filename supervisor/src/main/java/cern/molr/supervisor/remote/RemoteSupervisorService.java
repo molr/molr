@@ -4,12 +4,14 @@ import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.mission.Mission;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
+import cern.molr.mole.supervisor.SupervisorSessionsManagerListener;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.supervisor.impl.MoleSupervisorImpl;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -19,11 +21,30 @@ import java.util.Optional;
 @Service
 public class RemoteSupervisorService extends MoleSupervisorImpl implements StatefulMoleSupervisor{
 
+
+    private State state;
+    private SupervisorConfig config;
+
+    public RemoteSupervisorService(SupervisorConfig config) {
+        this.config = config;
+        state=new State();
+        state.setNumMissions(0);
+        state.setMaxMissions(config.getMaxMissions());
+        sessionsManager.addListener(new SupervisorSessionsManagerListener() {
+            @Override
+            public void onSessionAdded(String missionId) {
+                state.setNumMissions(sessionsManager.getSessionsNumber());
+            }
+
+            @Override
+            public void onSessionRemoved(String missionId) {
+                state.setNumMissions(sessionsManager.getSessionsNumber());
+            }
+        });
+    }
+
     @Override
     public Optional<StatefulMoleSupervisor.State> getState() {
-        //State example
-        //TODO compute availability status using a specific algorithm
-        StatefulMoleSupervisor.State state=sessionsManager.getSessionsNumber()==0?new StatefulMoleSupervisor.State(true,0):new StatefulMoleSupervisor.State(false,sessionsManager.getSessionsNumber());
         return Optional.of(state);
     }
 
@@ -53,11 +74,10 @@ public class RemoteSupervisorService extends MoleSupervisorImpl implements State
      * @param mission
      * @return
      */
-    @SuppressWarnings("unused")
     private void accept(Mission mission) throws MissionExecutionNotAccepted{
-        //TODO compute acceptance status using a specific algorithm
-        boolean acceptance= getState().map(StatefulMoleSupervisor.State::isAvailable).orElse(false);
-        if(!acceptance)
-            throw new MissionExecutionNotAccepted("Cannot accept execution of this mission");
+        if(!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
+            throw new MissionExecutionNotAccepted("Cannot accept execution of this mission: mission not accepted by the supervisor");
+        if(!state.isAvailable())
+            throw new MissionExecutionNotAccepted("Cannot accept execution of this mission: the supervisor cannot execute more missions");
     }
 }

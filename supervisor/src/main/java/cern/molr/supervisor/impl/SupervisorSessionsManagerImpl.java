@@ -2,10 +2,13 @@ package cern.molr.supervisor.impl;
 
 import cern.molr.mole.supervisor.MoleSession;
 import cern.molr.mole.supervisor.SupervisorSessionsManager;
+import cern.molr.mole.supervisor.SupervisorSessionsManagerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -16,6 +19,7 @@ import java.util.concurrent.ConcurrentMap;
 public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SupervisorSessionsManagerImpl.class);
+    private final Set<SupervisorSessionsManagerListener> listeners=new HashSet<>();
 
     private ConcurrentMap<String,MoleSession> sessionsRegistry=new ConcurrentHashMap<>();
 
@@ -23,6 +27,7 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     public void addSession(String missionId,MoleSession session) {
         LOGGER.info("Adding a session to supervisor: mission id {}",missionId);
         sessionsRegistry.put(missionId,session);
+        notifyListenersAdd(missionId);
     }
 
     @Override
@@ -35,6 +40,7 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     public void removeSession(String missionId) {
         LOGGER.info("Removing a session from sessions manager: mission id {}",missionId);
         sessionsRegistry.remove(missionId);
+        notifyListenersRemove(missionId);
     }
 
     @Override
@@ -45,5 +51,18 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     @Override
     public int getSessionsNumber() {
         return sessionsRegistry.size();
+    }
+
+    @Override
+    public void addListener(SupervisorSessionsManagerListener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyListenersAdd(String missionId){
+        listeners.forEach((s)->s.onSessionAdded(missionId));
+    }
+
+    private void notifyListenersRemove(String missionId){
+        listeners.forEach((s)->s.onSessionRemoved(missionId));
     }
 }

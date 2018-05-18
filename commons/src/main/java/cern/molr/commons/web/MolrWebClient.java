@@ -6,6 +6,8 @@ package cern.molr.commons.web;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executors;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,7 +29,7 @@ public class MolrWebClient {
                 .body(BodyInserters.fromPublisher(Mono.just(request), requestClass)).exchange()
                 .flatMapMany(value -> value.bodyToMono(responseClass))
                 .doOnError(e -> {throw new CompletionException(e);})
-                .blockFirst());
+                .blockFirst(),Executors.newSingleThreadExecutor());
     }
 
 }

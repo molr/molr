@@ -12,4 +12,5 @@ public interface SupervisorSessionsManager {
     void removeSession(String missionId);
     void removeSession(MoleSession session);
     int getSessionsNumber();
+    void addListener(SupervisorSessionsManagerListener listener);
 }
