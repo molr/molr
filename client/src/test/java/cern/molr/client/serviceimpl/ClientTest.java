@@ -64,6 +64,11 @@ public class ClientTest {
                System.out.println("event: "+event);
                events.add(event);
            });
+           try {
+               Thread.sleep(2000);
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
            controller.instruct(new RunCommands.Start()).subscribe((response)->{
                System.out.println("response to start: "+response);
                commandResponses.add(response);
@@ -120,6 +125,11 @@ public class ClientTest {
                 events1.add(event);
             });
 
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response(1) to start: "+response);
@@ -150,6 +160,11 @@ public class ClientTest {
                 System.out.println("event(2): "+event);
                 events2.add(event);
             });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response(2) to start: "+response);
                 commandResponses2.add(response);
@@ -180,6 +195,11 @@ public class ClientTest {
                 System.out.println("event(3): "+event);
                 events3.add(event);
             });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response(3) to start: "+response);
                 commandResponses3.add(response);
