@@ -68,18 +68,37 @@ public abstract class RunEvents {
         }
     }
 
-    public static class CommandStatus extends MoleExecutionCommandStatus {
+    public static class CommandStatus extends MoleExecutionCommandStatus implements ManuallySerializable {
         public CommandStatus() {
+        }
+
+        public CommandStatus(String reason) {
+            super(reason);
         }
 
         public CommandStatus(boolean accepted, String reason) {
             super(accepted, reason);
+        }
+
+        public CommandStatus(Throwable exception) {
+            super(exception);
+        }
+
+        @Override
+        public Map<String, String> getJsonMap() {
+            Map<String,String> map=new HashMap<>();
+            map.put("\"accepted\"",""+isAccepted()+"");
+            map.put("\"reason\"","\""+getReason()+"\"");
+            return map;
         }
     }
 
     public static class MissionException implements MoleExecutionEvent,ManuallySerializable {
         private Throwable throwable;
         private String message;
+
+        public MissionException() {
+        }
 
         public MissionException(String message) {
             this.message=message;

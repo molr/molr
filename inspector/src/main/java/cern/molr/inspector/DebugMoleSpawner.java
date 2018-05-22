@@ -36,7 +36,7 @@ public class DebugMoleSpawner<I,T> implements MoleSpawner<I,StepSession> {
         if(mission == null) {
             throw new IllegalArgumentException("The mission must not be null");
         }
-        InstantiationRequest request = new InstantiationRequestImpl(CURRENT_CLASSPATH_VALUE, mission, args, args.getClass().getCanonicalName());
+        InstantiationRequest request = new InstantiationRequestImpl(CURRENT_CLASSPATH_VALUE, mission, args, args.getClass().getName());
         String[] completedArgs = new String[1];
         completedArgs[0] = GSON.toJson(request);
 

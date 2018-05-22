@@ -1,6 +1,5 @@
 package cern.molr.commons.request.supervisor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +41,7 @@ public class SupervisorRegisterRequest {
         this.port = port;
     }
 
-    public void setAcceptedMissions(ArrayList<String> acceptedMissions) {
+    public void setAcceptedMissions(List<String> acceptedMissions) {
         this.acceptedMissions = acceptedMissions;
     }
 }

@@ -24,7 +24,7 @@ public interface ManuallySerializable {
      * @return
      */
     static String serializeArray(ManuallySerializable object){
-        StringBuilder json=new StringBuilder("[\"").append(object.getClass().getCanonicalName()).append("\",{");
+        StringBuilder json=new StringBuilder("[\"").append(object.getClass().getName()).append("\",{");
         object.getJsonMap().forEach((key,value)->{
             json.append(key).append(":").append(value).append(",");
         });

@@ -15,6 +15,7 @@ import cern.molr.mole.supervisor.JVMState;
 import cern.molr.mole.supervisor.MoleCommandListener;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
+import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -23,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * {@link MoleRunner} Executes a mission & and writes output to STDOUT.
@@ -93,42 +95,56 @@ public class MoleRunner implements MoleCommandListener {
     /**
      * Start execution of the mission
      */
-    private void startMission() throws Exception {
+    private void startMission() {
 
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        try{
 
-        Mole<Object,Object> mole = createMoleInstance(mission.getMoleClassName());
-        mole.verify(Class.forName(mission.getMissionDefnClassName()));
+            Mole<Object,Object> mole = createMoleInstance(mission.getMoleClassName());
+            mole.verify(Class.forName(mission.getMissionDefnClassName()));
 
-        CompletableFuture<Object> future=CompletableFuture.supplyAsync(()->{
+            CompletableFuture<Object> future=CompletableFuture.supplyAsync(()->{
+                try {
+                    return mole.run(mission, missionInput);
+                } catch (MissionExecutionException e) {
+                    throw new CompletionException(e);
+                }
+            });
+
+            MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
+            System.out.println(mapper.writeValueAsString(missionStarted));
+
+            jvmState.changeState();
+
+            CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
+                try {
+                    MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
+                    System.out.println(mapper.writeValueAsString(missionFinished));
+                    System.exit(0);
+                    return null;
+                } catch (JsonProcessingException e) {
+                    try {
+                        System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e)));
+                    } catch (JsonProcessingException e1) {
+                        System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
+                    }
+                }catch (ExecutionException|InterruptedException e) {
+                    try {
+                        System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e.getCause())));
+                    } catch (JsonProcessingException e1) {
+                        System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
+                    }
+                }
+                return null;
+            });
+        }catch (Exception e){
             try {
-                return mole.run(mission, missionInput);
-            } catch (MissionExecutionException e) {
-                throw new CompletionException(e);
+                System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e)));
+            } catch (JsonProcessingException e1) {
+                System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
             }
-        });
-
-        MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
-        System.out.println(mapper.writeValueAsString(missionStarted));
-
-        jvmState.changeState();
-
-        CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
-            try {
-                MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
-                System.out.println(mapper.writeValueAsString(missionFinished));
-                System.exit(0);
-                return null;
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                return null;
-            }catch (Exception e){
-                e.getCause().printStackTrace();
-                return null;
-            }
-        });
-
+        }
     }
 
     /**
@@ -158,24 +174,22 @@ public class MoleRunner implements MoleCommandListener {
         try{
             jvmState.acceptCommand(command);
 
-            RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,"accepted");
+            RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,"command accepted by the JVM");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
             if(command instanceof RunCommands.Start)
                 startMission();
             else if(command instanceof RunCommands.Terminate)
                 terminate();
-        } catch (CommandNotAcceptedException e) {
+
+        } catch (Exception e) {
             try {
-                RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(false,e.getMessage());
+                RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(e);
                 System.out.println(mapper.writeValueAsString(commandStatus));
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
-                System.exit(-1);
+                System.out.println(ManuallySerializable.serializeArray(new RunEvents.CommandStatus("unable to serialize a failure status")));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
         }
     }
 }

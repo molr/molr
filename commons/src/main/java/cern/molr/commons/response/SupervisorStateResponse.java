@@ -1,7 +1,6 @@
 package cern.molr.commons.response;
 
 import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseDeserializer;
 import cern.molr.commons.trye.TryResponseFailure;
 import cern.molr.commons.trye.TryResponseSuccess;
 import cern.molr.server.StatefulMoleSupervisor;
@@ -12,25 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  *
  * @author yassine
  */
-@JsonDeserialize(using = SupervisorStateResponse.SupervisorStateResponseDeserializer.class)
 public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervisor.State>{
 
-    public static class SupervisorStateResponseDeserializer extends TryResponseDeserializer<SupervisorStateResponse>{
-
-        @Override
-        public Class<? extends SupervisorStateResponse> getSuccessDeserializer() {
-            return SupervisorStateResponseSuccess.class;
-        }
-
-        @Override
-        public Class<? extends SupervisorStateResponse> getFailureDeserializer() {
-            return SupervisorStateResponseFailure.class;
-        }
-        
-        
-    }
-    
-    @JsonDeserialize(as = SupervisorStateResponseSuccess.class)
     public class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
@@ -46,8 +28,7 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
             super(r);
         }
     }
-    
-    @JsonDeserialize(as = SupervisorStateResponseFailure.class)
+
     public class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
 
         /**

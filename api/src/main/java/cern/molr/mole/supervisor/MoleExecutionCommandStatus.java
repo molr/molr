@@ -7,13 +7,24 @@ package cern.molr.mole.supervisor;
 public abstract class MoleExecutionCommandStatus implements MoleExecutionEvent{
     private boolean accepted;
     private String reason;
+    private Throwable exception;
 
     public MoleExecutionCommandStatus() {
+    }
+
+    public MoleExecutionCommandStatus(String reason) {
+        this.reason = reason;
     }
 
     public MoleExecutionCommandStatus(boolean accepted, String reason) {
         this.accepted = accepted;
         this.reason = reason;
+    }
+
+    public MoleExecutionCommandStatus(Throwable exception) {
+        accepted=false;
+        this.exception = exception;
+        reason=exception.getMessage();
     }
 
     public boolean isAccepted() {
@@ -22,5 +33,9 @@ public abstract class MoleExecutionCommandStatus implements MoleExecutionEvent{
 
     public String getReason() {
         return reason;
+    }
+
+    public Throwable getException() {
+        return exception;
     }
 }

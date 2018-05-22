@@ -5,6 +5,7 @@
 package cern.molr.server;
 
 import cern.molr.commons.AnnotatedMissionMaterializer;
+import cern.molr.commons.MissionImpl;
 import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.exception.MissionMaterializationException;
 import cern.molr.exception.NoAppropriateSupervisorFound;
@@ -12,9 +13,8 @@ import cern.molr.exception.UnknownMissionException;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.supervisor.*;
-import cern.molr.sample.mission.Fibonacci;
-import cern.molr.sample.mission.IntDoubler;
-import cern.molr.sample.mission.RunnableHelloWriter;
+import cern.molr.sample.mission.*;
+import cern.molr.sample.mole.RunnableMole;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -44,6 +44,9 @@ public class ServerRestExecutionService {
             registry.registerNewMission(m.materialize(RunnableHelloWriter.class));
             registry.registerNewMission(m.materialize(IntDoubler.class));
             registry.registerNewMission(m.materialize(Fibonacci.class));
+            //Just for testing, normally missions must be verified before deployment
+            registry.registerNewMission(new MissionImpl(RunnableMole.class.getName(),IncompatibleMission.class.getName()));
+            registry.registerNewMission(m.materialize(RunnableExceptionMission.class));
         } catch (MissionMaterializationException e) {
             throw new RuntimeException(e);
         }

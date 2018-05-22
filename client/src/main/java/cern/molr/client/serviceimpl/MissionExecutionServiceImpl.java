@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 /**
@@ -34,12 +35,14 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);
-        return Mono.fromFuture(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
-                .thenApply(tryResp -> tryResp.match(
-                        (Throwable e) -> {
-                            throw new CompletionException(e);
-                            }, MissionExecutionResponseBean::getMissionExecutionId))
-                .thenApply(missionExecutionId -> new ClientMissionController() {
+        return Mono.create((emitter)->{
+            try {
+                emitter.success(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
+                        .thenApply(tryResp -> tryResp.match(
+                                (Throwable e) -> {
+                                    throw new CompletionException(e);
+                                }, MissionExecutionResponseBean::getMissionExecutionId))
+                        .thenApply(missionExecutionId -> new ClientMissionController() {
                             @Override
                             public Flux<MoleExecutionEvent> getFlux() {
                                 MissionEventsRequest eventsRequest=new MissionEventsRequest(missionExecutionId);
@@ -50,6 +53,10 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                                 command.setMissionId(missionExecutionId);
                                 return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(CommandResponse.CommandResponseFailure::new, Function.identity()));
                             }
-                        }));
+                        }).get());
+            } catch (InterruptedException|ExecutionException e) {
+                emitter.error(e.getCause());
+            }
+        });
     }
 }

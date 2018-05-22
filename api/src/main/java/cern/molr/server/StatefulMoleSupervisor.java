@@ -16,7 +16,6 @@ public interface StatefulMoleSupervisor extends MoleSupervisor {
      * Supervisor state
      */
     class State{
-        private boolean available;
         private int numMissions;
         private int maxMissions;
 

@@ -8,6 +8,8 @@ import cern.molr.commons.response.SupervisorRegisterResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.mole.supervisor.MoleSupervisor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -83,6 +85,18 @@ public class RemoteSupervisorMain {
             //noinspection ConstantConditions
             config.setAcceptedMissions(Optional.ofNullable(env.getProperty("acceptedMissions")).map((s)->s.split(",")).orElse(new String[]{}));
             return config;
+        }
+    }
+
+    @Configuration
+    public class JSONMapperCreator {
+
+        @Bean
+        public ObjectMapper getMapper() {
+            ObjectMapper mapper=new ObjectMapper();
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+            mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+            return mapper;
         }
     }
 

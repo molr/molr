@@ -98,11 +98,12 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             while(commandStatus==null){
             }
             if(commandStatus.isAccepted()){
+                String message=commandStatus.getReason();
                 commandStatus=null;
-                return new CommandResponse.CommandResponseSuccess(new Ack("command sent to JVM"));
+                return new CommandResponse.CommandResponseSuccess(new Ack(message));
             }
             else{
-                MoleExecutionCommandResponse response=new CommandResponse.CommandResponseFailure(new Exception(commandStatus.getReason()));
+                MoleExecutionCommandResponse response=new CommandResponse.CommandResponseFailure(commandStatus.getException());
                 commandStatus=null;
                 return response;
             }

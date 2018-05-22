@@ -7,9 +7,10 @@ package cern.molr.commons.trye;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-
-@JsonDeserialize(as = TryResponseFailure.class)
-@JsonSerialize(using=TryResponseFailureSerializer.class)
+/**
+ * @author ?
+ * @author yassine
+ */
 public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T>{
 
     public TryResponseFailure() {

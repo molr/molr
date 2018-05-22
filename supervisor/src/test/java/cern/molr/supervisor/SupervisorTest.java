@@ -100,7 +100,7 @@ public class SupervisorTest {
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> responses=new ArrayList<>();
 
-        SupervisorMissionExecutionRequest<Integer> request=new SupervisorMissionExecutionRequest<>("1",IntegerFunctionMole.class.getCanonicalName(),Fibonacci.class.getCanonicalName(),42);
+        SupervisorMissionExecutionRequest<Integer> request=new SupervisorMissionExecutionRequest<>("1",IntegerFunctionMole.class.getName(),Fibonacci.class.getName(),42);
         MolrWebSocketClient client=new MolrWebSocketClient("localhost",8080);
 
         client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
