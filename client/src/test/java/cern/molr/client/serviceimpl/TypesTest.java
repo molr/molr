@@ -1,6 +1,5 @@
 package cern.molr.client.serviceimpl;
 
-import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.exception.*;
 import cern.molr.mission.controller.ClientMissionController;
@@ -11,12 +10,10 @@ import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IncompatibleMission;
-import cern.molr.sample.mission.RunnableExceptionMission;
 import cern.molr.sample.mission.NotAcceptedMission;
+import cern.molr.sample.mission.RunnableExceptionMission;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.remote.RemoteSupervisorMain;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

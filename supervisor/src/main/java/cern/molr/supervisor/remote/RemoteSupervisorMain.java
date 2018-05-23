@@ -20,6 +20,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.*;
 
 
@@ -33,12 +36,30 @@ import java.util.*;
 @SpringBootApplication
 public class RemoteSupervisorMain {
 
+    /**
+     * In order to specify a supervisor file configuration, the args parameter should contain the element "--supervisor.fileConfig=file_name.properties"
+     * If no path specified, the path "supervisor.properties" is used
+     * If the used path file does not exist, default configuration values are used
+     * @param args
+     */
     public static void main(String[] args) {
-        List<String> l=Arrays.asList(args);
-        List<String> a=new LinkedList<>();
-        a.addAll(l);
-        //a.add("--supervisor.fileConfig=supervisor.properties");
-        SpringApplication.run(RemoteSupervisorMain.class,a.toArray(new String[]{}));
+        //SpringApplication.run(RemoteSupervisorMain.class,args);
+
+        try {
+            Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netInterface : Collections.list(netInterfaces)) {
+                System.out.printf("Display name: %s\n", netInterface.getDisplayName());
+                System.out.printf("Name: %s\n", netInterface.getName());
+                Enumeration<InetAddress> inetAddresses = netInterface.getInetAddresses();
+                for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+                    System.out.printf("InetAddress: %s\n", inetAddress);
+                    System.out.println(Arrays.toString(inetAddress.getAddress()));
+                }
+                System.out.println();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Component
@@ -58,8 +79,6 @@ public class RemoteSupervisorMain {
             MolrWebClient client=new MolrWebClient("localhost", 8000);
             SupervisorRegisterRequest request=new SupervisorRegisterRequest("localhost",port, Arrays.asList(config.getAcceptedMissions()));
             client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
-
-
         }
     }
 
