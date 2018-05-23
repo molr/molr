@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Spring service which manages a separate JVM
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class RemoteMoleSupervisorService extends MoleSupervisorImpl {

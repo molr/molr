@@ -16,7 +16,7 @@ import cern.molr.mission.service.MissionExecutionService;
  * {@link CustomMissionExecutionService} is a custom service to run/step a mission. It should be implemented as a layer upon the default {@link MissionExecutionService}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface CustomMissionExecutionService {
 

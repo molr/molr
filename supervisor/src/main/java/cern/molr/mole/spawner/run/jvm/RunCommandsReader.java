@@ -14,7 +14,7 @@ import java.time.Duration;
 
 /**
  * A reader which continually reads commands from a {@link BufferedReader}.
- * @author yassine
+ * @author yassine-kr
  */
 public class RunCommandsReader extends RemoteReader {
 

@@ -19,7 +19,7 @@ import cern.molr.mole.supervisor.MoleSpawner;
 
 /**
  * @author timartin
- * @author yassine
+ * @author yassine-kr
  */
 public class DebugMoleSpawner<I,T> implements MoleSpawner<I,StepSession> {
 

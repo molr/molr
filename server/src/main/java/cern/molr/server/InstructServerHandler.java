@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class InstructServerHandler implements WebSocketHandler {

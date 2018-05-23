@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author ?
- * @author yassine
+ * @author yassine-kr
  * TODO remove this class, used deserializing method should deduce automaticly the real instance
  * @param <T>
  */

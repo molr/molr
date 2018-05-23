@@ -3,7 +3,7 @@ package cern.molr.mole.supervisor;
 /**
  * Controller of an execution of a mole being executed in a separate JVM
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface MoleExecutionController {
 

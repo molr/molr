@@ -13,7 +13,7 @@ import cern.molr.mission.Mission;
  * An immutable implementation of an {@link InstantiationRequest}.
  *
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class InstantiationRequestImpl implements InstantiationRequest {
 

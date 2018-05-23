@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * A request sent by a supervisor to register itself in MolR Server
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorRegisterRequest {
 

@@ -3,7 +3,7 @@ package cern.molr.mole.supervisor;
 /**
  * Listener for events triggered by execution of a mole in a separate JVM
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface MoleExecutionListener {
 

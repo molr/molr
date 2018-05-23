@@ -22,7 +22,7 @@ import java.util.Arrays;
  * When the server is ready, it sends a register request to MolR Server
  * TODO send the real host address of the server instead of 'localhost'
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 @SpringBootApplication
 public class RemoteSupervisorMain {

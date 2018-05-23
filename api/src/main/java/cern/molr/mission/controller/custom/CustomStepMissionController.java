@@ -16,7 +16,7 @@ import cern.molr.type.either.Either;
  * implementation should be a layer upon {@link ClientMissionController}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <T>
  */
 public interface CustomStepMissionController<T> {

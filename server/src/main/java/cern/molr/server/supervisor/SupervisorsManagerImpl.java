@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class SupervisorsManagerImpl implements SupervisorsManager {

@@ -8,7 +8,7 @@ import cern.molr.mission.service.custom.adapter.MissionExecutionServiceAdapter;
 /**
  * It adapts {@link CustomMissionExecutionService}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class MissionExecutionServiceAdapterImpl implements MissionExecutionServiceAdapter {
 

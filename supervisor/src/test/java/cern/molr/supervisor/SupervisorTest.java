@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Class for testing {@link MoleSupervisorImpl}
  * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorTest {
 

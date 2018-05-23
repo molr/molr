@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Class for testing {@link SupervisorsManagerImpl}
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorsManagerTest {
 

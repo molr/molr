@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * It adapts {@link CompletableFuture < O>}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class FutureRunMissionResultImpl<O> implements FutureRunMissionResult<O> {
 

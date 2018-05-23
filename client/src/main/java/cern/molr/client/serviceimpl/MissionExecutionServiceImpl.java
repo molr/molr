@@ -23,7 +23,7 @@ import java.util.concurrent.CompletionException;
 /**
  * Implementation used by the operator to interact with the server
  * 
- * @author yassine
+ * @author yassine-kr-kr
  */
 public class MissionExecutionServiceImpl implements MissionExecutionService {
 

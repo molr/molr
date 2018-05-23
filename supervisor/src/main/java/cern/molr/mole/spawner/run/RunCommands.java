@@ -4,7 +4,7 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
 
 /**
  * Commands used to run missions
- * @author yassine
+ * @author yassine-kr
  */
 public abstract class RunCommands {
     public static class Start implements MoleExecutionCommand {

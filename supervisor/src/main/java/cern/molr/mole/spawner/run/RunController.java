@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
  * A controller which controls running of a mission
  * It communicates with JVM using output and input streams
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class RunController implements MoleExecutionController,MoleExecutionListener, Closeable {
 

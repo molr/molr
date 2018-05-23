@@ -30,7 +30,7 @@ import java.util.concurrent.CompletionException;
  * would need some important changes such as sending the input and output class form the client to server in the request
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleRunner implements MoleCommandListener {
 

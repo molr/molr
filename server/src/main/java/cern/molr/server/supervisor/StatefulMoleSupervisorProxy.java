@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Implementation of a proxy MoleSupervisor which is able to return whether it is idle or not
- * @author yassine
+ * @author yassine-kr
  */
 public class StatefulMoleSupervisorProxy extends MoleSupervisorProxy implements StatefulMoleSupervisor {
 

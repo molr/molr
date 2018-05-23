@@ -16,7 +16,7 @@ import cern.molr.mission.Mission;
  *
  * @author tiagomr
  * @author mgalilee
- * @author yassine
+ * @author yassine-kr-kr
  *
  * TODO verify whether tasks property is relevant, discover method of a mole is useful only for verifying the relation between a mission class and its mole. A double verification would be better (materialization and running)
  */

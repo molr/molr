@@ -5,7 +5,7 @@ import cern.molr.mission.service.custom.adapter.*;
 /**
  * Sample implementation and usage of the custom adapter interface to control a mission  execution
  * TODO test this operator after implementing the custom service
- * @author yassine
+ * @author yassine-kr
  */
 public class CustomSampleOperatorAdapter {
 

@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Implementation of {@link MoleSupervisor} which manage a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleSupervisorImpl implements MoleSupervisor {
 

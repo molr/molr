@@ -4,7 +4,7 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
 
 /**
  * A request sent to MolR server and a supervisor to execute a command
- * @author yassine
+ * @author yassine-kr
  */
 public class MissionCommandRequest {
     private String missionId;

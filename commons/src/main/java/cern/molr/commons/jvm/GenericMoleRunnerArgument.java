@@ -10,7 +10,7 @@ package cern.molr.commons.jvm;
  * TODO verify whether this class is relevant, maybe remove it
  *
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr-kr
  */
 public class GenericMoleRunnerArgument {
 

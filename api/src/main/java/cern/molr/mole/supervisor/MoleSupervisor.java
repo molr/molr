@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * A supervisor
- * @author yassine
+ * @author yassine-kr
  */
 public interface MoleSupervisor {
     /**

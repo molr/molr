@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
  * An entry point for creating a {@link JdiController} which communicates via
  * {@link System#in} and {@link System#out}. {@link System#err} is used to communicate errors from the process.
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class SystemMain implements Closeable {
 

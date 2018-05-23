@@ -6,7 +6,7 @@ package cern.molr.supervisor.request;
 
 /**
  * A request sent by the MolR server to supervisor to instantiate a mission
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorMissionExecutionRequest<I> {
 

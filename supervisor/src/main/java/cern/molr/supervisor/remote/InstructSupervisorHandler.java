@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing JVM. It returns a mono
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class InstructSupervisorHandler implements WebSocketHandler {

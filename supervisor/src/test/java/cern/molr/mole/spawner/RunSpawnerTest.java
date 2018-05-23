@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  * class for testing {@link RunController}
  * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class RunSpawnerTest {
 

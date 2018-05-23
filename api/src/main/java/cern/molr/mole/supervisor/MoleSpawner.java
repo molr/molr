@@ -10,7 +10,7 @@ import cern.molr.mission.Mission;
  * The {@link MoleSpawner} spawns a mission for execution
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <T> - returns type of the spawn action (it could be a JVM session)
  */
 public interface MoleSpawner<I,T> {

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /**
  * Interface representing response to a register request
  *
- * @author yassine
+ * @author yassine-kr
  */
 @JsonDeserialize(using = SupervisorRegisterResponse.SupervisorRegisterResponseDeserializer.class)
 public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean>{

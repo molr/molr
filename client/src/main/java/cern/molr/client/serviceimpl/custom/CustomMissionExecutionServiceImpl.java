@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * Implementation of the custom service, it uses {@link MissionExecutionServiceImpl}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class CustomMissionExecutionServiceImpl implements CustomMissionExecutionService {
 

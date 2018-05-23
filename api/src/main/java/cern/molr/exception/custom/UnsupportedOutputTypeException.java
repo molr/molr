@@ -12,7 +12,7 @@ import cern.molr.mission.Mission;
  * Thrown when the client doesn't know how to deserialize the {@link Mission} output type
  * Used only for client custom interface
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class UnsupportedOutputTypeException extends Exception {
 

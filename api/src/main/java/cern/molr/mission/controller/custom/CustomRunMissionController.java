@@ -15,7 +15,7 @@ import cern.molr.type.Ack;
  * implementation should be a layer upon {@link ClientMissionController}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <T>
  */
 public interface CustomRunMissionController<T> {

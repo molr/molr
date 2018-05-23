@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 /**
  * A mission test
- * @author yassine
+ * @author yassine-kr
  */
 @RunWithMole(IntegerFunctionMole.class)
 public class MissionTest implements Function<Integer,Integer>{

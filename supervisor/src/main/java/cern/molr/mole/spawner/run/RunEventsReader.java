@@ -15,7 +15,7 @@ import java.time.Duration;
 
 /**
  * A reader which continually listens for events from a {@link BufferedReader}.
- * @author yassine
+ * @author yassine-kr
  */
 public class RunEventsReader extends RemoteReader {
 

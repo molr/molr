@@ -29,7 +29,7 @@ import cern.molr.mission.Mission;
 /**
  * A builder to help create and spawn running VM's {@link JdiInstanceBuilder}.
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class JdiInstanceBuilder {
 

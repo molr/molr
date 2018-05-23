@@ -14,7 +14,7 @@ import cern.molr.type.Ack;
  * TODO test this operator after implementing the custom service
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class CustomSampleOperator {
 

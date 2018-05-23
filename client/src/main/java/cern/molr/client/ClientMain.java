@@ -13,7 +13,7 @@ import cern.molr.sample.client.CustomSampleOperatorAdapter;
  * Example implementation of client's usage & functionalities using samples
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class ClientMain {
 

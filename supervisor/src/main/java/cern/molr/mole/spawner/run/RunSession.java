@@ -7,7 +7,7 @@ import cern.molr.mole.supervisor.MoleSession;
 
 /**
  * Session for running a mission
- * @author yassine
+ * @author yassine-kr
  */
 public class RunSession implements MoleSession {
 

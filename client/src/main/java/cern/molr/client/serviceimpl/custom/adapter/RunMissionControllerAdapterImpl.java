@@ -8,7 +8,7 @@ import cern.molr.mission.service.custom.adapter.RunMissionControllerAdapter;
 /**
  * It adapts {@link CustomRunMissionController}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class RunMissionControllerAdapterImpl<O> implements RunMissionControllerAdapter<O> {
 

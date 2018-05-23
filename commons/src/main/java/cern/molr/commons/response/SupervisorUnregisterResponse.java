@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /**
  * Interface representing response to an unregister request
  *
- * @author yassine
+ * @author yassine-kr
  */
 @JsonDeserialize(using = SupervisorUnregisterResponse.SupervisorUnregisterResponseDeserializer.class)
 public interface SupervisorUnregisterResponse extends TryResponse<Ack>{

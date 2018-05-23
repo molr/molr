@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Gateway used for communication between server and supervisors
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class ServerRestExecutionService {

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instantiating JVM. It returns a flux as response
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class InstantiateSupervisorHandler implements WebSocketHandler {

@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * It adapts {@link CompletableFuture <{@link Ack}>}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class FutureRunMissionCancelResultImpl implements FutureRunMissionCancelResult {
 

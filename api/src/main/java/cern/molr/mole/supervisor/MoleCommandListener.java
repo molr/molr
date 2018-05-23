@@ -3,7 +3,7 @@ package cern.molr.mole.supervisor;
 /**
  * Listener for commands sent by supervisor to JVM
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface MoleCommandListener {
 

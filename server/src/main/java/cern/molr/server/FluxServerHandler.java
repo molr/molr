@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting flux of events concerning a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class FluxServerHandler implements WebSocketHandler {
