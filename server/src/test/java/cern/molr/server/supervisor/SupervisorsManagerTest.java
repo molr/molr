@@ -1,6 +1,7 @@
 package cern.molr.server.supervisor;
 
 import cern.molr.mission.Mission;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
@@ -43,7 +44,7 @@ public class SupervisorsManagerTest {
         }
 
         @Override
-        public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
+        public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest command) {
             return null;
         }
     }

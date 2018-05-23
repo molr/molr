@@ -1,6 +1,7 @@
 package cern.molr.supervisor.remote;
 
 import cern.molr.commons.response.CommandResponse;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,9 +49,9 @@ public class InstructSupervisorHandler implements WebSocketHandler {
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().<Optional<MissionCommandRequest>>map((message)->{
             try {
-                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
+                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionCommandRequest.class));
             } catch (IOException e) {
                 e.printStackTrace();
                 return Optional.empty();

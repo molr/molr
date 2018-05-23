@@ -2,7 +2,7 @@ package cern.molr.server;
 
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.commons.response.CommandResponse;
-import cern.molr.mole.supervisor.MoleExecutionCommand;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -50,9 +50,9 @@ public class InstructServerHandler implements WebSocketHandler {
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().<Optional<MissionCommandRequest>>map((message)->{
                     try {
-                        return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
+                        return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionCommandRequest.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Optional.empty();

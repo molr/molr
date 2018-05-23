@@ -8,6 +8,7 @@ import cern.molr.mole.spawner.MissionTest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleSupervisor;
@@ -57,7 +58,7 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start());
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
 
         Thread.sleep(20000);
         Assert.assertEquals(3,events.size());
@@ -77,8 +78,8 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start());
-        supervisor.instruct(new RunCommands.Terminate());
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Terminate()));
 
         Thread.sleep(20000);
         Assert.assertEquals(2,events.size());
@@ -104,7 +105,7 @@ public class SupervisorTest {
 
         Thread.sleep( 4000);
 
-        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe((response)->{
+        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest("1",new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe((response)->{
             System.out.println("response to start: "+response);
             responses.add(response);
         });

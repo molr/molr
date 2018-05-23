@@ -21,9 +21,9 @@ public interface MoleSupervisor {
 
     /**
      * Send commands to JVM
-     * @param command
+     * @param commandRequest
      * @return
      */
-    Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command);
+    Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest);
 
 }

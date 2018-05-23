@@ -8,16 +8,4 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
  */
 public enum DebugCommand implements MoleExecutionCommand{
     START,TERMINATE,STEP,PAUSE,RESUME,CANCEL;
-
-    private String missionId;
-
-    @Override
-    public String getMissionId() {
-        return null;
-    }
-
-    @Override
-    public void setMissionId(String id) {
-
-    }
 }

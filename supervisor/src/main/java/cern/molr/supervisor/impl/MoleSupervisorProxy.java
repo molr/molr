@@ -27,7 +27,7 @@ public class MoleSupervisorProxy implements MoleSupervisor {
     }
 
     @Override
-    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-        return client.receiveMono("/instruct",MoleExecutionCommandResponse.class,command);
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) {
+        return client.receiveMono("/instruct",MoleExecutionCommandResponse.class,commandRequest);
     }
 }

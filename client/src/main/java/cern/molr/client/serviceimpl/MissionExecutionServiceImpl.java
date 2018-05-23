@@ -14,6 +14,7 @@ import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.ServerMissionExecutionRequest;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,8 +46,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             }
                             @Override
                             public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-                                command.setMissionId(missionExecutionId);
-                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,command);
+                                MissionCommandRequest request=new MissionCommandRequest(missionExecutionId,command);
+                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,request);
                             }
                         }));
     }

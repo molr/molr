@@ -31,7 +31,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     }
 
     @Override
-    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-        return Mono.just(session.getController().sendCommand(command));
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) {
+        return Mono.just(session.getController().sendCommand(commandRequest.getCommand()));
     }
 }

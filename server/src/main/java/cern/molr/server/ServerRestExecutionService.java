@@ -15,6 +15,7 @@ import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IntDoubler;
 import cern.molr.sample.mission.RunnableHelloWriter;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -113,11 +114,11 @@ public class ServerRestExecutionService {
 
     }
 
-    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) throws UnknownMissionException {
-        Optional<MoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(command.getMissionId());
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) throws UnknownMissionException {
+        Optional<MoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(commandRequest.getMissionId());
         return optionalSupervisor
                 .orElseThrow(() -> new UnknownMissionException("No such mission running"))
-                .instruct(command);
+                .instruct(commandRequest);
     }
 
     public String addSupervisor(String host,int port, List<String> missionsAccepted){

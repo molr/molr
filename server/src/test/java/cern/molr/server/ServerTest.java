@@ -6,6 +6,7 @@ import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.sample.mission.Fibonacci;
@@ -50,7 +51,7 @@ public class ServerTest {
         Thread.sleep(10000);
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe((result)->{
+        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest(response.getResult().getMissionExecutionId(),new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe((result)->{
             System.out.println("response to start: "+result);
             commandResponses.add(result);
         });
