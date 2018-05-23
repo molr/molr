@@ -86,7 +86,7 @@ public class SupervisorTest {
     }
 
     /**
-     * To execute this test the supervisor server must be started at port 8080 (it is the default port defined in file "application.properties" of the module "supervisor")
+     * To execute this test the supervisor server must be started at port 8080
      * @throws InterruptedException
      */
     @Test

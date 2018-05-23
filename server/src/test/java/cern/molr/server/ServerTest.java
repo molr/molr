@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class ServerTest {
 
     /**
-     * To execute this test MolR Server must be started at port 8000 (it is the default port defined in file "application.properties" of the module "server")
+     * To execute this test MolR Server must be started at port 8000
      * Supervisor Server must be started just after to be registered in MolR Server
      */
     @Test

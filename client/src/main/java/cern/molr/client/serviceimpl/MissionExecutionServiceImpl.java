@@ -55,6 +55,11 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
         }
     }
 
+    public MissionExecutionServiceImpl(String host,int port){
+        client = new MolrWebClient(host,port);
+        clientSocket=new MolrWebSocketClient(host,port);
+    }
+
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);

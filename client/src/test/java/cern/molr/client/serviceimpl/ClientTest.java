@@ -24,7 +24,8 @@ import java.util.List;
 public class ClientTest {
 
     /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
+     * To execute this test, MolR Server must be started at port 8000
+     * The host and port properties should be set to "localhost" and "8000"
      * Supervisor Server must be started just after to be registered in MolR server
      */
     @Test
