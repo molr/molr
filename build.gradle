@@ -22,6 +22,8 @@ allprojects {
          slf4j and log4j
          */
         exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
+        exclude group: "ch.qos.logback", module: "logback-classic"
+        exclude group: "ch.qos.logback", module: "logback-core"
     }
 
     dependencies {
