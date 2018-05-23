@@ -1,5 +1,6 @@
 package cern.molr.client.serviceimpl;
 
+import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
@@ -10,6 +11,8 @@ import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -31,7 +34,6 @@ public class ClientTest {
      */
     @Test
     public void MissionTest() throws Exception {
-
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
