@@ -4,6 +4,8 @@ import cern.molr.mole.supervisor.MoleExecutionEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
@@ -20,6 +22,8 @@ import java.net.URI;
  * @author yassine-kr-kr
  */
 public class MolrWebSocketClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MolrWebSocketClient.class);
 
     private WebSocketClient client;
     private String host;

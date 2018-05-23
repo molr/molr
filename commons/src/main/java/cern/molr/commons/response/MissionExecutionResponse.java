@@ -14,7 +14,7 @@ import cern.molr.commons.trye.TryResponseSuccess;
 @JsonDeserialize(using = MissionExecutionResponse.MissionExecutionResponseDeserializer.class)
 public interface MissionExecutionResponse extends TryResponse<MissionExecutionResponseBean>{
 
-    public static class MissionExecutionResponseDeserializer  extends TryResponseDeserializer<MissionExecutionResponse>{
+    public static class MissionExecutionResponseDeserializer extends TryResponseDeserializer<MissionExecutionResponse>{
 
         @Override
         public Class<? extends MissionExecutionResponse> getSuccessDeserializer() {
@@ -30,7 +30,8 @@ public interface MissionExecutionResponse extends TryResponse<MissionExecutionRe
     }
     
     @JsonDeserialize(as = MissionExecutionResponseSuccess.class)
-    public class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean> implements MissionExecutionResponse{
+    public class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean>
+            implements MissionExecutionResponse{
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
@@ -47,7 +48,8 @@ public interface MissionExecutionResponse extends TryResponse<MissionExecutionRe
     }
     
     @JsonDeserialize(as = MissionExecutionResponseFailure.class)
-    public class MissionExecutionResponseFailure extends TryResponseFailure<MissionExecutionResponseBean> implements MissionExecutionResponse{
+    public class MissionExecutionResponseFailure extends TryResponseFailure<MissionExecutionResponseBean>
+            implements MissionExecutionResponse{
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */

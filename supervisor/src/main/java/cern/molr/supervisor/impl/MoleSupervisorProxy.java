@@ -22,7 +22,8 @@ public class MoleSupervisorProxy implements MoleSupervisor {
 
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
-        SupervisorMissionExecutionRequest<I> request=new SupervisorMissionExecutionRequest<I>(missionExecutionId,mission.getMoleClassName(),mission.getMissionDefnClassName(),args);
+        SupervisorMissionExecutionRequest<I> request=new SupervisorMissionExecutionRequest<I>(
+                missionExecutionId,mission.getMoleClassName(),mission.getMissionDefnClassName(),args);
         return client.receiveFlux("/instantiate",MoleExecutionEvent.class,request);
     }
 

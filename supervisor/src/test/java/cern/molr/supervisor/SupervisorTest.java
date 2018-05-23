@@ -24,7 +24,8 @@ import java.util.List;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
- * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
+ * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration
+ * should be increased
  * @author yassine-kr
  */
 public class SupervisorTest {
@@ -95,17 +96,23 @@ public class SupervisorTest {
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> responses=new ArrayList<>();
 
-        SupervisorMissionExecutionRequest<Integer> request=new SupervisorMissionExecutionRequest<>("1",IntegerFunctionMole.class.getCanonicalName(),Fibonacci.class.getCanonicalName(),42);
+        SupervisorMissionExecutionRequest<Integer> request=
+                new SupervisorMissionExecutionRequest<>(
+                        "1",IntegerFunctionMole.class.getCanonicalName(),
+                        Fibonacci.class.getCanonicalName(),42);
         MolrWebSocketClient client=new MolrWebSocketClient("localhost",8080);
 
-        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        client.receiveFlux("/instantiate",MoleExecutionEvent.class,request)
+                .doOnError(Throwable::printStackTrace).subscribe((event)->{
             System.out.println("event: "+event);
             events.add(event);
         });
 
         Thread.sleep( 4000);
 
-        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest("1",new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe((response)->{
+        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,
+                new MissionCommandRequest("1",new RunCommands.Start()))
+                .doOnError(Throwable::printStackTrace).subscribe((response)->{
             System.out.println("response to start: "+response);
             responses.add(response);
         });

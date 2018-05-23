@@ -67,8 +67,8 @@ public class MoleRunner implements MoleCommandListener {
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
-                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of the " +
-                    "Mission to be executed");
+                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
+                    "the Mission to be executed");
         }
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
@@ -96,12 +96,14 @@ public class MoleRunner implements MoleCommandListener {
             }
         });
 
-        MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
+        MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),
+                missionInput,mission.getMoleClassName());
         System.out.println(mapper.writeValueAsString(missionStarted));
 
         CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
             try {
-                MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
+                MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),
+                        future.get(),mission.getMoleClassName());
                 System.out.println(mapper.writeValueAsString(missionFinished));
                 return null;
             } catch (JsonProcessingException e) {

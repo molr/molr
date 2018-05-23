@@ -1,12 +1,12 @@
 package cern.molr.client.serviceimpl;
 
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
+import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,8 @@ import java.util.List;
 
 /**
  * Class for testing client Api.
- * Each test can fail if the thread finishes before getting all results from the supervisor, in that case the sleep duration should be increased
+ * Each test can fail if the thread finishes before getting all results from the supervisor, in that case the sleep
+ * duration should be increased
  *
  * @author yassine-kr
  */
@@ -63,5 +64,6 @@ public class ClientTest {
         Assert.assertEquals(2,commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(1).getClass());
+
     }
 }

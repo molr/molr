@@ -4,21 +4,21 @@
 
 package cern.molr.client.serviceimpl;
 
-import cern.molr.commons.response.*;
+import cern.molr.commons.response.MissionExecutionResponse;
+import cern.molr.commons.response.MissionExecutionResponseBean;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
+import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.ServerMissionExecutionRequest;
-import cern.molr.mole.supervisor.MissionCommandRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
@@ -36,7 +36,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     private MolrWebSocketClient clientSocket;
 
     public MissionExecutionServiceImpl() {
-        try (InputStream input=MissionExecutionServiceImpl.class.getClassLoader().getResourceAsStream("config.properties")){
+        try (InputStream input=MissionExecutionServiceImpl.class.getClassLoader()
+                .getResourceAsStream("config.properties")){
 
             Properties properties = new Properties();
 
@@ -63,7 +64,9 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);
-        return Mono.fromFuture(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
+        return Mono.fromFuture(
+                client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest,
+                        MissionExecutionResponse.class)
                 .thenApply(tryResp -> tryResp.match(
                         (Throwable e) -> {
                             throw new CompletionException(e);
@@ -72,12 +75,14 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             @Override
                             public Flux<MoleExecutionEvent> getFlux() {
                                 MissionEventsRequest eventsRequest=new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace);
+                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
+                                        .doOnError(Throwable::printStackTrace);
                             }
                             @Override
                             public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
                                 MissionCommandRequest request=new MissionCommandRequest(missionExecutionId,command);
-                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,request);
+                                return clientSocket.receiveMono("/instruct",
+                                        MoleExecutionCommandResponse.class,request);
                             }
                         }));
     }

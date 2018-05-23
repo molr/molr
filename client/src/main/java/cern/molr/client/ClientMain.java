@@ -22,7 +22,8 @@ public class ClientMain {
         System.out.println("The meaning of life is " + operator.operatorRun2());
         System.out.println("The meaning of life is " + operator.operatorRun3());
 
-        CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
+        CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(
+                new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
         System.out.println("The meaning of life is " + operatorAdapter.operatorRun3());
     }
     

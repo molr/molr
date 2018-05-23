@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(using = SupervisorUnregisterResponse.SupervisorUnregisterResponseDeserializer.class)
 public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
 
-    public static class SupervisorUnregisterResponseDeserializer extends TryResponseDeserializer<SupervisorUnregisterResponse>{
+    public static class SupervisorUnregisterResponseDeserializer
+            extends TryResponseDeserializer<SupervisorUnregisterResponse>{
 
         @Override
         public Class<? extends SupervisorUnregisterResponse> getSuccessDeserializer() {
@@ -31,7 +32,8 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
     }
     
     @JsonDeserialize(as = SupervisorUnregisterResponseSuccess.class)
-    public class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack> implements SupervisorUnregisterResponse {
+    public class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack>
+            implements SupervisorUnregisterResponse {
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
@@ -48,7 +50,8 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
     }
     
     @JsonDeserialize(as = SupervisorUnregisterResponseFailure.class)
-    public class SupervisorUnregisterResponseFailure extends TryResponseFailure<Ack> implements SupervisorUnregisterResponse {
+    public class SupervisorUnregisterResponseFailure extends TryResponseFailure<Ack>
+            implements SupervisorUnregisterResponse {
 
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code

@@ -74,10 +74,12 @@ public class InstructSupervisorHandler implements WebSocketHandler {
             });
             if(!optionalCommand.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(
+                            new Exception("Unable to deserialize request"))));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                    processor.onNext("unable to serialize a failure result: source: unable to deserialize sent command");
+                    processor.onNext(
+                            "unable to serialize a failure result: source: unable to deserialize sent command");
                 }
             }
         }));

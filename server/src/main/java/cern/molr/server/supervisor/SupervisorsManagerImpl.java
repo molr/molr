@@ -55,7 +55,8 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
 
     @Override
     public Optional<StatefulMoleSupervisor> chooseSupervisor(String missionContentClassName) {
-        Optional<Vector<StatefulMoleSupervisor>> optional=Optional.ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
+        Optional<Vector<StatefulMoleSupervisor>> optional=Optional
+                .ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
         return optional.map((vec)->vec.stream().filter(StatefulMoleSupervisor::isIdle).findFirst().orElse(null));
 
     }

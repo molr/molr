@@ -51,7 +51,8 @@ public class ServerRestExecutionService {
     }
 
 
-    public <I,O> String instantiate(String missionDefnClassName, I args) throws UnknownMissionException,NoAppropriateSupervisorFound {
+    public <I,O> String instantiate(String missionDefnClassName, I args)
+            throws UnknownMissionException,NoAppropriateSupervisorFound {
         String missionEId = makeEId();
         Mission mission=getMission(missionDefnClassName);
         Optional<StatefulMoleSupervisor> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);
@@ -59,12 +60,14 @@ public class ServerRestExecutionService {
                 Flux<MoleExecutionEvent> flux = supervisor.instantiate(mission, args, missionEId);
                 registry.registerNewMissionExecution(missionEId, supervisor, flux);
                 return missionEId;
-        }).orElseThrow(() -> new NoAppropriateSupervisorFound("No appropriate supervisor found to controller such mission!"));
+        }).orElseThrow(
+                () -> new NoAppropriateSupervisorFound("No appropriate supervisor found to controller such mission!"));
 
     }
 
     private Mission getMission(String mName)throws UnknownMissionException{
-        return registry.getMission(mName).orElseThrow(() -> new UnknownMissionException("Mission not defined in MolR registry"));
+        return registry.getMission(mName).orElseThrow(
+                () -> new UnknownMissionException("Mission not defined in MolR registry"));
     }
 
     public Flux<MoleExecutionEvent> getFlux(String mEId) throws UnknownMissionException{
@@ -90,7 +93,8 @@ public class ServerRestExecutionService {
             missionRegistry.put(m.getMissionDefnClassName(), m);
         }
 
-        public void registerNewMissionExecution(String missionId, MoleSupervisor supervisor, Flux<MoleExecutionEvent> flux) {
+        public void registerNewMissionExecution(String missionId, MoleSupervisor supervisor,
+                                                Flux<MoleExecutionEvent> flux) {
             moleSupervisorRegistry.put(missionId, supervisor);
             missionExecutionRegistry.put(missionId, flux);
         }
@@ -114,7 +118,8 @@ public class ServerRestExecutionService {
 
     }
 
-    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) throws UnknownMissionException {
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest)
+            throws UnknownMissionException {
         Optional<MoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(commandRequest.getMissionId());
         return optionalSupervisor
                 .orElseThrow(() -> new UnknownMissionException("No such mission running"))

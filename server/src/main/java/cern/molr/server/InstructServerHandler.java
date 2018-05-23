@@ -52,7 +52,8 @@ public class InstructServerHandler implements WebSocketHandler {
         return session.send(processor.map(session::textMessage))
                 .and((session.receive().<Optional<MissionCommandRequest>>map((message)->{
                     try {
-                        return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionCommandRequest.class));
+                        return Optional
+                                .ofNullable(mapper.readValue(message.getPayloadAsText(),MissionCommandRequest.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Optional.empty();
@@ -76,19 +77,25 @@ public class InstructServerHandler implements WebSocketHandler {
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
-                                processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e)));
+                                processor.onNext(mapper
+                                        .writeValueAsString(new CommandResponse.CommandResponseFailure(e)));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                processor.onNext("unable to serialize a failure result: source: unknown mission exception");
+                                processor.onNext(
+                                        "unable to serialize a failure result: source: unknown mission exception");
                             }
                         }
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize request"))));
+                            processor.onNext(mapper
+                                    .writeValueAsString(
+                                            new CommandResponse.CommandResponseFailure(
+                                                    new Exception("Unable to deserialize request"))));
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
-                            processor.onNext("unable to serialize a failure result: source: unable to deserialize request");
+                            processor.onNext(
+                                    "unable to serialize a failure result: source: unable to deserialize request");
                         }
                     }
                 }));

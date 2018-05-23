@@ -17,7 +17,8 @@ public class SupervisorMissionExecutionRequest<I> {
     
     public SupervisorMissionExecutionRequest(){}
     
-    public SupervisorMissionExecutionRequest(String missionExecutionId, String moleClassName, String missionContentClassName, I args){
+    public SupervisorMissionExecutionRequest(String missionExecutionId, String moleClassName,
+                                             String missionContentClassName, I args){
         this.setMissionExecutionId(missionExecutionId);
         this.setMoleClassName(moleClassName);
         this.setMissionContentClassName(missionContentClassName);

@@ -18,7 +18,9 @@ import cern.molr.mission.Mission;
  * @author mgalilee
  * @author yassine-kr-kr
  *
- * TODO verify whether tasks property is relevant, discover method of a mole is useful only for verifying the relation between a mission class and its mole. A double verification would be better (materialization and running)
+ * TODO verify whether tasks property is relevant, discover method of a mole is useful only for verifying the
+ * TODO relation between a mission class and its mole. A double verification would be better (materialization and
+ * TODO running)
  */
 public class MissionImpl implements Mission {
 
@@ -80,7 +82,8 @@ public class MissionImpl implements Mission {
         MissionImpl service = (MissionImpl) o;
         if (moleClassName != null ? !moleClassName.equals(service.moleClassName) : service.moleClassName != null)
             return false;
-        return !(missionContentClassName != null ? !missionContentClassName.equals(service.missionContentClassName) : service.missionContentClassName != null);
+        return !(missionContentClassName != null ? !missionContentClassName.equals(service.missionContentClassName) :
+                service.missionContentClassName != null);
 
     }
 

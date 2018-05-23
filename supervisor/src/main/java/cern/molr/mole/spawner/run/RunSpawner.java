@@ -28,7 +28,8 @@ public class RunSpawner<I> implements MoleSpawner<I,RunSession> {
         String missionObjString = mapper.writeValueAsString(mission);
         String missionInputObjString = mapper.writeValueAsString(args);
 
-        MoleRunnerArgument argument = new MoleRunnerArgument(missionObjString, missionInputObjString, args==null?Object.class.getCanonicalName():args.getClass().getCanonicalName());
+        MoleRunnerArgument argument = new MoleRunnerArgument(missionObjString, missionInputObjString,
+                args==null?Object.class.getCanonicalName():args.getClass().getCanonicalName());
 
         String[] completedArgs = new String[1];
         completedArgs[0] = mapper.writeValueAsString(argument);

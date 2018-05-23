@@ -21,9 +21,11 @@ import java.util.concurrent.CompletableFuture;
 public class CustomMissionExecutionServiceImpl implements CustomMissionExecutionService {
 
     @Override
-    public <I, O> CompletableFuture<CustomRunMissionController<O>> runToCompletion(String missionDefnClassName, I args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException {
+    public <I, O> CompletableFuture<CustomRunMissionController<O>> runToCompletion(String missionDefnClassName, I
+            args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException {
         if(!cO.equals(Integer.class) && !cO.equals(String.class) && !cO.equals(Void.class))
-            throw new UnsupportedOutputTypeException("Error occured on client: " + cO.getName() + " is not supported yet!");
+            throw new UnsupportedOutputTypeException("Error occured on client: " + cO.getName() + " is not supported" +
+                    " yet!");
         //TODO to implement
         return null;
     }

@@ -82,10 +82,12 @@ public class FluxServerHandler implements WebSocketHandler {
             });
             if(!optionalRequest.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("Unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(
+                            new Exception("Unable to deserialize request"))));
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext("unable to serialize a mission exception: source: unable to deserialize request");
+                    processor.onNext(
+                            "unable to serialize a mission exception: source: unable to deserialize request");
                 }
             }
         }));

@@ -65,7 +65,8 @@ public class ServerRestController {
     }
 
     @RequestMapping(path = "/unregister", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorUnregisterResponse> unregister(@RequestBody SupervisorUnregisterRequest request) {
+    public CompletableFuture<SupervisorUnregisterResponse> unregister(
+            @RequestBody SupervisorUnregisterRequest request) {
         try {
             return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
                 gateway.removeSupervisor(request.getId());

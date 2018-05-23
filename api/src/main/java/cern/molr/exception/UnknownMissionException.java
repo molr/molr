@@ -10,7 +10,8 @@ import cern.molr.mission.Mission;
 
 /**
  * Thrown when execution of an unknown {@link Mission} is requested
- * It is thrown in two cases: when the MolR server does not have the mission in its registry or the request concerns a mission which does not belong to instantiated missions
+ * It is thrown in two cases: when the MolR server does not have the mission in its registry or the request concerns
+ * a mission which does not belong to instantiated missions
  * TODO separate these two cases into two different exceptions
  * @author nachivpn
  * @author yassine-kr

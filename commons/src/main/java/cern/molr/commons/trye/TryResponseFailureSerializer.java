@@ -15,7 +15,8 @@ import java.io.IOException;
 public class TryResponseFailureSerializer<T> extends JsonSerializer<TryResponseFailure<T>> {
 
     @Override
-    public void serialize(TryResponseFailure<T> value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(TryResponseFailure<T> value, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException, JsonProcessingException {
         gen.writeStartObject();
         value.getThrowable().initCause(new Throwable(value.getThrowable().getClass().getCanonicalName()));
         gen.writeObjectField("throwable",value.getThrowable());

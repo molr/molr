@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(using = SupervisorRegisterResponse.SupervisorRegisterResponseDeserializer.class)
 public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean>{
 
-    public static class SupervisorRegisterResponseDeserializer extends TryResponseDeserializer<SupervisorRegisterResponse>{
+    public static class SupervisorRegisterResponseDeserializer
+            extends TryResponseDeserializer<SupervisorRegisterResponse>{
 
         @Override
         public Class<? extends SupervisorRegisterResponse> getSuccessDeserializer() {
@@ -30,7 +31,8 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
     }
     
     @JsonDeserialize(as = SupervisorRegisterResponseSuccess.class)
-    public class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+    public class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean>
+            implements SupervisorRegisterResponse {
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code
          */
@@ -47,7 +49,8 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
     }
     
     @JsonDeserialize(as = SupervisorRegisterResponseFailure.class)
-    public class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+    public class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean>
+            implements SupervisorRegisterResponse {
 
         /**
          * Constructors are needed for this class because "we" create objects of this type in the code

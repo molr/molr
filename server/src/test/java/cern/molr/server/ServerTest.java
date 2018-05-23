@@ -36,22 +36,27 @@ public class ServerTest {
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
-        ServerMissionExecutionRequest<Integer> request=new ServerMissionExecutionRequest<>(Fibonacci.class.getCanonicalName(),23);
+        ServerMissionExecutionRequest<Integer> request=new ServerMissionExecutionRequest<>(
+                Fibonacci.class.getCanonicalName(),23);
         MolrWebClient client=new MolrWebClient("localhost",8000);
 
-        MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request, MissionExecutionResponse.class).get();
+        MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request,
+                MissionExecutionResponse.class).get();
         Assert.assertEquals(MissionExecutionResponse.MissionExecutionResponseSuccess.class,response.getClass());
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
         MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
-        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe((event)->{
+        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
+                .doOnError(Throwable::printStackTrace).subscribe((event)->{
             System.out.println("event: "+event);
             events.add(event);
         });
         Thread.sleep(10000);
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest(response.getResult().getMissionExecutionId(),new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe((result)->{
+        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,
+                new MissionCommandRequest(response.getResult().getMissionExecutionId(),new RunCommands.Start()))
+                .doOnError(Throwable::printStackTrace).subscribe((result)->{
             System.out.println("response to start: "+result);
             commandResponses.add(result);
         });
