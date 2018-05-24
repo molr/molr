@@ -46,7 +46,8 @@ public class IntegerFunctionMole implements Mole<Integer,Integer> {
     public Integer run(Mission mission, Integer arg) throws MissionExecutionException {
         try {
             @SuppressWarnings("unchecked")
-            Class<Function<Integer,Integer>> missionContentClass = (Class<Function<Integer,Integer>>) Class.forName(mission.getMissionDefnClassName());
+            Class<Function<Integer,Integer>> missionContentClass =
+                    (Class<Function<Integer,Integer>>) Class.forName(mission.getMissionDefnClassName());
             Function<Integer,Integer> missionContentInstance = missionContentClass.getConstructor().newInstance();
             return missionContentInstance.apply(arg);
         } catch (Exception e) {

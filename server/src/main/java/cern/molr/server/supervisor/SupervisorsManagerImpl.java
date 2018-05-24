@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
+ * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate
+ * supervisor to run a mission
  * @author yassine-kr
  */
 @Service
@@ -53,7 +54,8 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
     @Override
     public Optional<StatefulMoleSupervisor> chooseSupervisor(String missionContentClassName) {
 
-        Optional<Vector<StatefulMoleSupervisor>> optional=Optional.ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
+        Optional<Vector<StatefulMoleSupervisor>> optional=Optional
+                .ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
 
         return optional.flatMap((vec)->{
             for(StatefulMoleSupervisor supervisor:vec){

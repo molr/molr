@@ -9,6 +9,7 @@ import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
+import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
@@ -29,7 +30,7 @@ import java.util.function.Function;
  * The constructor searches for MolR address (host and port) in "config.properties"
  * The default values are "localhost" and "8000"
  *
- * @author yassine-kr-kr
+ * @author yassine-kr
  */
 public class MissionExecutionServiceImpl implements MissionExecutionService {
 
@@ -67,7 +68,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);
         return Mono.create((emitter)->{
             try {
-                emitter.success(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest, MissionExecutionResponse.class)
+                emitter.success(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest,
+                        MissionExecutionResponse.class)
                         .thenApply(tryResp -> tryResp.match(
                                 (Throwable e) -> {
                                     throw new CompletionException(e);
@@ -76,12 +78,20 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             @Override
                             public Flux<MoleExecutionEvent> getFlux() {
                                 MissionEventsRequest eventsRequest=new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(RunEvents.MissionException::new, Function.identity()));
+                                return clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
+                                        .doOnError(Throwable::printStackTrace).map((tryElement)->tryElement
+                                                .match(RunEvents.MissionException::new, Function.identity()));
                             }
                             @Override
                             public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-                                command.setMissionId(missionExecutionId);
-                                return clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(CommandResponse.CommandResponseFailure::new, Function.identity()));
+                                MissionCommandRequest commandRequest=new MissionCommandRequest(missionExecutionId,
+                                        command);
+                                return clientSocket.
+                                        receiveMono("/instruct",MoleExecutionCommandResponse.class,commandRequest)
+                                        .doOnError(Throwable::printStackTrace)
+                                        .map((tryElement)->
+                                                tryElement.match(CommandResponse.CommandResponseFailure::new,
+                                                        Function.identity()));
                             }
                         }).get());
             } catch (InterruptedException|ExecutionException e) {

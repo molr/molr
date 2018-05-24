@@ -7,7 +7,7 @@ package cern.molr.mission.service;
 import cern.molr.mission.Mission;
 
 /**
- * {@link MissionDeploymentService} is the client (developer) - server interface used to deploy (or submit) missions+
+ * {@link MissionDeploymentService} is the client (developer) - server interface used to deploy (or submit) missions
  * 
  * @author nachivpn
  */

@@ -21,7 +21,7 @@ import java.util.List;
  * class for testing types returned by the JVM
  * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class TypesTest {
 
@@ -44,8 +44,10 @@ public class TypesTest {
         Thread.sleep(5000);
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(1).getClass());
-        Assert.assertEquals(IncompatibleMissionException.class,((RunEvents.MissionException)events.get(1)).getThrowable().getClass());
-        Assert.assertEquals("Mission must implement Runnable interface",((RunEvents.MissionException)events.get(1)).getThrowable().getMessage());
+        Assert.assertEquals(IncompatibleMissionException.class,
+                ((RunEvents.MissionException)events.get(1)).getThrowable().getClass());
+        Assert.assertEquals("Mission must implement Runnable interface",
+                ((RunEvents.MissionException)events.get(1)).getThrowable().getMessage());
     }
 
 

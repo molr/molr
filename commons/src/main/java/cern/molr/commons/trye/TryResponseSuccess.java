@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class TryResponseSuccess<T> extends Success<T> implements TryResponse<T>{
 

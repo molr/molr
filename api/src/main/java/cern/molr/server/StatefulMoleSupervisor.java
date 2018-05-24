@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Optional;
 
 /**
- * It represents a supervisor which can tell whether it is idle or not
+ * It represents a supervisor which can gives its state
  *
  * @author yassine-kr
  */

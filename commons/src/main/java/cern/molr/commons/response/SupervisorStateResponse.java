@@ -9,14 +9,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /**
  * Interface representing a response to a state request sent to a supervisor
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervisor.State>{
 
-    public class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
+    class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisor.State>
+            implements SupervisorStateResponse {
+
         public SupervisorStateResponseSuccess() {
             super(null);
         }
@@ -29,13 +28,9 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
         }
     }
 
-    public class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisor.State> implements SupervisorStateResponse {
+    class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisor.State>
+            implements SupervisorStateResponse {
 
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
-        /**
-         */
         public SupervisorStateResponseFailure() {
             super(null);
         }

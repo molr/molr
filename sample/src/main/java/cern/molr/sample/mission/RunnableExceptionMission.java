@@ -9,7 +9,7 @@ import cern.molr.sample.mole.RunnableMole;
 
 /**
  * A testing mission which throws an exception
- * @author yassine
+ * @author yassine-kr
  */
 @RunWithMole(RunnableMole.class)
 public class RunnableExceptionMission implements Runnable{

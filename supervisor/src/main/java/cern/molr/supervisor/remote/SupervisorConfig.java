@@ -2,7 +2,7 @@ package cern.molr.supervisor.remote;
 
 /**
  * A supervisor configuration which contains properties of the launched supervisor
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorConfig {
     /**

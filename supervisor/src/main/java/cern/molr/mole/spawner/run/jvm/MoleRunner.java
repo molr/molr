@@ -5,7 +5,6 @@
 package cern.molr.mole.spawner.run.jvm;
 
 import cern.molr.commons.MissionImpl;
-import cern.molr.exception.CommandNotAcceptedException;
 import cern.molr.exception.MissionExecutionException;
 import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
@@ -27,11 +26,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 /**
- * {@link MoleRunner} Executes a mission & and writes output to STDOUT.
- * NOT used currently, but needed to implement stepping (and eventually maybe even running) 
- * as {@link MoleRunner} serves as an entry point to executing {@link cern.molr.mission.Mission}s.
- * Using the {@link MoleRunner} for starting a mission on supervisor,
- * would need some important changes such as sending the input and output class form the client to server in the request
+ * The entry point for executed in the spawned JVM. It has a reader which reads commands from STDIN and writes events
+ * in STDOUT
  * 
  * @author nachivpn
  * @author yassine-kr
@@ -174,7 +170,8 @@ public class MoleRunner implements MoleCommandListener {
         try{
             jvmState.acceptCommand(command);
 
-            RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,"command accepted by the JVM");
+            RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,
+                    "command accepted by the JVM");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
             if(command instanceof RunCommands.Start)
@@ -188,7 +185,8 @@ public class MoleRunner implements MoleCommandListener {
                 System.out.println(mapper.writeValueAsString(commandStatus));
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
-                System.out.println(ManuallySerializable.serializeArray(new RunEvents.CommandStatus("unable to serialize a failure status")));
+                System.out.println(ManuallySerializable.serializeArray(
+                        new RunEvents.CommandStatus("unable to serialize a failure status")));
             }
         }
     }

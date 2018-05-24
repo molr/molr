@@ -18,7 +18,7 @@ import cern.molr.mole.Mole;
  *
  * @author tiagomr
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @see Mole
  */
 public class RunnableMole implements Mole<Void,Void> {

@@ -46,7 +46,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
         return session.send(processor.map(session::textMessage))
                 .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message)->{
             try {
-                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
+                return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MissionCommandRequest.class));
             } catch (IOException e) {
                 e.printStackTrace();
                 return Optional.empty();

@@ -1,7 +1,8 @@
 package cern.molr.exception;
 /**
- * Thrown when the supervisor does not accept to execute a mission; for example because of the mission type or the fact that the max number of running missions is achieved
- * @author yassine
+ * Thrown when the MolR server or a supervisor does not accept to execute a mission; for example because of the mission
+ * type or the fact that the max number of running missions is achieved
+ * @author yassine-kr
  */
 public class MissionExecutionNotAccepted extends Exception {
 

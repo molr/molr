@@ -4,7 +4,7 @@ import cern.molr.exception.CommandNotAcceptedException;
 
 /**
  * Represents a JVM state.
- * @author yassine
+ * @author yassine-kr
  */
 public interface JVMState {
     /**

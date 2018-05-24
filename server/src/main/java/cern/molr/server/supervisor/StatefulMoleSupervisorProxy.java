@@ -3,9 +3,8 @@ package cern.molr.server.supervisor;
 import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.mission.Mission;
 import cern.molr.mole.supervisor.MissionCommandRequest;
-import cern.molr.mole.supervisor.MoleExecutionCommand;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
+import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.supervisor.impl.MoleSupervisorProxy;
 import cern.molr.supervisor.request.SupervisorStateRequest;
@@ -15,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.util.Optional;
 
 /**
- * Implementation of a proxy MoleSupervisor which is able to return whether it is idle or not
+ * Implementation of a proxy MoleSupervisor which is able to return its state using network
  * @author yassine-kr
  */
 public class StatefulMoleSupervisorProxy extends MoleSupervisorProxy implements StatefulMoleSupervisor {
@@ -30,8 +29,8 @@ public class StatefulMoleSupervisorProxy extends MoleSupervisorProxy implements 
     }
 
     @Override
-    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest command) {
-        return super.instruct(command);
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) {
+        return super.instruct(commandRequest);
     }
 
 

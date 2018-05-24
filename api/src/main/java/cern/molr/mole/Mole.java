@@ -13,7 +13,7 @@ import cern.molr.mission.Mission;
  * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to control a mission.
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <I>
  * @param <O>
  */

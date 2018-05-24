@@ -3,7 +3,7 @@ package cern.molr.exception;
 
 /**
  * Thrown when the supervisor reject the execution of a command because of the current JVM state
- * @author yassine
+ * @author yassine-kr
  */
 public class CommandNotAcceptedException extends Exception {
 

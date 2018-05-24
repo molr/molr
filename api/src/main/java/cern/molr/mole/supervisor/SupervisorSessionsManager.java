@@ -4,7 +4,7 @@ import java.util.Optional;
 
 /**
  * It manages a set of {@link MoleSession}s, each session is identified by the id of the mission running on it
- * @author yassine
+ * @author yassine-kr
  */
 public interface SupervisorSessionsManager {
     void addSession(String missionId,MoleSession session);

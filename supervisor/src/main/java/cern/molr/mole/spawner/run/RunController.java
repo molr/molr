@@ -32,7 +32,8 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
     private ObjectMapper mapper=new ObjectMapper();
 
     /**
-     * Event sent by JVM when it verifies the command. Must be volatile (not cached) because it is accessible by two threads in the same time
+     * Event sent by JVM when it verifies the command.
+     * Must be volatile (not cached) because it is accessible by two threads in the same time
      * Can't manage multiple commands in the same time
      */
     private volatile MoleExecutionCommandStatus commandStatus =null;
@@ -103,7 +104,8 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
                 return new CommandResponse.CommandResponseSuccess(new Ack(message));
             }
             else{
-                MoleExecutionCommandResponse response=new CommandResponse.CommandResponseFailure(commandStatus.getException());
+                MoleExecutionCommandResponse response=
+                        new CommandResponse.CommandResponseFailure(commandStatus.getException());
                 commandStatus=null;
                 return response;
             }

@@ -27,9 +27,10 @@ import java.util.List;
 
 /**
  * Class for testing object types returned by the server
- * Each test can fail if the thread finishes before getting all results from the supervisor, in that case the sleep duration should be increased
+ * Each test can fail if the thread finishes before getting all results from the supervisor,
+ * in that case the sleep duration should be increased
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class TypesTest {
 
@@ -53,10 +54,6 @@ public class TypesTest {
     }
 
 
-    /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
-     * Supervisor Server must be started just after to be registered in MolR server
-     */
     @Test
     public void commandResponseTest() throws Exception {
 
@@ -99,17 +96,16 @@ public class TypesTest {
 
         Assert.assertEquals(3,commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
-        Assert.assertEquals("command accepted by the JVM",((CommandResponse.CommandResponseSuccess)commandResponses.get(0)).getResult().getMessage());
+        Assert.assertEquals("command accepted by the JVM",
+                ((CommandResponse.CommandResponseSuccess)commandResponses.get(0)).getResult().getMessage());
         Assert.assertEquals(CommandResponse.CommandResponseFailure.class,commandResponses.get(1).getClass());
-        Assert.assertEquals(CommandNotAcceptedException.class,((CommandResponse.CommandResponseFailure)commandResponses.get(1)).getThrowable().getClass());
-        Assert.assertEquals("Command not accepted by the JVM: the mission is already started",((CommandResponse.CommandResponseFailure)commandResponses.get(1)).getThrowable().getMessage());
+        Assert.assertEquals(CommandNotAcceptedException.class,
+                ((CommandResponse.CommandResponseFailure)commandResponses.get(1)).getThrowable().getClass());
+        Assert.assertEquals("Command not accepted by the JVM: the mission is already started",
+                ((CommandResponse.CommandResponseFailure)commandResponses.get(1)).getThrowable().getMessage());
 
     }
 
-    /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
-     * Supervisor Server must be started just after to be registered in MolR server
-     */
     @Test
     public void IncompatibleMissionTest() throws Exception {
 
@@ -135,16 +131,16 @@ public class TypesTest {
         Thread.sleep(5000);
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(0).getClass());
-        Assert.assertEquals(MissionMaterializationException.class,((RunEvents.MissionException)events.get(0)).getThrowable().getClass());
-        Assert.assertEquals(IncompatibleMissionException.class,((RunEvents.MissionException)events.get(0)).getThrowable().getCause().getClass());
-        Assert.assertEquals("Mission must implement Runnable interface",((RunEvents.MissionException)events.get(0)).getThrowable().getCause().getMessage());
+        Assert.assertEquals(MissionMaterializationException.class,
+                ((RunEvents.MissionException)events.get(0)).getThrowable().getClass());
+        Assert.assertEquals(IncompatibleMissionException.class,
+                ((RunEvents.MissionException)events.get(0)).getThrowable().getCause().getClass());
+        Assert.assertEquals("Mission must implement Runnable interface",
+                ((RunEvents.MissionException)events.get(0)).getThrowable().getCause().getMessage());
 
     }
 
-    /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
-     * Supervisor Server must be started just after to be registered in MolR server
-     */
+
     @Test
     public void ExecutionExceptionTest() throws Exception {
 
@@ -152,7 +148,8 @@ public class TypesTest {
 
         MissionExecutionService service=new MissionExecutionServiceImpl();
 
-        Mono<ClientMissionController> futureController=service.instantiate(RunnableExceptionMission.class.getName(),null);
+        Mono<ClientMissionController> futureController=
+                service.instantiate(RunnableExceptionMission.class.getName(),null);
 
 
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -181,15 +178,13 @@ public class TypesTest {
         Thread.sleep(5000);
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(2).getClass());
-        Assert.assertEquals(MissionExecutionException.class,((RunEvents.MissionException)events.get(2)).getThrowable().getClass());
-        Assert.assertEquals(RuntimeException.class,((RunEvents.MissionException)events.get(2)).getThrowable().getCause().getClass());
+        Assert.assertEquals(MissionExecutionException.class,
+                ((RunEvents.MissionException)events.get(2)).getThrowable().getClass());
+        Assert.assertEquals(RuntimeException.class,
+                ((RunEvents.MissionException)events.get(2)).getThrowable().getCause().getClass());
 
     }
 
-    /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
-     * Supervisor Server must be started just after to be registered in MolR server
-     */
     @Test
     public void NotAcceptedMissionTest() throws Exception {
 

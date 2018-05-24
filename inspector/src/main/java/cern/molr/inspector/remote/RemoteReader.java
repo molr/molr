@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * from the stream without blocking.
  *
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public abstract class RemoteReader implements AutoCloseable {
 

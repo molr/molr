@@ -48,14 +48,8 @@ public class ClientTest {
         SpringApplication.exit(contextSupervisor);
     }
 
-    /**
-     * To execute this test, MolR Server must be started at port 8000 (it is the default port defined in the file "application.properties" of the module "server")
-     * Supervisor Server must be started just after to be registered in MolR server
-     */
     @Test
     public void missionTest() throws Exception {
-
-
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
@@ -97,11 +91,6 @@ public class ClientTest {
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(1).getClass());
     }
 
-    /**
-     * To run this test MolR Server must be started at port 8000 (it is defined in file "application.properties" of the module "server")
-     * Supervisor Server must be started after to be registered in MolR
-     * @throws Exception
-     */
     @Test
     public void missionsTest() throws Exception {
 
@@ -117,7 +106,8 @@ public class ClientTest {
         MissionExecutionService service=new MissionExecutionServiceImpl();
 
 
-        Mono<ClientMissionController> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController1=
+                service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -155,7 +145,8 @@ public class ClientTest {
         Thread.sleep(5000);
 
 
-        Mono<ClientMissionController> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController2=
+                service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController2.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -190,7 +181,8 @@ public class ClientTest {
         Thread.sleep(5000);
 
 
-        Mono<ClientMissionController> futureController3=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController3=
+                service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController3.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -256,7 +248,8 @@ public class ClientTest {
 
         MissionExecutionService service=new MissionExecutionServiceImpl();
 
-        Mono<ClientMissionController> futureController1=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController1=
+                service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController1.doOnError(Throwable::printStackTrace).subscribe((controller)->{
@@ -293,7 +286,8 @@ public class ClientTest {
 
 
 
-        Mono<ClientMissionController> futureController2=service.instantiate(Fibonacci.class.getCanonicalName(),100);
+        Mono<ClientMissionController> futureController2=
+                service.instantiate(Fibonacci.class.getCanonicalName(),100);
 
 
         futureController2.doOnError(Throwable::printStackTrace).subscribe((controller)->{

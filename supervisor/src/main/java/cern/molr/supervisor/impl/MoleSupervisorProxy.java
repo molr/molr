@@ -29,12 +29,17 @@ public class MoleSupervisorProxy implements MoleSupervisor {
 
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
-        SupervisorMissionExecutionRequest<I> request=new SupervisorMissionExecutionRequest<I>(missionExecutionId,mission.getMoleClassName(),mission.getMissionDefnClassName(),args);
-        return socketClient.receiveFlux("/instantiate",MoleExecutionEvent.class,request).map((tryElement)->tryElement.match(RunEvents.MissionException::new,Function.identity()));
+        SupervisorMissionExecutionRequest<I> request=
+                new SupervisorMissionExecutionRequest<I>(missionExecutionId,
+                        mission.getMoleClassName(),mission.getMissionDefnClassName(),args);
+        return socketClient.receiveFlux("/instantiate",MoleExecutionEvent.class,request)
+                .map((tryElement)->tryElement.match(RunEvents.MissionException::new,Function.identity()));
     }
 
     @Override
-    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-        return socketClient.receiveMono("/instruct",MoleExecutionCommandResponse.class,command).doOnError(Throwable::printStackTrace).map((tryElement)->tryElement.match(CommandResponse.CommandResponseFailure::new, Function.identity()));
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) {
+        return socketClient.receiveMono("/instruct",MoleExecutionCommandResponse.class,commandRequest)
+                .doOnError(Throwable::printStackTrace).map((tryElement)->tryElement
+                        .match(CommandResponse.CommandResponseFailure::new, Function.identity()));
     }
 }

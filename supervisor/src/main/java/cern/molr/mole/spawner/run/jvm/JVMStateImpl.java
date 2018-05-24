@@ -7,7 +7,7 @@ import cern.molr.mole.supervisor.MoleExecutionCommand;
 
 /**
  * An implementation of {@link JVMState}
- * @author yassine
+ * @author yassine-kr
  */
 public class JVMStateImpl implements JVMState {
 

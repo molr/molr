@@ -1,7 +1,5 @@
 package cern.molr.mole.supervisor;
 
-import cern.molr.mole.supervisor.MoleExecutionCommand;
-
 /**
  * A request sent to MolR server and a supervisor to execute a command
  * @author yassine-kr

@@ -13,7 +13,7 @@ import cern.molr.mission.Mission;
  *
  * @author tiagomr
  * @author mgalilee
- * @author yassine-kr-kr
+ * @author yassine-kr
  *
  */
 public class MissionImpl implements Mission {

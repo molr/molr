@@ -7,7 +7,7 @@
 package cern.molr.exception;
 
 /**
- * Exception which occurs while executing an exception
+ * Exception which occurs while executing a mission
  * @author timartin
  */
 public class MissionExecutionException extends Exception {

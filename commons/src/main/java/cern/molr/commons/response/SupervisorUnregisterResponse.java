@@ -14,10 +14,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
 
 
-    public class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack> implements SupervisorUnregisterResponse {
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
+    class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack>
+            implements SupervisorUnregisterResponse {
+
         public SupervisorUnregisterResponseSuccess() {
             super(null);
         }
@@ -30,13 +29,9 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
         }
     }
 
-    public class SupervisorUnregisterResponseFailure extends TryResponseFailure<Ack> implements SupervisorUnregisterResponse {
+    class SupervisorUnregisterResponseFailure extends TryResponseFailure<Ack>
+            implements SupervisorUnregisterResponse {
 
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
-        /**
-         */
         public SupervisorUnregisterResponseFailure() {
             super(null);
         }

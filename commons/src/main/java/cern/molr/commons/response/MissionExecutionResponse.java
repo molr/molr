@@ -4,18 +4,20 @@
 
 package cern.molr.commons.response;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import cern.molr.commons.trye.TryResponse;
 import cern.molr.commons.trye.TryResponseFailure;
 import cern.molr.commons.trye.TryResponseSuccess;
 
+/**
+ * @author ?
+ * @author yassine-kr
+ */
 public interface MissionExecutionResponse extends TryResponse<MissionExecutionResponseBean>{
 
-    public class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean> implements MissionExecutionResponse{
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
+    class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean>
+            implements MissionExecutionResponse{
+
         public MissionExecutionResponseSuccess() {
             super(null);
         }
@@ -28,12 +30,9 @@ public interface MissionExecutionResponse extends TryResponse<MissionExecutionRe
         }
     }
 
-    public class MissionExecutionResponseFailure extends TryResponseFailure<MissionExecutionResponseBean> implements MissionExecutionResponse{
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
-        /**
-         */
+    class MissionExecutionResponseFailure extends TryResponseFailure<MissionExecutionResponseBean>
+            implements MissionExecutionResponse{
+
         public MissionExecutionResponseFailure() {
             super(null);
         }

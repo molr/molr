@@ -42,7 +42,8 @@ public class ServerRestController {
 
 
     @RequestMapping(path = "/instantiate", method = RequestMethod.POST)
-    public <I> CompletableFuture<MissionExecutionResponse> instantiateMission(@RequestBody ServerMissionExecutionRequest<I> request) {
+    public <I> CompletableFuture<MissionExecutionResponse> instantiateMission(
+            @RequestBody ServerMissionExecutionRequest<I> request) {
         return CompletableFuture.<MissionExecutionResponse>supplyAsync(()->{
             try {
                 String mEId = gateway.instantiate(request.getMissionDefnClassName(), request.getArgs());
@@ -66,7 +67,8 @@ public class ServerRestController {
     }
 
     @RequestMapping(path = "/unregister", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorUnregisterResponse> uNregister(@RequestBody SupervisorUnregisterRequest request) {
+    public CompletableFuture<SupervisorUnregisterResponse> uNregister(
+            @RequestBody SupervisorUnregisterRequest request) {
         try {
             return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() ->{
                 gateway.removeSupervisor(request.getId());

@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
  * annotated with {@link RunWithMole}
  *
  * @author tiagomr
+ * @author yassine-kr
  */
 public class AnnotatedMissionMaterializer implements MissionMaterializer {
 
@@ -45,7 +46,7 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             String moleClassName = moleClass.getName();
             LOGGER.debug("Running mole discovery method");
             mole.verify(classType);
-            MissionImpl mission = new MissionImpl(moleClassName, classType.getName());
+            Mission mission = new MissionImpl(moleClassName, classType.getName());
             LOGGER.debug("Mission created [{}]", mission);
             return mission;
         } catch (Exception exception) {

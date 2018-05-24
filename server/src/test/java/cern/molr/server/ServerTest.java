@@ -28,7 +28,8 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Class for testing the server Api.
- * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased.
+ * Each test can fail if the thread finishes before getting all results from supervisor,
+ * in that case sleep duration should be increased.
  *
  */
 public class ServerTest {
@@ -71,7 +72,9 @@ public class ServerTest {
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
         MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
-        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
+        clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
+                .doOnError(Throwable::printStackTrace).subscribe(
+                        tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
         }));
@@ -80,7 +83,10 @@ public class ServerTest {
         Thread.sleep(10000);
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start(response.getResult().getMissionExecutionId())).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
+        clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest(response
+                .getResult().getMissionExecutionId(),new RunCommands.Start())).doOnError
+                (Throwable::printStackTrace).subscribe(tryElement->tryElement
+                .execute(Throwable::printStackTrace,(result)->{
             System.out.println("response to start: "+result);
             commandResponses.add(result);
         }));

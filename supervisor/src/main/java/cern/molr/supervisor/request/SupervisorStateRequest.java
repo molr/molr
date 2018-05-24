@@ -5,7 +5,7 @@
 package cern.molr.supervisor.request;
 
 /**
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorStateRequest {
 

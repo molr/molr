@@ -12,7 +12,7 @@ import java.util.function.Function;
  * Offers pattern matching on Either values & some powerful combinators to combine Either values
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <L>
  * @param <R>
  */

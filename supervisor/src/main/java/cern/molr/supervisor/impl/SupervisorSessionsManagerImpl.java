@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implementation of a supervisor sessions manager
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager {
 
@@ -45,7 +45,8 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
 
     @Override
     public void removeSession(MoleSession session) {
-        sessionsRegistry.entrySet().stream().filter((s)->s.getValue()==session).findFirst().ifPresent((s)->removeSession(s.getKey()));
+        sessionsRegistry.entrySet().stream().filter((s)->s.getValue()==session)
+                .findFirst().ifPresent((s)->removeSession(s.getKey()));
     }
 
     @Override

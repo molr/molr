@@ -8,6 +8,7 @@ import cern.molr.mission.MissionMaterializer;
 import cern.molr.mole.spawner.MissionTest;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleSupervisor;
@@ -45,7 +46,7 @@ public class SupervisorTest {
             events.add(event);
         });
 
-        Thread.sleep(20000);
+        Thread.sleep(5000);
         Assert.assertEquals(1,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
     }
@@ -61,9 +62,10 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start("1"));
 
-        Thread.sleep(20000);
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
+
+        Thread.sleep(10000);
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(RunEvents.MissionFinished.class,events.get(2).getClass());
@@ -82,10 +84,10 @@ public class SupervisorTest {
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
         });
-        supervisor.instruct(new RunCommands.Start("1"));
-        supervisor.instruct(new RunCommands.Terminate("1"));
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
+        supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Terminate()));
 
-        Thread.sleep(20000);
+        Thread.sleep(5000);
         Assert.assertEquals(3,events.size());
     }
 
@@ -111,7 +113,7 @@ public class SupervisorTest {
 
         Thread.sleep( 4000);
 
-        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new RunCommands.Start("1")).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
+        client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest("1",new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
             System.out.println("response to start: "+result);
             responses.add(result);
         }));

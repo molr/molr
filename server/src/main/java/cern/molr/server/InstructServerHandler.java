@@ -2,6 +2,7 @@ package cern.molr.server;
 
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.exception.UnknownMissionException;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,15 +49,15 @@ public class InstructServerHandler implements WebSocketHandler {
                 .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message)->{
                     try {
                         return Optional.ofNullable(mapper.readValue(
-                                message.getPayloadAsText(),MoleExecutionCommand.class));
+                                message.getPayloadAsText(),MissionCommandRequest.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Optional.empty();
                     }
                 })).doOnNext((optionalCommand)->{
-                    optionalCommand.ifPresent((command)-> {
+                    optionalCommand.ifPresent((commandRequest)-> {
                         try {
-                            service.instruct(command).map((result)->{
+                            service.instruct(commandRequest).map((result)->{
                                 try {
                                     return mapper.writeValueAsString(result);
                                 } catch (JsonProcessingException e) {

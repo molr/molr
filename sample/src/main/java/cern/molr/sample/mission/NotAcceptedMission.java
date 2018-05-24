@@ -5,7 +5,7 @@ import cern.molr.sample.mole.RunnableMole;
 
 /**
  * A testing mission which is not accepted by the supervisor
- * @author yassine
+ * @author yassine-kr
  */
 @RunWithMole(RunnableMole.class)
 public class NotAcceptedMission implements Runnable{

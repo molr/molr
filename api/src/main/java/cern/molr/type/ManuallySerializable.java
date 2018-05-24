@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
 
 /**
- * Classes which has to be manually serializable. If the automatic serialization using Jackson library fails, the manual serialization is used
- * @author yassine
+ * Classes which has to be manually serializable. If the automatic serialization using Jackson library fails, the
+ * manual serialization is used
+ * @author yassine-kr
  */
 public interface ManuallySerializable {
 

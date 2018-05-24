@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T>{
 

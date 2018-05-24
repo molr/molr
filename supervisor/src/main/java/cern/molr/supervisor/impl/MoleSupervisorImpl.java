@@ -55,9 +55,9 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     }
 
     @Override
-    public Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command) {
-        return Mono.just(sessionsManager.getSession(command.getMissionId()).map((session)->{
-            MoleExecutionCommandResponse response=session.getController().sendCommand(command);
+    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest) {
+        return Mono.just(sessionsManager.getSession(commandRequest.getMissionId()).map((session)->{
+            MoleExecutionCommandResponse response=session.getController().sendCommand(commandRequest.getCommand());
             LOGGER.info("Receiving command response from JVM controller: {}", response);
             return response;
         }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));

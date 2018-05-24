@@ -3,7 +3,7 @@ package cern.molr.mole.supervisor.address;
 
 /**
  * It gets IP address and port of the supervisor in order to send it to MolR serve
- * @author yassine
+ * @author yassine-kr
  */
 public interface AddressGetter {
     class Address{

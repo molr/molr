@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Spring service which manages a separate JVM
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class RemoteSupervisorService extends MoleSupervisorImpl implements StatefulMoleSupervisor{
@@ -76,8 +76,10 @@ public class RemoteSupervisorService extends MoleSupervisorImpl implements State
      */
     private void accept(Mission mission) throws MissionExecutionNotAccepted{
         if(!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
-            throw new MissionExecutionNotAccepted("Cannot accept execution of this mission: mission not accepted by the supervisor");
+            throw new MissionExecutionNotAccepted(
+                    "Cannot accept execution of this mission: mission not accepted by the supervisor");
         if(!state.isAvailable())
-            throw new MissionExecutionNotAccepted("Cannot accept execution of this mission: the supervisor cannot execute more missions");
+            throw new MissionExecutionNotAccepted(
+                    "Cannot accept execution of this mission: the supervisor cannot execute more missions");
     }
 }

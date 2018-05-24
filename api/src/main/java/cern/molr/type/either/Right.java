@@ -11,7 +11,7 @@ import java.util.function.Function;
  * Type to construct "right" value of {@link Either}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @param <RL>
  * @param <RR>
  */

@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
  * {@link RestController} for {@link RemoteSupervisorMain} spring application
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 @RestController
 public class RemoteSupervisorController{
@@ -34,8 +34,10 @@ public class RemoteSupervisorController{
     @RequestMapping(path = "/getState", method = RequestMethod.POST)
     public Future<? extends SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
-        return CompletableFuture.<SupervisorStateResponse>supplyAsync(()-> supervisorService.getState().<SupervisorStateResponse>map(SupervisorStateResponse.SupervisorStateResponseSuccess::new)
-                .orElse(new SupervisorStateResponse.SupervisorStateResponseFailure(new Exception("unable to get the state from supervisor"))),Executors.newSingleThreadExecutor())
+        return CompletableFuture.<SupervisorStateResponse>supplyAsync(()-> supervisorService.getState()
+                .<SupervisorStateResponse>map(SupervisorStateResponse.SupervisorStateResponseSuccess::new)
+                .orElse(new SupervisorStateResponse.SupervisorStateResponseFailure(
+                        new Exception("unable to get the state from supervisor"))),Executors.newSingleThreadExecutor())
                 .exceptionally(SupervisorStateResponse.SupervisorStateResponseFailure::new);
     }
 

@@ -12,13 +12,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author ?
+ * @author yassine-kr
+ */
 public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandResponse {
 
-    @JsonDeserialize(as = CommandResponseSuccess.class)
-    public static class CommandResponseSuccess extends TryResponseSuccess<Ack> implements CommandResponse {
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
+    class CommandResponseSuccess extends TryResponseSuccess<Ack> implements CommandResponse {
         public CommandResponseSuccess() {
             super(null);
         }
@@ -28,9 +28,7 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
         }
     }
 
-    @JsonDeserialize(as = CommandResponseFailure.class)
-    @JsonSerialize(as=CommandResponseFailure.class)
-    public static class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse,ManuallySerializable {
+    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse,ManuallySerializable {
 
         private String message;
 
@@ -38,9 +36,6 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
             super(null);
         }
 
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
         public CommandResponseFailure(String message) {
             super(null);
             this.message=message;

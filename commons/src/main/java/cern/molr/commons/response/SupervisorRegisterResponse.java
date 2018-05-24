@@ -13,10 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean>{
 
 
-    public class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
+    class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+
         public SupervisorRegisterResponseSuccess() {
             super(null);
         }
@@ -29,13 +27,8 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
         }
     }
 
-    public class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+    class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
 
-        /**
-         * Constructors are needed for this class because "we" create objects of this type in the code
-         */
-        /**
-         */
         public SupervisorRegisterResponseFailure() {
             super(null);
         }
