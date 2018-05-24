@@ -5,8 +5,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * A supervisor
- * @author yassine
+ * A supervisor allows to instantiate a mission, that means create a JVM where the requested mission will be executed.
+ * It allows also to instruct the mission execution by sending commands. These are interpreted either by the JVM or
+ * the mole itself.
+ *
+ * @author yassine-kr
  */
 public interface MoleSupervisor {
     /**
@@ -21,9 +24,9 @@ public interface MoleSupervisor {
 
     /**
      * Send commands to JVM
-     * @param command
+     * @param commandRequest
      * @return
      */
-    Mono<MoleExecutionCommandResponse> instruct(MoleExecutionCommand command);
+    Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest);
 
 }

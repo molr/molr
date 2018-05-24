@@ -8,7 +8,7 @@ package cern.molr.type;
  * {@link Ack} is often used as an acknowledgement return type ( instead of void :) )
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class Ack{
 

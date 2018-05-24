@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A spawner which creates a JVM that executes the mission
- * @author yassine
+ * @author yassine-kr
  */
 public class RunSpawner<I> implements MoleSpawner<I,RunSession> {
 

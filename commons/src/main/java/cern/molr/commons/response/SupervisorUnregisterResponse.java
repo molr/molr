@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /**
  * Interface representing response to an unregister request
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
 

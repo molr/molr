@@ -13,14 +13,17 @@ import cern.molr.mission.service.MissionExecutionService;
 
 
 /**
- * {@link CustomMissionExecutionService} is a custom service to run/step a mission. It should be implemented as a layer upon the default {@link MissionExecutionService}
+ * {@link CustomMissionExecutionService} is a custom service to run/step a mission. It should be implemented as a
+ * layer upon the default {@link MissionExecutionService}
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface CustomMissionExecutionService {
 
-    <I,O> CompletableFuture<CustomRunMissionController<O>> runToCompletion(String missionDefnClassName, I args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException;
+    <I,O> CompletableFuture<CustomRunMissionController<O>> runToCompletion(String missionDefnClassName, I args,
+                                                                            Class<I> cI, Class<O> cO) throws
+            UnsupportedOutputTypeException;
     
     <I,O> CompletableFuture<CustomStepMissionController<O>> step(String missionDefnClassName, I args);
     

@@ -8,7 +8,7 @@ import cern.molr.mission.service.custom.adapter.MissionExecutionServiceAdapter;
 /**
  * It adapts {@link CustomMissionExecutionService}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class MissionExecutionServiceAdapterImpl implements MissionExecutionServiceAdapter {
 
@@ -19,7 +19,8 @@ public class MissionExecutionServiceAdapterImpl implements MissionExecutionServi
     }
 
     @Override
-    public <I, O> FutureRunMissionController<O> runToCompletion(String missionDefnClassName, I args, Class<I> cI, Class<O> cO) throws UnsupportedOutputTypeException {
+    public <I, O> FutureRunMissionController<O> runToCompletion(String missionDefnClassName, I args, Class<I> cI,
+                                                                Class<O> cO) throws UnsupportedOutputTypeException {
         return new FutureRunMissionControllerImpl<>(mExecService.runToCompletion(missionDefnClassName,args,cI,cO));
     }
 }

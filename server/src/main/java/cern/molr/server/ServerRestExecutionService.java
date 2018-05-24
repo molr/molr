@@ -16,6 +16,7 @@ import cern.molr.mole.supervisor.*;
 import cern.molr.sample.mission.*;
 import cern.molr.sample.mole.RunnableMole;
 import cern.molr.server.supervisor.StatefulMoleSupervisorProxy;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,7 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Gateway used for communication between server and supervisors
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class ServerRestExecutionService {

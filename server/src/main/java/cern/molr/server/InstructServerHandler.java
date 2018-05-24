@@ -19,7 +19,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class InstructServerHandler implements WebSocketHandler {
@@ -45,9 +45,10 @@ public class InstructServerHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().take(1).<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message)->{
                     try {
-                        return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
+                        return Optional.ofNullable(mapper.readValue(
+                                message.getPayloadAsText(),MoleExecutionCommand.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Optional.empty();
@@ -64,7 +65,10 @@ public class InstructServerHandler implements WebSocketHandler {
                                         return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
                                     } catch (JsonProcessingException e1) {
                                         e1.printStackTrace();
-                                        return ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to serialize the response"));
+                                        return ManuallySerializable.serializeArray(
+                                                new CommandResponse.CommandResponseFailure(
+                                                        "unable to serialize a failure response, " +
+                                                                "source: unable to serialize the response"));
                                     }
                                 }
                             }).subscribe((t)->{
@@ -74,22 +78,31 @@ public class InstructServerHandler implements WebSocketHandler {
                         } catch (UnknownMissionException e) {
                             e.printStackTrace();
                             try {
-                                processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e)));
+                                processor.onNext(mapper.writeValueAsString(
+                                        new CommandResponse.CommandResponseFailure(e)));
                                 processor.onComplete();
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                processor.onNext(ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unknown mission exception")));
+                                processor.onNext(ManuallySerializable.serializeArray(
+                                        new CommandResponse.CommandResponseFailure(
+                                                "unable to serialize a failure response, " +
+                                                        "source: unknown mission exception")));
                                 processor.onComplete();
                             }
                         }
                     });
                     if(!optionalCommand.isPresent()){
                         try {
-                            processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize sent command"))));
+                            processor.onNext(mapper.writeValueAsString(
+                                    new CommandResponse.CommandResponseFailure(
+                                            new Exception("Unable to deserialize sent command"))));
                             processor.onComplete();
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
-                            processor.onNext(ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to deserialize sent command")));
+                            processor.onNext(ManuallySerializable.serializeArray(
+                                    new CommandResponse.CommandResponseFailure(
+                                            "unable to serialize a failure response, " +
+                                                    "source: unable to deserialize sent command")));
                             processor.onComplete();
                         }
                     }

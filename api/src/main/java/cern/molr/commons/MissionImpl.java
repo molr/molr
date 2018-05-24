@@ -13,7 +13,7 @@ import cern.molr.mission.Mission;
  *
  * @author tiagomr
  * @author mgalilee
- * @author yassine
+ * @author yassine-kr-kr
  *
  */
 public class MissionImpl implements Mission {
@@ -61,7 +61,8 @@ public class MissionImpl implements Mission {
         MissionImpl service = (MissionImpl) o;
         if (moleClassName != null ? !moleClassName.equals(service.moleClassName) : service.moleClassName != null)
             return false;
-        return !(missionContentClassName != null ? !missionContentClassName.equals(service.missionContentClassName) : service.missionContentClassName != null);
+        return !(missionContentClassName != null ? !missionContentClassName.equals(service.missionContentClassName) :
+                service.missionContentClassName != null);
 
     }
 

@@ -6,7 +6,7 @@ package cern.molr.supervisor.request;
 
 /**
  * A request sent by the MolR server to supervisor to instantiate a mission
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorMissionExecutionRequest<I> {
 
@@ -17,7 +17,8 @@ public class SupervisorMissionExecutionRequest<I> {
     
     public SupervisorMissionExecutionRequest(){}
     
-    public SupervisorMissionExecutionRequest(String missionExecutionId, String moleClassName, String missionContentClassName, I args){
+    public SupervisorMissionExecutionRequest(String missionExecutionId, String moleClassName,
+                                             String missionContentClassName, I args){
         this.setMissionExecutionId(missionExecutionId);
         this.setMoleClassName(moleClassName);
         this.setMissionContentClassName(missionContentClassName);

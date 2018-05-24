@@ -11,7 +11,7 @@ import cern.molr.type.either.Either;
  * Controller used by {@link MoleSupervisor} to control stepping missions
  * TODO verify whether this class is relevant
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface JdiController {
     

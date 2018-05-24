@@ -4,7 +4,7 @@ import cern.molr.mole.supervisor.MoleExecutionEvent;
 
 /**
  * Events sent by JVM while debugging
- * @author yassine
+ * @author yassine-kr
  */
 public abstract class DebugEvents {
 

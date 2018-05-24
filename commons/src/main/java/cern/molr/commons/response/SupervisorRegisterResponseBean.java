@@ -3,7 +3,7 @@ package cern.molr.commons.response;
 /**
  * Bean representing a response to a register request
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorRegisterResponseBean {
 

@@ -20,7 +20,7 @@ import java.util.function.Function;
  * {@link Function<Integer,Integer>} interface.
  *
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  * @see Mole
  */
 public class IntegerFunctionMole implements Mole<Integer,Integer> {

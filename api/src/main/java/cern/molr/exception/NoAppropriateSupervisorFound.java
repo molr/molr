@@ -5,7 +5,7 @@ import cern.molr.mole.supervisor.MoleSupervisor;
 
 /**
  * Thrown when the MolR server does not find an appropriate {@link MoleSupervisor} to execute a mission
- * @author yassine
+ * @author yassine-kr
  */
 public class NoAppropriateSupervisorFound extends Exception {
 

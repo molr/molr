@@ -26,7 +26,7 @@ import java.util.Optional;
  * Remote entry point for the {@link MoleSupervisor}
  * When the server is ready, it sends a register request to MolR Server
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 @SpringBootApplication
 public class RemoteSupervisorMain {

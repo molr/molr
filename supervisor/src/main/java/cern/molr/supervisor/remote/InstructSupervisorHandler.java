@@ -1,6 +1,7 @@
 package cern.molr.supervisor.remote;
 
 import cern.molr.commons.response.CommandResponse;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing JVM. It returns a mono
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class InstructSupervisorHandler implements WebSocketHandler {
@@ -43,7 +44,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
         FluxProcessor<String,String> processor=TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().take(1).<Optional<MoleExecutionCommand>>map((message)->{
+                .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message)->{
             try {
                 return Optional.ofNullable(mapper.readValue(message.getPayloadAsText(),MoleExecutionCommand.class));
             } catch (IOException e) {
@@ -61,7 +62,10 @@ public class InstructSupervisorHandler implements WebSocketHandler {
                             return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
                         } catch (JsonProcessingException e1) {
                             e1.printStackTrace();
-                            return ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to serialize the response"));
+                            return ManuallySerializable.serializeArray(
+                                    new CommandResponse.CommandResponseFailure(
+                                            "unable to serialize a failure response, " +
+                                                    "source: unable to serialize the response"));
                         }
                     }
                 }).subscribe((s)->{
@@ -71,11 +75,15 @@ public class InstructSupervisorHandler implements WebSocketHandler {
             });
             if(!optionalCommand.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(new Exception("Unable to deserialize send command"))));
+                    processor.onNext(mapper.writeValueAsString(
+                            new CommandResponse.CommandResponseFailure(
+                                    new Exception("Unable to deserialize send command"))));
                     processor.onComplete();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                    processor.onNext(ManuallySerializable.serializeArray(new CommandResponse.CommandResponseFailure("unable to serialize a failure response, source: unable to deserialize sent command")));
+                    processor.onNext(ManuallySerializable.serializeArray(
+                            new CommandResponse.CommandResponseFailure("unable to serialize a failure response, " +
+                                    "source: unable to deserialize sent command")));
                     processor.onComplete();
                 }
             }

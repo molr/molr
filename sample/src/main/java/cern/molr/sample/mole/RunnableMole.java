@@ -44,7 +44,8 @@ public class RunnableMole implements Mole<Void,Void> {
             Class<?> missionContentClass = Class.forName(mission.getMissionDefnClassName());
             Object missionContentInstance = missionContentClass.getConstructor().newInstance();
             if (!(missionContentInstance instanceof Runnable)) {
-                throw new IllegalArgumentException(String.format("Mission content class must implement the %s interface", Runnable.class.getName()));
+                throw new IllegalArgumentException(String
+                        .format("Mission content class must implement the %s interface", Runnable.class.getName()));
             }
             ((Runnable) missionContentInstance).run();
         } catch (Exception e) {

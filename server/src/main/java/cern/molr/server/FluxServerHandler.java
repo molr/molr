@@ -19,7 +19,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting flux of events concerning a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 @Component
 public class FluxServerHandler implements WebSocketHandler {
@@ -64,7 +64,10 @@ public class FluxServerHandler implements WebSocketHandler {
                                 return mapper.writeValueAsString(new RunEvents.MissionException(e));
                             } catch (JsonProcessingException e1) {
                                 e1.printStackTrace();
-                                return ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to serialize an event"));
+                                return ManuallySerializable.serializeArray(
+                                        new RunEvents.MissionException(
+                                                "unable to serialize a mission exception, source: " +
+                                                        "unable to serialize an event"));
                             }
                         }
                     }).doOnComplete(processor::onComplete).subscribe(processor::onNext);
@@ -74,18 +77,23 @@ public class FluxServerHandler implements WebSocketHandler {
                         processor.onComplete();
                     } catch (JsonProcessingException e1) {
                         e1.printStackTrace();
-                        processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unknown mission")));
+                        processor.onNext(ManuallySerializable.serializeArray(
+                                new RunEvents.MissionException("unable to serialize a mission exception, " +
+                                        "source: unknown mission")));
                         processor.onComplete();
                     }
                 }
             });
             if(!optionalRequest.isPresent()){
                 try {
-                    processor.onNext(mapper.writeValueAsString(new RunEvents.MissionException(new Exception("unable to deserialize request"))));
+                    processor.onNext(mapper.writeValueAsString(
+                            new RunEvents.MissionException(new Exception("unable to deserialize request"))));
                     processor.onComplete();
                 } catch (JsonProcessingException e1) {
                     e1.printStackTrace();
-                    processor.onNext(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception, source: unable to deserialize the request")));
+                    processor.onNext(ManuallySerializable.serializeArray(
+                            new RunEvents.MissionException("unable to serialize a mission exception, " +
+                                    "source: unable to deserialize the request")));
                     processor.onComplete();
                 }
             }

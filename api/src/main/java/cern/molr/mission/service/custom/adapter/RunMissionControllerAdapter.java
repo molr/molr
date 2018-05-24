@@ -5,7 +5,7 @@ import cern.molr.mission.controller.custom.CustomRunMissionController;
 /**
  * It adapts {@link CustomRunMissionController}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface RunMissionControllerAdapter<O> {
     FutureRunMissionResult<O> getResult();

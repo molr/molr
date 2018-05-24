@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * It adapts {@link CompletableFuture < O>}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface FutureRunMissionResult<O> {
     O get() throws Exception;

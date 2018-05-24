@@ -5,7 +5,7 @@ import cern.molr.mission.service.custom.adapter.*;
 /**
  * Sample implementation and usage of the custom adapter interface to control a mission  execution
  * TODO test this operator after implementing the custom service
- * @author yassine
+ * @author yassine-kr
  */
 public class CustomSampleOperatorAdapter {
 
@@ -19,7 +19,9 @@ public class CustomSampleOperatorAdapter {
     }
 
     public void operatorRun1() throws Exception{
-        FutureRunMissionController<Void> futureController = mExecService.<Void, Void>runToCompletion("cern.molr.sample.mission.RunnableHelloWriter", null, Void.class, Void.class);
+        FutureRunMissionController<Void> futureController = mExecService
+                .<Void, Void>runToCompletion("cern.molr.sample.mission.RunnableHelloWriter",
+                        null, Void.class, Void.class);
         try {
             RunMissionControllerAdapter<Void> controller = futureController.get();
             FutureRunMissionResult<Void> futureResult = controller.getResult();
@@ -33,7 +35,8 @@ public class CustomSampleOperatorAdapter {
 
     public Integer operatorRun2() throws Exception{
         FutureRunMissionController<Integer> futureController=
-                mExecService.<Integer, Integer>runToCompletion("cern.molr.sample.mission.IntDoubler", 21, Integer.class, Integer.class);
+                mExecService.<Integer, Integer>runToCompletion("cern.molr.sample.mission.IntDoubler",
+                        21, Integer.class, Integer.class);
         try {
             RunMissionControllerAdapter<Integer> controller = futureController.get();
             FutureRunMissionResult<Integer> futureResult = controller.getResult();

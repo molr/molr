@@ -7,7 +7,7 @@ package cern.molr.server.request;
 /**
  * This request is sent by the client to MolR server to instantiate a mission
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public class ServerMissionExecutionRequest<I> {
 

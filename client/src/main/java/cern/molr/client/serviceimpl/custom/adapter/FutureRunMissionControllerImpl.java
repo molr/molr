@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * It adapts {@link CompletableFuture <{@link CustomRunMissionController }<O>>}, used to throw meaningful exceptions
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class FutureRunMissionControllerImpl<O> implements FutureRunMissionController<O> {
 

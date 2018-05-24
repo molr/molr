@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * Configuration setting mapping between urls and websocket handlers
- * @author yassine
+ * @author yassine-kr
  */
 @Configuration
 public class WebSocketServerConfiguration {

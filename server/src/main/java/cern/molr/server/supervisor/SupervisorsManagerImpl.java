@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate supervisor to run a mission
- * @author yassine
+ * @author yassine-kr
  */
 @Service
 public class SupervisorsManagerImpl implements SupervisorsManager {

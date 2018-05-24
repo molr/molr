@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Controller used to control a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 public interface ClientMissionController {
 

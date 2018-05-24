@@ -5,7 +5,7 @@ import java.io.Closeable;
 /**
  * Controller of an execution of a mole being executed in a separate JVM
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface MoleExecutionController extends Closeable {
 

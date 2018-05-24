@@ -9,7 +9,7 @@ import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.mission.controller.ClientMissionController;
 import cern.molr.mission.service.MissionExecutionService;
-import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
@@ -18,19 +18,49 @@ import cern.molr.server.request.ServerMissionExecutionRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 /**
  * Implementation used by the operator to interact with the server
- * 
- * @author yassine
+ * The constructor searches for MolR address (host and port) in "config.properties"
+ * The default values are "localhost" and "8000"
+ *
+ * @author yassine-kr-kr
  */
 public class MissionExecutionServiceImpl implements MissionExecutionService {
 
-    private MolrWebClient client = new MolrWebClient("localhost",8000);
-    private MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
+    private MolrWebClient client;
+    private MolrWebSocketClient clientSocket;
+
+    public MissionExecutionServiceImpl() {
+        try (InputStream input=MissionExecutionServiceImpl.class.getClassLoader()
+                .getResourceAsStream("config.properties")){
+
+            Properties properties = new Properties();
+
+            properties.load(input);
+
+            String host= properties.getProperty("host");
+            int port= Integer.parseInt(properties.getProperty("port"));
+
+            client = new MolrWebClient(host,port);
+            clientSocket=new MolrWebSocketClient(host,port);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            client = new MolrWebClient("localhost",8000);
+            clientSocket=new MolrWebSocketClient("localhost",8000);
+        }
+    }
+
+    public MissionExecutionServiceImpl(String host,int port){
+        client = new MolrWebClient(host,port);
+        clientSocket=new MolrWebSocketClient(host,port);
+    }
 
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {

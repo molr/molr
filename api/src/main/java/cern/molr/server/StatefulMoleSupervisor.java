@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * It represents a supervisor which can tell whether it is idle or not
  *
- * @author yassine
+ * @author yassine-kr
  */
 public interface StatefulMoleSupervisor extends MoleSupervisor {
     Optional<State> getState();

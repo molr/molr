@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Events sent by JVM while running a mission
- * @author yassine
+ * @author yassine-kr
  */
 public abstract class RunEvents {
 

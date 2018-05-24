@@ -18,9 +18,11 @@ import java.net.URI;
 
 /**
  * Client which is able to create WebSockets connections to a server using Spring WebFlux
- * @author yassine
+ * @author yassine-kr-kr
  */
 public class MolrWebSocketClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MolrWebSocketClient.class);
 
     private WebSocketClient client;
     private String host;

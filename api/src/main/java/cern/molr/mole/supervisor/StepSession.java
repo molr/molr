@@ -15,7 +15,7 @@ import cern.molr.type.either.Either;
  * TODO verify whether this class is relevant
  * @author tiagomr
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface StepSession{
 

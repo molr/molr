@@ -13,7 +13,7 @@ import cern.molr.sample.client.CustomSampleOperatorAdapter;
  * Example implementation of client's usage & functionalities using samples
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class ClientMain {
 
@@ -22,7 +22,8 @@ public class ClientMain {
         System.out.println("The meaning of life is " + operator.operatorRun2());
         System.out.println("The meaning of life is " + operator.operatorRun3());
 
-        CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
+        CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(
+                new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
         System.out.println("The meaning of life is " + operatorAdapter.operatorRun3());
     }
     

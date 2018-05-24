@@ -4,8 +4,11 @@ import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionExecutionResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
+import cern.molr.mole.supervisor.MissionCommandRequest;
+import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
@@ -21,6 +24,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Class for testing the server Api.
@@ -48,7 +52,7 @@ public class ServerTest {
     }
 
     /**
-     * To execute this test MolR Server must be started at port 8000 (it is the default port defined in file "application.properties" of the module "server")
+     * To execute this test MolR Server must be started at port 8000
      * Supervisor Server must be started just after to be registered in MolR Server
      */
     @Test
@@ -57,10 +61,12 @@ public class ServerTest {
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
-        ServerMissionExecutionRequest<Integer> request=new ServerMissionExecutionRequest<>(Fibonacci.class.getCanonicalName(),23);
+        ServerMissionExecutionRequest<Integer> request=new ServerMissionExecutionRequest<>(
+                Fibonacci.class.getCanonicalName(),23);
         MolrWebClient client=new MolrWebClient("localhost",8000);
 
-        MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request, MissionExecutionResponse.class).get();
+        MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request,
+                MissionExecutionResponse.class).get();
         Assert.assertEquals(MissionExecutionResponse.MissionExecutionResponseSuccess.class,response.getClass());
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());

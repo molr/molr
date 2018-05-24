@@ -3,7 +3,7 @@ package cern.molr.commons.request.supervisor;
 /**
  * A request sent by a supervisor to unregister itself from MolR server
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class SupervisorUnregisterRequest {
 

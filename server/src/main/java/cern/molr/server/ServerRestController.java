@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
  * {@link RestController} for {@link ServerMain} spring application
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 @RestController
 public class ServerRestController {

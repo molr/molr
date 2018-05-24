@@ -16,7 +16,7 @@ import java.io.IOException;
 
 /**
  * Implementation of {@link MoleSupervisor} which manage a mission execution
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleSupervisorImpl implements MoleSupervisor {
 

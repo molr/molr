@@ -9,7 +9,7 @@ package cern.molr.mission.controller.custom;
  * TODO create an implementation
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface StepResult {
     

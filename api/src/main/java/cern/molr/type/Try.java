@@ -14,7 +14,7 @@ import cern.molr.type.either.Either;
  * @param <T>
  *
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public interface Try<T> extends Either<Throwable,T>{
 }

@@ -14,7 +14,8 @@ import cern.molr.mission.Mission;
 import cern.molr.mole.Mole;
 
 /**
- * Provides information about which classes shall be exposed as {@link Mission}s and which {@link Mole} implementation must be
+ * Provides information about which classes shall be exposed as {@link Mission}s and which {@link Mole}
+ * implementation must be
  * used to execute the discovery and execution methods.
  *
  * @author tiagomr

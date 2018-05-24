@@ -12,7 +12,7 @@ import cern.molr.mission.Mission;
  * A request to instantiate an inspector with a given classpath and a {@link Mission} to controller.
  *
  * @author ?
- * @author yassine
+ * @author yassine-kr
  */
 public interface InstantiationRequest {
 

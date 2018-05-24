@@ -18,7 +18,7 @@ import java.util.Set;
  * A controller which controls debugging of a mission.
  * It communicates with JVM using output and input streams
  *
- * @author yassine
+ * @author yassine-kr-kr
  */
 public class DebugController implements MoleExecutionController,MoleExecutionListener {
 

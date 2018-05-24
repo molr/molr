@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 /**
  * Proxy implementation of {@link MoleSupervisor} which communicates with a remote supervisor
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleSupervisorProxy implements MoleSupervisor {
 

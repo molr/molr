@@ -8,7 +8,7 @@ package cern.molr.mole.spawner.run.jvm;
  * Input argument type for {@link MoleRunner}
  * Should be serialized and passed as arg[0]
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleRunnerArgument {
 

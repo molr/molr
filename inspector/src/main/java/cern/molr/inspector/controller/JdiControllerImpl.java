@@ -28,7 +28,7 @@ import cern.molr.mission.Mission;
 /**
  * A controller for a JDI instance that can
  * @author ?
- * @author yassine
+ * @author yassine-kr-kr
  */
 public class JdiControllerImpl implements JdiController, Closeable {
 

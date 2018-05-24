@@ -34,7 +34,8 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
         LOGGER.info("Materializing annotated mission class [{}]", classType.getCanonicalName());
         RunWithMole moleAnnotation = classType.getAnnotation(RunWithMole.class);
         if (null == moleAnnotation) {
-            throw new MissionMaterializationException(new IllegalArgumentException(String.format("Class type [%s] is not annotated with RunWithMole", classType)));
+            throw new MissionMaterializationException(new IllegalArgumentException(String.format("Class type [%s] is " +
+                    "not annotated with RunWithMole", classType)));
         }
         Class<? extends Mole> moleClass = moleAnnotation.value();
         LOGGER.debug("Annotation RunWithMole found with mole class [{}]", moleClass.getCanonicalName());

@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
  * would need some important changes such as sending the input and output class form the client to server in the request
  * 
  * @author nachivpn
- * @author yassine
+ * @author yassine-kr
  */
 public class MoleRunner implements MoleCommandListener {
 
@@ -72,8 +72,8 @@ public class MoleRunner implements MoleCommandListener {
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
-                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of the " +
-                    "Mission to be executed");
+                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
+                    "the Mission to be executed");
         }
         ObjectMapper mapper=new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);

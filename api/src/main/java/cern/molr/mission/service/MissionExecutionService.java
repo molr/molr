@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * A service used by client to control a remote mission execution on a supervisor
- * @author yassine
+ * @author yassine-kr
  */
 public interface MissionExecutionService {
 
