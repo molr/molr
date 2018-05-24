@@ -1,11 +1,12 @@
 package cern.molr.mole.supervisor.address;
 
+
 /**
  * It gets IP address and port of the supervisor in order to send it to MolR serve
  * @author yassine
  */
 public interface AddressGetter {
-    static public class Address{
+    class Address{
         private String host;
         private int port;
 
@@ -21,6 +22,20 @@ public interface AddressGetter {
         public int getPort() {
             return port;
         }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
     }
+
+    /**
+     *
+     * @param listener listener to be notified when the getter gets the address
+     */
+    void addListener(AddressGetterListener listener);
 
 }

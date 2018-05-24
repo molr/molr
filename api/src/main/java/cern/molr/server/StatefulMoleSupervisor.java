@@ -1,6 +1,7 @@
 package cern.molr.server;
 
 import cern.molr.mole.supervisor.MoleSupervisor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public interface StatefulMoleSupervisor extends MoleSupervisor {
             this.maxMissions = maxMissions;
         }
 
+        @JsonIgnore
         public boolean isAvailable() {
             return numMissions<maxMissions;
         }
