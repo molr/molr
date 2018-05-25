@@ -4,10 +4,8 @@
 
 package cern.molr.client;
 
-import cern.molr.client.serviceimpl.custom.CustomMissionExecutionServiceImpl;
-import cern.molr.client.serviceimpl.custom.adapter.MissionExecutionServiceAdapterImpl;
-import cern.molr.sample.client.CustomSampleOperator;
-import cern.molr.sample.client.CustomSampleOperatorAdapter;
+import cern.molr.client.serviceimpl.MissionExecutionServiceImpl;
+import cern.molr.sample.client.SampleOperator;
 
 /**
  * Example implementation of client's usage & functionalities using samples
@@ -18,6 +16,7 @@ import cern.molr.sample.client.CustomSampleOperatorAdapter;
 public class ClientMain {
 
     public static void main(String[] args) throws Exception {
+        /*
         CustomSampleOperator operator = new CustomSampleOperator(new CustomMissionExecutionServiceImpl());
         System.out.println("The meaning of life is " + operator.operatorRun2());
         System.out.println("The meaning of life is " + operator.operatorRun3());
@@ -25,6 +24,10 @@ public class ClientMain {
         CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(
                 new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
         System.out.println("The meaning of life is " + operatorAdapter.operatorRun3());
+        */
+
+        SampleOperator operator=new SampleOperator(new MissionExecutionServiceImpl());
+        operator.parallelExample();
     }
     
 }

@@ -50,7 +50,7 @@ public class RemoteSupervisorMain {
         this.addressGetter=addressGetter;
         this.config=config;
         addressGetter.addListener(address -> {
-            MolrWebClient client=new MolrWebClient("localhost", 8000);
+            MolrWebClient client=new MolrWebClient(config.getMolrHost(), config.getMolrPort());
             SupervisorRegisterRequest request=new SupervisorRegisterRequest(address.getHost(),address.getPort(),
                     Arrays.asList(config.getAcceptedMissions()));
             client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
@@ -79,6 +79,9 @@ public class RemoteSupervisorMain {
             //noinspection ConstantConditions
             config.setAcceptedMissions(Optional.ofNullable(env.getProperty("acceptedMissions"))
                     .map((s)->s.split(",")).orElse(new String[]{}));
+
+            config.setMolrHost(env.getProperty("molr.host","localhost"));
+            config.setMolrPort(env.getProperty("molr.port",Integer.class,8000));
             return config;
         }
     }

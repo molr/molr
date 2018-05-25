@@ -18,11 +18,13 @@ import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.ServerMissionExecutionRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 /**
@@ -66,7 +68,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);
-        return Mono.create((emitter)->{
+        return Mono.<ClientMissionController>create((emitter)->{
             try {
                 emitter.success(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest,
                         MissionExecutionResponse.class)
@@ -97,6 +99,6 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             } catch (InterruptedException|ExecutionException e) {
                 emitter.error(e.getCause());
             }
-        });
+        }).subscribeOn(Schedulers.fromExecutorService(Executors.newSingleThreadExecutor()));
     }
 }

@@ -32,13 +32,15 @@ public class ClientTest {
 
     private ConfigurableApplicationContext contextServer;
     private ConfigurableApplicationContext contextSupervisor;
+    private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);
 
     @Before
     public void initServers() throws Exception{
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
         Thread.sleep(10000);
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8056"});
+        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
+                new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
         Thread.sleep(10000);
     }
 
@@ -54,7 +56,6 @@ public class ClientTest {
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
-        MissionExecutionService service=new MissionExecutionServiceImpl();
         Mono<ClientMissionController> futureController=service.instantiate(Fibonacci.class.getCanonicalName(),100);
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller)->{
            controller.getFlux().subscribe((event)->{
@@ -102,9 +103,6 @@ public class ClientTest {
 
         List<MoleExecutionEvent> events3=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses3=new ArrayList<>();
-
-        MissionExecutionService service=new MissionExecutionServiceImpl();
-
 
         Mono<ClientMissionController> futureController1=
                 service.instantiate(Fibonacci.class.getCanonicalName(),100);
@@ -214,8 +212,6 @@ public class ClientTest {
 
         Thread.sleep(5000);
 
-
-
         Assert.assertEquals(3, events1.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events1.get(0).getClass());
         Assert.assertEquals(RunEvents.MissionStarted.class,events1.get(1).getClass());
@@ -245,8 +241,6 @@ public class ClientTest {
 
         List<MoleExecutionEvent> events2=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses2=new ArrayList<>();
-
-        MissionExecutionService service=new MissionExecutionServiceImpl();
 
         Mono<ClientMissionController> futureController1=
                 service.instantiate(Fibonacci.class.getCanonicalName(),100);

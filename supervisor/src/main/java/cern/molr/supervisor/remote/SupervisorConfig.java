@@ -12,6 +12,10 @@ public class SupervisorConfig {
 
     private String[] acceptedMissions;
 
+    private String molrHost;
+
+    private int molrPort;
+
     public int getMaxMissions() {
         return maxMissions;
     }
@@ -26,5 +30,21 @@ public class SupervisorConfig {
 
     public void setAcceptedMissions(String[] acceptedMissions) {
         this.acceptedMissions = acceptedMissions;
+    }
+
+    public String getMolrHost() {
+        return molrHost;
+    }
+
+    public void setMolrHost(String molrHost) {
+        this.molrHost = molrHost;
+    }
+
+    public int getMolrPort() {
+        return molrPort;
+    }
+
+    public void setMolrPort(int molrPort) {
+        this.molrPort = molrPort;
     }
 }

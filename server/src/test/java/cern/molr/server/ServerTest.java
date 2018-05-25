@@ -36,13 +36,16 @@ public class ServerTest {
 
     private ConfigurableApplicationContext contextServer;
     private ConfigurableApplicationContext contextSupervisor;
+    private MolrWebClient client=new MolrWebClient("localhost",8000);
+    private MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
 
     @Before
     public void initServers() throws Exception{
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
         Thread.sleep(10000);
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8056"});
+        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
+                new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
         Thread.sleep(10000);
     }
 
@@ -64,14 +67,12 @@ public class ServerTest {
 
         ServerMissionExecutionRequest<Integer> request=new ServerMissionExecutionRequest<>(
                 Fibonacci.class.getCanonicalName(),23);
-        MolrWebClient client=new MolrWebClient("localhost",8000);
 
         MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request,
                 MissionExecutionResponse.class).get();
         Assert.assertEquals(MissionExecutionResponse.MissionExecutionResponseSuccess.class,response.getClass());
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
-        MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
         clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
                 .doOnError(Throwable::printStackTrace).subscribe(
                         tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{

@@ -36,6 +36,7 @@ public class TypesTest {
 
     private ConfigurableApplicationContext contextServer;
     private ConfigurableApplicationContext contextSupervisor;
+    private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);;
 
 
     @Before
@@ -43,7 +44,8 @@ public class TypesTest {
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
         Thread.sleep(10000);
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8056"});
+        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
+                new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
         Thread.sleep(10000);
     }
 
@@ -58,8 +60,6 @@ public class TypesTest {
     public void commandResponseTest() throws Exception {
 
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
-
-        MissionExecutionService service=new MissionExecutionServiceImpl();
 
         Mono<ClientMissionController> futureController=service.instantiate(Fibonacci.class.getName(),100);
 
@@ -111,8 +111,6 @@ public class TypesTest {
 
         List<MoleExecutionEvent> events=new ArrayList<>();
 
-        MissionExecutionService service=new MissionExecutionServiceImpl();
-
         Mono<ClientMissionController> futureController=service.instantiate(IncompatibleMission.class.getName(),100);
 
 
@@ -145,8 +143,6 @@ public class TypesTest {
     public void ExecutionExceptionTest() throws Exception {
 
         List<MoleExecutionEvent> events=new ArrayList<>();
-
-        MissionExecutionService service=new MissionExecutionServiceImpl();
 
         Mono<ClientMissionController> futureController=
                 service.instantiate(RunnableExceptionMission.class.getName(),null);
@@ -188,10 +184,6 @@ public class TypesTest {
     @Test
     public void NotAcceptedMissionTest() throws Exception {
 
-
-        List<MoleExecutionEvent> events=new ArrayList<>();
-
-        MissionExecutionService service=new MissionExecutionServiceImpl();
 
         Mono<ClientMissionController> futureController=service.instantiate(NotAcceptedMission.class.getName(),0);
 

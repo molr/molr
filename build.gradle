@@ -73,29 +73,32 @@ project(":inspector") {
     }
 }
 
+project(":supervisor") {
+    dependencies {
+        compile project(":inspector")
+        compile project(":sample")
+    }
+}
+
 project(":sample") {
     dependencies {
         compile project(":api")
         compile project(":commons")
-    }
-}
-
-project(":supervisor") {
-    dependencies {
-        compile project(":sample")
-        compile project(":inspector")
+        compile project(":supervisor")
     }
 }
 
 project(":server") {
     dependencies {
         compile project(":supervisor")
+        compile project(":sample")
     }
 }
 
 project(":client") {
     dependencies {
         compile project(":server")
+        compile project(":sample")
     }
 }
 
