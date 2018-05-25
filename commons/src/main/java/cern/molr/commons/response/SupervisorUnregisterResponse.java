@@ -22,10 +22,10 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
         }
         
         /**
-         * @param r
+         * @param ack
          */
-        public SupervisorUnregisterResponseSuccess(Ack r) {
-            super(r);
+        public SupervisorUnregisterResponseSuccess(Ack ack) {
+            super(ack);
         }
     }
 
@@ -36,10 +36,10 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
             super(null);
         }
         /**
-         * @param l
+         * @param throwable
          */
-        public SupervisorUnregisterResponseFailure(Throwable l) {
-            super(l);
+        public SupervisorUnregisterResponseFailure(Throwable throwable) {
+            super(throwable);
         }
     }
     

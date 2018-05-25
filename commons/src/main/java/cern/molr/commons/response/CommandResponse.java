@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
  * @author ?
  * @author yassine-kr
  */
@@ -23,8 +24,8 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
             super(null);
         }
 
-        public CommandResponseSuccess(Ack r) {
-            super(r);
+        public CommandResponseSuccess(Ack ack) {
+            super(ack);
         }
     }
 
@@ -41,9 +42,9 @@ public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandRe
             this.message=message;
         }
 
-        public CommandResponseFailure(Throwable l) {
-            super(l);
-            this.message=l.getMessage();
+        public CommandResponseFailure(Throwable throwable) {
+            super(throwable);
+            this.message=throwable.getMessage();
         }
 
         public String getMessage() {

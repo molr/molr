@@ -108,14 +108,18 @@ public class MoleRunner implements MoleCommandListener {
                 }
             });
 
-            MoleExecutionEvent missionStarted=new RunEvents.MissionStarted(mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
+            MoleExecutionEvent missionStarted=
+                    new RunEvents.MissionStarted(
+                            mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
             System.out.println(mapper.writeValueAsString(missionStarted));
 
             jvmState.changeState();
 
             CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
                 try {
-                    MoleExecutionEvent missionFinished=new RunEvents.MissionFinished(mission.getMissionDefnClassName(),future.get(),mission.getMoleClassName());
+                    MoleExecutionEvent missionFinished=
+                            new RunEvents.MissionFinished(mission.getMissionDefnClassName(),
+                                    future.get(),mission.getMoleClassName());
                     System.out.println(mapper.writeValueAsString(missionFinished));
                     System.exit(0);
                     return null;
@@ -123,13 +127,15 @@ public class MoleRunner implements MoleCommandListener {
                     try {
                         System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e)));
                     } catch (JsonProcessingException e1) {
-                        System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
+                        System.out.println(ManuallySerializable.serializeArray(
+                                new RunEvents.MissionException("unable to serialize a mission exception")));
                     }
                 }catch (ExecutionException|InterruptedException e) {
                     try {
                         System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e.getCause())));
                     } catch (JsonProcessingException e1) {
-                        System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
+                        System.out.println(ManuallySerializable.serializeArray(
+                                new RunEvents.MissionException("unable to serialize a mission exception")));
                     }
                 }
                 return null;
@@ -138,7 +144,8 @@ public class MoleRunner implements MoleCommandListener {
             try {
                 System.out.println(mapper.writeValueAsString(new RunEvents.MissionException(e)));
             } catch (JsonProcessingException e1) {
-                System.out.println(ManuallySerializable.serializeArray(new RunEvents.MissionException("unable to serialize a mission exception")));
+                System.out.println(ManuallySerializable.serializeArray(
+                        new RunEvents.MissionException("unable to serialize a mission exception")));
             }
         }
     }

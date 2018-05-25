@@ -6,6 +6,8 @@ import cern.molr.type.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
@@ -22,6 +24,7 @@ import java.net.URI;
  */
 public class MolrWebSocketClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MolrWebSocketClient.class);
 
     private WebSocketClient client;
     private String host;
@@ -59,7 +62,7 @@ public class MolrWebSocketClient {
                             try {
                                 return new Success<T>(mapper.readValue(message.getPayloadAsText(),responseType));
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                LOGGER.error("error while deserializing a data",e);
                                 return new Failure<T>(e);
                             }
                             })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();

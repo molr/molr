@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 @Service
 public class ServerRestExecutionService {
 
-    private ServerState registry = new ServerState();
+    private final ServerState registry = new ServerState();
     private final SupervisorsManager supervisorsManager;
 
 

@@ -20,10 +20,10 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
         }
         
         /**
-         * @param r
+         * @param responseBean
          */
-        public SupervisorRegisterResponseSuccess(SupervisorRegisterResponseBean r) {
-            super(r);
+        public SupervisorRegisterResponseSuccess(SupervisorRegisterResponseBean responseBean) {
+            super(responseBean);
         }
     }
 
@@ -33,10 +33,10 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
             super(null);
         }
         /**
-         * @param l
+         * @param throwable
          */
-        public SupervisorRegisterResponseFailure(Throwable l) {
-            super(l);
+        public SupervisorRegisterResponseFailure(Throwable throwable) {
+            super(throwable);
         }
     }
     

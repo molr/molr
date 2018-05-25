@@ -21,10 +21,10 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
         }
         
         /**
-         * @param r
+         * @param state
          */
-        public SupervisorStateResponseSuccess(StatefulMoleSupervisor.State r) {
-            super(r);
+        public SupervisorStateResponseSuccess(StatefulMoleSupervisor.State state) {
+            super(state);
         }
     }
 
@@ -35,10 +35,10 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
             super(null);
         }
         /**
-         * @param l
+         * @param throwable
          */
-        public SupervisorStateResponseFailure(Throwable l) {
-            super(l);
+        public SupervisorStateResponseFailure(Throwable throwable) {
+            super(throwable);
         }
     }
     

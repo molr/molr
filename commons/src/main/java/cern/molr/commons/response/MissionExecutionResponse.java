@@ -23,10 +23,10 @@ public interface MissionExecutionResponse extends TryResponse<MissionExecutionRe
         }
         
         /**
-         * @param r
+         * @param responseBean
          */
-        public MissionExecutionResponseSuccess(MissionExecutionResponseBean r) {
-            super(r);
+        public MissionExecutionResponseSuccess(MissionExecutionResponseBean responseBean) {
+            super(responseBean);
         }
     }
 
@@ -37,10 +37,10 @@ public interface MissionExecutionResponse extends TryResponse<MissionExecutionRe
             super(null);
         }
         /**
-         * @param l
+         * @param throwable
          */
-        public MissionExecutionResponseFailure(Throwable l) {
-            super(l);
+        public MissionExecutionResponseFailure(Throwable throwable) {
+            super(throwable);
         }
     }
     
