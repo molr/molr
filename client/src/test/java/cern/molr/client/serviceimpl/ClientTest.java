@@ -20,6 +20,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Class for testing client Api.
@@ -34,7 +37,7 @@ public class ClientTest {
     private ConfigurableApplicationContext contextSupervisor;
     private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);
 
-    @Before
+    //@Before
     public void initServers() throws Exception{
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
         Thread.sleep(10000);
@@ -44,7 +47,7 @@ public class ClientTest {
         Thread.sleep(10000);
     }
 
-    @After
+    //@After
     public void exitServers(){
         SpringApplication.exit(contextServer);
         SpringApplication.exit(contextSupervisor);
@@ -331,7 +334,6 @@ public class ClientTest {
         Assert.assertEquals(2,commandResponses2.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(0).getClass());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses2.get(1).getClass());
-
 
     }
 }

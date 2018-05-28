@@ -1,15 +1,14 @@
 package cern.molr.mole.spawner;
 
 import cern.molr.commons.MissionImpl;
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.exception.IncompatibleMissionException;
 import cern.molr.mission.Mission;
+import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
-import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionController;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleSession;
+import cern.molr.mole.supervisor.MissionSession;
 import cern.molr.sample.mole.RunnableMole;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class TypesTest {
     public void IncompatibleMissionTest() throws Exception {
         RunSpawner<Integer> spawner= new RunSpawner<>();
         Mission mission=new MissionImpl(RunnableMole.class.getName(),MissionTest.class.getName());
-        MoleSession session=spawner.spawnMoleRunner(mission,100);
+        MissionSession session=spawner.spawnMoleRunner(mission,100);
         MoleExecutionController controller=session.getController();
 
         List<MoleExecutionEvent> events=new ArrayList<>();
@@ -39,8 +38,8 @@ public class TypesTest {
             System.out.println(event);
             events.add(event);
         });
-        controller.start();
-        controller.terminate();
+        controller.sendCommand(new RunCommands.Start());
+        controller.sendCommand(new RunCommands.Terminate());
         Thread.sleep(5000);
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(1).getClass());

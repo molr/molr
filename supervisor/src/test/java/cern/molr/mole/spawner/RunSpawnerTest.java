@@ -3,12 +3,13 @@ package cern.molr.mole.spawner;
 import cern.molr.commons.AnnotatedMissionMaterializer;
 import cern.molr.mission.Mission;
 import cern.molr.mission.MissionMaterializer;
+import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunController;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.spawner.run.RunSpawner;
 import cern.molr.mole.supervisor.MoleExecutionController;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleSession;
+import cern.molr.mole.supervisor.MissionSession;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class RunSpawnerTest {
         RunSpawner<I> spawner= new RunSpawner<>();
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(missionClass);
-        MoleSession session=spawner.spawnMoleRunner(mission,args);
+        MissionSession session=spawner.spawnMoleRunner(mission,args);
         return session.getController();
     }
 
@@ -51,7 +52,7 @@ public class RunSpawnerTest {
         controller.addMoleExecutionListener(event -> {
             events.add(event);
         });
-        controller.start();
+        controller.sendCommand(new RunCommands.Start());
         Thread.sleep(20000);
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
@@ -67,8 +68,8 @@ public class RunSpawnerTest {
         controller.addMoleExecutionListener(event -> {
             events.add(event);
         });
-        controller.start();
-        controller.terminate();
+        controller.sendCommand(new RunCommands.Start());
+        controller.sendCommand(new RunCommands.Terminate());
         Thread.sleep(20000);
         Assert.assertEquals(3,events.size());
     }

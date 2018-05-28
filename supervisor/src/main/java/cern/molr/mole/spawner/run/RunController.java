@@ -79,10 +79,6 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         listeners.remove(listener);
     }
 
-    public MoleExecutionCommandResponse start() {
-        MoleExecutionCommand command=new RunCommands.Start();
-        return sendCommand(command);
-    }
 
     /**
      * Need to be "synchronized" to avoid sending many commands at the same time
@@ -116,10 +112,6 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
         }
     }
 
-    public MoleExecutionCommandResponse terminate() {
-        MoleExecutionCommand command=new RunCommands.Terminate();
-        return sendCommand(command);
-    }
 
     @Override
     public void onEvent(MoleExecutionEvent event) {

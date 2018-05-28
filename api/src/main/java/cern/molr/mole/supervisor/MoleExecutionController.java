@@ -13,9 +13,6 @@ public interface MoleExecutionController extends Closeable {
 
     void removeMoleExecutionListener(MoleExecutionListener listener);
 
-    MoleExecutionCommandResponse start();
-
     MoleExecutionCommandResponse sendCommand(MoleExecutionCommand command);
 
-    MoleExecutionCommandResponse terminate();
 }

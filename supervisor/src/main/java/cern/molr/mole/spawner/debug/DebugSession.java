@@ -2,13 +2,13 @@ package cern.molr.mole.spawner.debug;
 
 import cern.molr.mission.Mission;
 import cern.molr.mole.supervisor.MoleExecutionController;
-import cern.molr.mole.supervisor.MoleSession;
+import cern.molr.mole.supervisor.MissionSession;
 
 /**
  * Session for debugging a mission
  * @author yassine-kr
  */
-public class DebugSession implements MoleSession {
+public class DebugSession implements MissionSession {
 
     private final Mission mission;
     private DebugController controller;

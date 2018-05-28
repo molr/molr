@@ -3,10 +3,10 @@ package cern.molr.mole.supervisor;
 import cern.molr.mission.Mission;
 
 /**
- * Session corresponding to the execution of a mission by a mole
+ * Session corresponding to the execution of a mission by a supervisor
  * @author yassine-kr
  */
-public interface MoleSession {
+public interface MissionSession {
 
     Mission getMission();
 

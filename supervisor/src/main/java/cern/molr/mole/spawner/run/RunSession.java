@@ -1,15 +1,14 @@
 package cern.molr.mole.spawner.run;
 
 import cern.molr.mission.Mission;
-import cern.molr.mole.spawner.debug.DebugController;
 import cern.molr.mole.supervisor.MoleExecutionController;
-import cern.molr.mole.supervisor.MoleSession;
+import cern.molr.mole.supervisor.MissionSession;
 
 /**
  * Session for running a mission
  * @author yassine-kr
  */
-public class RunSession implements MoleSession {
+public class RunSession implements MissionSession {
 
     private final Mission mission;
     private RunController controller;

@@ -67,7 +67,6 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
         listeners.remove(listener);
     }
 
-    @Override
     public MoleExecutionCommandResponse start() {
         //printWriter.print();
         printWriter.flush();
@@ -90,7 +89,6 @@ public class DebugController implements MoleExecutionController,MoleExecutionLis
         return new CommandResponse.CommandResponseSuccess();
     }
 
-    @Override
     public MoleExecutionCommandResponse terminate() {
         printWriter.print(JdiControllerCommand.TERMINATE.ordinal());
         printWriter.flush();

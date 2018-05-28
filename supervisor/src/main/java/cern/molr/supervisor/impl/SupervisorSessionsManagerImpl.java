@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl;
 
-import cern.molr.mole.supervisor.MoleSession;
+import cern.molr.mole.supervisor.MissionSession;
 import cern.molr.mole.supervisor.SupervisorSessionsManager;
 import cern.molr.mole.supervisor.SupervisorSessionsManagerListener;
 import org.slf4j.Logger;
@@ -21,17 +21,17 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     private static final Logger LOGGER = LoggerFactory.getLogger(SupervisorSessionsManagerImpl.class);
     private final Set<SupervisorSessionsManagerListener> listeners=new HashSet<>();
 
-    private ConcurrentMap<String,MoleSession> sessionsRegistry=new ConcurrentHashMap<>();
+    private ConcurrentMap<String,MissionSession> sessionsRegistry=new ConcurrentHashMap<>();
 
     @Override
-    public void addSession(String missionId,MoleSession session) {
+    public void addSession(String missionId,MissionSession session) {
         LOGGER.info("Adding a session to supervisor: mission id {}",missionId);
         sessionsRegistry.put(missionId,session);
         notifyListenersAdd(missionId);
     }
 
     @Override
-    public Optional<MoleSession> getSession(String missionId) {
+    public Optional<MissionSession> getSession(String missionId) {
         LOGGER.info("Getting a session from sessions manager: mission id {}",missionId);
         return Optional.ofNullable(sessionsRegistry.get(missionId));
     }
@@ -44,7 +44,7 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
     }
 
     @Override
-    public void removeSession(MoleSession session) {
+    public void removeSession(MissionSession session) {
         sessionsRegistry.entrySet().stream().filter((s)->s.getValue()==session)
                 .findFirst().ifPresent((s)->removeSession(s.getKey()));
     }

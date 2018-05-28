@@ -26,7 +26,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId){
         try {
-            MoleSession session;
+            MissionSession session;
             RunSpawner<I> spawner=new RunSpawner<>();
             session=spawner.spawnMoleRunner(mission,args);
             sessionsManager.addSession(missionExecutionId,session);

@@ -78,9 +78,9 @@ public class MoleRunner implements MoleCommandListener {
         new MoleRunner(args[0]);
 
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            MoleExecutionEvent jvmDestroyed=new RunEvents.JVMDestroyed();
+            MoleExecutionEvent jvmDestroyedEvent=new RunEvents.JVMDestroyed();
             try {
-                System.out.println(mapper.writeValueAsString(jvmDestroyed));
+                System.out.println(mapper.writeValueAsString(jvmDestroyedEvent));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -108,19 +108,19 @@ public class MoleRunner implements MoleCommandListener {
                 }
             });
 
-            MoleExecutionEvent missionStarted=
+            MoleExecutionEvent missionStartedEvent=
                     new RunEvents.MissionStarted(
                             mission.getMissionDefnClassName(),missionInput,mission.getMoleClassName());
-            System.out.println(mapper.writeValueAsString(missionStarted));
+            System.out.println(mapper.writeValueAsString(missionStartedEvent));
 
             jvmState.changeState();
 
             CompletableFuture<Void> future2=CompletableFuture.supplyAsync(()->{
                 try {
-                    MoleExecutionEvent missionFinished=
+                    MoleExecutionEvent missionFinishedEvent=
                             new RunEvents.MissionFinished(mission.getMissionDefnClassName(),
                                     future.get(),mission.getMoleClassName());
-                    System.out.println(mapper.writeValueAsString(missionFinished));
+                    System.out.println(mapper.writeValueAsString(missionFinishedEvent));
                     System.exit(0);
                     return null;
                 } catch (JsonProcessingException e) {

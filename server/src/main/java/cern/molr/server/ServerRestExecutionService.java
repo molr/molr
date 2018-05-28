@@ -61,8 +61,8 @@ public class ServerRestExecutionService {
         Mission mission=getMission(missionDefnClassName);
         Optional<StatefulMoleSupervisor> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);
         return optional.map((supervisor)->{
-                Flux<MoleExecutionEvent> flux = supervisor.instantiate(mission, args, missionEId);
-                registry.registerNewMissionExecution(missionEId, supervisor, flux);
+                Flux<MoleExecutionEvent> executionEventFlux = supervisor.instantiate(mission, args, missionEId);
+                registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
                 return missionEId;
         }).orElseThrow(() ->
                 new NoAppropriateSupervisorFound("No appropriate supervisor found to controller such mission!"));
