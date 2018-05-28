@@ -6,6 +6,7 @@ package cern.molr.commons.web;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,13 +46,17 @@ public class MolrWebClient {
 
     public <I,O> CompletableFuture<O> post(String uri, Class<I> requestClass, I request, Class<O> responseClass) {
 
-        return CompletableFuture.supplyAsync(
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        CompletableFuture<O> future=CompletableFuture.supplyAsync(
                 () -> client.post().uri(uri)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromPublisher(Mono.just(request), requestClass)).exchange()
                 .flatMapMany(value -> value.bodyToMono(responseClass))
                 .doOnError(e -> {throw new CompletionException(e);})
-                .blockFirst(),Executors.newSingleThreadExecutor());
+                .blockFirst(),executorService);
+        executorService.shutdown();
+        return future;
     }
 
 }

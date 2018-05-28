@@ -37,7 +37,7 @@ public class ClientTest {
     private ConfigurableApplicationContext contextSupervisor;
     private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);
 
-    //@Before
+    @Before
     public void initServers() throws Exception{
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
         Thread.sleep(10000);
@@ -47,7 +47,7 @@ public class ClientTest {
         Thread.sleep(10000);
     }
 
-    //@After
+    @After
     public void exitServers(){
         SpringApplication.exit(contextServer);
         SpringApplication.exit(contextSupervisor);

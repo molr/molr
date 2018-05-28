@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -26,8 +27,11 @@ public class RemoteSupervisorController{
 
     private final RemoteSupervisorService supervisorService;
 
-    public RemoteSupervisorController(RemoteSupervisorService service) {
+    private final ExecutorService executorService;
+
+    public RemoteSupervisorController(RemoteSupervisorService service, ExecutorService executorService) {
         this.supervisorService = service;
+        this.executorService = executorService;
     }
 
 
@@ -37,7 +41,7 @@ public class RemoteSupervisorController{
         return CompletableFuture.<SupervisorStateResponse>supplyAsync(()-> supervisorService.getState()
                 .<SupervisorStateResponse>map(SupervisorStateResponse.SupervisorStateResponseSuccess::new)
                 .orElse(new SupervisorStateResponse.SupervisorStateResponseFailure(
-                        new Exception("unable to get the state from supervisor"))),Executors.newSingleThreadExecutor())
+                        new Exception("unable to get the state from supervisor"))),executorService)
                 .exceptionally(SupervisorStateResponse.SupervisorStateResponseFailure::new);
     }
 

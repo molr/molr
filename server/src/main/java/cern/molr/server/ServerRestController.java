@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -34,9 +35,12 @@ import java.util.concurrent.Executors;
 @RestController
 public class ServerRestController {
 
+    private final ExecutorService executorService;
+
     private final ServerRestExecutionService service;
 
-    public ServerRestController(ServerRestExecutionService service) {
+    public ServerRestController(ExecutorService executorService, ServerRestExecutionService service) {
+        this.executorService = executorService;
         this.service = service;
     }
 
@@ -51,7 +55,7 @@ public class ServerRestController {
             } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
                 return new MissionExecutionResponseFailure(e);
             }
-        }, Executors.newSingleThreadExecutor());
+        },executorService);
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.POST)

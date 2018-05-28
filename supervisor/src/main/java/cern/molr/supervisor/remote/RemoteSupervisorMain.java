@@ -18,8 +18,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import javax.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -45,10 +48,13 @@ public class RemoteSupervisorMain {
     private final AddressGetter addressGetter;
     private final SupervisorConfig config;
 
+    private final ExecutorService executorService;
 
-    public RemoteSupervisorMain(AddressGetter addressGetter,SupervisorConfig config){
+
+    public RemoteSupervisorMain(AddressGetter addressGetter, SupervisorConfig config, ExecutorService executorService){
         this.addressGetter=addressGetter;
         this.config=config;
+        this.executorService = executorService;
         addressGetter.addListener(address -> {
             MolrWebClient client=new MolrWebClient(config.getMolrHost(), config.getMolrPort());
             SupervisorRegisterRequest request=new SupervisorRegisterRequest(address.getHost(),address.getPort(),
@@ -60,11 +66,11 @@ public class RemoteSupervisorMain {
     @Configuration
     @PropertySource(value="classpath:${supervisor.fileConfig:supervisor.properties}",
             ignoreResourceNotFound=true)
-    public static class ConfigCreator {
+    public static class SupervisorConfigurer {
 
         private final Environment env;
 
-        public ConfigCreator(Environment env) {
+        public SupervisorConfigurer(Environment env) {
             this.env=env;
         }
 
@@ -84,10 +90,6 @@ public class RemoteSupervisorMain {
             config.setMolrPort(env.getProperty("molr.port",Integer.class,8000));
             return config;
         }
-    }
-
-    @Configuration
-    public static class JSONMapperCreator {
 
         @Bean
         public ObjectMapper getMapper() {
@@ -96,6 +98,16 @@ public class RemoteSupervisorMain {
             mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
             return mapper;
         }
+
+        @Bean
+        public ExecutorService getExecutorService(){
+            return Executors.newFixedThreadPool(10);
+        }
+    }
+
+    @PreDestroy
+    public void close(){
+        executorService.shutdown();
     }
 
 }

@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
@@ -73,8 +74,11 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
     @Override
     public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
         ServerMissionExecutionRequest<I> execRequest = new ServerMissionExecutionRequest<>(missionDefnClassName, args);
-        return Mono.<ClientMissionController>create((emitter) -> {
+        Mono<ClientMissionController> mono = Mono.<ClientMissionController>create((emitter) -> {
             try {
                 emitter.success(client.post("/instantiate", ServerMissionExecutionRequest.class, execRequest,
                         MissionExecutionResponse.class)
@@ -108,6 +112,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             } catch (InterruptedException | ExecutionException e) {
                 emitter.error(e.getCause());
             }
-        }).subscribeOn(Schedulers.fromExecutorService(Executors.newSingleThreadExecutor()));
+        }).subscribeOn(Schedulers.fromExecutorService(executorService)).doOnTerminate(()->executorService.shutdown());
+        return mono;
     }
 }

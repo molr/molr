@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * class for testing {@link RunController}
@@ -35,25 +36,32 @@ public class RunSpawnerTest {
 
     @Test
     public void InstantiateTest() throws Exception {
+
+        CountDownLatch signal = new CountDownLatch(1);
+
         MoleExecutionController controller=getController(MissionTest.class,42);
         List<MoleExecutionEvent> events=new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
            events.add(event);
+           signal.countDown();
         });
-        Thread.sleep(20000);
+        signal.await();
         Assert.assertEquals(1,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
     }
 
     @Test
     public void StartFinishTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(4);
+
         MoleExecutionController controller=getController(MissionTest.class,42);
         List<MoleExecutionEvent> events=new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
             events.add(event);
+            signal.countDown();
         });
         controller.sendCommand(new RunCommands.Start());
-        Thread.sleep(20000);
+        signal.await();
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(RunEvents.MissionFinished.class,events.get(2).getClass());
@@ -63,14 +71,17 @@ public class RunSpawnerTest {
 
     @Test
     public void TerminateTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(3);
+
         MoleExecutionController controller=getController(MissionTest.class,42);
         List<MoleExecutionEvent> events=new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
             events.add(event);
+            signal.countDown();
         });
         controller.sendCommand(new RunCommands.Start());
         controller.sendCommand(new RunCommands.Terminate());
-        Thread.sleep(20000);
+        signal.await();
         Assert.assertEquals(3,events.size());
     }
 
