@@ -4,13 +4,11 @@ import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionExecutionResponse;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.spawner.run.RunCommands;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MissionCommandRequest;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.request.MissionEventsRequest;
 import cern.molr.server.request.ServerMissionExecutionRequest;
@@ -24,7 +22,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Class for testing the server Api.
@@ -34,33 +32,30 @@ import java.util.concurrent.ExecutionException;
  */
 public class ServerTest {
 
-    private ConfigurableApplicationContext contextServer;
-    private ConfigurableApplicationContext contextSupervisor;
+    private ConfigurableApplicationContext serverContext;
+    private ConfigurableApplicationContext supervisorContext;
     private MolrWebClient client=new MolrWebClient("localhost",8000);
     private MolrWebSocketClient clientSocket=new MolrWebSocketClient("localhost",8000);
 
     @Before
-    public void initServers() throws Exception{
-        contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
-        Thread.sleep(10000);
+    public void initServers(){
+        serverContext =SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
-        Thread.sleep(10000);
+        supervisorContext =SpringApplication.run(RemoteSupervisorMain.class,
+                new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});;
     }
 
     @After
     public void exitServers(){
-        SpringApplication.exit(contextServer);
-        SpringApplication.exit(contextSupervisor);
+        SpringApplication.exit(serverContext);
+        SpringApplication.exit(supervisorContext);
     }
 
-    /**
-     * To execute this test MolR Server must be started at port 8000
-     * Supervisor Server must be started just after to be registered in MolR Server
-     */
     @Test
     public void instantiateTest() throws Exception{
+
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(4);
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
@@ -70,18 +65,25 @@ public class ServerTest {
 
         MissionExecutionResponse response=client.post("/instantiate", ServerMissionExecutionRequest.class, request,
                 MissionExecutionResponse.class).get();
+
         Assert.assertEquals(MissionExecutionResponse.MissionExecutionResponseSuccess.class,response.getClass());
+
+
 
         MissionEventsRequest eventsRequest=new MissionEventsRequest(response.getResult().getMissionExecutionId());
         clientSocket.receiveFlux("/getFlux",MoleExecutionEvent.class,eventsRequest)
                 .doOnError(Throwable::printStackTrace).subscribe(
                         tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
-            System.out.println("event: "+event);
-            events.add(event);
+                            System.out.println("event: "+event);
+                            events.add(event);
+                            endSignal.countDown();
+
+                            if (event instanceof RunEvents.JVMInstantiated)
+                                instantiateSignal.countDown();
         }));
 
 
-        Thread.sleep(10000);
+        instantiateSignal.await();
         System.out.println("sending start command");
 
         clientSocket.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest(response
@@ -92,7 +94,7 @@ public class ServerTest {
             commandResponses.add(result);
         }));
 
-        Thread.sleep( 20000);
+        endSignal.await();
 
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());

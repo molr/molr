@@ -15,10 +15,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * class for testing types returned by the JVM
- * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration should be increased
  *
  * @author yassine-kr
  */
@@ -27,6 +27,8 @@ public class TypesTest {
 
     @Test
     public void IncompatibleMissionTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(3);
+
         RunSpawner<Integer> spawner= new RunSpawner<>();
         Mission mission=new MissionImpl(RunnableMole.class.getName(),MissionTest.class.getName());
         MissionSession session=spawner.spawnMoleRunner(mission,100);
@@ -37,10 +39,13 @@ public class TypesTest {
         controller.addMoleExecutionListener(event -> {
             System.out.println(event);
             events.add(event);
+            signal.countDown();
+
         });
         controller.sendCommand(new RunCommands.Start());
         controller.sendCommand(new RunCommands.Terminate());
-        Thread.sleep(5000);
+
+        signal.await();
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(1).getClass());
         Assert.assertEquals(IncompatibleMissionException.class,

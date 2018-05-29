@@ -19,9 +19,6 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * class for testing {@link RunController}
- * Each test can fail if the thread finishes before getting all results from supervisor, in that case sleep duration
- * should be increased
- *
  * @author yassine-kr
  */
 public class RunSpawnerTest {
@@ -69,6 +66,10 @@ public class RunSpawnerTest {
         Assert.assertEquals(84,((RunEvents.MissionFinished)events.get(2)).getResult());
     }
 
+    /**
+     * The mission execution should be long enough to terminate the JVM before the the mission is finished
+     * @throws Exception
+     */
     @Test
     public void TerminateTest() throws Exception {
         CountDownLatch signal = new CountDownLatch(3);
@@ -76,6 +77,7 @@ public class RunSpawnerTest {
         MoleExecutionController controller=getController(MissionTest.class,42);
         List<MoleExecutionEvent> events=new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
+            System.out.println(event);
             events.add(event);
             signal.countDown();
         });
@@ -83,6 +85,7 @@ public class RunSpawnerTest {
         controller.sendCommand(new RunCommands.Terminate());
         signal.await();
         Assert.assertEquals(3,events.size());
+        Assert.assertEquals(RunEvents.JVMDestroyed.class,events.get(2).getClass());
     }
 
 

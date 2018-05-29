@@ -24,11 +24,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Class for testing object types returned by the server
- * Each test can fail if the thread finishes before getting all results from the supervisor,
- * in that case the sleep duration should be increased
  *
  * @author yassine-kr
  */
@@ -40,13 +39,11 @@ public class TypesTest {
 
 
     @Before
-    public void initServers() throws Exception{
+    public void initServers(){
         contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
-        Thread.sleep(10000);
 
         contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
                 new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
-        Thread.sleep(10000);
     }
 
     @After
@@ -59,6 +56,10 @@ public class TypesTest {
     @Test
     public void commandResponseTest() throws Exception {
 
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(6);
+
         List<MoleExecutionCommandResponse> commandResponses=new ArrayList<>();
 
         Mono<ClientMissionController> futureController=service.instantiate(Fibonacci.class.getName(),100);
@@ -67,32 +68,43 @@ public class TypesTest {
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller)->{
             controller.getFlux().subscribe((event)->{
                 System.out.println("event: "+event);
+                endSignal.countDown();
+
+                if (event instanceof RunEvents.JVMInstantiated)
+                    instantiateSignal.countDown();
+                else if (event instanceof RunEvents.MissionStarted)
+                    startSignal.countDown();
             });
             try {
-                Thread.sleep(2000);
+                instantiateSignal.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Assert.fail();
             }
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response to start: "+response);
                 commandResponses.add(response);
+                endSignal.countDown();
             });
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response to start 2: "+response);
                 commandResponses.add(response);
+                endSignal.countDown();
             });
             try {
-                Thread.sleep(2000);
+                startSignal.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Assert.fail();
             }
             controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
                 System.out.println("response to terminate: "+response);
                 commandResponses.add(response);
+                endSignal.countDown();
             });
         });
 
-        Thread.sleep(5000);
+        endSignal.await();
 
         Assert.assertEquals(3,commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,commandResponses.get(0).getClass());
@@ -109,6 +121,7 @@ public class TypesTest {
     @Test
     public void IncompatibleMissionTest() throws Exception {
 
+        CountDownLatch endSignal = new CountDownLatch(1);
         List<MoleExecutionEvent> events=new ArrayList<>();
 
         Mono<ClientMissionController> futureController=service.instantiate(IncompatibleMission.class.getName(),100);
@@ -118,15 +131,11 @@ public class TypesTest {
             controller.getFlux().subscribe((event)->{
                 System.out.println("event: "+event);
                 events.add(event);
+                endSignal.countDown();
             });
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
 
-        Thread.sleep(5000);
+        endSignal.await();
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(0).getClass());
         Assert.assertEquals(MissionMaterializationException.class,
@@ -144,34 +153,46 @@ public class TypesTest {
 
         List<MoleExecutionEvent> events=new ArrayList<>();
 
-        Mono<ClientMissionController> futureController=
-                service.instantiate(RunnableExceptionMission.class.getName(),null);
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(5);
 
-
+        Mono<ClientMissionController> futureController=service.instantiate(RunnableExceptionMission.class
+                .getCanonicalName(),null);
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller)->{
             controller.getFlux().subscribe((event)->{
                 System.out.println("event: "+event);
                 events.add(event);
+                endSignal.countDown();
+                if (event instanceof RunEvents.JVMInstantiated)
+                    instantiateSignal.countDown();
+                else if (event instanceof RunEvents.MissionStarted)
+                    startSignal.countDown();
             });
             try {
-                Thread.sleep(2000);
+                instantiateSignal.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Assert.fail();
             }
             controller.instruct(new RunCommands.Start()).subscribe((response)->{
                 System.out.println("response to start: "+response);
+                endSignal.countDown();
             });
+
             try {
-                Thread.sleep(2000);
+                startSignal.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Assert.fail();
             }
             controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
                 System.out.println("response to terminate: "+response);
+                endSignal.countDown();
             });
         });
 
-        Thread.sleep(5000);
+        endSignal.await();
 
         Assert.assertEquals(RunEvents.MissionException.class,events.get(2).getClass());
         Assert.assertEquals(MissionExecutionException.class,
@@ -184,6 +205,7 @@ public class TypesTest {
     @Test
     public void NotAcceptedMissionTest() throws Exception {
 
+        CountDownLatch endSignal = new CountDownLatch(1);
 
         Mono<ClientMissionController> futureController=service.instantiate(NotAcceptedMission.class.getName(),0);
 
@@ -191,9 +213,10 @@ public class TypesTest {
 
         futureController.doOnError((t)->{
             exception[0] =t;
+            endSignal.countDown();
         }).subscribe();
 
-        Thread.sleep(5000);
+        endSignal.await();
 
         Assert.assertEquals(MissionExecutionNotAccepted.class, exception[0].getClass());
         Assert.assertEquals("Mission not defined in MolR registry", exception[0].getMessage());

@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -21,6 +23,7 @@ import org.springframework.core.env.Environment;
 import javax.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,16 +53,23 @@ public class RemoteSupervisorMain {
 
     private final ExecutorService executorService;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public RemoteSupervisorMain(AddressGetter addressGetter, SupervisorConfig config, ExecutorService executorService){
+
+    public RemoteSupervisorMain(AddressGetter addressGetter, SupervisorConfig config, ExecutorService executorService, ApplicationEventPublisher applicationEventPublisher){
         this.addressGetter=addressGetter;
         this.config=config;
         this.executorService = executorService;
+        this.applicationEventPublisher = applicationEventPublisher;
         addressGetter.addListener(address -> {
             MolrWebClient client=new MolrWebClient(config.getMolrHost(), config.getMolrPort());
             SupervisorRegisterRequest request=new SupervisorRegisterRequest(address.getHost(),address.getPort(),
                     Arrays.asList(config.getAcceptedMissions()));
-            client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class);
+            try {
+                client.post("/register",SupervisorRegisterRequest.class,request,SupervisorRegisterResponse.class).get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -102,6 +112,17 @@ public class RemoteSupervisorMain {
         @Bean
         public ExecutorService getExecutorService(){
             return Executors.newFixedThreadPool(10);
+        }
+    }
+
+    /**
+     * A spring event triggered when the supervisor receive a positive response to a regitration request
+     * Currently this is only needed in testing
+     */
+    public static class RegistredEvent extends ApplicationEvent {
+
+        public RegistredEvent(Object source) {
+            super(source);
         }
     }
 

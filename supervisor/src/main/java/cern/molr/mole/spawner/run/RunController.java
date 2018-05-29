@@ -92,6 +92,7 @@ public class RunController implements MoleExecutionController,MoleExecutionListe
             printWriter.println(mapper.writeValueAsString(command));
             printWriter.flush();
 
+
             while(commandStatus==null){
             }
             if(commandStatus.isAccepted()){

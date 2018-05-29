@@ -23,6 +23,10 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     protected SupervisorSessionsManager sessionsManager=new SupervisorSessionsManagerImpl();
     private static final Logger LOGGER = LoggerFactory.getLogger(MoleSupervisorImpl.class);
 
+    /* TODO there is a moment between instantiating and adding the listener to the controller, the JVM instantiated
+     * TODO event could be missed, is this behaviour acceptable?
+
+     */
     @Override
     public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId){
         try {

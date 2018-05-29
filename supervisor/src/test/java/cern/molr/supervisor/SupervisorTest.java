@@ -20,10 +20,13 @@ import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
@@ -36,6 +39,7 @@ public class SupervisorTest {
 
     @Test
     public void instantiateTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(1);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -44,15 +48,17 @@ public class SupervisorTest {
         MoleSupervisor supervisor=new MoleSupervisorImpl();
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
+            signal.countDown();
         });
 
-        Thread.sleep(5000);
+        signal.await();
         Assert.assertEquals(1,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
     }
 
     @Test
     public void startFinishTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(4);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -61,11 +67,12 @@ public class SupervisorTest {
         MoleSupervisor supervisor=new MoleSupervisorImpl();
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
+            signal.countDown();
         });
 
         supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
 
-        Thread.sleep(10000);
+        signal.await();
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.MissionStarted.class,events.get(1).getClass());
         Assert.assertEquals(RunEvents.MissionFinished.class,events.get(2).getClass());
@@ -73,8 +80,13 @@ public class SupervisorTest {
         Assert.assertEquals(84,((RunEvents.MissionFinished)events.get(2)).getResult());
     }
 
+    /**
+     * The mission execution should be long enough to terminate the JVM before the mission is finished
+     * @throws Exception
+     */
     @Test
     public void terminateTest() throws Exception {
+        CountDownLatch signal = new CountDownLatch(3);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission=materializer.materialize(MissionTest.class);
@@ -83,19 +95,25 @@ public class SupervisorTest {
         MoleSupervisor supervisor=new MoleSupervisorImpl();
         supervisor.instantiate(mission,42,"1").subscribe(event -> {
             events.add(event);
+            signal.countDown();
         });
         supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Start()));
         supervisor.instruct(new MissionCommandRequest("1",new RunCommands.Terminate()));
 
-        Thread.sleep(5000);
+        signal.await();
         Assert.assertEquals(3,events.size());
     }
 
     @Test
     public void remoteTest() throws Exception {
 
-        ConfigurableApplicationContext contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,new String[]{"--server.port=8080"});
-        Thread.sleep(10000);
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(4);
+
+
+        ConfigurableApplicationContext context =SpringApplication.run(RemoteSupervisorMain.class, new
+                String[]{"--server.port=8080"});
+
 
         List<MoleExecutionEvent> events=new ArrayList<>();
         List<MoleExecutionCommandResponse> responses=new ArrayList<>();
@@ -106,16 +124,20 @@ public class SupervisorTest {
         client.receiveFlux("/instantiate",MoleExecutionEvent.class,request).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(event)->{
             System.out.println("event: "+event);
             events.add(event);
+            endSignal.countDown();
+
+            if (event instanceof RunEvents.JVMInstantiated)
+                instantiateSignal.countDown();
         }));
 
-        Thread.sleep( 4000);
+        instantiateSignal.await();
 
         client.receiveMono("/instruct",MoleExecutionCommandResponse.class,new MissionCommandRequest("1",new RunCommands.Start())).doOnError(Throwable::printStackTrace).subscribe(tryElement->tryElement.execute(Throwable::printStackTrace,(result)->{
             System.out.println("response to start: "+result);
             responses.add(result);
         }));
 
-        Thread.sleep( 10000);
+        endSignal.await();
 
         Assert.assertEquals(4,events.size());
         Assert.assertEquals(RunEvents.JVMInstantiated.class,events.get(0).getClass());
@@ -125,7 +147,7 @@ public class SupervisorTest {
         Assert.assertEquals(1,responses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class,responses.get(0).getClass());
 
-        SpringApplication.exit(contextSupervisor);
+        SpringApplication.exit(context);
 
     }
 
