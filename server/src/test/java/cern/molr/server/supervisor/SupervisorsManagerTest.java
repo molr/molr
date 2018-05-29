@@ -9,6 +9,8 @@ import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
 import org.junit.Assert;
 import org.junit.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,6 +55,8 @@ public class SupervisorsManagerTest {
 
     @Test
     public void Test() {
+
+
         StatefulMoleSupervisor s1=new StatefulMoleSupervisorTest(true);
         StatefulMoleSupervisor s2=new StatefulMoleSupervisorTest(true);
         StatefulMoleSupervisor s3=new StatefulMoleSupervisorTest(false);
@@ -80,6 +84,7 @@ public class SupervisorsManagerTest {
 
         optional=manager.chooseSupervisor("P");
         Assert.assertFalse(optional.isPresent());
+
 
     }
 

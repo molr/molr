@@ -20,8 +20,6 @@ import cern.molr.supervisor.request.SupervisorMissionExecutionRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;

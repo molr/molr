@@ -5,7 +5,6 @@
 package cern.molr.client;
 
 import cern.molr.client.serviceimpl.MissionExecutionServiceImpl;
-import cern.molr.sample.client.SampleOperator;
 
 /**
  * Example implementation of client's usage & functionalities using samples

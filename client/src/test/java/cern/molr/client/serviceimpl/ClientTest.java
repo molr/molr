@@ -61,7 +61,7 @@ public class ClientTest {
      */
     private void launchMission(String execName,Class<?> missionClass,List<MoleExecutionEvent> events,
                                List<MoleExecutionCommandResponse>
-            commandResponses,CountDownLatch finishSignal) throws Exception{
+            commandResponses,CountDownLatch finishSignal){
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
         CountDownLatch startSignal = new CountDownLatch(1);
