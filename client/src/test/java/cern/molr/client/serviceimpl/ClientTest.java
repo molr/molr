@@ -20,10 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Class for testing client Api.
@@ -32,22 +29,23 @@ import java.util.concurrent.Executors;
  */
 public class ClientTest {
 
-    private ConfigurableApplicationContext contextServer;
-    private ConfigurableApplicationContext contextSupervisor;
+    private ConfigurableApplicationContext serverContext;
+    private ConfigurableApplicationContext supervisorContext;
     private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);
 
     @Before
     public void initServers() {
-        contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        serverContext =SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
+        supervisorContext =SpringApplication.run(RemoteSupervisorMain.class,
                 new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
     }
 
     @After
     public void exitServers(){
-        SpringApplication.exit(contextServer);
-        SpringApplication.exit(contextSupervisor);
+        SpringApplication.exit(supervisorContext);
+        SpringApplication.exit(serverContext);
+
     }
 
     /**

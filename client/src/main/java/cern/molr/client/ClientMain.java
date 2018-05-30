@@ -15,15 +15,6 @@ import cern.molr.client.serviceimpl.MissionExecutionServiceImpl;
 public class ClientMain {
 
     public static void main(String[] args) throws Exception {
-        /*
-        CustomSampleOperator operator = new CustomSampleOperator(new CustomMissionExecutionServiceImpl());
-        System.out.println("The meaning of life is " + operator.operatorRun2());
-        System.out.println("The meaning of life is " + operator.operatorRun3());
-
-        CustomSampleOperatorAdapter operatorAdapter = new CustomSampleOperatorAdapter(
-                new MissionExecutionServiceAdapterImpl(new CustomMissionExecutionServiceImpl()));
-        System.out.println("The meaning of life is " + operatorAdapter.operatorRun3());
-        */
 
         SampleOperator operator=new SampleOperator(new MissionExecutionServiceImpl());
         operator.parallelExample();

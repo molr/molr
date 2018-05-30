@@ -47,8 +47,8 @@ public class ServerTest {
 
     @After
     public void exitServers(){
-        SpringApplication.exit(serverContext);
         SpringApplication.exit(supervisorContext);
+        SpringApplication.exit(serverContext);
     }
 
     @Test

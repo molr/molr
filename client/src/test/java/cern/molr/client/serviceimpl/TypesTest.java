@@ -33,23 +33,23 @@ import java.util.concurrent.CountDownLatch;
  */
 public class TypesTest {
 
-    private ConfigurableApplicationContext contextServer;
-    private ConfigurableApplicationContext contextSupervisor;
+    private ConfigurableApplicationContext serverContext;
+    private ConfigurableApplicationContext supervisorContext;
     private MissionExecutionService service=new MissionExecutionServiceImpl("localhost",8000);;
 
 
     @Before
     public void initServers(){
-        contextServer=SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        serverContext =SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
 
-        contextSupervisor=SpringApplication.run(RemoteSupervisorMain.class,
+        supervisorContext =SpringApplication.run(RemoteSupervisorMain.class,
                 new String[]{"--server.port=8056","--molr.host=localhost","--molr.port=8000"});
     }
 
     @After
     public void exitServers(){
-        SpringApplication.exit(contextServer);
-        SpringApplication.exit(contextSupervisor);
+        SpringApplication.exit(supervisorContext);
+        SpringApplication.exit(serverContext);
     }
 
 
