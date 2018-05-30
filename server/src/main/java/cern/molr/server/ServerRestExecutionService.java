@@ -65,7 +65,7 @@ public class ServerRestExecutionService {
                 registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
                 return missionEId;
         }).orElseThrow(() ->
-                new NoAppropriateSupervisorFound("No appropriate supervisor found to controller such mission!"));
+                new NoAppropriateSupervisorFound("No appropriate supervisor found to execute such mission!"));
 
     }
 
