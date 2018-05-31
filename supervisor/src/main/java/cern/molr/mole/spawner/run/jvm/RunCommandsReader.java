@@ -1,10 +1,8 @@
 package cern.molr.mole.spawner.run.jvm;
 
-import cern.molr.inspector.remote.RemoteReader;
+import cern.molr.mole.spawner.RemoteReader;
 import cern.molr.mole.supervisor.MoleCommandListener;
 import cern.molr.mole.supervisor.MoleExecutionCommand;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.mole.supervisor.MoleExecutionListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 

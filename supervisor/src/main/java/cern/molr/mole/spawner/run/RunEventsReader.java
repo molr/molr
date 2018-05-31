@@ -1,8 +1,6 @@
 package cern.molr.mole.spawner.run;
 
-import cern.molr.commons.AnnotatedMissionMaterializer;
-import cern.molr.inspector.remote.RemoteReader;
-import cern.molr.mole.Mole;
+import cern.molr.mole.spawner.RemoteReader;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.MoleExecutionListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
