@@ -17,9 +17,9 @@ import java.util.Map;
 @Configuration
 public class WebSocketSupervisorConfiguration {
 
-    private final RemoteSupervisorService supervisor;
+    private final MoleSupervisorService supervisor;
 
-    public WebSocketSupervisorConfiguration(RemoteSupervisorService supervisor) {
+    public WebSocketSupervisorConfiguration(MoleSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -25,12 +24,12 @@ import java.util.concurrent.Future;
 @RestController
 public class RemoteSupervisorController{
 
-    private final RemoteSupervisorService supervisorService;
+    private final MoleSupervisorService moleSupervisorService;
 
     private final ExecutorService executorService;
 
-    public RemoteSupervisorController(RemoteSupervisorService service, ExecutorService executorService) {
-        this.supervisorService = service;
+    public RemoteSupervisorController(MoleSupervisorService service, ExecutorService executorService) {
+        this.moleSupervisorService = service;
         this.executorService = executorService;
     }
 
@@ -38,10 +37,9 @@ public class RemoteSupervisorController{
     @RequestMapping(path = "/getState", method = RequestMethod.POST)
     public Future<? extends SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
-        return CompletableFuture.<SupervisorStateResponse>supplyAsync(()-> supervisorService.getState()
-                .<SupervisorStateResponse>map(SupervisorStateResponse.SupervisorStateResponseSuccess::new)
-                .orElse(new SupervisorStateResponse.SupervisorStateResponseFailure(
-                        new Exception("unable to get the state from supervisor"))),executorService)
+        return CompletableFuture.<SupervisorStateResponse>supplyAsync(()->new
+                SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState())
+                ,executorService)
                 .exceptionally(SupervisorStateResponse.SupervisorStateResponseFailure::new);
     }
 

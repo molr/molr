@@ -1,8 +1,11 @@
 package cern.molr.mole.supervisor;
 
+import cern.molr.commons.SupervisorState;
 import cern.molr.mission.Mission;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 /**
  * A supervisor allows to instantiate a mission, that means create a JVM where the requested mission will be executed.
@@ -28,5 +31,11 @@ public interface MoleSupervisor {
      * @return
      */
     Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest);
+
+    /**
+     * A method which should return the supervisor state
+     * @return
+     */
+    SupervisorState getSupervisorState();
 
 }

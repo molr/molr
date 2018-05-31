@@ -1,16 +1,14 @@
 package cern.molr.server.supervisor;
 
+import cern.molr.commons.SupervisorState;
 import cern.molr.mission.Mission;
 import cern.molr.mole.supervisor.MissionCommandRequest;
-import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
-import cern.molr.server.StatefulMoleSupervisor;
+import cern.molr.server.RemoteMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
 import org.junit.Assert;
 import org.junit.Test;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,16 +26,15 @@ public class SupervisorsManagerTest {
 
     private SupervisorsManager manager=new SupervisorsManagerImpl();
 
-    public class StatefulMoleSupervisorTest implements StatefulMoleSupervisor {
-        private State state;
+    public class RemoteMoleSupervisorTest implements RemoteMoleSupervisor {
+        private SupervisorState supervisorState;
 
-        public StatefulMoleSupervisorTest(boolean idle) {
-            state=new State(0,idle?1:0);
+        public RemoteMoleSupervisorTest(boolean idle) {
+            supervisorState =new SupervisorState(0,idle?1:0);
         }
 
-
         @Override
-        public <I> Flux<MoleExecutionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+        public <I> Flux<MoleExecutionEvent> instantiate(String missionClassName, I args, String missionExecutionId) {
             return null;
         }
 
@@ -47,8 +44,8 @@ public class SupervisorsManagerTest {
         }
 
         @Override
-        public Optional<State> getState() {
-            return Optional.of(state);
+        public Optional<SupervisorState> getSupervisorState() {
+            return Optional.of(supervisorState);
         }
     }
 
@@ -57,17 +54,17 @@ public class SupervisorsManagerTest {
     public void Test() {
 
 
-        StatefulMoleSupervisor s1=new StatefulMoleSupervisorTest(true);
-        StatefulMoleSupervisor s2=new StatefulMoleSupervisorTest(true);
-        StatefulMoleSupervisor s3=new StatefulMoleSupervisorTest(false);
-        StatefulMoleSupervisor s4=new StatefulMoleSupervisorTest(true);
+        RemoteMoleSupervisor s1=new RemoteMoleSupervisorTest(true);
+        RemoteMoleSupervisor s2=new RemoteMoleSupervisorTest(true);
+        RemoteMoleSupervisor s3=new RemoteMoleSupervisorTest(false);
+        RemoteMoleSupervisor s4=new RemoteMoleSupervisorTest(true);
 
         String id1=manager.addSupervisor(s1,Arrays.asList("A","B","C","D"));
         String id2=manager.addSupervisor(s2,Arrays.asList("A","B","D"));
         String id3=manager.addSupervisor(s3,Arrays.asList("A","C","D"));
         String id4=manager.addSupervisor(s4,Arrays.asList("A","B","C"));
 
-        Optional<StatefulMoleSupervisor> optional=manager.chooseSupervisor("A");
+        Optional<RemoteMoleSupervisor> optional=manager.chooseSupervisor("A");
         assertEquals(s1,optional.get());
 
         manager.removeSupervisor(s1);

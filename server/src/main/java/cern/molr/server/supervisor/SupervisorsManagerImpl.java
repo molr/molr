@@ -1,6 +1,7 @@
 package cern.molr.server.supervisor;
 
-import cern.molr.server.StatefulMoleSupervisor;
+import cern.molr.commons.SupervisorState;
+import cern.molr.server.RemoteMoleSupervisor;
 import cern.molr.server.SupervisorsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +21,15 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SupervisorsManagerImpl.class);
 
-    private ConcurrentMap<String, StatefulMoleSupervisor> supervisorsRegistry=new ConcurrentHashMap<>();
-    private ConcurrentMap<String, Vector<StatefulMoleSupervisor>> possibleSupervisorsRegistry=new ConcurrentHashMap<>();
+    private ConcurrentMap<String, RemoteMoleSupervisor> supervisorsRegistry=new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Vector<RemoteMoleSupervisor>> possibleSupervisorsRegistry=new ConcurrentHashMap<>();
 
     @Override
-    public String addSupervisor(StatefulMoleSupervisor supervisor, List<String> missionsAccepted) {
+    public String addSupervisor(RemoteMoleSupervisor supervisor, List<String> missionsAccepted) {
         String id=makeEId();
         supervisorsRegistry.put(id,supervisor);
         missionsAccepted.forEach((missiomName)->{
-            possibleSupervisorsRegistry.putIfAbsent(missiomName,new Vector<StatefulMoleSupervisor>());
+            possibleSupervisorsRegistry.putIfAbsent(missiomName,new Vector<RemoteMoleSupervisor>());
             possibleSupervisorsRegistry.get(missiomName).add(supervisor);
         });
         LOGGER.info("A Supervisor Server registred to MolR server id {}",id);
@@ -37,7 +38,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
 
     @Override
     public void removeSupervisor(String id) {
-        StatefulMoleSupervisor supervisor=supervisorsRegistry.remove(id);
+        RemoteMoleSupervisor supervisor=supervisorsRegistry.remove(id);
         possibleSupervisorsRegistry.forEach((mis,vec)->{
             vec.remove(supervisor);
         });
@@ -45,21 +46,21 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
     }
 
     @Override
-    public void removeSupervisor(StatefulMoleSupervisor supervisor) {
+    public void removeSupervisor(RemoteMoleSupervisor supervisor) {
         supervisorsRegistry.entrySet().stream().filter((e)-> e.getValue()==supervisor).findFirst().ifPresent((e)->{
             removeSupervisor(e.getKey());
         });
     }
 
     @Override
-    public Optional<StatefulMoleSupervisor> chooseSupervisor(String missionContentClassName) {
+    public Optional<RemoteMoleSupervisor> chooseSupervisor(String missionContentClassName) {
 
-        Optional<Vector<StatefulMoleSupervisor>> optional=Optional
+        Optional<Vector<RemoteMoleSupervisor>> optional=Optional
                 .ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
 
         return optional.flatMap((vec)->{
-            for(StatefulMoleSupervisor supervisor:vec){
-                Optional<StatefulMoleSupervisor.State> state=supervisor.getState();
+            for(RemoteMoleSupervisor supervisor:vec){
+                Optional<SupervisorState> state=supervisor.getSupervisorState();
                 if(state.isPresent() && state.get().isAvailable())
                     return Optional.of(supervisor);
             }

@@ -26,9 +26,9 @@ import java.util.Optional;
 @Component
 public class InstantiateSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteSupervisorService supervisor;
+    private final MoleSupervisorService supervisor;
 
-    public InstantiateSupervisorHandler(RemoteSupervisorService supervisor) {
+    public InstantiateSupervisorHandler(MoleSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 

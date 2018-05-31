@@ -1,19 +1,18 @@
 package cern.molr.commons.response;
 
+import cern.molr.commons.SupervisorState;
 import cern.molr.commons.trye.TryResponse;
 import cern.molr.commons.trye.TryResponseFailure;
 import cern.molr.commons.trye.TryResponseSuccess;
-import cern.molr.server.StatefulMoleSupervisor;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Interface representing a response to a state request sent to a supervisor
  *
  * @author yassine-kr
  */
-public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervisor.State>{
+public interface SupervisorStateResponse extends TryResponse<SupervisorState>{
 
-    class SupervisorStateResponseSuccess extends TryResponseSuccess<StatefulMoleSupervisor.State>
+    class SupervisorStateResponseSuccess extends TryResponseSuccess<SupervisorState>
             implements SupervisorStateResponse {
 
         public SupervisorStateResponseSuccess() {
@@ -21,14 +20,14 @@ public interface SupervisorStateResponse extends TryResponse<StatefulMoleSupervi
         }
         
         /**
-         * @param state
+         * @param supervisorState
          */
-        public SupervisorStateResponseSuccess(StatefulMoleSupervisor.State state) {
-            super(state);
+        public SupervisorStateResponseSuccess(SupervisorState supervisorState) {
+            super(supervisorState);
         }
     }
 
-    class SupervisorStateResponseFailure extends TryResponseFailure<StatefulMoleSupervisor.State>
+    class SupervisorStateResponseFailure extends TryResponseFailure<SupervisorState>
             implements SupervisorStateResponse {
 
         public SupervisorStateResponseFailure() {

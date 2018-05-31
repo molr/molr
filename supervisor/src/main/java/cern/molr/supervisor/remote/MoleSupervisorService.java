@@ -1,55 +1,55 @@
 package cern.molr.supervisor.remote;
 
+import cern.molr.commons.SupervisorState;
 import cern.molr.exception.MissionExecutionNotAccepted;
 import cern.molr.mission.Mission;
 import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.mole.supervisor.MoleExecutionEvent;
 import cern.molr.mole.supervisor.SupervisorSessionsManagerListener;
-import cern.molr.server.StatefulMoleSupervisor;
 import cern.molr.supervisor.impl.MoleSupervisorImpl;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
- * Spring service which manages a separate JVM
+ * Spring service representing a supervisor which manages its state and use it to decide whether it accepts a
+ * mission or not
  * @author yassine-kr
  */
 @Service
-public class RemoteSupervisorService extends MoleSupervisorImpl implements StatefulMoleSupervisor{
+public class MoleSupervisorService extends MoleSupervisorImpl {
 
 
-    private State state;
+    private SupervisorState supervisorState;
     private SupervisorConfig config;
 
-    public RemoteSupervisorService(SupervisorConfig config) {
+    public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
-        state=new State();
-        state.setNumMissions(0);
-        state.setMaxMissions(config.getMaxMissions());
+        supervisorState =new SupervisorState();
+        supervisorState.setNumMissions(0);
+        supervisorState.setMaxMissions(config.getMaxMissions());
         sessionsManager.addListener(new SupervisorSessionsManagerListener() {
             @Override
             public void onSessionAdded(String missionId) {
-                state.setNumMissions(sessionsManager.getSessionsNumber());
+                supervisorState.setNumMissions(sessionsManager.getSessionsNumber());
             }
 
             @Override
             public void onSessionRemoved(String missionId) {
-                state.setNumMissions(sessionsManager.getSessionsNumber());
+                supervisorState.setNumMissions(sessionsManager.getSessionsNumber());
             }
         });
     }
 
     @Override
-    public Optional<StatefulMoleSupervisor.State> getState() {
-        return Optional.of(state);
+    public SupervisorState getSupervisorState() {
+        return supervisorState;
     }
 
     /**
-     * synchronized method because it should use the supervisor state to determine whether the instantiation is accepted
+     * synchronized method because it should use the supervisor supervisorState to determine whether the instantiation is accepted
      * @param mission
      * @param args
      * @param missionExecutionId
@@ -78,7 +78,7 @@ public class RemoteSupervisorService extends MoleSupervisorImpl implements State
         if(!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: mission not accepted by the supervisor");
-        if(!state.isAvailable())
+        if(!supervisorState.isAvailable())
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: the supervisor cannot execute more missions");
     }

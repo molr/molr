@@ -2,7 +2,6 @@ package cern.molr.supervisor.remote;
 
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.mole.supervisor.MissionCommandRequest;
-import cern.molr.mole.supervisor.MoleExecutionCommand;
 import cern.molr.type.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,9 +23,9 @@ import java.util.Optional;
 @Component
 public class InstructSupervisorHandler implements WebSocketHandler {
 
-    private final RemoteSupervisorService supervisor;
+    private final MoleSupervisorService supervisor;
 
-    public InstructSupervisorHandler(RemoteSupervisorService supervisor) {
+    public InstructSupervisorHandler(MoleSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 

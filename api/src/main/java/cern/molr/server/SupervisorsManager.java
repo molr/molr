@@ -10,8 +10,8 @@ import java.util.Optional;
  * @author yassine-kr
  */
 public interface SupervisorsManager {
-    String addSupervisor(StatefulMoleSupervisor supervisor, List<String> missionsAccepted);
+    String addSupervisor(RemoteMoleSupervisor supervisor, List<String> missionsAccepted);
     void removeSupervisor(String id);
-    void removeSupervisor(StatefulMoleSupervisor supervisor);
-    Optional<StatefulMoleSupervisor> chooseSupervisor(String missionContentClassName);
+    void removeSupervisor(RemoteMoleSupervisor supervisor);
+    Optional<RemoteMoleSupervisor> chooseSupervisor(String missionContentClassName);
 }

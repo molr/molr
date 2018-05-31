@@ -1,5 +1,6 @@
 package cern.molr.supervisor.impl;
 
+import cern.molr.commons.SupervisorState;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.exception.UnknownMissionException;
 import cern.molr.mission.Mission;
@@ -15,7 +16,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 
 /**
- * Implementation of {@link MoleSupervisor} which manage a mission execution
+ * An Implementation of {@link MoleSupervisor} which manages mission executions which does not manage the state
  * @author yassine-kr
  */
 public class MoleSupervisorImpl implements MoleSupervisor {
@@ -65,5 +66,10 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             LOGGER.info("Receiving command response from JVM controller: {}", response);
             return response;
         }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));
+    }
+
+    @Override
+    public SupervisorState getSupervisorState() {
+        return null;
     }
 }
