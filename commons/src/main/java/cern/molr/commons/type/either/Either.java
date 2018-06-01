@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.type.either;
+package cern.molr.commons.type.either;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

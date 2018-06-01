@@ -1,8 +1,8 @@
-package cern.molr.supervisor.impl;
+package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.api.session.MissionSession;
-import cern.molr.api.supervisor.SupervisorSessionsManager;
-import cern.molr.api.supervisor.SupervisorSessionsManagerListener;
+import cern.molr.supervisor.api.session.MissionSession;
+import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
+import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

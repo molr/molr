@@ -1,7 +1,6 @@
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor;
 
-import cern.molr.supervisor.InstantiateSupervisorHandler;
-import cern.molr.supervisor.InstructSupervisorHandler;
+import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;

@@ -1,12 +1,11 @@
 package cern.molr.commons.response;
 
-import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseFailure;
-import cern.molr.commons.trye.TryResponseSuccess;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import cern.molr.commons.type.trye.TryResponse;
+import cern.molr.commons.type.trye.TryResponseFailure;
+import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
- * Interface representing response to a register request
+ * Response to a register request sent back by the MolR server
  *
  * @author yassine-kr
  */

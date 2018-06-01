@@ -9,16 +9,16 @@ package cern.molr.commons.request.server;
  * @author yassine-kr
  * @param <I> the arguments type
  */
-public class SupervisorMissionExecutionRequest<I> {
+public class SupervisorInstantiationRequest<I> {
 
     private String missionExecutionId;
     private String missionContentClassName;
     private I args;
     
-    public SupervisorMissionExecutionRequest(){}
+    public SupervisorInstantiationRequest(){}
     
-    public SupervisorMissionExecutionRequest(String missionExecutionId,
-                                             String missionContentClassName, I args){
+    public SupervisorInstantiationRequest(String missionExecutionId,
+                                          String missionContentClassName, I args){
         this.setMissionExecutionId(missionExecutionId);
         this.setMissionContentClassName(missionContentClassName);
         this.setArgs(args);

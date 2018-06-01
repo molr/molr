@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.mole.spawner.run.jvm;
+package cern.molr.supervisor.impl.session.runner;
 
 /**
  * Input argument type for {@link MoleRunner}

@@ -2,23 +2,23 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.commons.trye;
+package cern.molr.commons.type.trye;
+
+import cern.molr.commons.type.trye.Success;
+import cern.molr.commons.type.trye.TryResponse;
 
 /**
  * @author ?
  * @author yassine-kr
  */
-public class TryResponseSuccess<T> extends Success<T> implements TryResponse<T>{
+public class TryResponseSuccess<T> extends Success<T> implements TryResponse<T> {
 
     public TryResponseSuccess() {
         super(null);
     }
-    
-    /**
-     * @param r
-     */
-    public TryResponseSuccess(T r) {
-        super(r);
+
+    public TryResponseSuccess(T result) {
+        super(result);
     }
 
     @Override
@@ -27,18 +27,18 @@ public class TryResponseSuccess<T> extends Success<T> implements TryResponse<T>{
     }
 
     @Override
-    public void setThrowable(Throwable e) {
+    public void setThrowable(Throwable throwable) {
         return;
     }
 
     @Override
     public T getResult() {
-        return this.r;
+        return this.rightValue;
     }
 
     @Override
-    public void setResult(T r) {
-        this.r = r;
+    public void setResult(T result) {
+        this.rightValue = result;
     }
 
 }

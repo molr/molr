@@ -1,6 +1,7 @@
-package cern.molr.server.supervisor;
+package cern.molr.server.impl;
 
-import cern.molr.api.RemoteMoleSupervisor;
+import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.commons.events.MissionException;
 import cern.molr.commons.response.SupervisorState;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.SupervisorStateResponse;
@@ -36,7 +37,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
                 new SupervisorInstantiationRequest<I>(missionExecutionId,
                         missionClassName,args);
         return socketClient.receiveFlux("/instantiate",MissionEvent.class,request)
-                .map((tryElement)->tryElement.match(RunEvents.MissionException::new,Function.identity()));
+                .map((tryElement)->tryElement.match(MissionException::new,Function.identity()));
     }
 
     @Override

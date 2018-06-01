@@ -1,18 +1,17 @@
-package cern.molr.mole.spawner;
+package cern.molr.test.supervisor.spawner;
 
-import cern.molr.api.session.MissionSession;
-import cern.molr.api.session.MoleController;
+import cern.molr.supervisor.api.session.MissionSession;
+import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionException;
-import cern.molr.commons.mission.MissionImpl;
 import cern.molr.commons.exception.IncompatibleMissionException;
 import cern.molr.commons.mission.Mission;
-import cern.molr.supervisor.impl.spawner.JVMSpawner;
-import cern.molr.mole.supervisor.MoleController;
+import cern.molr.commons.mission.MissionImpl;
 import cern.molr.commons.response.MissionEvent;
-import cern.molr.mole.supervisor.MissionSession;
 import cern.molr.sample.mole.RunnableMole;
+import cern.molr.supervisor.impl.spawner.JVMSpawner;
+import cern.molr.test.MissionTest;
 import org.junit.Assert;
 import org.junit.Test;
 

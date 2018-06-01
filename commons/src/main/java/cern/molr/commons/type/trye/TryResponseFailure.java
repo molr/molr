@@ -2,33 +2,30 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.commons.trye;
+package cern.molr.commons.type.trye;
 
 /**
  * @author ?
  * @author yassine-kr
  */
-public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T>{
+public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T> {
 
     public TryResponseFailure() {
         super(null);
     }
-    
-    /**
-     * @param l
-     */
-    public TryResponseFailure(Throwable l) {
-        super(l);
+
+    public TryResponseFailure(Throwable throwable) {
+        super(throwable);
     }
 
     @Override
     public Throwable getThrowable() {
-        return l;
+        return leftValue;
     }
 
     @Override
-    public void setThrowable(Throwable e) {
-        this.l = e;
+    public void setThrowable(Throwable throwable) {
+        this.leftValue = throwable;
     }
 
     @Override
@@ -37,7 +34,7 @@ public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T>{
     }
 
     @Override
-    public void setResult(T r) {
+    public void setResult(T result) {
         return;
     }
 

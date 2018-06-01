@@ -4,7 +4,7 @@
 
 package cern.molr.sample.mission;
 
-import cern.molr.commons.RunWithMole;
+import cern.molr.commons.mission.RunWithMole;
 import cern.molr.sample.mole.RunnableMole;
 
 /**

@@ -1,4 +1,4 @@
-package cern.molr.supervisor.impl;
+package cern.molr.supervisor.impl.session;
 
 import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;

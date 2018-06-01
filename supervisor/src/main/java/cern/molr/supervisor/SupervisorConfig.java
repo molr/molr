@@ -1,4 +1,4 @@
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor;
 
 /**
  * A supervisor configuration which contains properties of the launched supervisor

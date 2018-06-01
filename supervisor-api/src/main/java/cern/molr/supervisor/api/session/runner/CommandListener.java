@@ -1,4 +1,4 @@
-package cern.molr.api.session.runner;
+package cern.molr.supervisor.api.session.runner;
 
 import cern.molr.commons.request.MissionCommand;
 

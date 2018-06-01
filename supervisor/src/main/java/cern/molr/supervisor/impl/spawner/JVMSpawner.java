@@ -1,11 +1,11 @@
-package cern.molr.mole.spawner.run;
+package cern.molr.supervisor.impl.spawner;
 
 
-import cern.molr.api.spawner.MoleSpawner;
+import cern.molr.supervisor.api.session.MissionSession;
+import cern.molr.supervisor.api.spawner.MoleSpawner;
 import cern.molr.commons.mission.Mission;
-import cern.molr.mole.spawner.run.jvm.JvmSpawnHelper;
-import cern.molr.mole.spawner.run.jvm.MoleRunner;
-import cern.molr.mole.spawner.run.jvm.MoleRunnerArgument;
+import cern.molr.supervisor.impl.session.runner.MoleRunner;
+import cern.molr.supervisor.impl.session.runner.MoleRunnerArgument;
 import cern.molr.supervisor.impl.session.ControllerImpl;
 import cern.molr.supervisor.impl.session.MissionSessionImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A spawner which creates a JVM that executes the mission
  * @author yassine-kr
  */
-public class JVMSpawner<I> implements MoleSpawner<I,MissionSessionImpl> {
+public class JVMSpawner<I> implements MoleSpawner<I,MissionSession> {
 
     private static final String CURRENT_CLASSPATH_VALUE = System.getProperty("java.class.path");
     private static final String EXECUTOR_MAIN_CLASS = MoleRunner.class.getName();
 
     @Override
-    public MissionSessionImpl spawnMoleRunner(Mission mission, I args) throws Exception {
+    public MissionSession spawnMoleRunner(Mission mission, I args) throws Exception {
         if(mission == null) {
             throw new IllegalArgumentException("The mission must not be null");
         }

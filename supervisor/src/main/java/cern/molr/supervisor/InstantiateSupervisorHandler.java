@@ -1,4 +1,4 @@
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor;
 
 import cern.molr.commons.events.MissionException;
 import cern.molr.commons.mission.AnnotatedMissionMaterializer;
@@ -6,6 +6,7 @@ import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionMaterializer;
 import cern.molr.commons.request.server.SupervisorInstantiationRequest;
 import cern.molr.commons.response.ManuallySerializable;
+import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

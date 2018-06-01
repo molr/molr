@@ -1,4 +1,4 @@
-package cern.molr.server;
+package cern.molr.test.server;
 
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.events.MissionFinished;
@@ -14,6 +14,8 @@ import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.sample.mission.Fibonacci;
+import cern.molr.server.ServerMain;
+import cern.molr.supervisor.RemoteSupervisorMain;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

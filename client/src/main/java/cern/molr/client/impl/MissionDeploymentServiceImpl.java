@@ -2,9 +2,9 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.client.serviceimpl;
+package cern.molr.client.impl;
 
-import cern.molr.api.MissionDeploymentService;
+import cern.molr.client.api.MissionDeploymentService;
 
 /**
  * Implementation used by the developer to interact with the server

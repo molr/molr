@@ -1,10 +1,10 @@
 package cern.molr.sample.mission;
 
-import cern.molr.commons.RunWithMole;
+import cern.molr.commons.mission.RunWithMole;
 import cern.molr.sample.mole.RunnableMole;
 
 /**
- * A testing mission which is not accepted by the supervisor
+ * A testing mission which is not accepted by the impl
  * @author yassine-kr
  */
 @RunWithMole(RunnableMole.class)

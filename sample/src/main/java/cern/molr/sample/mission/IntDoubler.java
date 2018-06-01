@@ -6,7 +6,7 @@ package cern.molr.sample.mission;
 
 import java.util.function.Function;
 
-import cern.molr.commons.RunWithMole;
+import cern.molr.commons.mission.RunWithMole;
 import cern.molr.sample.mole.IntegerFunctionMole;
 
 @RunWithMole(IntegerFunctionMole.class)

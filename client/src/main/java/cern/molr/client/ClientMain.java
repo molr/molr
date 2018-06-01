@@ -4,11 +4,10 @@
 
 package cern.molr.client;
 
-import cern.molr.client.serviceimpl.MissionExecutionServiceImpl;
+import cern.molr.client.impl.MissionExecutionServiceImpl;
 
 /**
- * Example implementation of client's usage & functionalities using samples
- * 
+ * Example implementation of client's usage
  * @author nachivpn
  * @author yassine-kr
  */

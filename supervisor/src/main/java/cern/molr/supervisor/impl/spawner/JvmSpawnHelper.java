@@ -4,7 +4,7 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
-package cern.molr.mole.spawner.run.jvm;
+package cern.molr.supervisor.impl.spawner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

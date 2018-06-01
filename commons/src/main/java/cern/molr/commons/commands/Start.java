@@ -1,4 +1,10 @@
 package cern.molr.commons.commands;
 
-public class Start {
+import cern.molr.commons.request.MissionCommand;
+
+public class Start implements MissionCommand {
+
+    public Start() {
+    }
+
 }

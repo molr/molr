@@ -2,9 +2,9 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.type;
+package cern.molr.commons.type.trye;
 
-import cern.molr.type.either.Either;
+import cern.molr.commons.type.either.Either;
 
 /**
  * {@link Try} is used to return an "exceptional" result.

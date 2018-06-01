@@ -2,10 +2,10 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.mole.spawner.run.jvm;
+package cern.molr.supervisor.impl.session.runner;
 
-import cern.molr.api.session.runner.CommandListener;
-import cern.molr.api.session.runner.MoleRunnerState;
+import cern.molr.supervisor.api.session.runner.CommandListener;
+import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
@@ -13,13 +13,10 @@ import cern.molr.commons.mission.MissionImpl;
 import cern.molr.commons.exception.MissionExecutionException;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.Mole;
-import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.ManuallySerializable;
-import cern.molr.supervisor.impl.session.runner.CommandsReader;
-import cern.molr.supervisor.impl.session.runner.MoleRunnerArgument;
-import cern.molr.supervisor.impl.session.runner.MoleRunnerStateImpl;
+import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -182,7 +179,7 @@ public class MoleRunner implements CommandListener {
         try{
             moleRunnerState.acceptCommand(command);
 
-            RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(true,
+            CommandStatus commandStatus =new CommandStatus(true,
                     "command accepted by the JVM");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
@@ -193,12 +190,12 @@ public class MoleRunner implements CommandListener {
 
         } catch (Exception e) {
             try {
-                RunEvents.CommandStatus commandStatus =new RunEvents.CommandStatus(e);
+                CommandStatus commandStatus =new CommandStatus(e);
                 System.out.println(mapper.writeValueAsString(commandStatus));
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
                 System.out.println(ManuallySerializable.serializeArray(
-                        new RunEvents.CommandStatus("unable to serialize a failure status")));
+                        new CommandStatus("unable to serialize a failure status")));
             }
         }
     }

@@ -1,10 +1,11 @@
-package cern.molr.mole.spawner.run;
+package cern.molr.supervisor.impl.session;
 
+import cern.molr.supervisor.api.session.EventsListener;
+import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.Ack;
-import cern.molr.supervisor.impl.MissionCommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -22,11 +23,11 @@ import java.util.concurrent.Future;
  *
  * @author yassine-kr
  */
-public class RunController implements MoleController,EventsListener, Closeable {
+public class ControllerImpl implements MoleController,EventsListener, Closeable {
 
     private final Set<EventsListener> listeners=new HashSet<>();
     private final PrintWriter printWriter;
-    private final RunEventsReader reader;
+    private final EventsReader reader;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Future<?> loggerTask;
@@ -38,14 +39,14 @@ public class RunController implements MoleController,EventsListener, Closeable {
      * Must be volatile (not cached) because it is accessible by two threads in the same time
      * Can't manage multiple commands in the same time
      */
-    private volatile MissionCommandStatus commandStatus =null;
+    private volatile CommandStatus commandStatus =null;
 
-    public RunController(Process process) {
+    public ControllerImpl(Process process) {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         printWriter=new PrintWriter(process.getOutputStream());
-        reader=new RunEventsReader(new BufferedReader(new InputStreamReader(process.getInputStream())),this);
+        reader=new EventsReader(new BufferedReader(new InputStreamReader(process.getInputStream())),this);
 
         this.loggerTask = executor.submit(() -> {
             InputStream processError = process.getErrorStream();
@@ -89,7 +90,7 @@ public class RunController implements MoleController,EventsListener, Closeable {
      * @return
      */
     @Override
-    synchronized public MoleExecutionCommandResponse sendCommand(MissionCommand command) {
+    synchronized public CommandResponse sendCommand(MissionCommand command) {
         try {
             printWriter.println(mapper.writeValueAsString(command));
             printWriter.flush();
@@ -103,7 +104,7 @@ public class RunController implements MoleController,EventsListener, Closeable {
                 return new CommandResponse.CommandResponseSuccess(new Ack(message));
             }
             else{
-                MoleExecutionCommandResponse response=
+                CommandResponse response=
                         new CommandResponse.CommandResponseFailure(commandStatus.getException());
                 commandStatus=null;
                 return response;
@@ -118,8 +119,8 @@ public class RunController implements MoleController,EventsListener, Closeable {
 
     @Override
     public void onEvent(MissionEvent event) {
-        if(event instanceof MissionCommandStatus){
-            commandStatus = (MissionCommandStatus) event;
+        if(event instanceof CommandStatus){
+            commandStatus = (CommandStatus) event;
         }
 
         else

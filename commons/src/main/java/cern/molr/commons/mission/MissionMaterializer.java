@@ -2,9 +2,9 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.mission;
+package cern.molr.commons.mission;
 
-import cern.molr.exception.MissionMaterializationException;
+import cern.molr.commons.exception.MissionMaterializationException;
 
 /**
  * Used to converts a given mission definition class file into a mission object

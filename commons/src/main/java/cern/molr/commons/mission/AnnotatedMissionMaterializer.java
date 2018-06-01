@@ -4,12 +4,9 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
-package cern.molr.commons;
+package cern.molr.commons.mission;
 
-import cern.molr.exception.MissionMaterializationException;
-import cern.molr.mission.Mission;
-import cern.molr.mission.MissionMaterializer;
-import cern.molr.mole.Mole;
+import cern.molr.commons.exception.MissionMaterializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

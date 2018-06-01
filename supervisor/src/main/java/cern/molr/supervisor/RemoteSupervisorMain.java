@@ -2,15 +2,14 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor;
 
 import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.response.SupervisorRegisterResponse;
 import cern.molr.commons.response.SupervisorUnregisterResponse;
 import cern.molr.commons.web.MolrWebClient;
-import cern.molr.mole.supervisor.MoleSupervisor;
-import cern.molr.api.address.AddressGetter;
+import cern.molr.supervisor.api.address.AddressGetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
@@ -29,7 +28,7 @@ import java.util.concurrent.Executors;
 
 
 /**
- * Remote entry point for the {@link MoleSupervisor}
+ * Remote entry point for the Supervisor
  * When the server is ready, it sends a register request to MolR Server
  * @author nachivpn
  * @author yassine-kr

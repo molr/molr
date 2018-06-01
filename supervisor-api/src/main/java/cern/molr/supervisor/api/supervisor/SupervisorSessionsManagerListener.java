@@ -1,6 +1,4 @@
-package cern.molr.api.supervisor;
-
-import cern.molr.api.supervisor.SupervisorSessionsManager;
+package cern.molr.supervisor.api.supervisor;
 
 /**
  * A listener notified by a {@link SupervisorSessionsManager}

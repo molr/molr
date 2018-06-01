@@ -2,16 +2,16 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.client.serviceimpl;
+package cern.molr.client.impl;
 
+import cern.molr.client.api.ClientMissionController;
+import cern.molr.client.api.MissionExecutionService;
+import cern.molr.commons.events.MissionException;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.InstantiationResponse;
 import cern.molr.commons.response.InstantiationResponseBean;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.mission.controller.ClientMissionController;
-import cern.molr.mission.service.MissionExecutionService;
-import cern.molr.mole.spawner.run.RunEvents;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.MissionEvent;
@@ -93,15 +93,15 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                                         .doOnError((e) -> LOGGER.error("error while receiving events flux", e)).map(
                                                 (tryElement)
                                                         -> tryElement
-                                                        .match(RunEvents.MissionException::new, Function.identity()));
+                                                        .match(MissionException::new, Function.identity()));
                             }
 
                             @Override
-                            public Mono<MoleExecutionCommandResponse> instruct(MissionCommand command) {
+                            public Mono<CommandResponse> instruct(MissionCommand command) {
                                 MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
                                         command);
                                 return clientSocket.
-                                        receiveMono("/instruct", MoleExecutionCommandResponse.class, commandRequest)
+                                        receiveMono("/instruct", CommandResponse.class, commandRequest)
                                         .doOnError((e) -> LOGGER.error("error while receiving a command response", e))
                                         .map((tryElement) ->
                                                 tryElement.match(CommandResponse.CommandResponseFailure::new,

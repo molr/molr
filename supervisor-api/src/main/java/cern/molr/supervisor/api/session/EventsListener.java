@@ -1,4 +1,4 @@
-package cern.molr.api.session;
+package cern.molr.supervisor.api.session;
 
 import cern.molr.commons.response.MissionEvent;
 

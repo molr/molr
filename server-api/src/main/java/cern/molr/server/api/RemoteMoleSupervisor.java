@@ -1,4 +1,4 @@
-package cern.molr.api;
+package cern.molr.server.api;
 
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
@@ -36,7 +36,7 @@ public interface RemoteMoleSupervisor {
     Mono<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
-     * A method which should return the impl state
+     * A method which should return the supervisor state
      * @return optional, empty if the method fails to get the state
      */
     Optional<SupervisorState> getSupervisorState();

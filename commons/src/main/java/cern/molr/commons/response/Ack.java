@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.type;
+package cern.molr.commons.response;
 
 /**
  * {@link Ack} is often used as an acknowledgement return type ( instead of void :) )

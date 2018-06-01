@@ -9,14 +9,14 @@ package cern.molr.commons.request.client;
  * @author yassine-kr
  * @param <I> the arguments type
  */
-public class ServerMissionExecutionRequest<I> {
+public class ServerInstantiationRequest<I> {
 
     private String missionDefnClassName;
     private I args;
     
-    public ServerMissionExecutionRequest(){}
+    public ServerInstantiationRequest(){}
     
-    public ServerMissionExecutionRequest(String missionDefnClassName, I args){
+    public ServerInstantiationRequest(String missionDefnClassName, I args){
         this.missionDefnClassName = missionDefnClassName;
         this.args = args;
     }

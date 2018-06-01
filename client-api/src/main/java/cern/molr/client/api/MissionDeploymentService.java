@@ -2,10 +2,8 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.api;
+package cern.molr.client.api;
 
-
-import cern.molr.commons.mission.Mission;
 
 /**
  * {@link MissionDeploymentService} is the client (developer) - server interface used to deploy (or submit) missions

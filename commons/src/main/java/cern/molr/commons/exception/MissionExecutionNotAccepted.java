@@ -1,4 +1,4 @@
-package cern.molr.exception;
+package cern.molr.commons.exception;
 /**
  * Thrown when the MolR server or a supervisor does not accept to execute a mission; for example because of the mission
  * type or the fact that the max number of running missions is achieved

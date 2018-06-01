@@ -3,15 +3,12 @@
  * verbatim in the file “COPYING“. In applying this licence, CERN does not waive the privileges and immunities granted
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
-package cern.molr.commons;
+package cern.molr.commons.mission;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import cern.molr.mission.Mission;
-import cern.molr.mole.Mole;
 
 /**
  * Provides information about which classes shall be exposed as {@link Mission}s and which {@link Mole}

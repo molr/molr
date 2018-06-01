@@ -1,8 +1,8 @@
-package cern.molr.mole.spawner.run.jvm;
+package cern.molr.supervisor.impl.session.runner;
 
+import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.exception.CommandNotAcceptedException;
-import cern.molr.mole.supervisor.MoleRunnerState;
 import cern.molr.commons.request.MissionCommand;
 
 /**

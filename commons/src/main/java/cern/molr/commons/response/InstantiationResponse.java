@@ -5,41 +5,41 @@
 package cern.molr.commons.response;
 
 
-import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseFailure;
-import cern.molr.commons.trye.TryResponseSuccess;
+import cern.molr.commons.type.trye.TryResponse;
+import cern.molr.commons.type.trye.TryResponseFailure;
+import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
  * A response sent back to the client by the MolR server after receiving an instantiation request
  * @author yassine-kr
  */
-public interface MissionExecutionResponse extends TryResponse<MissionExecutionResponseBean>{
+public interface InstantiationResponse extends TryResponse<InstantiationResponseBean>{
 
-    class MissionExecutionResponseSuccess extends TryResponseSuccess<MissionExecutionResponseBean>
-            implements MissionExecutionResponse{
+    class InstantiationResponseSuccess extends TryResponseSuccess<InstantiationResponseBean>
+            implements InstantiationResponse {
 
-        public MissionExecutionResponseSuccess() {
+        public InstantiationResponseSuccess() {
             super(null);
         }
         
         /**
          * @param responseBean
          */
-        public MissionExecutionResponseSuccess(MissionExecutionResponseBean responseBean) {
+        public InstantiationResponseSuccess(InstantiationResponseBean responseBean) {
             super(responseBean);
         }
     }
 
-    class MissionExecutionResponseFailure extends TryResponseFailure<MissionExecutionResponseBean>
-            implements MissionExecutionResponse{
+    class InstantiationResponseFailure extends TryResponseFailure<InstantiationResponseBean>
+            implements InstantiationResponse {
 
-        public MissionExecutionResponseFailure() {
+        public InstantiationResponseFailure() {
             super(null);
         }
         /**
          * @param throwable
          */
-        public MissionExecutionResponseFailure(Throwable throwable) {
+        public InstantiationResponseFailure(Throwable throwable) {
             super(throwable);
         }
     }

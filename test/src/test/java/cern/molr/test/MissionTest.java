@@ -1,6 +1,7 @@
 package cern.molr.test;
 
 import cern.molr.commons.mission.RunWithMole;
+import cern.molr.sample.mole.IntegerFunctionMole;
 
 import java.util.function.Function;
 

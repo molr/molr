@@ -2,11 +2,11 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor;
 
 import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.commons.request.server.SupervisorStateRequest;
-import cern.molr.supervisor.RemoteSupervisorMain;
+import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

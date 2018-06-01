@@ -4,13 +4,16 @@
 
 package cern.molr.server;
 
-import cern.molr.exception.MissionExecutionNotAccepted;
-import cern.molr.exception.NoAppropriateSupervisorFound;
-import cern.molr.exception.UnknownMissionException;
-import cern.molr.mole.supervisor.*;
+import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorsManager;
+import cern.molr.commons.exception.MissionExecutionNotAccepted;
+import cern.molr.commons.exception.NoAppropriateSupervisorFound;
+import cern.molr.commons.exception.UnknownMissionException;
+import cern.molr.commons.response.CommandResponse;
+import cern.molr.commons.response.MissionEvent;
 import cern.molr.sample.mission.*;
-import cern.molr.server.supervisor.RemoteMoleSupervisorImpl;
-import cern.molr.mole.supervisor.MissionCommandRequest;
+import cern.molr.server.impl.RemoteMoleSupervisorImpl;
+import cern.molr.commons.request.MissionCommandRequest;
 import io.netty.util.internal.ConcurrentSet;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -53,7 +56,7 @@ public class ServerRestExecutionService {
         missionExists(missionDefnClassName);
         Optional<RemoteMoleSupervisor> optional= supervisorsManager.chooseSupervisor(missionDefnClassName);
         return optional.map((supervisor)->{
-                Flux<MoleExecutionEvent> executionEventFlux = supervisor.instantiate(missionDefnClassName, args, missionEId);
+                Flux<MissionEvent> executionEventFlux = supervisor.instantiate(missionDefnClassName, args, missionEId);
                 registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
                 return missionEId;
         }).orElseThrow(() ->
@@ -66,8 +69,8 @@ public class ServerRestExecutionService {
             throw new MissionExecutionNotAccepted("Mission not defined in MolR registry");
     }
 
-    public Flux<MoleExecutionEvent> getFlux(String mEId) throws UnknownMissionException{
-        Optional<Flux<MoleExecutionEvent>> optionalFlux = registry.getMissionExecutionFlux(mEId);
+    public Flux<MissionEvent> getFlux(String mEId) throws UnknownMissionException{
+        Optional<Flux<MissionEvent>> optionalFlux = registry.getMissionExecutionFlux(mEId);
         return optionalFlux.orElseThrow(() -> new UnknownMissionException("No such mission running"));
     }
 
@@ -81,7 +84,7 @@ public class ServerRestExecutionService {
          * Accepted missions
          */
         private ConcurrentSet<String> missionRegistry = new ConcurrentSet<>();
-        private ConcurrentMap<String, Flux<MoleExecutionEvent>> missionExecutionRegistry =  new ConcurrentHashMap<>();
+        private ConcurrentMap<String, Flux<MissionEvent>> missionExecutionRegistry =  new ConcurrentHashMap<>();
         private ConcurrentMap<String, RemoteMoleSupervisor> moleSupervisorRegistry =  new ConcurrentHashMap<>();
 
         public void registerNewMission(String missionClassName) {
@@ -89,7 +92,7 @@ public class ServerRestExecutionService {
         }
 
         public void registerNewMissionExecution(String missionId,
-                                                RemoteMoleSupervisor supervisor, Flux<MoleExecutionEvent> flux) {
+                                                RemoteMoleSupervisor supervisor, Flux<MissionEvent> flux) {
             moleSupervisorRegistry.put(missionId, supervisor);
             missionExecutionRegistry.put(missionId, flux);
         }
@@ -98,7 +101,7 @@ public class ServerRestExecutionService {
             return missionRegistry.contains(missionClassName);
         }
 
-        public Optional<Flux<MoleExecutionEvent>> getMissionExecutionFlux(String missionEId){
+        public Optional<Flux<MissionEvent>> getMissionExecutionFlux(String missionEId){
             return Optional.ofNullable(missionExecutionRegistry.get(missionEId));
         }
 
@@ -113,7 +116,7 @@ public class ServerRestExecutionService {
 
     }
 
-    public Mono<MoleExecutionCommandResponse> instruct(MissionCommandRequest commandRequest)
+    public Mono<CommandResponse> instruct(MissionCommandRequest commandRequest)
             throws UnknownMissionException {
         Optional<RemoteMoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(commandRequest.getMissionId());
         return optionalSupervisor

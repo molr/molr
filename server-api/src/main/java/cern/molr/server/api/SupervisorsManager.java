@@ -1,11 +1,11 @@
-package cern.molr.api;
+package cern.molr.server.api;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * It manages a set of mole supervisors identified by different ids. Has a method which chooses an appropriate
- * impl to execute a mission
+ * supervisor to execute a mission
  *
  * @author yassine-kr
  */

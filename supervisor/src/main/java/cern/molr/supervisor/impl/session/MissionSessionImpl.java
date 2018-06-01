@@ -1,19 +1,19 @@
-package cern.molr.mole.spawner.run;
+package cern.molr.supervisor.impl.session;
 
-import cern.molr.api.session.MissionSession;
-import cern.molr.api.session.MoleController;
+import cern.molr.supervisor.api.session.MissionSession;
+import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.commons.mission.Mission;
 
 /**
  * Session for running a mission
  * @author yassine-kr
  */
-public class RunSession implements MissionSession {
+public class MissionSessionImpl implements MissionSession {
 
     private final Mission mission;
-    private RunController controller;
+    private ControllerImpl controller;
 
-    public RunSession(Mission mission, RunController controller) {
+    public MissionSessionImpl(Mission mission, ControllerImpl controller) {
         this.mission = mission;
         this.controller = controller;
     }

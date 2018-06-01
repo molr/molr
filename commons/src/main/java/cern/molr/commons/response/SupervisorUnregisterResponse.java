@@ -1,13 +1,11 @@
 package cern.molr.commons.response;
 
-import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseFailure;
-import cern.molr.commons.trye.TryResponseSuccess;
-import cern.molr.type.Ack;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import cern.molr.commons.type.trye.TryResponse;
+import cern.molr.commons.type.trye.TryResponseFailure;
+import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
- * Interface representing response to an unregister request
+ * Response to a unregister request sent back by the MolR server
  *
  * @author yassine-kr
  */

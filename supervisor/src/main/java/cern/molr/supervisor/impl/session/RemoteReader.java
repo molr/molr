@@ -1,4 +1,4 @@
-package cern.molr.mole.spawner;
+package cern.molr.supervisor.impl.session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

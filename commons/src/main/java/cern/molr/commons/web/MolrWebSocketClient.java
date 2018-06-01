@@ -1,8 +1,8 @@
 package cern.molr.commons.web;
 
-import cern.molr.commons.trye.Failure;
-import cern.molr.commons.trye.Success;
-import cern.molr.type.Try;
+import cern.molr.commons.type.trye.Failure;
+import cern.molr.commons.type.trye.Success;
+import cern.molr.commons.type.trye.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

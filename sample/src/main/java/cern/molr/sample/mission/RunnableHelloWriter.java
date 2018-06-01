@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
-import cern.molr.commons.RunWithMole;
+import cern.molr.commons.mission.RunWithMole;
 import cern.molr.sample.mole.RunnableMole;
 
 /* 

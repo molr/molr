@@ -1,12 +1,11 @@
 package cern.molr.commons.response;
 
-import cern.molr.commons.SupervisorState;
-import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseFailure;
-import cern.molr.commons.trye.TryResponseSuccess;
+import cern.molr.commons.type.trye.TryResponse;
+import cern.molr.commons.type.trye.TryResponseFailure;
+import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
- * Interface representing a response to a state request sent to a supervisor
+ * Response to a state request sent back by the supervisor
  *
  * @author yassine-kr
  */

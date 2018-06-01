@@ -4,9 +4,9 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
-package cern.molr.exception;
+package cern.molr.commons.exception;
 
-import cern.molr.mission.Mission;
+import cern.molr.commons.mission.Mission;
 
 /**
  * Thrown when a request concerning an unknown {@link Mission} is received by MolR server or the supervisor

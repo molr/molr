@@ -1,12 +1,12 @@
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.api.supervisor.SupervisorSessionsManagerListener;
+import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
 import cern.molr.commons.events.MissionException;
 import cern.molr.commons.response.SupervisorState;
 import cern.molr.commons.exception.MissionExecutionNotAccepted;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.response.MissionEvent;
-import cern.molr.supervisor.impl.MoleSupervisorImpl;
+import cern.molr.supervisor.SupervisorConfig;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;

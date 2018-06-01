@@ -1,23 +1,17 @@
 package cern.molr.commons.response;
 
-import cern.molr.commons.trye.TryResponse;
-import cern.molr.commons.trye.TryResponseFailure;
-import cern.molr.commons.trye.TryResponseSuccess;
-import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
-import cern.molr.type.Ack;
-import cern.molr.type.ManuallySerializable;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import cern.molr.commons.type.trye.TryResponse;
+import cern.molr.commons.type.trye.TryResponseFailure;
+import cern.molr.commons.type.trye.TryResponseSuccess;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
- * @author ?
  * @author yassine-kr
  */
-public interface CommandResponse extends TryResponse<Ack>,MoleExecutionCommandResponse {
+public interface CommandResponse extends TryResponse<Ack> {
 
     class CommandResponseSuccess extends TryResponseSuccess<Ack> implements CommandResponse {
         public CommandResponseSuccess() {

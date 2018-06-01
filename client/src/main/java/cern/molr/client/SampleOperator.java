@@ -1,11 +1,14 @@
 package cern.molr.client;
 
-import cern.molr.mission.controller.ClientMissionController;
-import cern.molr.mission.service.MissionExecutionService;
-import cern.molr.mole.spawner.run.RunCommands;
-import cern.molr.mole.spawner.run.RunEvents;
-import cern.molr.mole.supervisor.MoleExecutionCommandResponse;
-import cern.molr.mole.supervisor.MoleExecutionEvent;
+
+import cern.molr.client.api.ClientMissionController;
+import cern.molr.client.api.MissionExecutionService;
+import cern.molr.commons.commands.Start;
+import cern.molr.commons.commands.Terminate;
+import cern.molr.commons.events.MissionStarted;
+import cern.molr.commons.events.SessionInstantiated;
+import cern.molr.commons.response.CommandResponse;
+import cern.molr.commons.response.MissionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import reactor.core.publisher.Mono;
 
@@ -34,8 +37,8 @@ public class SampleOperator {
      * @param finishSignal the signal to be triggered when the all events and missions received
      * @throws Exception
      */
-    private void launchMission(String execName,Class<?> missionClass,List<MoleExecutionEvent> events,
-                               List<MoleExecutionCommandResponse>
+    private void launchMission(String execName,Class<?> missionClass,List<MissionEvent> events,
+                               List<CommandResponse>
                                        commandResponses,CountDownLatch finishSignal){
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
@@ -48,9 +51,9 @@ public class SampleOperator {
                 System.out.println(execName+" event: "+event);
                 events.add(event);
                 endSignal.countDown();
-                if (event instanceof RunEvents.JVMInstantiated)
+                if (event instanceof SessionInstantiated)
                     instantiateSignal.countDown();
-                else if (event instanceof RunEvents.MissionStarted)
+                else if (event instanceof MissionStarted)
                     startSignal.countDown();
             });
             try {
@@ -59,7 +62,7 @@ public class SampleOperator {
                 e.printStackTrace();
                 System.exit(-1);
             }
-            controller.instruct(new RunCommands.Start()).subscribe((response)->{
+            controller.instruct(new Start()).subscribe((response)->{
                 System.out.println(execName+" response to start: "+response);
                 commandResponses.add(response);
                 endSignal.countDown();
@@ -71,7 +74,7 @@ public class SampleOperator {
                 e.printStackTrace();
                 System.exit(-1);
             }
-            controller.instruct(new RunCommands.Terminate()).subscribe((response)->{
+            controller.instruct(new Terminate()).subscribe((response)->{
                 System.out.println(execName+" response to terminate: "+response);
                 commandResponses.add(response);
                 endSignal.countDown();
@@ -92,11 +95,11 @@ public class SampleOperator {
     public void parallelExample() throws InterruptedException {
         CountDownLatch finishSignal = new CountDownLatch(2);
 
-        List<MoleExecutionEvent> events1=new ArrayList<>();
-        List<MoleExecutionCommandResponse> commandResponses1=new ArrayList<>();
+        List<MissionEvent> events1=new ArrayList<>();
+        List<CommandResponse> commandResponses1=new ArrayList<>();
 
-        List<MoleExecutionEvent> events2=new ArrayList<>();
-        List<MoleExecutionCommandResponse> commandResponses2=new ArrayList<>();
+        List<MissionEvent> events2=new ArrayList<>();
+        List<CommandResponse> commandResponses2=new ArrayList<>();
 
         launchMission("exec1",Fibonacci.class,events1,commandResponses1,finishSignal);
         launchMission("exec2",Fibonacci.class,events2,commandResponses2,finishSignal);

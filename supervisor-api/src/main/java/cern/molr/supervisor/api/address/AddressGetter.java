@@ -1,8 +1,8 @@
-package cern.molr.api.address;
+package cern.molr.supervisor.api.address;
 
 
 /**
- * It gets IP address and port of the impl in order to send it to MolR serve
+ * It gets IP address and port of the supervisor in order to send it to MolR serve
  * @author yassine-kr
  */
 public interface AddressGetter {

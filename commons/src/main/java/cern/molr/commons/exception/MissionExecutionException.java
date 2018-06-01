@@ -4,7 +4,7 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
-package cern.molr.exception;
+package cern.molr.commons.exception;
 
 /**
  * Exception which occurs while executing a mission

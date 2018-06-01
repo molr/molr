@@ -1,4 +1,4 @@
-package cern.molr.commons;
+package cern.molr.commons.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

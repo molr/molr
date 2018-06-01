@@ -1,7 +1,8 @@
-package cern.molr.client.impl;
+package cern.molr.test.client;
 
-import cern.molr.api.ClientMissionController;
-import cern.molr.api.MissionExecutionService;
+import cern.molr.client.api.ClientMissionController;
+import cern.molr.client.api.MissionExecutionService;
+import cern.molr.client.impl.MissionExecutionServiceImpl;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionStarted;
@@ -10,6 +11,8 @@ import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.sample.mission.Fibonacci;
+import cern.molr.server.ServerMain;
+import cern.molr.supervisor.RemoteSupervisorMain;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

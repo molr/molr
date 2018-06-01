@@ -1,10 +1,9 @@
 package cern.molr.server;
 
 import cern.molr.commons.response.CommandResponse;
-import cern.molr.exception.UnknownMissionException;
-import cern.molr.mole.supervisor.MissionCommandRequest;
-import cern.molr.mole.supervisor.MoleExecutionCommand;
-import cern.molr.type.ManuallySerializable;
+import cern.molr.commons.exception.UnknownMissionException;
+import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.response.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

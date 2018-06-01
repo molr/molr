@@ -7,10 +7,10 @@
 package cern.molr.sample.mole;
 
 
-import cern.molr.exception.IncompatibleMissionException;
-import cern.molr.exception.MissionExecutionException;
-import cern.molr.mission.Mission;
-import cern.molr.mole.Mole;
+import cern.molr.commons.exception.IncompatibleMissionException;
+import cern.molr.commons.exception.MissionExecutionException;
+import cern.molr.commons.mission.Mission;
+import cern.molr.commons.mission.Mole;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the

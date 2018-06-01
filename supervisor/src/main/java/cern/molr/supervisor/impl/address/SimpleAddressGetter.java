@@ -1,7 +1,7 @@
-package cern.molr.supervisor.remote;
+package cern.molr.supervisor.impl.address;
 
-import cern.molr.api.address.AddressGetter;
-import cern.molr.api.address.AddressGetterListener;
+import cern.molr.supervisor.api.address.AddressGetter;
+import cern.molr.supervisor.api.address.AddressGetterListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.context.WebServerInitializedEvent;

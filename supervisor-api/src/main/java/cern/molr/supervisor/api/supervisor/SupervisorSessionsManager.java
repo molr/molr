@@ -1,6 +1,6 @@
-package cern.molr.api.supervisor;
+package cern.molr.supervisor.api.supervisor;
 
-import cern.molr.api.session.MissionSession;
+import cern.molr.supervisor.api.session.MissionSession;
 
 import java.util.Optional;
 

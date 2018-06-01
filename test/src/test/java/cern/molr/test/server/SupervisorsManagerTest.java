@@ -1,7 +1,7 @@
-package cern.molr.server;
+package cern.molr.test.server;
 
-import cern.molr.api.RemoteMoleSupervisor;
-import cern.molr.api.SupervisorsManager;
+import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorsManager;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;

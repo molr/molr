@@ -1,8 +1,8 @@
-package cern.molr.supervisor.impl;
+package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.api.session.MissionSession;
-import cern.molr.api.supervisor.MoleSupervisor;
-import cern.molr.api.supervisor.SupervisorSessionsManager;
+import cern.molr.supervisor.api.session.MissionSession;
+import cern.molr.supervisor.api.supervisor.MoleSupervisor;
+import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
 import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.events.MissionException;
 import cern.molr.commons.request.MissionCommandRequest;

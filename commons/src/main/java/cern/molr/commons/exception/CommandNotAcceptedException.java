@@ -1,4 +1,4 @@
-package cern.molr.exception;
+package cern.molr.commons.exception;
 
 
 /**

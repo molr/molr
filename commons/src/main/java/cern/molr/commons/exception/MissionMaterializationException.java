@@ -4,11 +4,14 @@
  * to it by virtue of its status as an Intergovernmental Organization or submit itself to any jurisdiction.
  */
 
-package cern.molr.exception;
+package cern.molr.commons.exception;
+
+import cern.molr.commons.mission.Mission;
+import cern.molr.commons.mission.MissionMaterializer;
 
 /**
  * Exception to be used whenever its not possible to
- * {@link cern.molr.mission.MissionMaterializer#materialize(Class)} a {@link cern.molr.mission.Mission}
+ * {@link MissionMaterializer#materialize(Class)} a {@link Mission}
  *
  * @author timartin
  */

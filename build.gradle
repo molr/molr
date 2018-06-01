@@ -58,35 +58,64 @@ allprojects {
     }
 }
 
-project(":api") {}
-
 project(":commons") {
-    dependencies {
-        compile project(":api")
-    }
 }
+
 project(":sample") {
     dependencies {
-        compile project(":api")
         compile project(":commons")
     }
 }
-project(":supervisor") {
+
+project(":client-api") {
     dependencies {
-        compile project(":sample")
+        compile project(":commons")
     }
 }
-project(":server") {
+
+project(":server-api") {
     dependencies {
-        compile project(":supervisor")
-        compile project(":sample")
+        compile project(":commons")
+    }
+}
+
+project(":supervisor-api") {
+    dependencies {
+        compile project(":commons")
     }
 }
 
 project(":client") {
     dependencies {
-        compile project(":server")
+        compile project(":client-api")
         compile project(":sample")
     }
 }
+
+project(":server") {
+    dependencies {
+        compile project(":server-api")
+        compile project(":sample")
+    }
+}
+
+project(":supervisor") {
+    dependencies {
+        compile project(":supervisor-api")
+        compile project(":sample")
+    }
+}
+
+project(":test") {
+    dependencies {
+        testCompile project(":client")
+        testCompile project(":server")
+        testCompile project(":supervisor")
+    }
+}
+
+
+
+
+
 
