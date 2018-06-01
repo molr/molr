@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instructing JVM. It returns a mono
+ * WebSocket Spring Handler which handles websoscket requests for instructing the MoleRunner. It returns a mono
  * @author yassine-kr
  */
 @Component

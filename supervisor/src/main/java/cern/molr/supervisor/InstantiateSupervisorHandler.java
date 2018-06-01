@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instantiating JVM. It returns a flux as response
+ * WebSocket Spring Handler which handles websoscket requests for instantiating the MoleRunner. It returns a flux as
+ * response
  * @author yassine-kr
  */
 @Component

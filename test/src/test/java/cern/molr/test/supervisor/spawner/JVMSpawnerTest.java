@@ -72,7 +72,7 @@ public class JVMSpawnerTest {
     }
 
     /**
-     * The mission execution should be long enough to terminate the JVM before the the mission is finished
+     * The mission execution should be long enough to terminate the session before the the mission is finished
      * @throws Exception
      */
     @Test

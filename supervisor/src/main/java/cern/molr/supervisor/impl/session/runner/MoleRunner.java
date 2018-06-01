@@ -28,7 +28,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 /**
- * The entry point for executed in the spawned JVM. It has a reader which reads commands from STDIN and writes events
+ * The entry point to execute a mission in a spawned JVM. It has a reader which reads commands from STDIN and writes
+ * events
  * in STDOUT
  * 
  * @author nachivpn
@@ -180,7 +181,7 @@ public class MoleRunner implements CommandListener {
             moleRunnerState.acceptCommand(command);
 
             CommandStatus commandStatus =new CommandStatus(true,
-                    "command accepted by the JVM");
+                    "command accepted by the Mole runner");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
             if(command instanceof Start)

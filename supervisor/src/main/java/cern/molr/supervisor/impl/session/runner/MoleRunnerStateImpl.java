@@ -16,7 +16,8 @@ public class MoleRunnerStateImpl implements MoleRunnerState {
     @Override
     public void acceptCommand(MissionCommand command) throws CommandNotAcceptedException {
         if (command instanceof Start && missionStarted)
-            throw new CommandNotAcceptedException("Command not accepted by the JVM: the mission is already started");
+            throw new CommandNotAcceptedException("Command not accepted by the Mole runner: the mission is already " +
+                    "started");
     }
 
     @Override

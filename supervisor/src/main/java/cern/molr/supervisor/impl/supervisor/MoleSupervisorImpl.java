@@ -29,7 +29,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     protected SupervisorSessionsManager sessionsManager=new SupervisorSessionsManagerImpl();
     private static final Logger LOGGER = LoggerFactory.getLogger(MoleSupervisorImpl.class);
 
-    /* TODO there is a moment between instantiating and adding the listener to the controller, the JVM instantiated
+    /* TODO there is a moment between instantiating and adding the listener to the controller, the session instantiated
      * TODO event could be missed, is this behaviour acceptable?
 
      */
@@ -53,7 +53,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             return Flux.create((FluxSink<MissionEvent> emitter)->{
                 session.getController().addMoleExecutionListener((event)->{
                     emitter.next(event);
-                    LOGGER.info("Event Notification from JVM controller: {}", event);
+                    LOGGER.info("Event Notification from session controller: {}", event);
                     if(event instanceof SessionTerminated)
                         emitter.complete();
                 });
@@ -68,7 +68,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     public Mono<CommandResponse> instruct(MissionCommandRequest commandRequest) {
         return Mono.just(sessionsManager.getSession(commandRequest.getMissionId()).map((session)->{
             CommandResponse response=session.getController().sendCommand(commandRequest.getCommand());
-            LOGGER.info("Receiving command response from JVM controller: {}", response);
+            LOGGER.info("Receiving command response from the session controller: {}", response);
             return response;
         }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));
     }
