@@ -4,7 +4,7 @@ import cern.molr.commons.exception.CommandNotAcceptedException;
 import cern.molr.commons.request.MissionCommand;
 
 /**
- * Represents a JVM state.
+ * Represents the Mole Runner state.
  * @author yassine-kr
  */
 public interface MoleRunnerState {

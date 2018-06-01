@@ -9,7 +9,7 @@ import cern.molr.commons.exception.IncompatibleMissionException;
 import cern.molr.commons.exception.MissionExecutionException;
 
 /**
- * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to control a mission.
+ * A {@link Mole} executes a given mission. Only a {@link Mole} knows how to run a mission.
  * 
  * @author nachivpn
  * @author yassine-kr

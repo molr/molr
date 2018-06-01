@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public interface MissionExecutionService {
 
     /**
-     * A method which send a mission instantiation request to the MolR server
+     * A method which sends a mission instantiation request to the MolR server
      * @param missionClassName the class name of the mission to be instantiated
      * @param args the mission arguments, can be null if the mission does not need any argument
      * @param <I> the argument type
