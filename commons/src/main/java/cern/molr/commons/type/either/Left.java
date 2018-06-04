@@ -9,16 +9,17 @@ import java.util.function.Function;
 
 /**
  * Type to construct "left" value for {@link Either}
- * 
- * @author nachivpn
- * @author yassine-kr
+ *
  * @param <LL>
  * @param <LR>
+ *
+ * @author nachivpn
+ * @author yassine-kr
  */
-public class Left<LL, LR> implements Either<LL, LR>{
+public class Left<LL, LR> implements Either<LL, LR> {
 
     protected LL leftValue;
-    
+
     public Left(LL leftValue) {
         this.leftValue = leftValue;
     }

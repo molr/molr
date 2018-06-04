@@ -8,9 +8,10 @@ import java.util.Map;
 
 /**
  * Event sent by the mole runner which tells to supervisor the status of the last received command
+ *
  * @author yassine-kr
  */
-public class CommandStatus implements MissionEvent,ManuallySerializable {
+public class CommandStatus implements MissionEvent, ManuallySerializable {
     private boolean accepted;
     private String reason;
     private Throwable exception;
@@ -28,9 +29,9 @@ public class CommandStatus implements MissionEvent,ManuallySerializable {
     }
 
     public CommandStatus(Throwable exception) {
-        accepted=false;
+        accepted = false;
         this.exception = exception;
-        reason=exception.getMessage();
+        reason = exception.getMessage();
     }
 
     public boolean isAccepted() {
@@ -47,9 +48,9 @@ public class CommandStatus implements MissionEvent,ManuallySerializable {
 
     @Override
     public Map<String, String> getJsonMap() {
-        Map<String,String> map=new HashMap<>();
-        map.put("\"accepted\"",""+isAccepted()+"");
-        map.put("\"reason\"","\""+getReason()+"\"");
+        Map<String, String> map = new HashMap<>();
+        map.put("\"accepted\"", "" + isAccepted() + "");
+        map.put("\"reason\"", "\"" + getReason() + "\"");
         return map;
     }
 }

@@ -1,8 +1,8 @@
 package cern.molr.server;
 
-import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.exception.UnknownMissionException;
 import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.ManuallySerializable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +19,7 @@ import java.util.Optional;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution
+ *
  * @author yassine-kr
  */
 @Component
@@ -34,7 +35,7 @@ public class InstructServerHandler implements WebSocketHandler {
     public Mono<Void> handle(WebSocketSession session) {
 
 
-        ObjectMapper mapper=new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
@@ -42,21 +43,21 @@ public class InstructServerHandler implements WebSocketHandler {
          * A processor which receives flux events and resend them to client
          * TODO choose the best implementation to use
          */
-        FluxProcessor<String,String> processor=TopicProcessor.create();
+        FluxProcessor<String, String> processor = TopicProcessor.create();
 
         return session.send(processor.map(session::textMessage))
-                .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message)->{
+                .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message) -> {
                     try {
                         return Optional.ofNullable(mapper.readValue(
-                                message.getPayloadAsText(),MissionCommandRequest.class));
+                                message.getPayloadAsText(), MissionCommandRequest.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Optional.empty();
                     }
-                })).doOnNext((optionalCommand)->{
-                    optionalCommand.ifPresent((commandRequest)-> {
+                })).doOnNext((optionalCommand) -> {
+                    optionalCommand.ifPresent((commandRequest) -> {
                         try {
-                            service.instruct(commandRequest).map((result)->{
+                            service.instruct(commandRequest).map((result) -> {
                                 try {
                                     return mapper.writeValueAsString(result);
                                 } catch (JsonProcessingException e) {
@@ -71,7 +72,7 @@ public class InstructServerHandler implements WebSocketHandler {
                                                                 "source: unable to serialize the response"));
                                     }
                                 }
-                            }).subscribe((t)->{
+                            }).subscribe((t) -> {
                                 processor.onNext(t);
                                 processor.onComplete();
                             });
@@ -91,7 +92,7 @@ public class InstructServerHandler implements WebSocketHandler {
                             }
                         }
                     });
-                    if(!optionalCommand.isPresent()){
+                    if (!optionalCommand.isPresent()) {
                         try {
                             processor.onNext(mapper.writeValueAsString(
                                     new CommandResponse.CommandResponseFailure(

@@ -2,6 +2,7 @@ package cern.molr.supervisor;
 
 /**
  * A supervisor configuration which contains properties of the launched supervisor
+ *
  * @author yassine-kr
  */
 public class SupervisorConfig {

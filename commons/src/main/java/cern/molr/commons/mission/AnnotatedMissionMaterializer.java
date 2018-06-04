@@ -24,6 +24,18 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnotatedMissionMaterializer.class);
 
+    private static Mole instantiateMole(final Class<? extends Mole> moleClass)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        try {
+            Constructor<? extends Mole> constructor = moleClass.getConstructor();
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | SecurityException | InstantiationException
+                | IllegalAccessException | InvocationTargetException exception) {
+            LOGGER.error("Could not instantiate Mole of class [{}]", moleClass);
+            throw exception;
+        }
+    }
+
     @Override
     public Mission materialize(Class<?> classType) throws MissionMaterializationException {
         if (null == classType) {
@@ -38,7 +50,7 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
         Class<? extends Mole> moleClass = moleAnnotation.value();
         LOGGER.debug("Annotation RunWithMole found with mole class [{}]", moleClass.getCanonicalName());
         try {
-            Mole<?,?> mole = instantiateMole(moleClass);
+            Mole<?, ?> mole = instantiateMole(moleClass);
             LOGGER.debug("Mole class instantiated");
             String moleClassName = moleClass.getName();
             LOGGER.debug("Running mole discovery method");
@@ -48,18 +60,6 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             return mission;
         } catch (Exception exception) {
             throw new MissionMaterializationException(exception);
-        }
-    }
-
-    private static Mole instantiateMole(final Class<? extends Mole> moleClass)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        try {
-            Constructor<? extends Mole> constructor = moleClass.getConstructor();
-            return constructor.newInstance();
-        } catch (NoSuchMethodException | SecurityException | InstantiationException
-                | IllegalAccessException | InvocationTargetException exception) {
-            LOGGER.error("Could not instantiate Mole of class [{}]", moleClass);
-            throw exception;
         }
     }
 }

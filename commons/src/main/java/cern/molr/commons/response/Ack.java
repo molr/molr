@@ -6,15 +6,16 @@ package cern.molr.commons.response;
 
 /**
  * {@link Ack} is often used as an acknowledgement return type ( instead of void :) )
- * 
+ *
  * @author nachivpn
  * @author yassine-kr
  */
-public class Ack{
+public class Ack {
 
     private String message = "ACK";
-    
-    public Ack() {}
+
+    public Ack() {
+    }
 
     public Ack(String message) {
         this.message = message;
@@ -27,6 +28,6 @@ public class Ack{
     public void setMessage(String message) {
         this.message = message;
     }
-    
-    
+
+
 }

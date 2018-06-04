@@ -3,10 +3,17 @@ package cern.molr.supervisor.api.address;
 
 /**
  * It gets IP address and port of the supervisor in order to send it to MolR serve
+ *
  * @author yassine-kr
  */
 public interface AddressGetter {
-    class Address{
+
+    /**
+     * @param listener listener to be notified when the getter gets the address
+     */
+    void addListener(AddressGetterListener listener);
+
+    class Address {
         private String host;
         private int port;
 
@@ -19,12 +26,12 @@ public interface AddressGetter {
             return host;
         }
 
-        public int getPort() {
-            return port;
-        }
-
         public void setHost(String host) {
             this.host = host;
+        }
+
+        public int getPort() {
+            return port;
         }
 
         public void setPort(int port) {
@@ -32,10 +39,5 @@ public interface AddressGetter {
         }
     }
 
-    /**
-     *
-     * @param listener listener to be notified when the getter gets the address
-     */
-    void addListener(AddressGetterListener listener);
 
 }

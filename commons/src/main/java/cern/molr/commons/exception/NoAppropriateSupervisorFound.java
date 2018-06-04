@@ -1,9 +1,9 @@
 package cern.molr.commons.exception;
 
 
-
 /**
  * Thrown when the MolR server does not find an appropriate supervisor to execute a mission
+ *
  * @author yassine-kr
  */
 public class NoAppropriateSupervisorFound extends Exception {

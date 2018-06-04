@@ -5,12 +5,15 @@ import cern.molr.commons.request.MissionCommand;
 
 /**
  * Represents the Mole Runner state.
+ *
  * @author yassine-kr
  */
 public interface MoleRunnerState {
     /**
      * Method which verify whether a command is accepted by the current state
+     *
      * @param command
+     *
      * @throws Exception if the command is not accepted
      */
     void acceptCommand(MissionCommand command) throws CommandNotAcceptedException;

@@ -10,6 +10,7 @@ import cern.molr.commons.mission.Mission;
 
 /**
  * Thrown when a request concerning an unknown {@link Mission} is received by MolR server or the supervisor
+ *
  * @author nachivpn
  * @author yassine-kr
  */

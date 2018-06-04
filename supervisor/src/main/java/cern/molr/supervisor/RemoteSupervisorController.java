@@ -4,8 +4,8 @@
 
 package cern.molr.supervisor;
 
-import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.commons.request.server.SupervisorStateRequest;
+import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,12 +18,12 @@ import java.util.concurrent.Future;
 
 /**
  * {@link RestController} for {@link RemoteSupervisorMain} spring application
- * 
+ *
  * @author nachivpn
  * @author yassine-kr
  */
 @RestController
-public class RemoteSupervisorController{
+public class RemoteSupervisorController {
 
     private final MoleSupervisorService moleSupervisorService;
 
@@ -38,9 +38,9 @@ public class RemoteSupervisorController{
     @RequestMapping(path = "/getState", method = RequestMethod.POST)
     public Future<? extends SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
-        return CompletableFuture.<SupervisorStateResponse>supplyAsync(()->new
-                SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState())
-                ,executorService)
+        return CompletableFuture.<SupervisorStateResponse>supplyAsync(() -> new
+                        SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState())
+                , executorService)
                 .exceptionally(SupervisorStateResponse.SupervisorStateResponseFailure::new);
     }
 

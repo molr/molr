@@ -8,10 +8,10 @@ import java.io.Serializable;
 
 /**
  * A {@link Mission} is the smallest executable entity recognized by MolR
- * 
+ *
  * @author nachivpn
  */
-public interface Mission extends Serializable{
+public interface Mission extends Serializable {
 
     String getMoleClassName();
 

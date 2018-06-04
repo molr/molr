@@ -7,10 +7,11 @@ import java.util.function.Function;
 
 /**
  * A testing mission, the interface of the mission is not compatible with the defined mole
+ *
  * @author yassine-kr
  */
 @RunWithMole(RunnableMole.class)
-public class IncompatibleMission implements Function<Integer,Integer>{
+public class IncompatibleMission implements Function<Integer, Integer> {
 
     @Override
     public Integer apply(Integer v) {

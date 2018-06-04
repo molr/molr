@@ -7,10 +7,11 @@ import java.util.function.Function;
 
 /**
  * A mission test
+ *
  * @author yassine-kr
  */
 @RunWithMole(IntegerFunctionMole.class)
-public class MissionTest implements Function<Integer,Integer>{
+public class MissionTest implements Function<Integer, Integer> {
 
     @Override
     public Integer apply(Integer v) {

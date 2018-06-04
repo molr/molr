@@ -32,7 +32,7 @@ allprojects {
 
 
         compile group: 'org.springframework', name: 'spring-webflux', version: springFrameworkVersion
-        compile group: 'org.springframework', name:'spring-websocket', version: springFrameworkVersion
+        compile group: 'org.springframework', name: 'spring-websocket', version: springFrameworkVersion
 
         compile group: 'org.springframework.boot', name: 'spring-boot-starter-integration', version: springBootVersion
         compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion

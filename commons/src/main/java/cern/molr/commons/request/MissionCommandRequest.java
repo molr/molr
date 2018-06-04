@@ -2,6 +2,7 @@ package cern.molr.commons.request;
 
 /**
  * A request sent to MolR server and a supervisor to execute a command
+ *
  * @author yassine-kr
  */
 public class MissionCommandRequest {

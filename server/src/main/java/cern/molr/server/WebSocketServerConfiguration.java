@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * Configuration setting mapping between urls and websocket handlers
+ *
  * @author yassine-kr
  */
 @Configuration
@@ -24,8 +25,8 @@ public class WebSocketServerConfiguration {
     }
 
     @Bean
-    public HandlerMapping mapping(){
-        Map<String,WebSocketHandler> map=new HashMap<>();
+    public HandlerMapping mapping() {
+        Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/getFlux", new FluxServerHandler(service));
         map.put("/instruct", new InstructServerHandler(service));
 

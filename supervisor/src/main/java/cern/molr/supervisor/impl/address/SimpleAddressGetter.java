@@ -18,22 +18,23 @@ import java.util.HashSet;
  * port on which the Spring Server is running. If no hostname found, "localhost" is returned
  * This class is not thread safe. The methods addListener and onApplicationEvent should not be called by two threads
  * at the same time.
+ *
  * @author yassine-kr
  */
 @Component
-public class SimpleAddressGetter implements AddressGetter,ApplicationListener<WebServerInitializedEvent> {
+public class SimpleAddressGetter implements AddressGetter, ApplicationListener<WebServerInitializedEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAddressGetter.class);
 
     private Address address;
-    private HashSet<AddressGetterListener> listeners=new HashSet<>();
+    private HashSet<AddressGetterListener> listeners = new HashSet<>();
 
-    public SimpleAddressGetter(){
-        address=new Address("localhost",-1);
+    public SimpleAddressGetter() {
+        address = new Address("localhost", -1);
         try {
             for (NetworkInterface netInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 for (InetAddress inetAddress : Collections.list(netInterface.getInetAddresses())) {
-                    if(!inetAddress.isLinkLocalAddress() && !inetAddress.isLoopbackAddress()){
+                    if (!inetAddress.isLinkLocalAddress() && !inetAddress.isLoopbackAddress()) {
                         address.setHost(inetAddress.getHostName());
                         return;
                     }
@@ -41,21 +42,21 @@ public class SimpleAddressGetter implements AddressGetter,ApplicationListener<We
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("exception when getting host network interfaces",e);
+            LOGGER.error("exception when getting host network interfaces", e);
         }
     }
 
     @Override
     public void addListener(AddressGetterListener listener) {
         listeners.add(listener);
-        if(address.getPort()>=0)
+        if (address.getPort() >= 0)
             listener.onGetAddress(address);
     }
 
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
         address.setPort(event.getWebServer().getPort());
-        listeners.forEach((listener)->listener.onGetAddress(address));
+        listeners.forEach((listener) -> listener.onGetAddress(address));
     }
 
 }

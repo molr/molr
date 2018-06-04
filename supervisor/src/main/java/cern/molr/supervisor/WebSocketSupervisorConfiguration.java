@@ -13,6 +13,7 @@ import java.util.Map;
 
 /**
  * Configuration setting mapping between urls and websocket handlers
+ *
  * @author yassine-kr
  */
 @Configuration
@@ -25,8 +26,8 @@ public class WebSocketSupervisorConfiguration {
     }
 
     @Bean
-    public HandlerMapping mapping(){
-        Map<String,WebSocketHandler> map=new HashMap<>();
+    public HandlerMapping mapping() {
+        Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/instantiate", new InstantiateSupervisorHandler(supervisor));
         map.put("/instruct", new InstructSupervisorHandler(supervisor));
 

@@ -7,16 +7,16 @@ package cern.molr.client.impl;
 import cern.molr.client.api.ClientMissionController;
 import cern.molr.client.api.MissionExecutionService;
 import cern.molr.commons.events.MissionException;
+import cern.molr.commons.request.MissionCommand;
+import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.request.client.MissionEventsRequest;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.InstantiationResponse;
 import cern.molr.commons.response.InstantiationResponseBean;
+import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.MissionCommand;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.request.client.MissionEventsRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -111,7 +111,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             } catch (InterruptedException | ExecutionException e) {
                 emitter.error(e.getCause());
             }
-        }).subscribeOn(Schedulers.fromExecutorService(executorService)).doOnTerminate(()->executorService.shutdown());
+        }).subscribeOn(Schedulers.fromExecutorService(executorService)).doOnTerminate(() -> executorService.shutdown());
         return mono;
     }
 }

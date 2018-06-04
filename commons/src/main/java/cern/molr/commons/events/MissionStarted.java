@@ -4,6 +4,7 @@ import cern.molr.commons.response.MissionEvent;
 
 /**
  * Event sent back by the supervisor when the mission is started
+ *
  * @author yassine-kr
  */
 public class MissionStarted implements MissionEvent {

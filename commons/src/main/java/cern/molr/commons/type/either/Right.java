@@ -9,16 +9,17 @@ import java.util.function.Function;
 
 /**
  * Type to construct "right" value of {@link Either}
- * 
- * @author nachivpn
- * @author yassine-kr
+ *
  * @param <RL>
  * @param <RR>
+ *
+ * @author nachivpn
+ * @author yassine-kr
  */
-public class Right<RL,RR> implements Either<RL, RR>{
+public class Right<RL, RR> implements Either<RL, RR> {
 
     protected RR rightValue;
-    
+
     public Right(RR rightValue) {
         this.rightValue = rightValue;
     }
@@ -42,5 +43,5 @@ public class Right<RL,RR> implements Either<RL, RR>{
     public <S> Either<RL, S> rightMap(Function<RR, S> mapper) {
         return new Right<>(mapper.apply(rightValue));
     }
-    
+
 }

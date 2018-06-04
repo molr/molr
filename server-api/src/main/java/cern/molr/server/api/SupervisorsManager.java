@@ -11,7 +11,10 @@ import java.util.Optional;
  */
 public interface SupervisorsManager {
     String addSupervisor(RemoteMoleSupervisor supervisor, List<String> missionsAccepted);
+
     void removeSupervisor(String id);
+
     void removeSupervisor(RemoteMoleSupervisor supervisor);
+
     Optional<RemoteMoleSupervisor> chooseSupervisor(String missionContentClassName);
 }

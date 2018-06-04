@@ -9,15 +9,16 @@ import cern.molr.commons.type.trye.TryResponseSuccess;
  *
  * @author yassine-kr
  */
-public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean>{
+public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean> {
 
 
-    class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+    class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean>
+            implements SupervisorRegisterResponse {
 
         public SupervisorRegisterResponseSuccess() {
             super(null);
         }
-        
+
         /**
          * @param responseBean
          */
@@ -26,11 +27,13 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
         }
     }
 
-    class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean> implements SupervisorRegisterResponse {
+    class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean>
+            implements SupervisorRegisterResponse {
 
         public SupervisorRegisterResponseFailure() {
             super(null);
         }
+
         /**
          * @param throwable
          */
@@ -38,5 +41,5 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
             super(throwable);
         }
     }
-    
+
 }

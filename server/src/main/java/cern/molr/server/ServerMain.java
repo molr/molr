@@ -28,27 +28,27 @@ public class ServerMain {
         SpringApplication.run(ServerMain.class, args);
     }
 
+    @PreDestroy
+    public void close() {
+        executorService.shutdown();
+    }
+
     @Configuration
     public static class ServerConfigurer {
 
         @Bean
         public ObjectMapper getMapper() {
-            ObjectMapper mapper=new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
             mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
             return mapper;
         }
 
         @Bean
-        public ExecutorService getExecutorService(){
+        public ExecutorService getExecutorService() {
             return Executors.newFixedThreadPool(10);
         }
 
     }
 
-    @PreDestroy
-    public void close(){
-        executorService.shutdown();
-    }
-    
 }

@@ -21,7 +21,7 @@ import cern.molr.commons.mission.Mole;
  * @author yassine-kr
  * @see Mole
  */
-public class RunnableMole implements Mole<Void,Void> {
+public class RunnableMole implements Mole<Void, Void> {
 
     @Override
     public void verify(Class<?> classType) throws IncompatibleMissionException {
@@ -34,7 +34,7 @@ public class RunnableMole implements Mole<Void,Void> {
             } catch (NoSuchMethodException e) {
                 throw new IncompatibleMissionException(e);
             }
-        }else
+        } else
             throw new IncompatibleMissionException("Mission must implement Runnable interface");
     }
 

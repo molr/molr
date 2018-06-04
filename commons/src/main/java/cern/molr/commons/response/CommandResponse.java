@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
+ *
  * @author yassine-kr
  */
 public interface CommandResponse extends TryResponse<Ack> {
@@ -23,7 +24,7 @@ public interface CommandResponse extends TryResponse<Ack> {
         }
     }
 
-    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse,ManuallySerializable {
+    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse, ManuallySerializable {
 
         private String message;
 
@@ -33,12 +34,12 @@ public interface CommandResponse extends TryResponse<Ack> {
 
         public CommandResponseFailure(String message) {
             super(null);
-            this.message=message;
+            this.message = message;
         }
 
         public CommandResponseFailure(Throwable throwable) {
             super(throwable);
-            this.message=throwable.getMessage();
+            this.message = throwable.getMessage();
         }
 
         public String getMessage() {
@@ -52,11 +53,11 @@ public interface CommandResponse extends TryResponse<Ack> {
 
         @Override
         public Map<String, String> getJsonMap() {
-            Map<String,String> map=new HashMap<>();
-            map.put("\"message\"","\""+message+"\"");
+            Map<String, String> map = new HashMap<>();
+            map.put("\"message\"", "\"" + message + "\"");
             return map;
         }
-        
+
     }
 
 }

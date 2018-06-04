@@ -9,7 +9,7 @@ import cern.molr.commons.type.trye.TryResponseSuccess;
  *
  * @author yassine-kr
  */
-public interface SupervisorStateResponse extends TryResponse<SupervisorState>{
+public interface SupervisorStateResponse extends TryResponse<SupervisorState> {
 
     class SupervisorStateResponseSuccess extends TryResponseSuccess<SupervisorState>
             implements SupervisorStateResponse {
@@ -17,7 +17,7 @@ public interface SupervisorStateResponse extends TryResponse<SupervisorState>{
         public SupervisorStateResponseSuccess() {
             super(null);
         }
-        
+
         /**
          * @param supervisorState
          */
@@ -32,6 +32,7 @@ public interface SupervisorStateResponse extends TryResponse<SupervisorState>{
         public SupervisorStateResponseFailure() {
             super(null);
         }
+
         /**
          * @param throwable
          */
@@ -39,5 +40,5 @@ public interface SupervisorStateResponse extends TryResponse<SupervisorState>{
             super(throwable);
         }
     }
-    
+
 }

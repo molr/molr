@@ -6,6 +6,7 @@ package cern.molr.commons.request.server;
 
 /**
  * A request sent by MolR server to the supervisor to get its state
+ *
  * @author yassine-kr
  */
 public class SupervisorStateRequest {

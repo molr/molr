@@ -16,7 +16,7 @@ public class SupervisorState {
 
     @JsonIgnore
     public boolean isAvailable() {
-        return numMissions<maxMissions;
+        return numMissions < maxMissions;
     }
 
     public int getNumMissions() {

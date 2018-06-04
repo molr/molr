@@ -20,6 +20,7 @@ import java.net.URI;
 
 /**
  * Client which is able to create WebSockets connections to a server using Spring WebFlux
+ *
  * @author yassine-kr
  */
 public class MolrWebSocketClient {
@@ -30,21 +31,23 @@ public class MolrWebSocketClient {
     private String host;
     private int port;
 
-    public MolrWebSocketClient(String host,int port){
-        client=new ReactorNettyWebSocketClient();
-        this.host=host;
-        this.port=port;
+    public MolrWebSocketClient(String host, int port) {
+        client = new ReactorNettyWebSocketClient();
+        this.host = host;
+        this.port = port;
     }
 
     /**
      * Method which sends a request to sever ans receive a flux of data from it
+     *
      * @param responseType
      * @param <T>
+     *
      * @return try elements, if the serialization of an element throws an exception, this exception is pushed to flux
      */
-    public <I,T> Flux<Try<T>> receiveFlux(String path, Class<T> responseType, I request){
+    public <I, T> Flux<Try<T>> receiveFlux(String path, Class<T> responseType, I request) {
 
-        ObjectMapper mapper=new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
@@ -52,23 +55,23 @@ public class MolrWebSocketClient {
          * Processor which which receives data from server
          * TODO choose the best implementation to use
          */
-        FluxProcessor<Try<T>,Try<T>> processor=TopicProcessor.create();
+        FluxProcessor<Try<T>, Try<T>> processor = TopicProcessor.create();
 
 
-        client.execute(URI.create("ws://"+host+":"+port+path), session -> {
+        client.execute(URI.create("ws://" + host + ":" + port + path), session -> {
             try {
                 return session.send(Mono.just(session.textMessage(mapper.writeValueAsString(request))))
-                        .thenMany(session.receive().map((message)->{
+                        .thenMany(session.receive().map((message) -> {
                             try {
-                                return new Success<T>(mapper.readValue(message.getPayloadAsText(),responseType));
+                                return new Success<T>(mapper.readValue(message.getPayloadAsText(), responseType));
                             } catch (IOException e) {
-                                LOGGER.error("error while deserializing a data",e);
+                                LOGGER.error("error while deserializing a data", e);
                                 return new Failure<T>(e);
                             }
-                            })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();
-                } catch (JsonProcessingException e) {
-                    return Mono.error(e);
-                }
+                        })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();
+            } catch (JsonProcessingException e) {
+                return Mono.error(e);
+            }
         }).doOnError(processor::onError).subscribe();
 
         return processor;
@@ -76,14 +79,16 @@ public class MolrWebSocketClient {
 
     /**
      * Method which sends a request to sever ans receive a single data from it
+     *
      * @param path
      * @param responseType
      * @param request
      * @param <I>
      * @param <T>
+     *
      * @return
      */
-    public <I,T> Mono<Try<T>> receiveMono(String path,Class<T> responseType,I request){
-        return receiveFlux(path,responseType,request).next();
+    public <I, T> Mono<Try<T>> receiveMono(String path, Class<T> responseType, I request) {
+        return receiveFlux(path, responseType, request).next();
     }
 }

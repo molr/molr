@@ -12,7 +12,6 @@ package cern.molr.commons.mission;
  * @author tiagomr
  * @author mgalilee
  * @author yassine-kr
- *
  */
 public class MissionImpl implements Mission {
 
@@ -39,13 +38,13 @@ public class MissionImpl implements Mission {
         return moleClassName;
     }
 
+    public void setMoleClassName(String moleClassName) {
+        this.moleClassName = moleClassName;
+    }
+
     @Override
     public String getMissionDefnClassName() {
         return missionContentClassName;
-    }
-
-    public void setMoleClassName(String moleClassName) {
-        this.moleClassName = moleClassName;
     }
 
     public void setMissionDefnClassName(String missionContentClassName) {

@@ -21,10 +21,8 @@ import java.util.function.Consumer;
  */
 public abstract class RemoteReader implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReader.class);
-
     protected static final Duration DEFAULT_READING_INTERVAL = Duration.ofMillis(100);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReader.class);
     private final ScheduledExecutorService service;
     private final BufferedReader reader;
     private Optional<Runnable> onClose = Optional.empty();
@@ -32,7 +30,7 @@ public abstract class RemoteReader implements AutoCloseable {
 
     private Runnable read;
     private Duration readingInterval;
-    private boolean started=false;
+    private boolean started = false;
 
     /**
      * Creates a reader which reads commands from the given reader and forwards them to the controller.
@@ -50,16 +48,18 @@ public abstract class RemoteReader implements AutoCloseable {
      * @param readingInterval The interval with which to read commands. May not be negative.
      */
     public RemoteReader(BufferedReader reader, Duration readingInterval) {
-        this(reader,readingInterval,readingInterval);
+        this(reader, readingInterval, readingInterval);
     }
 
     /**
      * A constructor which define a delay before launching the periodic reader
+     *
      * @param reader
      * @param readingInterval
-     * @param initialDelay the time to wait before launching the periodic reader, if it is null, the reader is not started, it should be started manually
+     * @param initialDelay    the time to wait before launching the periodic reader, if it is null,
+     *                        the reader is not started, it should be started manually
      */
-    public RemoteReader(BufferedReader reader, Duration readingInterval,Duration initialDelay){
+    public RemoteReader(BufferedReader reader, Duration readingInterval, Duration initialDelay) {
         if (readingInterval.isNegative()) {
             throw new IllegalArgumentException("Reading interval cannot be less than 0");
         }
@@ -69,14 +69,14 @@ public abstract class RemoteReader implements AutoCloseable {
         read = () -> {
             try {
                 onReadingAttempt.ifPresent(Runnable::run);
-                if(reader.ready()) {
+                if (reader.ready()) {
                     readCommand(reader);
                 }
-            } catch(Exception exception) {
+            } catch (Exception exception) {
                 LOGGER.warn("Exception trying to read command", exception);
             }
         };
-        if(initialDelay!=null) {
+        if (initialDelay != null) {
             service.scheduleAtFixedRate(read, initialDelay.toMillis(),
                     readingInterval.toMillis(), TimeUnit.MILLISECONDS);
             started = true;
@@ -84,14 +84,22 @@ public abstract class RemoteReader implements AutoCloseable {
 
     }
 
+    static void closeResource(AutoCloseable closeable, Consumer<Exception> onError) {
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            onError.accept(e);
+        }
+    }
+
     /**
      * Method which allows to manually start the reader
      */
-    protected void start(){
-        if(!started) {
+    protected void start() {
+        if (!started) {
             service.scheduleAtFixedRate(read, 0,
                     readingInterval.toMillis(), TimeUnit.MILLISECONDS);
-            started=true;
+            started = true;
         }
     }
 
@@ -107,14 +115,6 @@ public abstract class RemoteReader implements AutoCloseable {
         closeResource(reader, e -> LOGGER.warn("Failed to close reader", e));
         service.shutdown();
         onClose.ifPresent(Runnable::run);
-    }
-
-    static void closeResource(AutoCloseable closeable, Consumer<Exception> onError) {
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            onError.accept(e);
-        }
     }
 
     public void setOnReadingAttempt(Runnable onReadingAttempt) {

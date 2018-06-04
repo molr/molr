@@ -4,21 +4,21 @@
 
 package cern.molr.sample.mission;
 
-import java.util.function.Function;
-
 import cern.molr.commons.mission.RunWithMole;
 import cern.molr.sample.mole.IntegerFunctionMole;
 
+import java.util.function.Function;
 
-/* 
- * The programmer of a mission only needs to specify the mole type. 
- * Since the programmer need not create/interact with mole objects, 
+
+/*
+ * The programmer of a mission only needs to specify the mole type.
+ * Since the programmer need not create/interact with mole objects,
  * the mole implementation is completely hidden from the programmer.
  */
 
 @RunWithMole(IntegerFunctionMole.class)
 
-public class Fibonacci implements Function<Integer,Integer>{
+public class Fibonacci implements Function<Integer, Integer> {
 
     @Override
     public Integer apply(Integer v) {
@@ -27,13 +27,14 @@ public class Fibonacci implements Function<Integer,Integer>{
 
     /**
      * @param v
+     *
      * @return
      */
     private Integer fib(Integer v) {
-        if(v <= 1)
+        if (v <= 1)
             return 1;
         else
-            return fib(v-1) + fib(v-2);
+            return fib(v - 1) + fib(v - 2);
     }
 
 

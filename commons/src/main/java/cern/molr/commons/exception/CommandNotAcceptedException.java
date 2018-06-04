@@ -3,6 +3,7 @@ package cern.molr.commons.exception;
 
 /**
  * Thrown when the supervisor reject the execution of a command because of the current Mole runner state
+ *
  * @author yassine-kr
  */
 public class CommandNotAcceptedException extends Exception {

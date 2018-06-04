@@ -4,9 +4,6 @@
 
 package cern.molr.commons.type.trye;
 
-import cern.molr.commons.type.trye.Success;
-import cern.molr.commons.type.trye.TryResponse;
-
 /**
  * @author ?
  * @author yassine-kr

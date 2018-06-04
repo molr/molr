@@ -8,13 +8,14 @@ import cern.molr.commons.type.either.Left;
 
 /**
  * Refer to {@link Try}
- * 
+ *
+ * @param <T>
+ *
  * @author nachivpn
  * @author yassine-kr
- * @param <T>
  */
-public class Failure<T> extends Left<Throwable, T> implements Try<T>{
-   
+public class Failure<T> extends Left<Throwable, T> implements Try<T> {
+
     public Failure() {
         super(null);
     }

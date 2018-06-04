@@ -8,9 +8,10 @@ import java.util.Map;
 
 /**
  * Event sent back by the supervisor when there is an exception
+ *
  * @author yassine-kr
  */
-public class MissionException implements MissionEvent,ManuallySerializable {
+public class MissionException implements MissionEvent, ManuallySerializable {
     private Throwable throwable;
     private String message;
 
@@ -18,16 +19,20 @@ public class MissionException implements MissionEvent,ManuallySerializable {
     }
 
     public MissionException(String message) {
-        this.message=message;
+        this.message = message;
     }
 
     public MissionException(Throwable throwable) {
         this.throwable = throwable;
-        this.message=throwable.getMessage();
+        this.message = throwable.getMessage();
     }
 
     public Throwable getThrowable() {
         return throwable;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
     }
 
     public String getMessage() {
@@ -38,19 +43,15 @@ public class MissionException implements MissionEvent,ManuallySerializable {
         this.message = message;
     }
 
-    public void setThrowable(Throwable throwable) {
-        this.throwable = throwable;
-    }
-
     @Override
-    public String toString(){
-        return throwable.getClass().getName()+": "+throwable.getMessage();
+    public String toString() {
+        return throwable.getClass().getName() + ": " + throwable.getMessage();
     }
 
     @Override
     public Map<String, String> getJsonMap() {
-        Map<String,String> map=new HashMap<>();
-        map.put("\"message\"","\""+message+"\"");
+        Map<String, String> map = new HashMap<>();
+        map.put("\"message\"", "\"" + message + "\"");
         return map;
     }
 }

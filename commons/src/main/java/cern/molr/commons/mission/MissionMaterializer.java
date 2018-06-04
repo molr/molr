@@ -8,11 +8,11 @@ import cern.molr.commons.exception.MissionMaterializationException;
 
 /**
  * Used to converts a given mission definition class file into a mission object
- * 
+ *
  * @author nachivpn
  */
 public interface MissionMaterializer {
 
     Mission materialize(Class<?> classType) throws MissionMaterializationException;
-    
+
 }

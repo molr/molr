@@ -14,39 +14,40 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implementation of a supervisor sessions manager
+ *
  * @author yassine-kr
  */
 public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SupervisorSessionsManagerImpl.class);
-    private final Set<SupervisorSessionsManagerListener> listeners=new HashSet<>();
+    private final Set<SupervisorSessionsManagerListener> listeners = new HashSet<>();
 
-    private ConcurrentMap<String,MissionSession> sessionsRegistry=new ConcurrentHashMap<>();
+    private ConcurrentMap<String, MissionSession> sessionsRegistry = new ConcurrentHashMap<>();
 
     @Override
-    public void addSession(String missionId,MissionSession session) {
-        LOGGER.info("Adding a session to supervisor: mission id {}",missionId);
-        sessionsRegistry.put(missionId,session);
+    public void addSession(String missionId, MissionSession session) {
+        LOGGER.info("Adding a session to supervisor: mission id {}", missionId);
+        sessionsRegistry.put(missionId, session);
         notifyListenersAdd(missionId);
     }
 
     @Override
     public Optional<MissionSession> getSession(String missionId) {
-        LOGGER.info("Getting a session from sessions manager: mission id {}",missionId);
+        LOGGER.info("Getting a session from sessions manager: mission id {}", missionId);
         return Optional.ofNullable(sessionsRegistry.get(missionId));
     }
 
     @Override
     public void removeSession(String missionId) {
-        LOGGER.info("Removing a session from sessions manager: mission id {}",missionId);
+        LOGGER.info("Removing a session from sessions manager: mission id {}", missionId);
         sessionsRegistry.remove(missionId);
         notifyListenersRemove(missionId);
     }
 
     @Override
     public void removeSession(MissionSession session) {
-        sessionsRegistry.entrySet().stream().filter((s)->s.getValue()==session)
-                .findFirst().ifPresent((s)->removeSession(s.getKey()));
+        sessionsRegistry.entrySet().stream().filter((s) -> s.getValue() == session)
+                .findFirst().ifPresent((s) -> removeSession(s.getKey()));
     }
 
     @Override
@@ -59,11 +60,11 @@ public class SupervisorSessionsManagerImpl implements SupervisorSessionsManager 
         listeners.add(listener);
     }
 
-    private void notifyListenersAdd(String missionId){
-        listeners.forEach((s)->s.onSessionAdded(missionId));
+    private void notifyListenersAdd(String missionId) {
+        listeners.forEach((s) -> s.onSessionAdded(missionId));
     }
 
-    private void notifyListenersRemove(String missionId){
-        listeners.forEach((s)->s.onSessionRemoved(missionId));
+    private void notifyListenersRemove(String missionId) {
+        listeners.forEach((s) -> s.onSessionRemoved(missionId));
     }
 }

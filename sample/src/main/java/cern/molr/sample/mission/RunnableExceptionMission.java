@@ -9,14 +9,15 @@ import cern.molr.sample.mole.RunnableMole;
 
 /**
  * A testing mission which throws an exception
+ *
  * @author yassine-kr
  */
 @RunWithMole(RunnableMole.class)
-public class RunnableExceptionMission implements Runnable{
+public class RunnableExceptionMission implements Runnable {
 
     @Override
     public void run() {
-       throw new RuntimeException();
+        throw new RuntimeException();
     }
 
 }

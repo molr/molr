@@ -1,12 +1,12 @@
 package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
 import cern.molr.commons.events.MissionException;
-import cern.molr.commons.response.SupervisorState;
 import cern.molr.commons.exception.MissionExecutionNotAccepted;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.response.SupervisorState;
 import cern.molr.supervisor.SupervisorConfig;
+import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -16,6 +16,7 @@ import java.util.Arrays;
 /**
  * Spring service representing a supervisor which manages its state and use it to decide whether it accepts a
  * mission or not
+ *
  * @author yassine-kr
  */
 @Service
@@ -27,7 +28,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
-        supervisorState =new SupervisorState();
+        supervisorState = new SupervisorState();
         supervisorState.setNumMissions(0);
         supervisorState.setMaxMissions(config.getMaxMissions());
         sessionsManager.addListener(new SupervisorSessionsManagerListener() {
@@ -49,20 +50,23 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
     }
 
     /**
-     * synchronized method because it should use the supervisor supervisorState to determine whether the instantiation is accepted
+     * synchronized method because it should use the supervisor supervisorState
+     * to determine whether the instantiation is accepted
+     *
      * @param mission
      * @param args
      * @param missionExecutionId
      * @param <I>
+     *
      * @return
      */
     @Override
-    synchronized public <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId){
+    synchronized public <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
         try {
             accept(mission);
-            return super.instantiate(mission,args,missionExecutionId);
+            return super.instantiate(mission, args, missionExecutionId);
         } catch (MissionExecutionNotAccepted e) {
-            return Flux.create((FluxSink<MissionEvent> emitter)->{
+            return Flux.create((FluxSink<MissionEvent> emitter) -> {
                 emitter.next(new MissionException(e));
                 emitter.complete();
             });
@@ -71,14 +75,16 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     /**
      * Return whether the supervisor accepts a mission execution
+     *
      * @param mission
+     *
      * @return
      */
-    private void accept(Mission mission) throws MissionExecutionNotAccepted{
-        if(!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
+    private void accept(Mission mission) throws MissionExecutionNotAccepted {
+        if (!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: mission not accepted by the supervisor");
-        if(!supervisorState.isAvailable())
+        if (!supervisorState.isAvailable())
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: the supervisor cannot execute more missions");
     }

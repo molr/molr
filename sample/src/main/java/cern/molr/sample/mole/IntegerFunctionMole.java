@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @author yassine-kr
  * @see Mole
  */
-public class IntegerFunctionMole implements Mole<Integer,Integer> {
+public class IntegerFunctionMole implements Mole<Integer, Integer> {
 
     @Override
     public void verify(Class<?> classType) throws IncompatibleMissionException {
@@ -33,12 +33,12 @@ public class IntegerFunctionMole implements Mole<Integer,Integer> {
         if (Function.class.isAssignableFrom(classType)) {
             try {
                 Method m = classType.getMethod("apply", Integer.class);
-                if(m.getReturnType() != Integer.class)
+                if (m.getReturnType() != Integer.class)
                     throw new IncompatibleMissionException("Mission must implement IntFunction interface");
             } catch (NoSuchMethodException e) {
                 throw new IncompatibleMissionException(e);
             }
-        }else
+        } else
             throw new IncompatibleMissionException("Mission must implement IntFunction interface");
     }
 
@@ -46,9 +46,9 @@ public class IntegerFunctionMole implements Mole<Integer,Integer> {
     public Integer run(Mission mission, Integer arg) throws MissionExecutionException {
         try {
             @SuppressWarnings("unchecked")
-            Class<Function<Integer,Integer>> missionContentClass =
-                    (Class<Function<Integer,Integer>>) Class.forName(mission.getMissionDefnClassName());
-            Function<Integer,Integer> missionContentInstance = missionContentClass.getConstructor().newInstance();
+            Class<Function<Integer, Integer>> missionContentClass =
+                    (Class<Function<Integer, Integer>>) Class.forName(mission.getMissionDefnClassName());
+            Function<Integer, Integer> missionContentInstance = missionContentClass.getConstructor().newInstance();
             return missionContentInstance.apply(arg);
         } catch (Exception e) {
             throw new MissionExecutionException(e);

@@ -9,7 +9,7 @@ import cern.molr.commons.type.trye.TryResponseSuccess;
  *
  * @author yassine-kr
  */
-public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
+public interface SupervisorUnregisterResponse extends TryResponse<Ack> {
 
 
     class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack>
@@ -18,7 +18,7 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
         public SupervisorUnregisterResponseSuccess() {
             super(null);
         }
-        
+
         /**
          * @param ack
          */
@@ -33,6 +33,7 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
         public SupervisorUnregisterResponseFailure() {
             super(null);
         }
+
         /**
          * @param throwable
          */
@@ -40,5 +41,5 @@ public interface SupervisorUnregisterResponse extends TryResponse<Ack>{
             super(throwable);
         }
     }
-    
+
 }

@@ -1,11 +1,11 @@
 package cern.molr.supervisor.impl.session;
 
-import cern.molr.supervisor.api.session.EventsListener;
-import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.commons.request.MissionCommand;
+import cern.molr.commons.response.Ack;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.Ack;
+import cern.molr.supervisor.api.session.EventsListener;
+import cern.molr.supervisor.api.session.MoleController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -23,30 +23,30 @@ import java.util.concurrent.Future;
  *
  * @author yassine-kr
  */
-public class ControllerImpl implements MoleController,EventsListener, Closeable {
+public class ControllerImpl implements MoleController, EventsListener, Closeable {
 
-    private final Set<EventsListener> listeners=new HashSet<>();
+    private final Set<EventsListener> listeners = new HashSet<>();
     private final PrintWriter printWriter;
     private final EventsReader reader;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Future<?> loggerTask;
 
-    private ObjectMapper mapper=new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Event sent by the mole runner when it verifies the command.
      * Must be volatile (not cached) because it is accessible by two threads in the same time
      * Can't manage multiple commands in the same time
      */
-    private volatile CommandStatus commandStatus =null;
+    private volatile CommandStatus commandStatus = null;
 
     public ControllerImpl(Process process) {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
-        printWriter=new PrintWriter(process.getOutputStream());
-        reader=new EventsReader(new BufferedReader(new InputStreamReader(process.getInputStream())),this);
+        printWriter = new PrintWriter(process.getOutputStream());
+        reader = new EventsReader(new BufferedReader(new InputStreamReader(process.getInputStream())), this);
 
         this.loggerTask = executor.submit(() -> {
             InputStream processError = process.getErrorStream();
@@ -57,7 +57,7 @@ public class ControllerImpl implements MoleController,EventsListener, Closeable 
                 }
             } catch (IOException e) {
                 e.printStackTrace(System.err);
-            }catch (InterruptedException e){
+            } catch (InterruptedException e) {
 
             }
         });
@@ -86,7 +86,9 @@ public class ControllerImpl implements MoleController,EventsListener, Closeable 
     /**
      * Need to be "synchronized" to avoid sending many commands at the same time
      * The next command is executed after returning current command result
+     *
      * @param command
+     *
      * @return
      */
     @Override
@@ -96,21 +98,20 @@ public class ControllerImpl implements MoleController,EventsListener, Closeable 
             printWriter.flush();
 
 
-            while(commandStatus==null){
+            while (commandStatus == null) {
             }
-            if(commandStatus.isAccepted()){
-                String message=commandStatus.getReason();
-                commandStatus=null;
+            if (commandStatus.isAccepted()) {
+                String message = commandStatus.getReason();
+                commandStatus = null;
                 return new CommandResponse.CommandResponseSuccess(new Ack(message));
-            }
-            else{
-                CommandResponse response=
+            } else {
+                CommandResponse response =
                         new CommandResponse.CommandResponseFailure(commandStatus.getException());
-                commandStatus=null;
+                commandStatus = null;
                 return response;
             }
         } catch (JsonProcessingException e) {
-            commandStatus=null;
+            commandStatus = null;
             e.printStackTrace();
             return new CommandResponse.CommandResponseFailure(e);
         }
@@ -119,16 +120,14 @@ public class ControllerImpl implements MoleController,EventsListener, Closeable 
 
     @Override
     public void onEvent(MissionEvent event) {
-        if(event instanceof CommandStatus){
+        if (event instanceof CommandStatus) {
             commandStatus = (CommandStatus) event;
-        }
-
-        else
-            listeners.forEach((l)->l.onEvent(event));
+        } else
+            listeners.forEach((l) -> l.onEvent(event));
     }
 
     @Override
-    public void close(){
+    public void close() {
         loggerTask.cancel(true);
         executor.shutdown();
         printWriter.close();

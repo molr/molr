@@ -4,6 +4,9 @@
 
 package cern.molr.server;
 
+import cern.molr.commons.exception.MissionExecutionNotAccepted;
+import cern.molr.commons.exception.NoAppropriateSupervisorFound;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.response.*;
@@ -13,10 +16,6 @@ import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterR
 import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseFailure;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
-import cern.molr.commons.exception.MissionExecutionNotAccepted;
-import cern.molr.commons.exception.NoAppropriateSupervisorFound;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.Ack;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,7 +53,7 @@ public class ServerRestController {
             } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
                 return new InstantiationResponseFailure(e);
             }
-        },executorService);
+        }, executorService);
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.POST)

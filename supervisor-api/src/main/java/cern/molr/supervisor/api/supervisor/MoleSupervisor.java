@@ -18,23 +18,28 @@ import reactor.core.publisher.Mono;
 public interface MoleSupervisor {
     /**
      * Create the mole runner which should execute the mission
+     *
      * @param mission
      * @param args
      * @param missionExecutionId
      * @param <I>
+     *
      * @return flux of events sent by the session controller
      */
     <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId);
 
     /**
      * Send commands to the mole runner
+     *
      * @param commandRequest
+     *
      * @return
      */
     Mono<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
      * A method which should return the supervisor state
+     *
      * @return
      */
     SupervisorState getSupervisorState();

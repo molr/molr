@@ -11,9 +11,10 @@ import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
  * A response sent back to the client by the MolR server after receiving an instantiation request
+ *
  * @author yassine-kr
  */
-public interface InstantiationResponse extends TryResponse<InstantiationResponseBean>{
+public interface InstantiationResponse extends TryResponse<InstantiationResponseBean> {
 
     class InstantiationResponseSuccess extends TryResponseSuccess<InstantiationResponseBean>
             implements InstantiationResponse {
@@ -21,7 +22,7 @@ public interface InstantiationResponse extends TryResponse<InstantiationResponse
         public InstantiationResponseSuccess() {
             super(null);
         }
-        
+
         /**
          * @param responseBean
          */
@@ -36,6 +37,7 @@ public interface InstantiationResponse extends TryResponse<InstantiationResponse
         public InstantiationResponseFailure() {
             super(null);
         }
+
         /**
          * @param throwable
          */
@@ -43,5 +45,5 @@ public interface InstantiationResponse extends TryResponse<InstantiationResponse
             super(throwable);
         }
     }
-    
+
 }

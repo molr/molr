@@ -1,17 +1,18 @@
 package cern.molr.supervisor.impl.session.runner;
 
-import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.exception.CommandNotAcceptedException;
 import cern.molr.commons.request.MissionCommand;
+import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 
 /**
  * An implementation of {@link MoleRunnerState}
+ *
  * @author yassine-kr
  */
 public class MoleRunnerStateImpl implements MoleRunnerState {
 
-    private boolean missionStarted=false;
+    private boolean missionStarted = false;
 
     @Override
     public void acceptCommand(MissionCommand command) throws CommandNotAcceptedException {
@@ -22,6 +23,6 @@ public class MoleRunnerStateImpl implements MoleRunnerState {
 
     @Override
     public void changeState() {
-        missionStarted=true;
+        missionStarted = true;
     }
 }

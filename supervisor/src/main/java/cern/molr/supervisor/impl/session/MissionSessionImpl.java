@@ -1,11 +1,12 @@
 package cern.molr.supervisor.impl.session;
 
+import cern.molr.commons.mission.Mission;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;
-import cern.molr.commons.mission.Mission;
 
 /**
  * Session for running a mission
+ *
  * @author yassine-kr
  */
 public class MissionSessionImpl implements MissionSession {

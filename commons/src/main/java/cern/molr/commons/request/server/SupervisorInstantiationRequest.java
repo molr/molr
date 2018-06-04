@@ -6,19 +6,22 @@ package cern.molr.commons.request.server;
 
 /**
  * A request sent by the MolR server to supervisor to instantiate a mission
- * @author yassine-kr
+ *
  * @param <I> the arguments type
+ *
+ * @author yassine-kr
  */
 public class SupervisorInstantiationRequest<I> {
 
     private String missionExecutionId;
     private String missionContentClassName;
     private I args;
-    
-    public SupervisorInstantiationRequest(){}
-    
+
+    public SupervisorInstantiationRequest() {
+    }
+
     public SupervisorInstantiationRequest(String missionExecutionId,
-                                          String missionContentClassName, I args){
+                                          String missionContentClassName, I args) {
         this.setMissionExecutionId(missionExecutionId);
         this.setMissionContentClassName(missionContentClassName);
         this.setArgs(args);
@@ -48,5 +51,5 @@ public class SupervisorInstantiationRequest<I> {
     public void setMissionExecutionId(String missionExecutionId) {
         this.missionExecutionId = missionExecutionId;
     }
-    
+
 }

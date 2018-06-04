@@ -11,9 +11,10 @@ public class MissionEventsRequest {
 
     private String missionExecutionId;
 
-    public MissionEventsRequest(){}
+    public MissionEventsRequest() {
+    }
 
-    public MissionEventsRequest(String missionExecutionId){
+    public MissionEventsRequest(String missionExecutionId) {
         this.setMissionExecutionId(missionExecutionId);
     }
 
@@ -24,5 +25,5 @@ public class MissionEventsRequest {
     public void setMissionExecutionId(String missionExecutionId) {
         this.missionExecutionId = missionExecutionId;
     }
-    
+
 }

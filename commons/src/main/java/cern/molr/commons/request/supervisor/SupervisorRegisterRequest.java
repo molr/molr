@@ -13,7 +13,8 @@ public class SupervisorRegisterRequest {
     private int port;
     private List<String> acceptedMissions;
 
-    public SupervisorRegisterRequest(){}
+    public SupervisorRegisterRequest() {
+    }
 
     public SupervisorRegisterRequest(String host, int port, List<String> acceptedMissions) {
         this.host = host;
@@ -25,20 +26,20 @@ public class SupervisorRegisterRequest {
         return host;
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public List<String> getAcceptedMissions() {
-        return acceptedMissions;
-    }
-
     public void setHost(String host) {
         this.host = host;
     }
 
+    public int getPort() {
+        return port;
+    }
+
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public List<String> getAcceptedMissions() {
+        return acceptedMissions;
     }
 
     public void setAcceptedMissions(List<String> acceptedMissions) {
