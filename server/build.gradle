@@ -1,2 +1,18 @@
+configurations.all {
+    /*This dependency is automatically required by slf4j, it should be excluded to avoid infinite loop between slf4j
+    and log4j
+     */
+    exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
+}
+
+
 dependencies {
+    compile ('org.springframework.boot:spring-boot-starter-webflux:'+springBootVersion){
+        exclude group: "ch.qos.logback", module: "logback-classic"
+        exclude group: "ch.qos.logback", module: "logback-core"
+    }
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
 }

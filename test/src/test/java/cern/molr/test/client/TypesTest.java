@@ -112,12 +112,12 @@ public class TypesTest {
 
         Assert.assertEquals(3, commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(0).getClass());
-        Assert.assertEquals("command accepted by the JVM",
+        Assert.assertEquals("command accepted by the Mole runner",
                 ((CommandResponse.CommandResponseSuccess) commandResponses.get(0)).getResult().getMessage());
         Assert.assertEquals(CommandResponse.CommandResponseFailure.class, commandResponses.get(1).getClass());
         Assert.assertEquals(CommandNotAcceptedException.class,
                 ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getClass());
-        Assert.assertEquals("Command not accepted by the JVM: the mission is already started",
+        Assert.assertEquals("Command not accepted by the Mole runner: the mission is already started",
                 ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getMessage());
 
     }
