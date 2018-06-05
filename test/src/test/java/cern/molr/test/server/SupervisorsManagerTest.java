@@ -1,6 +1,7 @@
 package cern.molr.test.server;
 
 import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
@@ -28,7 +29,6 @@ public class SupervisorsManagerTest {
 
     @Test
     public void Test() {
-
 
         RemoteMoleSupervisor s1 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s2 = new RemoteMoleSupervisorTest(true);
@@ -69,7 +69,7 @@ public class SupervisorsManagerTest {
         }
 
         @Override
-        public <I> Flux<MissionEvent> instantiate(String missionClassName, I args, String missionExecutionId) {
+        public <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> request, String missionExecutionId) {
             return null;
         }
 

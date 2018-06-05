@@ -48,7 +48,7 @@ public class ServerRestController {
             @RequestBody ServerInstantiationRequest<I> request) {
         return CompletableFuture.<InstantiationResponse>supplyAsync(() -> {
             try {
-                String mEId = service.instantiate(request.getMissionDefnClassName(), request.getArgs());
+                String mEId = service.instantiate(request);
                 return new InstantiationResponseSuccess(new InstantiationResponseBean(mEId));
             } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
                 return new InstantiationResponseFailure(e);

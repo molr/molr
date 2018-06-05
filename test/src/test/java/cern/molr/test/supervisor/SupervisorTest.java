@@ -118,24 +118,29 @@ public class SupervisorTest {
         List<MissionEvent> events = new ArrayList<>();
         List<CommandResponse> responses = new ArrayList<>();
 
-        SupervisorInstantiationRequest<Integer> request = new SupervisorInstantiationRequest<>("1", Fibonacci.class.getName(), 42);
+        SupervisorInstantiationRequest<Integer> request =
+                new SupervisorInstantiationRequest<>("1", Fibonacci.class.getName(), 42);
         MolrWebSocketClient client = new MolrWebSocketClient("localhost", 8080);
 
-        client.receiveFlux("/instantiate", MissionEvent.class, request).doOnError(Throwable::printStackTrace).subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (event) -> {
-            System.out.println("event: " + event);
-            events.add(event);
-            endSignal.countDown();
+        client.receiveFlux("/instantiate", MissionEvent.class, request)
+                .doOnError(Throwable::printStackTrace)
+                .subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (event) -> {
+                    System.out.println("event: " + event);
+                    events.add(event);
+                    endSignal.countDown();
 
-            if (event instanceof SessionInstantiated)
-                instantiateSignal.countDown();
-        }));
+                    if (event instanceof SessionInstantiated)
+                        instantiateSignal.countDown();
+                }));
 
         instantiateSignal.await();
 
-        client.receiveMono("/instruct", CommandResponse.class, new MissionCommandRequest("1", new Start())).doOnError(Throwable::printStackTrace).subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (result) -> {
-            System.out.println("response to start: " + result);
-            responses.add(result);
-        }));
+        client.receiveMono("/instruct", CommandResponse.class, new MissionCommandRequest("1", new Start()))
+                .doOnError(Throwable::printStackTrace)
+                .subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (result) -> {
+                    System.out.println("response to start: " + result);
+                    responses.add(result);
+                }));
 
         endSignal.await();
 

@@ -8,6 +8,7 @@ import cern.molr.commons.exception.MissionExecutionNotAccepted;
 import cern.molr.commons.exception.NoAppropriateSupervisorFound;
 import cern.molr.commons.exception.UnknownMissionException;
 import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.sample.mission.*;
@@ -51,13 +52,13 @@ public class ServerRestExecutionService {
     }
 
 
-    public <I, O> String instantiate(String missionDefnClassName, I args)
+    public <I, O> String instantiate(ServerInstantiationRequest<I> request)
             throws MissionExecutionNotAccepted, NoAppropriateSupervisorFound {
         String missionEId = makeEId();
-        missionExists(missionDefnClassName);
-        Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(missionDefnClassName);
+        missionExists(request.getMissionDefnClassName());
+        Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionDefnClassName());
         return optional.map((supervisor) -> {
-            Flux<MissionEvent> executionEventFlux = supervisor.instantiate(missionDefnClassName, args, missionEId);
+            Flux<MissionEvent> executionEventFlux = supervisor.instantiate(request, missionEId);
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
             return missionEId;
         }).orElseThrow(() ->

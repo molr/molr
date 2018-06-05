@@ -4,12 +4,15 @@ import cern.molr.commons.exception.UnknownMissionException;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.ManuallySerializable;
+import cern.molr.commons.web.DataExchangeBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.TopicProcessor;
@@ -34,79 +37,24 @@ public class InstructServerHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-        /**
-         * A processor which receives flux events and resend them to client
-         * TODO choose the best implementation to use
-         */
-        FluxProcessor<String, String> processor = TopicProcessor.create();
-
-        return session.send(processor.map(session::textMessage))
-                .and((session.receive().take(1).<Optional<MissionCommandRequest>>map((message) -> {
-                    try {
-                        return Optional.ofNullable(mapper.readValue(
-                                message.getPayloadAsText(), MissionCommandRequest.class));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return Optional.empty();
-                    }
-                })).doOnNext((optionalCommand) -> {
-                    optionalCommand.ifPresent((commandRequest) -> {
-                        try {
-                            service.instruct(commandRequest).map((result) -> {
-                                try {
-                                    return mapper.writeValueAsString(result);
-                                } catch (JsonProcessingException e) {
-                                    e.printStackTrace();
-                                    try {
-                                        return mapper.writeValueAsString(new CommandResponse.CommandResponseFailure(e));
-                                    } catch (JsonProcessingException e1) {
-                                        e1.printStackTrace();
-                                        return ManuallySerializable.serializeArray(
-                                                new CommandResponse.CommandResponseFailure(
-                                                        "unable to serialize a failure response, " +
-                                                                "source: unable to serialize the response"));
-                                    }
-                                }
-                            }).subscribe((t) -> {
-                                processor.onNext(t);
-                                processor.onComplete();
-                            });
-                        } catch (UnknownMissionException e) {
-                            e.printStackTrace();
-                            try {
-                                processor.onNext(mapper.writeValueAsString(
-                                        new CommandResponse.CommandResponseFailure(e)));
-                                processor.onComplete();
-                            } catch (JsonProcessingException e1) {
-                                e1.printStackTrace();
-                                processor.onNext(ManuallySerializable.serializeArray(
-                                        new CommandResponse.CommandResponseFailure(
-                                                "unable to serialize a failure response, " +
-                                                        "source: unknown mission exception")));
-                                processor.onComplete();
-                            }
-                        }
-                    });
-                    if (!optionalCommand.isPresent()) {
-                        try {
-                            processor.onNext(mapper.writeValueAsString(
-                                    new CommandResponse.CommandResponseFailure(
-                                            new Exception("Unable to deserialize sent command"))));
-                            processor.onComplete();
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                            processor.onNext(ManuallySerializable.serializeArray(
-                                    new CommandResponse.CommandResponseFailure(
-                                            "unable to serialize a failure response, " +
-                                                    "source: unable to deserialize sent command")));
-                            processor.onComplete();
-                        }
-                    }
-                }));
+        return session.send(new DataExchangeBuilder<>
+                (MissionCommandRequest.class, CommandResponse.class)
+                .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
+                .setGenerator((commandRequest) ->
+                        Flux.from(service.instruct(commandRequest))
+                )
+                .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new
+                        , throwable -> ManuallySerializable.serializeArray(
+                                new CommandResponse.CommandResponseFailure("unable to serialize a failure response, " +
+                                        "source: unknown mission exception"))
+                ).setGeneratingExceptionHandler(CommandResponse.CommandResponseFailure::new
+                        , throwable -> ManuallySerializable.serializeArray(
+                                new CommandResponse.CommandResponseFailure("unable to serialize a failure response, " +
+                                        "source: unable to serialize the response"))
+                ).setReceivingExceptionHandler(CommandResponse.CommandResponseFailure::new
+                        , throwable -> ManuallySerializable.serializeArray(
+                                new CommandResponse.CommandResponseFailure("nable to serialize a failure response, " +
+                                        "source: unable to deserialize sent command")))
+                .build().map(session::textMessage));
     }
 }

@@ -2,6 +2,7 @@ package cern.molr.server.impl;
 
 import cern.molr.commons.events.MissionException;
 import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.request.server.SupervisorInstantiationRequest;
 import cern.molr.commons.request.server.SupervisorStateRequest;
 import cern.molr.commons.response.CommandResponse;
@@ -33,10 +34,10 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     }
 
     @Override
-    public <I> Flux<MissionEvent> instantiate(String missionClassName, I args, String missionExecutionId) {
+    public <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId) {
         SupervisorInstantiationRequest<I> request =
                 new SupervisorInstantiationRequest<I>(missionExecutionId,
-                        missionClassName, args);
+                        serverRequest.getMissionDefnClassName(), serverRequest.getArgs());
         return socketClient.receiveFlux("/instantiate", MissionEvent.class, request)
                 .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
     }

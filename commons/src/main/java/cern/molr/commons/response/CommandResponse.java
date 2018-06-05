@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
+ * It informs the client whether the command was accepted or not
  *
  * @author yassine-kr
  */

@@ -1,6 +1,7 @@
 package cern.molr.server.api;
 
 import cern.molr.commons.request.MissionCommandRequest;
+import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
@@ -16,19 +17,16 @@ import java.util.Optional;
  */
 public interface RemoteMoleSupervisor {
 
-    //TODO use a request class instead of multiple parameters
-
     /**
      * A method which should send an instantiation request to the supervisor
      *
-     * @param missionClassName
-     * @param args
+     * @param serverRequest the request sent by the client to mMolR server
      * @param missionExecutionId the mission ID of the execution
      * @param <I>                the argument type
      *
      * @return a publisher of events triggered by the mission execution
      */
-    <I> Flux<MissionEvent> instantiate(String missionClassName, I args, String missionExecutionId);
+    <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId);
 
 
     /**
