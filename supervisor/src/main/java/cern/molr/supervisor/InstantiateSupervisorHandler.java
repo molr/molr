@@ -5,7 +5,6 @@ import cern.molr.commons.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionMaterializer;
 import cern.molr.commons.request.server.SupervisorInstantiationRequest;
-import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
@@ -41,18 +40,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                     Mission mission = materializer.materialize(Class.forName(request.getMissionName()));
                     return supervisor.instantiate(mission, request.getArgs(), request.getMissionExecutionId());
                 })
-                .setGeneratorExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception"))
-                ).setGeneratingExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception, " +
-                                        "source: unable to serialize an event"))
-                ).setReceivingExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception, " +
-                                        "source: unable to deserialize the request")))
-                .build().map(session::textMessage));
+                .setGeneratorExceptionHandler(MissionException::new).build().map(session::textMessage));
 
     }
 }

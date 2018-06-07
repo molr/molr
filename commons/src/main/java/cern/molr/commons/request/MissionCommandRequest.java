@@ -21,15 +21,8 @@ public class MissionCommandRequest {
         return missionId;
     }
 
-    public void setMissionId(String missionId) {
-        this.missionId = missionId;
-    }
-
     public MissionCommand getCommand() {
         return command;
     }
 
-    public void setCommand(MissionCommand command) {
-        this.command = command;
-    }
 }

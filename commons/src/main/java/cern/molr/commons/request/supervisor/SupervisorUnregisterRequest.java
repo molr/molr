@@ -20,7 +20,4 @@ public class SupervisorUnregisterRequest {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 }

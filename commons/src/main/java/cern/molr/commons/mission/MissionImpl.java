@@ -53,11 +53,16 @@ public class MissionImpl implements Mission {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MissionImpl mission = (MissionImpl) o;
-        if (moleClassName != null ? !moleClassName.equals(mission.moleClassName) : mission.moleClassName != null)
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
+        MissionImpl mission = (MissionImpl) o;
+        if (moleClassName != null ? !moleClassName.equals(mission.moleClassName) : mission.moleClassName != null) {
+            return false;
+        }
         return !(missionName != null ? !missionName.equals(mission.missionName) :
                 mission.missionName != null);
 

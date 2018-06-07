@@ -2,7 +2,6 @@ package cern.molr.supervisor;
 
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.stereotype.Component;
@@ -35,17 +34,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
                 .setGenerator((commandRequest) ->
                         Flux.from(supervisor.instruct(commandRequest))
                 )
-                .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new CommandResponse.CommandResponseFailure("unable to serialize a failure response"))
-                ).setGeneratingExceptionHandler(CommandResponse.CommandResponseFailure::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new CommandResponse.CommandResponseFailure("unable to serialize a failure response, " +
-                                        "source: unable to serialize the response"))
-                ).setReceivingExceptionHandler(CommandResponse.CommandResponseFailure::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new CommandResponse.CommandResponseFailure("nable to serialize a failure response, " +
-                                        "source: unable to deserialize sent command")))
+                .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)
                 .build().map(session::textMessage));
     }
 }

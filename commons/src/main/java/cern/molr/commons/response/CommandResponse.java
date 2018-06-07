@@ -25,7 +25,7 @@ public interface CommandResponse extends TryResponse<Ack> {
         }
     }
 
-    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse, ManuallySerializable {
+    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse{
 
         private String message;
 
@@ -49,14 +49,6 @@ public interface CommandResponse extends TryResponse<Ack> {
 
         public void setMessage(String message) {
             this.message = message;
-        }
-
-
-        @Override
-        public Map<String, String> getJsonMap() {
-            Map<String, String> map = new HashMap<>();
-            map.put("\"message\"", "\"" + message + "\"");
-            return map;
         }
 
     }

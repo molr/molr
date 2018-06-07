@@ -67,8 +67,9 @@ public class ServerRestExecutionService {
     }
 
     private void missionExists(String missionName) throws MissionExecutionNotAccepted {
-        if (!registry.missionExists(missionName))
+        if (!registry.missionExists(missionName)) {
             throw new MissionExecutionNotAccepted("Mission not defined in MolR registry");
+        }
     }
 
     public Flux<MissionEvent> getFlux(String mEId) throws UnknownMissionException {

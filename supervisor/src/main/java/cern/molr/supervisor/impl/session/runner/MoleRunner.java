@@ -7,12 +7,12 @@ package cern.molr.supervisor.impl.session.runner;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
+import cern.molr.commons.exception.CommandNotAcceptedException;
 import cern.molr.commons.exception.MissionExecutionException;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionImpl;
 import cern.molr.commons.mission.Mole;
 import cern.molr.commons.request.MissionCommand;
-import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.api.session.runner.MoleRunnerState;
@@ -20,6 +20,8 @@ import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -37,6 +39,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class MoleRunner implements CommandListener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoleRunner.class);
 
     private Mission mission;
     private Object missionInput;
@@ -127,28 +130,23 @@ public class MoleRunner implements CommandListener {
                     System.exit(0);
                     return null;
                 } catch (JsonProcessingException error) {
-                    try {
-                        System.out.println(mapper.writeValueAsString(new MissionException(error)));
-                    } catch (JsonProcessingException error1) {
-                        System.out.println(ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception")));
-                    }
+                    LOGGER.error("unable to serialize an event",error);
                 } catch (ExecutionException | InterruptedException error) {
                     try {
                         System.out.println(mapper.writeValueAsString(new MissionException(error.getCause())));
                     } catch (JsonProcessingException error1) {
-                        System.out.println(ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception")));
+                        LOGGER.error("unable to serialize an event",error1);
                     }
                 }
                 return null;
             });
+        } catch (JsonProcessingException error) {
+            LOGGER.error("unable to serialize an event",error);
         } catch (Exception error) {
             try {
                 System.out.println(mapper.writeValueAsString(new MissionException(error)));
             } catch (JsonProcessingException error1) {
-                System.out.println(ManuallySerializable.serializeArray(
-                        new MissionException("unable to serialize a mission exception")));
+                LOGGER.error("unable to serialize an event",error1);
             }
         }
     }
@@ -190,14 +188,14 @@ public class MoleRunner implements CommandListener {
                 terminate();
             }
 
-        } catch (Exception error) {
+        } catch (JsonProcessingException error) {
+            LOGGER.error("unable to serialize a command status",error);
+        } catch (CommandNotAcceptedException error) {
             try {
                 CommandStatus commandStatus = new CommandStatus(error);
                 System.out.println(mapper.writeValueAsString(commandStatus));
             } catch (JsonProcessingException error1) {
-                error1.printStackTrace();
-                System.out.println(ManuallySerializable.serializeArray(
-                        new CommandStatus("unable to serialize a failure status")));
+                LOGGER.error("unable to serialize an event",error1);
             }
         }
     }

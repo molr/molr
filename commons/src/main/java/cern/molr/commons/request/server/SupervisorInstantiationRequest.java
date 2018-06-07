@@ -20,36 +20,22 @@ public class SupervisorInstantiationRequest<I> {
     public SupervisorInstantiationRequest() {
     }
 
-    public SupervisorInstantiationRequest(String missionExecutionId,
-                                          String missionName, I args) {
-        this.setMissionExecutionId(missionExecutionId);
-        this.setMissionName(missionName);
-        this.setArgs(args);
+    public SupervisorInstantiationRequest(String missionExecutionId, String missionName, I args) {
+        this.missionExecutionId = missionExecutionId;
+        this.missionName = missionName;
+        this.args = args;
     }
-
 
     public String getMissionName() {
         return missionName;
-    }
-
-    public void setMissionName(String missionName) {
-        this.missionName = missionName;
     }
 
     public I getArgs() {
         return args;
     }
 
-    public void setArgs(I args) {
-        this.args = args;
-    }
-
     public String getMissionExecutionId() {
         return missionExecutionId;
-    }
-
-    public void setMissionExecutionId(String missionExecutionId) {
-        this.missionExecutionId = missionExecutionId;
     }
 
 }

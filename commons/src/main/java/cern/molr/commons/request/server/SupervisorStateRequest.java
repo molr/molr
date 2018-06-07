@@ -24,7 +24,4 @@ public class SupervisorStateRequest {
         return filter;
     }
 
-    public void setFilter(String filter) {
-        this.filter = filter;
-    }
 }

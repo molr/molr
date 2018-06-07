@@ -28,16 +28,9 @@ public class ServerInstantiationRequest<I> {
         return missionName;
     }
 
-    public void setMissionName(String missionName) {
-        this.missionName = missionName;
-    }
-
     public I getArgs() {
         return args;
     }
 
-    public void setArgs(I args) {
-        this.args = args;
-    }
 
 }

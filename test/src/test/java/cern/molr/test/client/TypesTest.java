@@ -216,10 +216,11 @@ public class TypesTest {
                     System.out.println("event: " + event);
                     events.add(event);
                     endSignal.countDown();
-                    if (event instanceof SessionInstantiated)
+                    if (event instanceof SessionInstantiated) {
                         instantiateSignal.countDown();
-                    else if (event instanceof MissionStarted)
+                    } else if (event instanceof MissionStarted) {
                         startSignal.countDown();
+                    }
                 });
                 try {
                     instantiateSignal.await();

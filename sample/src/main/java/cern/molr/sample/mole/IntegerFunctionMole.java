@@ -33,8 +33,9 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
         if (Function.class.isAssignableFrom(classType)) {
             try {
                 Method m = classType.getMethod("apply", Integer.class);
-                if (m.getReturnType() != Integer.class)
+                if (m.getReturnType() != Integer.class) {
                     throw new IncompatibleMissionException("Mission must implement IntFunction interface");
+                }
             } catch (NoSuchMethodException error) {
                 throw new IncompatibleMissionException(error);
             }

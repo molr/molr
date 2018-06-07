@@ -26,23 +26,12 @@ public class SupervisorRegisterRequest {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public int getPort() {
         return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public List<String> getAcceptedMissions() {
         return acceptedMissions;
     }
 
-    public void setAcceptedMissions(List<String> acceptedMissions) {
-        this.acceptedMissions = acceptedMissions;
-    }
 }

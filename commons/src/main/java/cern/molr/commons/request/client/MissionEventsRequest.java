@@ -6,6 +6,7 @@ package cern.molr.commons.request.client;
 
 /**
  * Request to get flux of events from the MolR server
+ * @author yassine-kr
  */
 public class MissionEventsRequest {
 
@@ -15,15 +16,11 @@ public class MissionEventsRequest {
     }
 
     public MissionEventsRequest(String missionExecutionId) {
-        this.setMissionExecutionId(missionExecutionId);
+        this.missionExecutionId=missionExecutionId;
     }
 
     public String getMissionExecutionId() {
         return missionExecutionId;
-    }
-
-    public void setMissionExecutionId(String missionExecutionId) {
-        this.missionExecutionId = missionExecutionId;
     }
 
 }

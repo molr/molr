@@ -31,10 +31,11 @@ public class Fibonacci implements Function<Integer, Integer> {
      * @return the fibonacci sum of @param v
      */
     private Integer fib(Integer v) {
-        if (v <= 1)
+        if (v <= 1) {
             return 1;
-        else
+        } else {
             return fib(v - 1) + fib(v - 2);
+        }
     }
 
 

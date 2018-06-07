@@ -1,17 +1,13 @@
 package cern.molr.commons.events;
 
-import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Event sent back by the supervisor when there is an exception
  *
  * @author yassine-kr
  */
-public class MissionException implements MissionEvent, ManuallySerializable {
+public class MissionException implements MissionEvent {
     private Throwable throwable;
     private String message;
 
@@ -48,10 +44,4 @@ public class MissionException implements MissionEvent, ManuallySerializable {
         return throwable.getClass().getName() + ": " + throwable.getMessage();
     }
 
-    @Override
-    public Map<String, String> getJsonMap() {
-        Map<String, String> map = new HashMap<>();
-        map.put("\"message\"", "\"" + message + "\"");
-        return map;
-    }
 }

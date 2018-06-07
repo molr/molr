@@ -2,7 +2,6 @@ package cern.molr.server;
 
 import cern.molr.commons.events.MissionException;
 import cern.molr.commons.request.client.MissionEventsRequest;
-import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import org.slf4j.Logger;
@@ -37,19 +36,8 @@ public class FluxServerHandler implements WebSocketHandler {
         return session.send(new DataExchangeBuilder<>
                 (MissionEventsRequest.class, MissionEvent.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
-                .setGenerator((request) ->
-                        service.getFlux(request.getMissionExecutionId()))
-                .setGeneratorExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception, source: unknown mission"))
-                ).setGeneratingExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception, " +
-                                        "source: unable to serialize an event"))
-                ).setReceivingExceptionHandler(MissionException::new
-                        , throwable -> ManuallySerializable.serializeArray(
-                                new MissionException("unable to serialize a mission exception, " +
-                                        "source: unable to deserialize the request")))
+                .setGenerator((request) -> service.getFlux(request.getMissionExecutionId()))
+                .setGeneratorExceptionHandler(MissionException::new)
                 .build().map(session::textMessage));
     }
 }

@@ -49,8 +49,9 @@ public class SimpleAddressGetter implements AddressGetter, ApplicationListener<W
     @Override
     public void addListener(AddressGetterListener listener) {
         listeners.add(listener);
-        if (address.getPort() >= 0)
+        if (address.getPort() >= 0) {
             listener.onGetAddress(address);
+        }
     }
 
     @Override
