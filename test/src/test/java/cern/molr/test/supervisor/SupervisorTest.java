@@ -120,7 +120,7 @@ public class SupervisorTest {
 
         SupervisorInstantiationRequest<Integer> request =
                 new SupervisorInstantiationRequest<>("1", Fibonacci.class.getName(), 42);
-        MolrWebSocketClient client = new MolrWebSocketClient("localhost", 8080);
+        MolrWebSocketClient client = new MolrWebSocketClient("http://localhost", 8080);
 
         client.receiveFlux("/instantiate", MissionEvent.class, request)
                 .doOnError(Throwable::printStackTrace)

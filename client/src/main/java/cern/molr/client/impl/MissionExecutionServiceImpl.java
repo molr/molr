@@ -36,7 +36,7 @@ import java.util.function.Function;
 /**
  * Implementation used by the operator to interact with the server
  * The constructor searches for MolR address (host and port) in "config.properties"
- * The default values are "localhost" and "8000"
+ * The default values are "http://localhost" and "8000"
  *
  * @author yassine-kr
  */
@@ -65,8 +65,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
         } catch (Exception error) {
             LOGGER.error("error while trying to get client properties", error);
-            client = new MolrWebClient("localhost", 8000);
-            clientSocket = new MolrWebSocketClient("localhost", 8000);
+            client = new MolrWebClient("http://localhost", 8000);
+            clientSocket = new MolrWebSocketClient("http://localhost", 8000);
         }
     }
 
@@ -81,40 +81,36 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
         ServerInstantiationRequest<I> execRequest = new ServerInstantiationRequest<>(missionName, args);
         return client.post("/instantiate", ServerInstantiationRequest.class, execRequest,
                         InstantiationResponse.class)
-                        .map(tryResp -> {
-                            return tryResp.match((Throwable e) -> { throw new CompletionException(e); },
-                                    InstantiationResponseBean::getMissionExecutionId);
-                        })
-                        .<ClientMissionController>map(missionExecutionId -> {
-                            return new ClientMissionController() {
-                                @Override
-                                public Flux<MissionEvent> getFlux() {
-                                    MissionEventsRequest eventsRequest = new MissionEventsRequest(missionExecutionId);
-                                    return clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
-                                            .doOnError((e) ->
-                                                    LOGGER.error("error while sending an events request [mission " +
-                                                                    "execution Id: {}, mission name: {}]",
-                                                            missionExecutionId,
-                                                            execRequest.getMissionName(), e))
-                                            .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
-                                }
+                        .map(tryResp -> tryResp.match((Throwable e) -> { throw new CompletionException(e); },
+                                InstantiationResponseBean::getMissionExecutionId))
+                        .<ClientMissionController>map(missionExecutionId -> new ClientMissionController() {
+                            @Override
+                            public Flux<MissionEvent> getFlux() {
+                                MissionEventsRequest eventsRequest = new MissionEventsRequest(missionExecutionId);
+                                return clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
+                                        .doOnError((e) ->
+                                                LOGGER.error("error while sending an events request [mission " +
+                                                                "execution Id: {}, mission name: {}]",
+                                                        missionExecutionId,
+                                                        execRequest.getMissionName(), e))
+                                        .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
+                            }
 
-                                @Override
-                                public Mono<CommandResponse> instruct(MissionCommand command) {
-                                    MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
-                                            command);
-                                    return clientSocket.
-                                            receiveMono("/instruct", CommandResponse.class, commandRequest)
-                                            .doOnError((e) ->
-                                                    LOGGER.error("error while sending a command request [mission " +
-                                                                    "execution Id: {}, mission name: {}, command: {}]",
-                                                            missionExecutionId,
-                                                            execRequest.getMissionName(), command, e))
-                                            .map((tryElement) ->
-                                                    tryElement.match(CommandResponse.CommandResponseFailure::new,
-                                                            Function.identity()));
-                                }
-                            };
+                            @Override
+                            public Mono<CommandResponse> instruct(MissionCommand command) {
+                                MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
+                                        command);
+                                return clientSocket.
+                                        receiveMono("/instruct", CommandResponse.class, commandRequest)
+                                        .doOnError((e) ->
+                                                LOGGER.error("error while sending a command request [mission " +
+                                                                "execution Id: {}, mission name: {}, command: {}]",
+                                                        missionExecutionId,
+                                                        execRequest.getMissionName(), command, e))
+                                        .map((tryElement) ->
+                                                tryElement.match(CommandResponse.CommandResponseFailure::new,
+                                                        Function.identity()));
+                            }
                         }).doOnError((e) ->
                         LOGGER.error("error while sending an instantiation request [mission name: {}]",
                         execRequest.getMissionName(), e.getCause()));

@@ -15,7 +15,7 @@ import java.util.HashSet;
 
 /**
  * A simple implementation of an address getter. It gets a hostname different from localhost, and the machine
- * port on which the Spring Server is running. If no hostname found, "localhost" is returned
+ * port on which the Spring Server is running. If no hostname found, "http://localhost" is returned
  * This class is not thread safe. The methods addListener and onApplicationEvent should not be called by two threads
  * at the same time.
  *
@@ -30,12 +30,12 @@ public class SimpleAddressGetter implements AddressGetter, ApplicationListener<W
     private HashSet<AddressGetterListener> listeners = new HashSet<>();
 
     public SimpleAddressGetter() {
-        address = new Address("localhost", -1);
+        address = new Address("http://localhost", -1);
         try {
             for (NetworkInterface netInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 for (InetAddress inetAddress : Collections.list(netInterface.getInetAddresses())) {
                     if (!inetAddress.isLinkLocalAddress() && !inetAddress.isLoopbackAddress()) {
-                        address.setHost(inetAddress.getHostName());
+                        address.setHost("http://"+inetAddress.getHostName());
                         return;
                     }
 

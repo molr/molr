@@ -111,7 +111,7 @@ public class RemoteSupervisorMain {
             config.setAcceptedMissions(Optional.ofNullable(env.getProperty("acceptedMissions"))
                     .map((s) -> s.split(",")).orElse(new String[]{}));
 
-            config.setMolrHost(env.getProperty("molr.host", "localhost"));
+            config.setMolrHost(env.getProperty("molr.host", "http://localhost"));
             config.setMolrPort(env.getProperty("molr.port", Integer.class, 8000));
             return config;
         }

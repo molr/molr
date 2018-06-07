@@ -37,7 +37,8 @@ public class MolrWebClient {
                     clientDefaultCodecsConfigurer.defaultCodecs()
                             .jackson2JsonDecoder(new Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON));
                 }).build();
-        this.client = WebClient.builder().baseUrl("http://" + host + ":" + port).exchangeStrategies(strategies).build();
+        this.client = WebClient.builder().baseUrl(host + ":" + port).exchangeStrategies(strategies)
+                .build();
     }
 
     public <I, O> Mono<O> post(String uri, Class<I> requestClass, I request, Class<O> responseClass) {

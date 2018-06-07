@@ -41,7 +41,7 @@ public class TypesTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private MissionExecutionService service = new MissionExecutionServiceImpl("localhost", 8000);
+    private MissionExecutionService service = new MissionExecutionServiceImpl("http://localhost", 8000);
     ;
 
 
@@ -50,7 +50,7 @@ public class TypesTest {
         serverContext = SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056", "--molr.host=localhost", "--molr.port=8000"});
+                new String[]{"--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000"});
     }
 
     @After

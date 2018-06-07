@@ -36,15 +36,15 @@ public class ServerTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private MolrWebClient client = new MolrWebClient("localhost", 8000);
-    private MolrWebSocketClient clientSocket = new MolrWebSocketClient("localhost", 8000);
+    private MolrWebClient client = new MolrWebClient("http://localhost", 8000);
+    private MolrWebSocketClient clientSocket = new MolrWebSocketClient("http://localhost", 8000);
 
     @Before
     public void initServers() {
         serverContext = SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056", "--molr.host=localhost", "--molr.port=8000"});
+                new String[]{"--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000"});
     }
 
     @After
