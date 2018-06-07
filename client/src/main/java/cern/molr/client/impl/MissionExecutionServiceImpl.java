@@ -17,6 +17,7 @@ import cern.molr.commons.response.InstantiationResponseBean;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebSocketClient;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -75,7 +76,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     }
 
     @Override
-    public <I> Mono<ClientMissionController> instantiate(String missionName, I args) {
+    public <I> Publisher<ClientMissionController> instantiate(String missionName, I args) {
 
         ServerInstantiationRequest<I> execRequest = new ServerInstantiationRequest<>(missionName, args);
         return client.post("/instantiate", ServerInstantiationRequest.class, execRequest,

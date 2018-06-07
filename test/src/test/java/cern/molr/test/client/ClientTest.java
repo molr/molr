@@ -17,6 +17,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.publisher.Mono;
@@ -70,41 +73,59 @@ public class ClientTest {
         CountDownLatch startSignal = new CountDownLatch(1);
         CountDownLatch endSignal = new CountDownLatch(5);
 
-        Mono<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
-        futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
-            controller.getFlux().subscribe((event) -> {
-                System.out.println(execName + " event: " + event);
-                events.add(event);
-                endSignal.countDown();
-                if (event instanceof SessionInstantiated) {
-                    instantiateSignal.countDown();
-                } else if (event instanceof MissionStarted) {
-                    startSignal.countDown();
-                }
-            });
-            try {
-                instantiateSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+        Publisher<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
             }
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println(execName + " response to start: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
 
-            try {
-                startSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println(execName + " event: " + event);
+                    events.add(event);
+                    endSignal.countDown();
+                    if (event instanceof SessionInstantiated) {
+                        instantiateSignal.countDown();
+                    } else if (event instanceof MissionStarted) {
+                        startSignal.countDown();
+                    }
+                });
+                try {
+                    instantiateSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println(execName + " response to start: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
+
+                try {
+                    startSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Terminate()).subscribe((response) -> {
+                    System.out.println(execName + " response to terminate: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
             }
-            controller.instruct(new Terminate()).subscribe((response) -> {
-                System.out.println(execName + " response to terminate: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
         new Thread(() -> {
             try {
@@ -169,49 +190,67 @@ public class ClientTest {
         CountDownLatch endSignal2 = new CountDownLatch(6);
 
 
-        Mono<ClientMissionController> futureController2 =
+        Publisher<ClientMissionController> futureController2 =
                 service.instantiate(Fibonacci.class.getCanonicalName(), 100);
 
 
-        futureController2.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
-            controller.getFlux().subscribe((event) -> {
-                System.out.println("exec2 event: " + event);
-                events2.add(event);
-                endSignal2.countDown();
+        futureController2.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
 
-                if (event instanceof SessionInstantiated) {
-                    instantiateSignal2.countDown();
-                } else if (event instanceof MissionStarted) {
-                    startSignal2.countDown();
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println("exec2 event: " + event);
+                    events2.add(event);
+                    endSignal2.countDown();
+
+                    if (event instanceof SessionInstantiated) {
+                        instantiateSignal2.countDown();
+                    } else if (event instanceof MissionStarted) {
+                        startSignal2.countDown();
+                    }
+                });
+                try {
+                    instantiateSignal2.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
                 }
-            });
-            try {
-                instantiateSignal2.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println("exec2 response to start: " + response);
+                    commandResponses2.add(response);
+                    endSignal2.countDown();
+                });
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println("exec2 response to start 2: " + response);
+                    commandResponses2.add(response);
+                    endSignal2.countDown();
+                });
+                try {
+                    startSignal2.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Terminate()).subscribe((response) -> {
+                    System.out.println("exec2 response to terminate: " + response);
+                    commandResponses2.add(response);
+                    endSignal2.countDown();
+                });
             }
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println("exec2 response to start: " + response);
-                commandResponses2.add(response);
-                endSignal2.countDown();
-            });
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println("exec2 response to start 2: " + response);
-                commandResponses2.add(response);
-                endSignal2.countDown();
-            });
-            try {
-                startSignal2.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
             }
-            controller.instruct(new Terminate()).subscribe((response) -> {
-                System.out.println("exec2 response to terminate: " + response);
-                commandResponses2.add(response);
-                endSignal2.countDown();
-            });
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         endSignal2.await();

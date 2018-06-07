@@ -21,6 +21,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.publisher.Mono;
@@ -66,47 +69,65 @@ public class TypesTest {
 
         List<CommandResponse> commandResponses = new ArrayList<>();
 
-        Mono<ClientMissionController> futureController = service.instantiate(Fibonacci.class.getName(), 100);
+        Publisher<ClientMissionController> futureController = service.instantiate(Fibonacci.class.getName(), 100);
 
 
-        futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
-            controller.getFlux().subscribe((event) -> {
-                System.out.println("event: " + event);
-                endSignal.countDown();
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
 
-                if (event instanceof SessionInstantiated) {
-                    instantiateSignal.countDown();
-                } else if (event instanceof MissionStarted) {
-                    startSignal.countDown();
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println("event: " + event);
+                    endSignal.countDown();
+
+                    if (event instanceof SessionInstantiated) {
+                        instantiateSignal.countDown();
+                    } else if (event instanceof MissionStarted) {
+                        startSignal.countDown();
+                    }
+                });
+                try {
+                    instantiateSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
                 }
-            });
-            try {
-                instantiateSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println("response to start: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println("response to start 2: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
+                try {
+                    startSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Terminate()).subscribe((response) -> {
+                    System.out.println("response to terminate: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
             }
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println("response to start: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println("response to start 2: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
-            try {
-                startSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
             }
-            controller.instruct(new Terminate()).subscribe((response) -> {
-                System.out.println("response to terminate: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         endSignal.await();
@@ -129,16 +150,34 @@ public class TypesTest {
         CountDownLatch endSignal = new CountDownLatch(1);
         List<MissionEvent> events = new ArrayList<>();
 
-        Mono<ClientMissionController> futureController =
+        Publisher<ClientMissionController> futureController =
                 service.instantiate(IncompatibleMission.class.getName(), 100);
 
 
-        futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
-            controller.getFlux().subscribe((event) -> {
-                System.out.println("event: " + event);
-                events.add(event);
-                endSignal.countDown();
-            });
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
+
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println("event: " + event);
+                    events.add(event);
+                    endSignal.countDown();
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         endSignal.await();
@@ -163,39 +202,57 @@ public class TypesTest {
         CountDownLatch startSignal = new CountDownLatch(1);
         CountDownLatch endSignal = new CountDownLatch(5);
 
-        Mono<ClientMissionController> futureController = service.instantiate(RunnableExceptionMission.class
+        Publisher<ClientMissionController> futureController = service.instantiate(RunnableExceptionMission.class
                 .getCanonicalName(), null);
-        futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
-            controller.getFlux().subscribe((event) -> {
-                System.out.println("event: " + event);
-                events.add(event);
-                endSignal.countDown();
-                if (event instanceof SessionInstantiated)
-                    instantiateSignal.countDown();
-                else if (event instanceof MissionStarted)
-                    startSignal.countDown();
-            });
-            try {
-                instantiateSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
             }
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println("response to start: " + response);
-                endSignal.countDown();
-            });
 
-            try {
-                startSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                Assert.fail();
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println("event: " + event);
+                    events.add(event);
+                    endSignal.countDown();
+                    if (event instanceof SessionInstantiated)
+                        instantiateSignal.countDown();
+                    else if (event instanceof MissionStarted)
+                        startSignal.countDown();
+                });
+                try {
+                    instantiateSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println("response to start: " + response);
+                    endSignal.countDown();
+                });
+
+                try {
+                    startSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
+                }
+                controller.instruct(new Terminate()).subscribe((response) -> {
+                    System.out.println("response to terminate: " + response);
+                    endSignal.countDown();
+                });
             }
-            controller.instruct(new Terminate()).subscribe((response) -> {
-                System.out.println("response to terminate: " + response);
-                endSignal.countDown();
-            });
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         endSignal.await();
@@ -213,14 +270,32 @@ public class TypesTest {
 
         CountDownLatch endSignal = new CountDownLatch(1);
 
-        Mono<ClientMissionController> futureController = service.instantiate(NotAcceptedMission.class.getName(), 0);
+        Publisher<ClientMissionController> futureController = service.instantiate(NotAcceptedMission.class.getName(), 0);
 
         final Throwable[] exception = new Throwable[1];
 
-        futureController.doOnError((t) -> {
-            exception[0] = t;
-            endSignal.countDown();
-        }).subscribe();
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
+
+            @Override
+            public void onNext(ClientMissionController controller) {
+
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                exception[0] = throwable;
+                endSignal.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
 
         endSignal.await();
 

@@ -10,6 +10,9 @@ import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.sample.mission.Fibonacci;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -50,44 +53,61 @@ public class ExampleOperator {
         CountDownLatch startSignal = new CountDownLatch(1);
         CountDownLatch endSignal = new CountDownLatch(5);
 
-        Mono<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
-        futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
+        Publisher<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
+        futureController.subscribe(new Subscriber<ClientMissionController>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
 
-            System.out.println(Thread.currentThread().getName());
-            controller.getFlux().subscribe((event) -> {
-                System.out.println(execName + " event: " + event);
-                events.add(event);
-                endSignal.countDown();
-                if (event instanceof SessionInstantiated) {
-                    instantiateSignal.countDown();
-                } else if (event instanceof MissionStarted) {
-                    startSignal.countDown();
+            @Override
+            public void onNext(ClientMissionController controller) {
+                controller.getFlux().subscribe((event) -> {
+                    System.out.println(execName + " event: " + event);
+                    events.add(event);
+                    endSignal.countDown();
+                    if (event instanceof SessionInstantiated) {
+                        instantiateSignal.countDown();
+                    } else if (event instanceof MissionStarted) {
+                        startSignal.countDown();
+                    }
+                });
+                try {
+                    instantiateSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    System.exit(-1);
                 }
-            });
-            try {
-                instantiateSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                System.exit(-1);
-            }
-            controller.instruct(new Start()).subscribe((response) -> {
-                System.out.println(execName + " response to start: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
+                controller.instruct(new Start()).subscribe((response) -> {
+                    System.out.println(execName + " response to start: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
 
-            try {
-                startSignal.await();
-            } catch (InterruptedException error) {
-                error.printStackTrace();
-                System.exit(-1);
+                try {
+                    startSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    System.exit(-1);
+                }
+                controller.instruct(new Terminate()).subscribe((response) -> {
+                    System.out.println(execName + " response to terminate: " + response);
+                    commandResponses.add(response);
+                    endSignal.countDown();
+                });
             }
-            controller.instruct(new Terminate()).subscribe((response) -> {
-                System.out.println(execName + " response to terminate: " + response);
-                commandResponses.add(response);
-                endSignal.countDown();
-            });
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
+
         new Thread(() -> {
             try {
                 endSignal.await();
