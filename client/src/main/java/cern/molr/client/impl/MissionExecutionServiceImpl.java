@@ -85,13 +85,12 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                                 InstantiationResponseBean::getMissionExecutionId))
                         .<ClientMissionController>map(missionExecutionId -> new ClientMissionController() {
                             @Override
-                            public Flux<MissionEvent> getFlux() {
+                            public Publisher<MissionEvent> getEventsStream() {
                                 MissionEventsRequest eventsRequest = new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
+                                return clientSocket.receiveFlux("/getEventsStream", MissionEvent.class, eventsRequest)
                                         .doOnError((e) ->
-                                                LOGGER.error("error while sending an events request [mission " +
-                                                                "execution Id: {}, mission name: {}]",
-                                                        missionExecutionId,
+                                                LOGGER.error("error in events stream [mission execution Id: {}, " +
+                                                                "mission name: {}]", missionExecutionId,
                                                         execRequest.getMissionName(), e))
                                         .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
                             }
@@ -103,8 +102,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                                 return clientSocket.
                                         receiveMono("/instruct", CommandResponse.class, commandRequest)
                                         .doOnError((e) ->
-                                                LOGGER.error("error while sending a command request [mission " +
-                                                                "execution Id: {}, mission name: {}, command: {}]",
+                                                LOGGER.error("error in command stream [mission execution Id: {}, " +
+                                                                "mission name: {}, command: {}]",
                                                         missionExecutionId,
                                                         execRequest.getMissionName(), command, e))
                                         .map((tryElement) ->

@@ -40,7 +40,7 @@ public class EventsReader extends RemoteReader {
             final String line = reader.readLine();
             MissionEvent event = mapper.readValue(line, MissionEvent.class);
             listener.onEvent(event);
-            LOGGER.info("Reading string event from Mole runner: {}", line);
+            LOGGER.info("Reading string event from MoleRunner: {}", line);
         } catch (IOException error) {
             error.printStackTrace();
         }

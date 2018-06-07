@@ -2,7 +2,7 @@ package cern.molr.commons.exception;
 
 
 /**
- * Thrown when the supervisor reject the execution of a command because of the current Mole runner state
+ * Thrown when the supervisor reject the execution of a command because of the current MoleRunner state
  *
  * @author yassine-kr
  */

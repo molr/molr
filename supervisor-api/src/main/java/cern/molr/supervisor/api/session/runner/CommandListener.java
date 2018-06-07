@@ -3,7 +3,7 @@ package cern.molr.supervisor.api.session.runner;
 import cern.molr.commons.request.MissionCommand;
 
 /**
- * Listener for commands sent by supervisor to the mole runner
+ * Listener for commands sent by supervisor to the MoleRunner
  *
  * @author yassine-kr
  */

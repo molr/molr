@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 /**
  * A controller which controls running of a mission
- * It communicates with mole runner using output and input streams
+ * It communicates with MoleRunner using output and input streams
  *
  * @author yassine-kr
  */
@@ -35,7 +35,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
     private ObjectMapper mapper = new ObjectMapper();
 
     /**
-     * Event sent by the mole runner when it verifies the command.
+     * Event sent by the MoleRunner when it verifies the command.
      * Must be volatile (not cached) because it is accessible by two threads in the same time
      * Can't manage multiple commands in the same time
      */
@@ -89,7 +89,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
      *
      * @param command
      *
-     * @return the command response; whether the command was accepted by the Mole Runner
+     * @return the command response; whether the command was accepted by the MoleRunner
      */
     @Override
     synchronized public CommandResponse sendCommand(MissionCommand command) {

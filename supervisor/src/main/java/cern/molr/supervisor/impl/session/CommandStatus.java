@@ -4,7 +4,7 @@ import cern.molr.commons.response.MissionEvent;
 
 
 /**
- * Event sent by the mole runner which tells to supervisor the status of the last received command
+ * Event sent by the MoleRunner which tells to supervisor the status of the last received command
  *
  * @author yassine-kr
  */

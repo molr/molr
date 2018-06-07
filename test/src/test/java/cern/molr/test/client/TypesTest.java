@@ -11,6 +11,7 @@ import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.exception.*;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.web.SimpleSubscriber;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IncompatibleMission;
 import cern.molr.sample.mission.NotAcceptedMission;
@@ -22,11 +23,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,24 +70,35 @@ public class TypesTest {
         Publisher<ClientMissionController> futureController = service.instantiate(Fibonacci.class.getName(), 100);
 
 
-        futureController.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
-                controller.getFlux().subscribe((event) -> {
-                    System.out.println("event: " + event);
-                    endSignal.countDown();
+            public void onConsume(ClientMissionController controller) {
+                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
-                    if (event instanceof SessionInstantiated) {
-                        instantiateSignal.countDown();
-                    } else if (event instanceof MissionStarted) {
-                        startSignal.countDown();
+                    @Override
+                    public void onConsume(MissionEvent event) {
+                        System.out.println("event: " + event);
+                        endSignal.countDown();
+
+                        if (event instanceof SessionInstantiated) {
+                            instantiateSignal.countDown();
+                        } else if (event instanceof MissionStarted) {
+                            startSignal.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
+
                 try {
                     instantiateSignal.await();
                 } catch (InterruptedException error) {
@@ -134,12 +143,12 @@ public class TypesTest {
 
         Assert.assertEquals(3, commandResponses.size());
         Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(0).getClass());
-        Assert.assertEquals("command accepted by the Mole runner",
+        Assert.assertEquals("command accepted by the MoleRunner",
                 ((CommandResponse.CommandResponseSuccess) commandResponses.get(0)).getResult().getMessage());
         Assert.assertEquals(CommandResponse.CommandResponseFailure.class, commandResponses.get(1).getClass());
         Assert.assertEquals(CommandNotAcceptedException.class,
                 ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getClass());
-        Assert.assertEquals("Command not accepted by the Mole runner: the mission is already started",
+        Assert.assertEquals("Command not accepted by the MoleRunner: the mission is already started",
                 ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getMessage());
 
     }
@@ -154,18 +163,28 @@ public class TypesTest {
                 service.instantiate(IncompatibleMission.class.getName(), 100);
 
 
-        futureController.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
-                controller.getFlux().subscribe((event) -> {
-                    System.out.println("event: " + event);
-                    events.add(event);
-                    endSignal.countDown();
+            public void onConsume(ClientMissionController controller) {
+                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+
+                    @Override
+                    public void onConsume(MissionEvent event) {
+                        System.out.println("event: " + event);
+                        events.add(event);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
             }
 
@@ -204,24 +223,35 @@ public class TypesTest {
 
         Publisher<ClientMissionController> futureController = service.instantiate(RunnableExceptionMission.class
                 .getCanonicalName(), null);
-        futureController.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
-                controller.getFlux().subscribe((event) -> {
-                    System.out.println("event: " + event);
-                    events.add(event);
-                    endSignal.countDown();
-                    if (event instanceof SessionInstantiated) {
-                        instantiateSignal.countDown();
-                    } else if (event instanceof MissionStarted) {
-                        startSignal.countDown();
+            public void onConsume(ClientMissionController controller) {
+                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+
+                    @Override
+                    public void onConsume(MissionEvent event) {
+                        System.out.println("event: " + event);
+                        events.add(event);
+                        endSignal.countDown();
+                        if (event instanceof SessionInstantiated) {
+                            instantiateSignal.countDown();
+                        } else if (event instanceof MissionStarted) {
+                            startSignal.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
+
                 try {
                     instantiateSignal.await();
                 } catch (InterruptedException error) {
@@ -275,20 +305,16 @@ public class TypesTest {
 
         final Throwable[] exception = new Throwable[1];
 
-        futureController.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
+            public void onConsume(ClientMissionController controller) {
 
             }
 
             @Override
             public void onError(Throwable throwable) {
-                exception[0] = throwable;
+                exception[0] = throwable.getCause();
                 endSignal.countDown();
             }
 

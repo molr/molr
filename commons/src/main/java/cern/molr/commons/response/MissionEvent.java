@@ -1,7 +1,7 @@
 package cern.molr.commons.response;
 
 /**
- * Generic event triggered by the execution of a mole by a Mole runner
+ * Generic event triggered by the execution of a mole by a MoleRunner
  *
  * @author yassine-kr
  */

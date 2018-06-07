@@ -20,8 +20,4 @@ public class SupervisorRegisterResponseBean {
         return supervisorId;
     }
 
-    public void setSupervisorId(String supervisorId) {
-        this.supervisorId = supervisorId;
-    }
-
 }

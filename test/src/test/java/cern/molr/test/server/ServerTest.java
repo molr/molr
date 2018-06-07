@@ -72,7 +72,7 @@ public class ServerTest {
 
 
         MissionEventsRequest eventsRequest = new MissionEventsRequest(response.getResult().getMissionExecutionId());
-        clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
+        clientSocket.receiveFlux("/getEventsStream", MissionEvent.class, eventsRequest)
                 .doOnError(Throwable::printStackTrace).subscribe(
                 tryElement -> tryElement.execute(Throwable::printStackTrace, (event) -> {
                     System.out.println("event: " + event);

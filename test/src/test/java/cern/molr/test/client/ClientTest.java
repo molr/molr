@@ -10,6 +10,7 @@ import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.web.SimpleSubscriber;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -18,11 +19,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,24 +72,35 @@ public class ClientTest {
         CountDownLatch endSignal = new CountDownLatch(5);
 
         Publisher<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
-        futureController.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
-                controller.getFlux().subscribe((event) -> {
-                    System.out.println(execName + " event: " + event);
-                    events.add(event);
-                    endSignal.countDown();
-                    if (event instanceof SessionInstantiated) {
-                        instantiateSignal.countDown();
-                    } else if (event instanceof MissionStarted) {
-                        startSignal.countDown();
+            public void onConsume(ClientMissionController controller) {
+                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+
+                    @Override
+                    public void onConsume(MissionEvent event) {
+                        System.out.println(execName + " event: " + event);
+                        events.add(event);
+                        endSignal.countDown();
+                        if (event instanceof SessionInstantiated) {
+                            instantiateSignal.countDown();
+                        } else if (event instanceof MissionStarted) {
+                            startSignal.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
+
                 try {
                     instantiateSignal.await();
                 } catch (InterruptedException error) {
@@ -194,25 +203,36 @@ public class ClientTest {
                 service.instantiate(Fibonacci.class.getCanonicalName(), 100);
 
 
-        futureController2.subscribe(new Subscriber<ClientMissionController>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(1);
-            }
+        futureController2.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onNext(ClientMissionController controller) {
-                controller.getFlux().subscribe((event) -> {
-                    System.out.println("exec2 event: " + event);
-                    events2.add(event);
-                    endSignal2.countDown();
+            public void onConsume(ClientMissionController controller) {
+                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
-                    if (event instanceof SessionInstantiated) {
-                        instantiateSignal2.countDown();
-                    } else if (event instanceof MissionStarted) {
-                        startSignal2.countDown();
+                    @Override
+                    public void onConsume(MissionEvent event) {
+                        System.out.println("exec2 event: " + event);
+                        events2.add(event);
+                        endSignal2.countDown();
+
+                        if (event instanceof SessionInstantiated) {
+                            instantiateSignal2.countDown();
+                        } else if (event instanceof MissionStarted) {
+                            startSignal2.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
+
                 try {
                     instantiateSignal2.await();
                 } catch (InterruptedException error) {

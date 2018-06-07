@@ -5,7 +5,7 @@ import cern.molr.commons.type.trye.TryResponseFailure;
 import cern.molr.commons.type.trye.TryResponseSuccess;
 
 /**
- * Response to a unregister request sent back by the MolR server
+ * Response to an unregistration request sent back by the MolR server
  *
  * @author yassine-kr
  */

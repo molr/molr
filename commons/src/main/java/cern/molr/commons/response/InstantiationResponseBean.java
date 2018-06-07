@@ -24,8 +24,4 @@ public class InstantiationResponseBean {
         return missionExecutionId;
     }
 
-    public void setMissionExecutionId(String missionExecutionId) {
-        this.missionExecutionId = missionExecutionId;
-    }
-
 }

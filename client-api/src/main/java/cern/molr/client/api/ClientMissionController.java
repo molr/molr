@@ -7,7 +7,7 @@ package cern.molr.client.api;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
-import reactor.core.publisher.Flux;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 /**
@@ -22,7 +22,7 @@ public interface ClientMissionController {
      *
      * @return a stream of events triggered by the mission execution
      */
-    Flux<MissionEvent> getFlux();
+    Publisher<MissionEvent> getEventsStream();
 
 
     /**

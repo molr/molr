@@ -179,7 +179,7 @@ public class MoleRunner implements CommandListener {
             moleRunnerState.acceptCommand(command);
 
             CommandStatus commandStatus = new CommandStatus(true,
-                    "command accepted by the Mole runner");
+                    "command accepted by the MoleRunner");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
             if (command instanceof Start) {
