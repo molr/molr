@@ -10,38 +10,38 @@ import java.util.function.Function;
 /**
  * Type to construct "right" value of {@link Either}
  *
- * @param <RL>
- * @param <RR>
+ * @param <Left>
+ * @param <Right>
  *
  * @author nachivpn
  * @author yassine-kr
  */
-public class Right<RL, RR> implements Either<RL, RR> {
+public class Right<Left, Right> implements Either<Left, Right> {
 
-    protected RR rightValue;
+    protected Right rightValue;
 
-    public Right(RR rightValue) {
+    public Right(Right rightValue) {
         this.rightValue = rightValue;
     }
 
     @Override
-    public <T> T match(Function<RL, T> leftMapper, Function<RR, T> rightMapper) {
+    public <T> T match(Function<Left, T> leftMapper, Function<Right, T> rightMapper) {
         return rightMapper.apply(rightValue);
     }
 
     @Override
-    public void execute(Consumer<RL> leftConsumer, Consumer<RR> rightConsumer) {
+    public void execute(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
         rightConsumer.accept(rightValue);
     }
 
     @Override
-    public <S> Either<RL, S> rightFlatMap(Function<RR, Either<RL, S>> f) {
+    public <S> Either<Left, S> rightFlatMap(Function<Right, Either<Left, S>> f) {
         return f.apply(rightValue);
     }
 
     @Override
-    public <S> Either<RL, S> rightMap(Function<RR, S> mapper) {
-        return new Right<>(mapper.apply(rightValue));
+    public <S> Either<Left, S> rightMap(Function<Right, S> mapper) {
+        return new cern.molr.commons.type.either.Right(mapper.apply(rightValue));
     }
 
 }

@@ -25,7 +25,7 @@ public class TryResponseSuccess<T> extends Success<T> implements TryResponse<T> 
 
     @Override
     public void setThrowable(Throwable throwable) {
-        return;
+
     }
 
     @Override

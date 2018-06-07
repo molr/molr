@@ -57,16 +57,17 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
     }
 
     @Override
-    public Optional<RemoteMoleSupervisor> chooseSupervisor(String missionContentClassName) {
+    public Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {
 
         Optional<Vector<RemoteMoleSupervisor>> optional = Optional
-                .ofNullable(possibleSupervisorsRegistry.get(missionContentClassName));
+                .ofNullable(possibleSupervisorsRegistry.get(missionName));
 
         return optional.flatMap((vec) -> {
             for (RemoteMoleSupervisor supervisor : vec) {
                 Optional<SupervisorState> state = supervisor.getSupervisorState();
-                if (state.isPresent() && state.get().isAvailable())
+                if (state.isPresent() && state.get().isAvailable()) {
                     return Optional.of(supervisor);
+                }
             }
             return Optional.empty();
         });

@@ -8,7 +8,7 @@ package cern.molr.commons.exception;
  */
 public class CommandNotAcceptedException extends Exception {
 
-    private static final long serialVersionUID = 195586081128114794L;
+    private static final long serialVersionUID = 1L;
 
     public CommandNotAcceptedException(String message) {
         super(message);

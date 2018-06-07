@@ -28,8 +28,8 @@ public class RunnableHelloWriter implements Runnable {
     public void run() {
         try (PrintWriter out = new PrintWriter(new FileOutputStream("molr-demo.txt"))) {
             out.println("Hello molr!");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (FileNotFoundException error) {
+            throw new RuntimeException(error);
         }
     }
 

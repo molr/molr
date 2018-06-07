@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -54,13 +55,15 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             properties.load(input);
 
             String host = properties.getProperty("host");
+            Objects.requireNonNull(host);
+
             int port = Integer.parseInt(properties.getProperty("port"));
 
             client = new MolrWebClient(host, port);
             clientSocket = new MolrWebSocketClient(host, port);
 
-        } catch (Exception e) {
-            LOGGER.error("error while trying to get client properties", e);
+        } catch (Exception error) {
+            LOGGER.error("error while trying to get client properties", error);
             client = new MolrWebClient("localhost", 8000);
             clientSocket = new MolrWebSocketClient("localhost", 8000);
         }
@@ -72,46 +75,47 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     }
 
     @Override
-    public <I> Mono<ClientMissionController> instantiate(String missionDefnClassName, I args) {
+    public <I> Mono<ClientMissionController> instantiate(String missionName, I args) {
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-        ServerInstantiationRequest<I> execRequest = new ServerInstantiationRequest<>(missionDefnClassName, args);
-        Mono<ClientMissionController> mono = Mono.<ClientMissionController>create((emitter) -> {
-            try {
-                emitter.success(client.post("/instantiate", ServerInstantiationRequest.class, execRequest,
+        ServerInstantiationRequest<I> execRequest = new ServerInstantiationRequest<>(missionName, args);
+        return client.post("/instantiate", ServerInstantiationRequest.class, execRequest,
                         InstantiationResponse.class)
-                        .thenApply(tryResp -> tryResp.match(
-                                (Throwable e) -> {
-                                    throw new CompletionException(e);
-                                }, InstantiationResponseBean::getMissionExecutionId))
-                        .thenApply(missionExecutionId -> new ClientMissionController() {
-                            @Override
-                            public Flux<MissionEvent> getFlux() {
-                                MissionEventsRequest eventsRequest = new MissionEventsRequest(missionExecutionId);
-                                return clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
-                                        .doOnError((e) -> LOGGER.error("error while receiving events flux", e)).map(
-                                                (tryElement)
-                                                        -> tryElement
-                                                        .match(MissionException::new, Function.identity()));
-                            }
+                        .map(tryResp -> {
+                            return tryResp.match((Throwable e) -> { throw new CompletionException(e); },
+                                    InstantiationResponseBean::getMissionExecutionId);
+                        })
+                        .<ClientMissionController>map(missionExecutionId -> {
+                            return new ClientMissionController() {
+                                @Override
+                                public Flux<MissionEvent> getFlux() {
+                                    MissionEventsRequest eventsRequest = new MissionEventsRequest(missionExecutionId);
+                                    return clientSocket.receiveFlux("/getFlux", MissionEvent.class, eventsRequest)
+                                            .doOnError((e) ->
+                                                    LOGGER.error("error while sending an events request [mission " +
+                                                                    "execution Id: {}, mission name: {}]",
+                                                            missionExecutionId,
+                                                            execRequest.getMissionName(), e))
+                                            .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
+                                }
 
-                            @Override
-                            public Mono<CommandResponse> instruct(MissionCommand command) {
-                                MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
-                                        command);
-                                return clientSocket.
-                                        receiveMono("/instruct", CommandResponse.class, commandRequest)
-                                        .doOnError((e) -> LOGGER.error("error while receiving a command response", e))
-                                        .map((tryElement) ->
-                                                tryElement.match(CommandResponse.CommandResponseFailure::new,
-                                                        Function.identity()));
-                            }
-                        }).get());
-            } catch (InterruptedException | ExecutionException e) {
-                emitter.error(e.getCause());
-            }
-        }).subscribeOn(Schedulers.fromExecutorService(executorService)).doOnTerminate(() -> executorService.shutdown());
-        return mono;
+                                @Override
+                                public Mono<CommandResponse> instruct(MissionCommand command) {
+                                    MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
+                                            command);
+                                    return clientSocket.
+                                            receiveMono("/instruct", CommandResponse.class, commandRequest)
+                                            .doOnError((e) ->
+                                                    LOGGER.error("error while sending a command request [mission " +
+                                                                    "execution Id: {}, mission name: {}, command: {}]",
+                                                            missionExecutionId,
+                                                            execRequest.getMissionName(), command, e))
+                                            .map((tryElement) ->
+                                                    tryElement.match(CommandResponse.CommandResponseFailure::new,
+                                                            Function.identity()));
+                                }
+                            };
+                        }).doOnError((e) ->
+                        LOGGER.error("error while sending an instantiation request [mission name: {}]",
+                        execRequest.getMissionName(), e.getCause()));
     }
 }

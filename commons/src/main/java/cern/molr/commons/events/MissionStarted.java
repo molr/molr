@@ -8,21 +8,21 @@ import cern.molr.commons.response.MissionEvent;
  * @author yassine-kr
  */
 public class MissionStarted implements MissionEvent {
-    private String missionClassName;
+    private String missionName;
     private Object argument;
     private String moleClassName;
 
     public MissionStarted() {
     }
 
-    public MissionStarted(String missionClassName, Object argument, String moleClassName) {
-        this.missionClassName = missionClassName;
+    public MissionStarted(String missionName, Object argument, String moleClassName) {
+        this.missionName = missionName;
         this.argument = argument;
         this.moleClassName = moleClassName;
     }
 
-    public String getMissionClassName() {
-        return missionClassName;
+    public String getMissionName() {
+        return missionName;
     }
 
     public Object getArgument() {

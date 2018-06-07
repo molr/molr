@@ -23,15 +23,8 @@ public class SupervisorState {
         return numMissions;
     }
 
-    public void setNumMissions(int numMissions) {
-        this.numMissions = numMissions;
-    }
-
     public int getMaxMissions() {
         return maxMissions;
     }
 
-    public void setMaxMissions(int maxMissions) {
-        this.maxMissions = maxMissions;
-    }
 }

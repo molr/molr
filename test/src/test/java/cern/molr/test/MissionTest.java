@@ -17,8 +17,8 @@ public class MissionTest implements Function<Integer, Integer> {
     public Integer apply(Integer v) {
         try {
             method1();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException error) {
+            error.printStackTrace();
         }
         return v * 2;
     }

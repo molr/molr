@@ -28,7 +28,7 @@ public class Fibonacci implements Function<Integer, Integer> {
     /**
      * @param v
      *
-     * @return
+     * @return the fibonacci sum of @param v
      */
     private Integer fib(Integer v) {
         if (v <= 1)

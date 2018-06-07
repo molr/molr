@@ -63,8 +63,8 @@ public class ServerRestController {
                 String id = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
                 return new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id));
             }).exceptionally(SupervisorRegisterResponseFailure::new);
-        } catch (Exception e) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(e));
+        } catch (Exception error) {
+            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(error));
         }
     }
 
@@ -76,8 +76,8 @@ public class ServerRestController {
                 service.removeSupervisor(request.getId());
                 return new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully"));
             }).exceptionally(SupervisorUnregisterResponseFailure::new);
-        } catch (Exception e) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(e));
+        } catch (Exception error) {
+            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(error));
         }
     }
 

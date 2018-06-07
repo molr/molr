@@ -37,7 +37,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     public <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId) {
         SupervisorInstantiationRequest<I> request =
                 new SupervisorInstantiationRequest<I>(missionExecutionId,
-                        serverRequest.getMissionDefnClassName(), serverRequest.getArgs());
+                        serverRequest.getMissionName(), serverRequest.getArgs());
         return socketClient.receiveFlux("/instantiate", MissionEvent.class, request)
                 .map((tryElement) -> tryElement.match(MissionException::new, Function.identity()));
     }
@@ -55,12 +55,12 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     public Optional<SupervisorState> getSupervisorState() {
         try {
             return client.post("/getState", SupervisorStateRequest.class, new SupervisorStateRequest(),
-                    SupervisorStateResponse.class).get().match((throwable) -> {
+                    SupervisorStateResponse.class).block().match((throwable) -> {
                 throwable.printStackTrace();
                 return Optional.empty();
             }, Optional::<SupervisorState>ofNullable);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception error) {
+            error.printStackTrace();
             return Optional.empty();
         }
     }

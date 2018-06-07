@@ -41,8 +41,8 @@ public class EventsReader extends RemoteReader {
             MissionEvent event = mapper.readValue(line, MissionEvent.class);
             listener.onEvent(event);
             LOGGER.info("Reading string event from Mole runner: {}", line);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException error) {
+            error.printStackTrace();
         }
     }
 

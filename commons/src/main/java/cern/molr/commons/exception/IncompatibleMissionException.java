@@ -13,7 +13,7 @@ package cern.molr.commons.exception;
  */
 public class IncompatibleMissionException extends Exception {
 
-    private static final long serialVersionUID = -2855858396916356379L;
+    private static final long serialVersionUID = 1L;
 
     public IncompatibleMissionException(String message) {
         super(message);

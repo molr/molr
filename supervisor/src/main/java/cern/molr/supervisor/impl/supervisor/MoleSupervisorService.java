@@ -28,18 +28,18 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
-        supervisorState = new SupervisorState();
-        supervisorState.setNumMissions(0);
-        supervisorState.setMaxMissions(config.getMaxMissions());
+        supervisorState = new SupervisorState(0,config.getMaxMissions());
         sessionsManager.addListener(new SupervisorSessionsManagerListener() {
             @Override
             public void onSessionAdded(String missionId) {
-                supervisorState.setNumMissions(sessionsManager.getSessionsNumber());
+                supervisorState=new SupervisorState(sessionsManager.getSessionsNumber(),supervisorState
+                        .getMaxMissions());
             }
 
             @Override
             public void onSessionRemoved(String missionId) {
-                supervisorState.setNumMissions(sessionsManager.getSessionsNumber());
+                supervisorState=new SupervisorState(sessionsManager.getSessionsNumber(),supervisorState
+                        .getMaxMissions());
             }
         });
     }
@@ -58,7 +58,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
      * @param missionExecutionId
      * @param <I>
      *
-     * @return
+     * @return a stream of events triggered by the mission execution
      */
     @Override
     synchronized public <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
@@ -74,18 +74,20 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
     }
 
     /**
-     * Return whether the supervisor accepts a mission execution
+     * A method which verify whether a mission is accepted by the supervisor or not
      *
-     * @param mission
+     * @param mission the mission to verify
+     * @throws MissionExecutionNotAccepted thrown when the mission is not accepted
      *
-     * @return
      */
     private void accept(Mission mission) throws MissionExecutionNotAccepted {
-        if (!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionDefnClassName()))
+        if (!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionName())) {
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: mission not accepted by the supervisor");
-        if (!supervisorState.isAvailable())
+        }
+        if (!supervisorState.isAvailable()) {
             throw new MissionExecutionNotAccepted(
                     "Cannot accept execution of this mission: the supervisor cannot execute more missions");
+        }
     }
 }

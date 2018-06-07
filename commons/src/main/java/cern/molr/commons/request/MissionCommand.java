@@ -1,7 +1,7 @@
 package cern.molr.commons.request;
 
 /**
- * Generic command send by client to MolR server then forwarded to supervisor
+ * Generic command sent by the client to MolR server then forwarded to the supervisor
  *
  * @author yassine-kr
  */

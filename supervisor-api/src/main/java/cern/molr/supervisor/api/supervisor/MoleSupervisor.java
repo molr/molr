@@ -33,14 +33,14 @@ public interface MoleSupervisor {
      *
      * @param commandRequest
      *
-     * @return
+     * @return a stream of one element containing the command response
      */
     Mono<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
      * A method which should return the supervisor state
      *
-     * @return
+     * @return the supervisor state
      */
     SupervisorState getSupervisorState();
 

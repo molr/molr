@@ -38,7 +38,7 @@ public class JVMSpawnerTest {
     }
 
     @Test
-    public void InstantiateTest() throws Exception {
+    public void instantiateTest() throws Exception {
 
         CountDownLatch signal = new CountDownLatch(1);
 
@@ -54,7 +54,7 @@ public class JVMSpawnerTest {
     }
 
     @Test
-    public void StartFinishTest() throws Exception {
+    public void startFinishTest() throws Exception {
         CountDownLatch signal = new CountDownLatch(4);
 
         MoleController controller = getController(MissionTest.class, 42);
@@ -78,7 +78,7 @@ public class JVMSpawnerTest {
      * @throws Exception
      */
     @Test
-    public void TerminateTest() throws Exception {
+    public void terminateTest() throws Exception {
         CountDownLatch signal = new CountDownLatch(3);
 
         MoleController controller = getController(MissionTest.class, 42);

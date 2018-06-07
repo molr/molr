@@ -16,7 +16,7 @@ import cern.molr.commons.mission.Mission;
  */
 public class UnknownMissionException extends Exception {
 
-    private static final long serialVersionUID = 195586081128114794L;
+    private static final long serialVersionUID = 1L;
 
     public UnknownMissionException(String message) {
         super(message);

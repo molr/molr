@@ -30,9 +30,9 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             Constructor<? extends Mole> constructor = moleClass.getConstructor();
             return constructor.newInstance();
         } catch (NoSuchMethodException | SecurityException | InstantiationException
-                | IllegalAccessException | InvocationTargetException exception) {
+                | IllegalAccessException | InvocationTargetException error) {
             LOGGER.error("Could not instantiate Mole of class [{}]", moleClass);
-            throw exception;
+            throw error;
         }
     }
 
@@ -58,8 +58,8 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             Mission mission = new MissionImpl(moleClassName, classType.getName());
             LOGGER.debug("Mission created [{}]", mission);
             return mission;
-        } catch (Exception exception) {
-            throw new MissionMaterializationException(exception);
+        } catch (Exception error) {
+            throw new MissionMaterializationException(error);
         }
     }
 }

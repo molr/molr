@@ -14,26 +14,26 @@ package cern.molr.commons.request.server;
 public class SupervisorInstantiationRequest<I> {
 
     private String missionExecutionId;
-    private String missionContentClassName;
+    private String missionName;
     private I args;
 
     public SupervisorInstantiationRequest() {
     }
 
     public SupervisorInstantiationRequest(String missionExecutionId,
-                                          String missionContentClassName, I args) {
+                                          String missionName, I args) {
         this.setMissionExecutionId(missionExecutionId);
-        this.setMissionContentClassName(missionContentClassName);
+        this.setMissionName(missionName);
         this.setArgs(args);
     }
 
 
-    public String getMissionContentClassName() {
-        return missionContentClassName;
+    public String getMissionName() {
+        return missionName;
     }
 
-    public void setMissionContentClassName(String missionContentClassName) {
-        this.missionContentClassName = missionContentClassName;
+    public void setMissionName(String missionName) {
+        this.missionName = missionName;
     }
 
     public I getArgs() {

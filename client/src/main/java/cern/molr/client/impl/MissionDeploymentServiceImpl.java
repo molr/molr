@@ -15,7 +15,7 @@ import cern.molr.client.api.MissionDeploymentService;
 public class MissionDeploymentServiceImpl implements MissionDeploymentService {
 
     @Override
-    public void deploy(String missionClassName) {
+    public void deploy(String missionName) {
         //TODO to implement
         throw new RuntimeException("FIX ME: deploy(mission) not implemented!");
     }

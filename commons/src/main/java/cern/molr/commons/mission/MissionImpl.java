@@ -23,14 +23,14 @@ public class MissionImpl implements Mission {
     /**
      * Class used by the exposed {@link Mission}
      */
-    private String missionContentClassName;
+    private String missionName;
 
     public MissionImpl() {
     }
 
-    public MissionImpl(String moleClassName, String missionContentClassName) {
+    public MissionImpl(String moleClassName, String missionName) {
         this.moleClassName = moleClassName;
-        this.missionContentClassName = missionContentClassName;
+        this.missionName = missionName;
     }
 
     @Override
@@ -43,35 +43,35 @@ public class MissionImpl implements Mission {
     }
 
     @Override
-    public String getMissionDefnClassName() {
-        return missionContentClassName;
+    public String getMissionName() {
+        return missionName;
     }
 
-    public void setMissionDefnClassName(String missionContentClassName) {
-        this.missionContentClassName = missionContentClassName;
+    public void setMissionName(String missionName) {
+        this.missionName = missionName;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MissionImpl service = (MissionImpl) o;
-        if (moleClassName != null ? !moleClassName.equals(service.moleClassName) : service.moleClassName != null)
+        MissionImpl mission = (MissionImpl) o;
+        if (moleClassName != null ? !moleClassName.equals(mission.moleClassName) : mission.moleClassName != null)
             return false;
-        return !(missionContentClassName != null ? !missionContentClassName.equals(service.missionContentClassName) :
-                service.missionContentClassName != null);
+        return !(missionName != null ? !missionName.equals(mission.missionName) :
+                mission.missionName != null);
 
     }
 
     @Override
     public int hashCode() {
         int result = moleClassName != null ? moleClassName.hashCode() : 0;
-        result = 31 * result + (missionContentClassName != null ? missionContentClassName.hashCode() : 0);
+        result = 31 * result + (missionName != null ? missionName.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return getMoleClassName() + ": " + getMissionDefnClassName();
+        return getMoleClassName() + ": " + getMissionName();
     }
 }

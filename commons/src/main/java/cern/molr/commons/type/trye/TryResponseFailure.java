@@ -35,7 +35,7 @@ public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T> 
 
     @Override
     public void setResult(T result) {
-        return;
+        
     }
 
 }

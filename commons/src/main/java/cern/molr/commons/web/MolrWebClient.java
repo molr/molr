@@ -12,12 +12,9 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import reactor.core.publisher.TopicProcessor;
 
 /**
  * @author ?
@@ -43,21 +40,16 @@ public class MolrWebClient {
         this.client = WebClient.builder().baseUrl("http://" + host + ":" + port).exchangeStrategies(strategies).build();
     }
 
-    public <I, O> CompletableFuture<O> post(String uri, Class<I> requestClass, I request, Class<O> responseClass) {
+    public <I, O> Mono<O> post(String uri, Class<I> requestClass, I request, Class<O> responseClass) {
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        FluxProcessor<O, O> processor=TopicProcessor.create();
+        client.post().uri(uri)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromPublisher(Mono.just(request), requestClass)).exchange()
+                    .flatMapMany(value -> value.bodyToMono(responseClass)).doOnNext(processor::onNext).doOnComplete
+                (processor::onComplete).doOnError(processor::onError).subscribe();
 
-        CompletableFuture<O> future = CompletableFuture.supplyAsync(
-                () -> client.post().uri(uri)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromPublisher(Mono.just(request), requestClass)).exchange()
-                        .flatMapMany(value -> value.bodyToMono(responseClass))
-                        .doOnError(e -> {
-                            throw new CompletionException(e);
-                        })
-                        .blockFirst(), executorService);
-        executorService.shutdown();
-        return future;
+        return processor.next();
     }
 
 }

@@ -41,8 +41,8 @@ public class SimpleAddressGetter implements AddressGetter, ApplicationListener<W
 
                 }
             }
-        } catch (Exception e) {
-            LOGGER.error("exception when getting host network interfaces", e);
+        } catch (Exception error) {
+            LOGGER.error("exception when getting host network interfaces", error);
         }
     }
 

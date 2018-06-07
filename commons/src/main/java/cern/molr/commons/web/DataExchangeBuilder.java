@@ -106,7 +106,6 @@ public class DataExchangeBuilder<Input, Output> {
                                                                            Function<Throwable, String>
                                                                                    function2) {
         this.receivingExceptionHandler = new Pair<>(function1, function2);
-        ;
         return this;
     }
 
@@ -119,8 +118,8 @@ public class DataExchangeBuilder<Input, Output> {
         return preInput.take(1).<Optional<Input>>map((data) -> {
             try {
                 return Optional.ofNullable(mapper.readValue(data, inputType));
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException error) {
+                error.printStackTrace();
                 return Optional.empty();
             }
         }).concatMap((optionalInput) -> {
@@ -129,26 +128,26 @@ public class DataExchangeBuilder<Input, Output> {
                     return generator.apply(optionalInput.get()).map((output -> {
                         try {
                             return mapper.writeValueAsString(output);
-                        } catch (JsonProcessingException e) {
+                        } catch (JsonProcessingException error) {
                             try {
-                                return mapper.writeValueAsString(generatingExceptionHandler.getKey().apply(e));
-                            } catch (JsonProcessingException e1) {
-                                return generatingExceptionHandler.getValue().apply(e);
+                                return mapper.writeValueAsString(generatingExceptionHandler.getKey().apply(error));
+                            } catch (JsonProcessingException error1) {
+                                return generatingExceptionHandler.getValue().apply(error);
                             }
                         }
                     }));
-                } catch (Exception e) {
+                } catch (Exception error) {
                     try {
-                        return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.getKey().apply(e)));
-                    } catch (JsonProcessingException e1) {
-                        return Mono.just(generatorExceptionHandler.getValue().apply(e));
+                        return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.getKey().apply(error)));
+                    } catch (JsonProcessingException error1) {
+                        return Mono.just(generatorExceptionHandler.getValue().apply(error));
                     }
                 }
             } else {
                 try {
                     return Mono.just(mapper.writeValueAsString(receivingExceptionHandler.getKey().apply(new
                             Exception("unable to deserialize the input data"))));
-                } catch (JsonProcessingException e1) {
+                } catch (JsonProcessingException error1) {
                     return Mono.just(receivingExceptionHandler.getValue().apply(new
                             Exception("unable to deserialize the input data")));
                 }

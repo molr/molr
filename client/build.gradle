@@ -1,15 +1,10 @@
-configurations.all {
-    /*This dependency is automatically required by slf4j, it should be excluded to avoid infinite loop between slf4j
-    and log4j
-     */
-    exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
-}
-
-
 dependencies {
     compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: reactiveNettyVersion
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
+
+    compile project(":client-api")
+    compile project(":sample")
 }

@@ -19,7 +19,7 @@ public interface ManuallySerializable {
      *
      * @param object
      *
-     * @return
+     * @return A string containing the JSON serialization of the object, using an array for writing the class name
      */
     static String serializeArray(ManuallySerializable object) {
         StringBuilder json = new StringBuilder("[\"").append(object.getClass().getName()).append("\",{");
@@ -32,7 +32,7 @@ public interface ManuallySerializable {
     /**
      * Method which returns the map representing the json object.
      *
-     * @return
+     * @return a map containing the object properties to serialize in a JSON format
      */
     @JsonIgnore
     Map<String, String> getJsonMap();

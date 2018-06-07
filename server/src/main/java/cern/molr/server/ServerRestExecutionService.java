@@ -55,8 +55,8 @@ public class ServerRestExecutionService {
     public <I, O> String instantiate(ServerInstantiationRequest<I> request)
             throws MissionExecutionNotAccepted, NoAppropriateSupervisorFound {
         String missionEId = makeEId();
-        missionExists(request.getMissionDefnClassName());
-        Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionDefnClassName());
+        missionExists(request.getMissionName());
+        Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
             Flux<MissionEvent> executionEventFlux = supervisor.instantiate(request, missionEId);
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
@@ -66,8 +66,8 @@ public class ServerRestExecutionService {
 
     }
 
-    private void missionExists(String missionClassName) throws MissionExecutionNotAccepted {
-        if (!registry.missionExists(missionClassName))
+    private void missionExists(String missionName) throws MissionExecutionNotAccepted {
+        if (!registry.missionExists(missionName))
             throw new MissionExecutionNotAccepted("Mission not defined in MolR registry");
     }
 
@@ -106,8 +106,8 @@ public class ServerRestExecutionService {
         private ConcurrentMap<String, Flux<MissionEvent>> missionExecutionRegistry = new ConcurrentHashMap<>();
         private ConcurrentMap<String, RemoteMoleSupervisor> moleSupervisorRegistry = new ConcurrentHashMap<>();
 
-        public void registerNewMission(String missionClassName) {
-            missionRegistry.add(missionClassName);
+        public void registerNewMission(String missionName) {
+            missionRegistry.add(missionName);
         }
 
         public void registerNewMissionExecution(String missionId,
@@ -116,8 +116,8 @@ public class ServerRestExecutionService {
             missionExecutionRegistry.put(missionId, flux);
         }
 
-        public boolean missionExists(String missionClassName) {
-            return missionRegistry.contains(missionClassName);
+        public boolean missionExists(String missionName) {
+            return missionRegistry.contains(missionName);
         }
 
         public Optional<Flux<MissionEvent>> getMissionExecutionFlux(String missionEId) {

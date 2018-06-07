@@ -13,6 +13,6 @@ package cern.molr.client.api;
  */
 public interface MissionDeploymentService {
 
-    void deploy(String missionClassName);
+    void deploy(String missionName);
 
 }

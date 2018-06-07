@@ -129,8 +129,9 @@ public class SupervisorTest {
                     events.add(event);
                     endSignal.countDown();
 
-                    if (event instanceof SessionInstantiated)
+                    if (event instanceof SessionInstantiated) {
                         instantiateSignal.countDown();
+                    }
                 }));
 
         instantiateSignal.await();

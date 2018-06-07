@@ -13,23 +13,23 @@ package cern.molr.commons.request.client;
  */
 public class ServerInstantiationRequest<I> {
 
-    private String missionDefnClassName;
+    private String missionName;
     private I args;
 
     public ServerInstantiationRequest() {
     }
 
-    public ServerInstantiationRequest(String missionDefnClassName, I args) {
-        this.missionDefnClassName = missionDefnClassName;
+    public ServerInstantiationRequest(String missionName, I args) {
+        this.missionName = missionName;
         this.args = args;
     }
 
-    public String getMissionDefnClassName() {
-        return missionDefnClassName;
+    public String getMissionName() {
+        return missionName;
     }
 
-    public void setMissionDefnClassName(String missionDefnClassName) {
-        this.missionDefnClassName = missionDefnClassName;
+    public void setMissionName(String missionName) {
+        this.missionName = missionName;
     }
 
     public I getArgs() {

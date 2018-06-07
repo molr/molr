@@ -10,11 +10,12 @@ package cern.molr.commons.response;
  * @author nachivpn
  * @author yassine-kr
  */
-public class Ack {
+public final class Ack {
 
-    private String message = "ACK";
+    private final String message;
 
     public Ack() {
+        this.message = "ACK";
     }
 
     public Ack(String message) {
@@ -24,10 +25,5 @@ public class Ack {
     public String getMessage() {
         return message;
     }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
 
 }

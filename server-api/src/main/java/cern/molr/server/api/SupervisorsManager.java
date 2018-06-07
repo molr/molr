@@ -16,5 +16,5 @@ public interface SupervisorsManager {
 
     void removeSupervisor(RemoteMoleSupervisor supervisor);
 
-    Optional<RemoteMoleSupervisor> chooseSupervisor(String missionContentClassName);
+    Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName);
 }

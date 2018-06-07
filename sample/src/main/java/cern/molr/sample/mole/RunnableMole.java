@@ -31,8 +31,8 @@ public class RunnableMole implements Mole<Void, Void> {
         if (Runnable.class.isAssignableFrom(classType)) {
             try {
                 classType.getMethod("run");
-            } catch (NoSuchMethodException e) {
-                throw new IncompatibleMissionException(e);
+            } catch (NoSuchMethodException error) {
+                throw new IncompatibleMissionException(error);
             }
         } else
             throw new IncompatibleMissionException("Mission must implement Runnable interface");
@@ -41,15 +41,15 @@ public class RunnableMole implements Mole<Void, Void> {
     @Override
     public Void run(Mission mission, Void args) throws MissionExecutionException {
         try {
-            Class<?> missionContentClass = Class.forName(mission.getMissionDefnClassName());
-            Object missionContentInstance = missionContentClass.getConstructor().newInstance();
-            if (!(missionContentInstance instanceof Runnable)) {
+            Class<?> missionClass = Class.forName(mission.getMissionName());
+            Object missionInstance = missionClass.getConstructor().newInstance();
+            if (!(missionInstance instanceof Runnable)) {
                 throw new IllegalArgumentException(String
                         .format("Mission content class must implement the %s interface", Runnable.class.getName()));
             }
-            ((Runnable) missionContentInstance).run();
-        } catch (Exception e) {
-            throw new MissionExecutionException(e);
+            ((Runnable) missionInstance).run();
+        } catch (Exception error) {
+            throw new MissionExecutionException(error);
         }
         return null;
     }

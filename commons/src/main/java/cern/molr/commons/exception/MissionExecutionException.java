@@ -13,7 +13,7 @@ package cern.molr.commons.exception;
  */
 public class MissionExecutionException extends Exception {
 
-    private static final long serialVersionUID = 1070834721120089682L;
+    private static final long serialVersionUID = 1L;
 
     public MissionExecutionException(String message) {
         super(message);

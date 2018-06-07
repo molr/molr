@@ -74,15 +74,16 @@ public class TypesTest {
                 System.out.println("event: " + event);
                 endSignal.countDown();
 
-                if (event instanceof SessionInstantiated)
+                if (event instanceof SessionInstantiated) {
                     instantiateSignal.countDown();
-                else if (event instanceof MissionStarted)
+                } else if (event instanceof MissionStarted) {
                     startSignal.countDown();
+                }
             });
             try {
                 instantiateSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Start()).subscribe((response) -> {
@@ -97,8 +98,8 @@ public class TypesTest {
             });
             try {
                 startSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Terminate()).subscribe((response) -> {
@@ -123,7 +124,7 @@ public class TypesTest {
     }
 
     @Test
-    public void IncompatibleMissionTest() throws Exception {
+    public void incompatibleMissionTest() throws Exception {
 
         CountDownLatch endSignal = new CountDownLatch(1);
         List<MissionEvent> events = new ArrayList<>();
@@ -154,7 +155,7 @@ public class TypesTest {
 
 
     @Test
-    public void ExecutionExceptionTest() throws Exception {
+    public void executionExceptionTest() throws Exception {
 
         List<MissionEvent> events = new ArrayList<>();
 
@@ -176,8 +177,8 @@ public class TypesTest {
             });
             try {
                 instantiateSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Start()).subscribe((response) -> {
@@ -187,8 +188,8 @@ public class TypesTest {
 
             try {
                 startSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Terminate()).subscribe((response) -> {
@@ -208,7 +209,7 @@ public class TypesTest {
     }
 
     @Test
-    public void NotAcceptedMissionTest() throws Exception {
+    public void notAcceptedMissionTest() throws Exception {
 
         CountDownLatch endSignal = new CountDownLatch(1);
 

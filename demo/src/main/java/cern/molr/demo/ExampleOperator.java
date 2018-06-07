@@ -1,4 +1,4 @@
-package cern.molr.client;
+package cern.molr.demo;
 
 
 import cern.molr.client.api.ClientMissionController;
@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -21,11 +22,12 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author yassine
  */
-public class SampleOperator {
+public class ExampleOperator {
 
     private MissionExecutionService service;
 
-    public SampleOperator(MissionExecutionService service) {
+    public ExampleOperator(MissionExecutionService service) {
+        Objects.requireNonNull(service);
         this.service = service;
     }
 
@@ -50,19 +52,22 @@ public class SampleOperator {
 
         Mono<ClientMissionController> futureController = service.instantiate(missionClass.getCanonicalName(), 100);
         futureController.doOnError(Throwable::printStackTrace).subscribe((controller) -> {
+
+            System.out.println(Thread.currentThread().getName());
             controller.getFlux().subscribe((event) -> {
                 System.out.println(execName + " event: " + event);
                 events.add(event);
                 endSignal.countDown();
-                if (event instanceof SessionInstantiated)
+                if (event instanceof SessionInstantiated) {
                     instantiateSignal.countDown();
-                else if (event instanceof MissionStarted)
+                } else if (event instanceof MissionStarted) {
                     startSignal.countDown();
+                }
             });
             try {
                 instantiateSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 System.exit(-1);
             }
             controller.instruct(new Start()).subscribe((response) -> {
@@ -73,8 +78,8 @@ public class SampleOperator {
 
             try {
                 startSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 System.exit(-1);
             }
             controller.instruct(new Terminate()).subscribe((response) -> {
@@ -87,8 +92,8 @@ public class SampleOperator {
             try {
                 endSignal.await();
                 finishSignal.countDown();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 System.exit(-1);
             }
 
@@ -104,8 +109,12 @@ public class SampleOperator {
         List<MissionEvent> events2 = new ArrayList<>();
         List<CommandResponse> commandResponses2 = new ArrayList<>();
 
+        List<MissionEvent> events3 = new ArrayList<>();
+        List<CommandResponse> commandResponses3 = new ArrayList<>();
+
         launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal);
         launchMission("exec2", Fibonacci.class, events2, commandResponses2, finishSignal);
+
         finishSignal.await();
 
     }

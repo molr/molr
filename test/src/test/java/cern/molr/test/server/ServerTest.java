@@ -45,7 +45,6 @@ public class ServerTest {
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
                 new String[]{"--server.port=8056", "--molr.host=localhost", "--molr.port=8000"});
-        ;
     }
 
     @After
@@ -67,7 +66,7 @@ public class ServerTest {
                 Fibonacci.class.getCanonicalName(), 23);
 
         InstantiationResponse response = client.post("/instantiate", ServerInstantiationRequest.class, request,
-                InstantiationResponse.class).get();
+                InstantiationResponse.class).block();
 
         Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
 

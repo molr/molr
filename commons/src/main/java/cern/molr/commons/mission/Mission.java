@@ -10,11 +10,12 @@ import java.io.Serializable;
  * A {@link Mission} is the smallest executable entity recognized by MolR
  *
  * @author nachivpn
+ * @author yassine-kr
  */
 public interface Mission extends Serializable {
 
     String getMoleClassName();
 
-    String getMissionDefnClassName();
+    String getMissionName();
 
 }

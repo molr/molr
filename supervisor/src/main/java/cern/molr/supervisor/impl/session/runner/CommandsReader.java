@@ -40,8 +40,8 @@ public class CommandsReader extends RemoteReader {
             final String line = reader.readLine();
             MissionCommand command = mapper.readValue(line, MissionCommand.class);
             listener.onCommand(command);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException error) {
+            error.printStackTrace();
         }
     }
 

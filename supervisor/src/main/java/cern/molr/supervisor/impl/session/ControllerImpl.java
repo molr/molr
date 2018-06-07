@@ -55,9 +55,9 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
                     Thread.sleep(10000);
                     logLine(errorReader);
                 }
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-            } catch (InterruptedException e) {
+            } catch (IOException error) {
+                error.printStackTrace(System.err);
+            } catch (InterruptedException error) {
 
             }
         });
@@ -89,7 +89,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
      *
      * @param command
      *
-     * @return
+     * @return the command response; whether the command was accepted by the Mole Runner
      */
     @Override
     synchronized public CommandResponse sendCommand(MissionCommand command) {
@@ -110,10 +110,10 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
                 commandStatus = null;
                 return response;
             }
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException error) {
             commandStatus = null;
-            e.printStackTrace();
-            return new CommandResponse.CommandResponseFailure(e);
+            error.printStackTrace();
+            return new CommandResponse.CommandResponseFailure(error);
         }
     }
 
@@ -122,8 +122,9 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
     public void onEvent(MissionEvent event) {
         if (event instanceof CommandStatus) {
             commandStatus = (CommandStatus) event;
-        } else
+        } else {
             listeners.forEach((l) -> l.onEvent(event));
+        }
     }
 
     @Override

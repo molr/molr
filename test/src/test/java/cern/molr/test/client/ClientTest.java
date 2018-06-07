@@ -76,15 +76,16 @@ public class ClientTest {
                 System.out.println(execName + " event: " + event);
                 events.add(event);
                 endSignal.countDown();
-                if (event instanceof SessionInstantiated)
+                if (event instanceof SessionInstantiated) {
                     instantiateSignal.countDown();
-                else if (event instanceof MissionStarted)
+                } else if (event instanceof MissionStarted) {
                     startSignal.countDown();
+                }
             });
             try {
                 instantiateSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Start()).subscribe((response) -> {
@@ -95,8 +96,8 @@ public class ClientTest {
 
             try {
                 startSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Terminate()).subscribe((response) -> {
@@ -109,8 +110,8 @@ public class ClientTest {
             try {
                 endSignal.await();
                 finishSignal.countDown();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
 
@@ -178,15 +179,16 @@ public class ClientTest {
                 events2.add(event);
                 endSignal2.countDown();
 
-                if (event instanceof SessionInstantiated)
+                if (event instanceof SessionInstantiated) {
                     instantiateSignal2.countDown();
-                else if (event instanceof MissionStarted)
+                } else if (event instanceof MissionStarted) {
                     startSignal2.countDown();
+                }
             });
             try {
                 instantiateSignal2.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Start()).subscribe((response) -> {
@@ -201,8 +203,8 @@ public class ClientTest {
             });
             try {
                 startSignal2.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
                 Assert.fail();
             }
             controller.instruct(new Terminate()).subscribe((response) -> {

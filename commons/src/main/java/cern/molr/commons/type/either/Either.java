@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 /**
  * A simple data type for constructing a disjoint union (or sum type) of two types.
- * Offers pattern matching on Either values & some powerful combinators to combine Either values
+ * Offers pattern matching on Either values and some powerful combinators to combine Either values
  * <p>
  * An implementation of this interface contains either an {@link L} value or an {@link R} value
  *
@@ -28,7 +28,7 @@ public interface Either<L, R> {
      * @param rightMapper
      * @param <T>
      *
-     * @return
+     * @return the result returned by one the function
      */
     <T> T match(Function<L, T> leftMapper, Function<R, T> rightMapper);
 
@@ -47,7 +47,8 @@ public interface Either<L, R> {
      * @param mapper
      * @param <S>
      *
-     * @return
+     * @return an either value; the same as this if the type is {@param <L>}, otherwise the returned result by the
+     *  `     {@param mapper} function
      */
     <S> Either<L, S> rightMap(Function<R, S> mapper);
 

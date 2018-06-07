@@ -1,5 +1,4 @@
 allprojects {
-    apply plugin: "idea"
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'jacoco'
@@ -33,64 +32,6 @@ allprojects {
         }
     }
 }
-
-project(":commons") {
-}
-
-project(":sample") {
-    dependencies {
-        compile project(":commons")
-    }
-}
-
-project(":client-api") {
-    dependencies {
-        compile project(":commons")
-    }
-}
-
-project(":server-api") {
-    dependencies {
-        compile project(":commons")
-    }
-}
-
-project(":supervisor-api") {
-    dependencies {
-        compile project(":commons")
-    }
-}
-
-project(":client") {
-    dependencies {
-        compile project(":client-api")
-        compile project(":sample")
-    }
-}
-
-project(":server") {
-    dependencies {
-        compile project(":server-api")
-        compile project(":sample")
-    }
-}
-
-project(":supervisor") {
-    dependencies {
-        compile project(":supervisor-api")
-        compile project(":sample")
-    }
-}
-
-project(":test") {
-    dependencies {
-        testCompile project(":client")
-        testCompile project(":server")
-        testCompile project(":supervisor")
-    }
-}
-
-
 
 
 

@@ -56,9 +56,9 @@ public class RemoteSupervisorMain {
                     Arrays.asList(config.getAcceptedMissions()));
             try {
                 supervisorId = client.post("/register", SupervisorRegisterRequest.class, request,
-                        SupervisorRegisterResponse.class).get().getResult().getSupervisorId();
-            } catch (Exception e) {
-                e.printStackTrace();
+                        SupervisorRegisterResponse.class).block().getResult().getSupervisorId();
+            } catch (Exception error) {
+                error.printStackTrace();
             }
         });
     }
@@ -81,9 +81,9 @@ public class RemoteSupervisorMain {
         SupervisorUnregisterRequest request = new SupervisorUnregisterRequest(supervisorId);
         try {
             client.post("/unregister", SupervisorUnregisterRequest.class, request, SupervisorUnregisterResponse.class)
-                    .get();
-        } catch (Exception e) {
-            e.printStackTrace();
+                    .block();
+        } catch (Exception error) {
+            error.printStackTrace();
         }
         executorService.shutdown();
     }
@@ -104,7 +104,7 @@ public class RemoteSupervisorMain {
             SupervisorConfig config = new SupervisorConfig();
             try {
                 config.setMaxMissions(env.getProperty("maxMissions", Integer.class, 1));
-            } catch (Exception e) {
+            } catch (Exception error) {
                 config.setMaxMissions(1);
             }
             //noinspection ConstantConditions

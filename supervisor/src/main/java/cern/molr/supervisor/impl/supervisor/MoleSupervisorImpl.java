@@ -46,8 +46,8 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                     sessionsManager.removeSession(session);
                     try {
                         session.getController().close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException error) {
+                        error.printStackTrace();
                     }
                 }
             });
@@ -59,9 +59,9 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                         emitter.complete();
                 });
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Flux.just(new MissionException(e));
+        } catch (Exception error) {
+            error.printStackTrace();
+            return Flux.just(new MissionException(error));
         }
     }
 

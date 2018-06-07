@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 
 /**
- * A service used by client to control a remote mission execution on a supervisor
+ * A service used by the client to control a remote mission execution on a supervisor
  *
  * @author yassine-kr
  */
@@ -17,12 +17,12 @@ public interface MissionExecutionService {
     /**
      * A method which sends a mission instantiation request to the MolR server
      *
-     * @param missionClassName the class name of the mission to be instantiated
+     * @param missionName the class name of the mission to be instantiated
      * @param args             the mission arguments, can be null if the mission does not need any argument
      * @param <I>              the argument type
      *
      * @return A future mission controller
      */
-    <I> Mono<ClientMissionController> instantiate(String missionClassName, I args);
+    <I> Mono<ClientMissionController> instantiate(String missionName, I args);
 
 }

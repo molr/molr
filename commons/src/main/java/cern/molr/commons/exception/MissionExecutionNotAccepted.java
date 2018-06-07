@@ -2,13 +2,13 @@ package cern.molr.commons.exception;
 
 /**
  * Thrown when the MolR server or a supervisor does not accept to execute a mission; for example because of the mission
- * type or the fact that the max number of running missions is achieved
+ * type or the fact that the max number of running missions was reached
  *
  * @author yassine-kr
  */
 public class MissionExecutionNotAccepted extends Exception {
 
-    private static final long serialVersionUID = 195586081128114794L;
+    private static final long serialVersionUID = 1L;
 
     public MissionExecutionNotAccepted(String message) {
         super(message);

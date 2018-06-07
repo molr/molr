@@ -5,8 +5,6 @@ import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;

@@ -17,7 +17,7 @@ import cern.molr.commons.mission.MissionMaterializer;
  */
 public class MissionMaterializationException extends Exception {
 
-    private static final long serialVersionUID = -2067922831917828440L;
+    private static final long serialVersionUID = 1L;
 
     public MissionMaterializationException(String message) {
         super(message);

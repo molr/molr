@@ -14,9 +14,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.TopicProcessor;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Client which is able to create WebSockets connections to a server using Spring WebFlux
@@ -57,20 +60,19 @@ public class MolrWebSocketClient {
          */
         FluxProcessor<Try<T>, Try<T>> processor = TopicProcessor.create();
 
-
         client.execute(URI.create("ws://" + host + ":" + port + path), session -> {
             try {
                 return session.send(Mono.just(session.textMessage(mapper.writeValueAsString(request))))
                         .thenMany(session.receive().map((message) -> {
                             try {
                                 return new Success<T>(mapper.readValue(message.getPayloadAsText(), responseType));
-                            } catch (IOException e) {
-                                LOGGER.error("error while deserializing a data", e);
-                                return new Failure<T>(e);
+                            } catch (IOException error) {
+                                LOGGER.error("error while deserializing a data", error);
+                                return new Failure<T>(error);
                             }
                         })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();
-            } catch (JsonProcessingException e) {
-                return Mono.error(e);
+            } catch (JsonProcessingException error) {
+                return Mono.error(error);
             }
         }).doOnError(processor::onError).subscribe();
 
@@ -80,13 +82,13 @@ public class MolrWebSocketClient {
     /**
      * Method which sends a request to sever ans receive a single data from it
      *
-     * @param path
-     * @param responseType
-     * @param request
-     * @param <I>
-     * @param <T>
+     * @param path the url path
+     * @param responseType the response class
+     * @param request the request to send
+     * @param <I> the request type
+     * @param <T> the response type
      *
-     * @return
+     * @return a stream of one element containing the a try element of the response type
      */
     public <I, T> Mono<Try<T>> receiveMono(String path, Class<T> responseType, I request) {
         return receiveFlux(path, responseType, request).next();

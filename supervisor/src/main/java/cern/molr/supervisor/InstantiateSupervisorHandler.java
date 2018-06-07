@@ -9,20 +9,11 @@ import cern.molr.commons.response.ManuallySerializable;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import javafx.util.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instantiating the MoleRunner. It returns a flux as
@@ -47,7 +38,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator((request) -> {
                     MissionMaterializer materializer = new AnnotatedMissionMaterializer();
-                    Mission mission = materializer.materialize(Class.forName(request.getMissionContentClassName()));
+                    Mission mission = materializer.materialize(Class.forName(request.getMissionName()));
                     return supervisor.instantiate(mission, request.getArgs(), request.getMissionExecutionId());
                 })
                 .setGeneratorExceptionHandler(MissionException::new
