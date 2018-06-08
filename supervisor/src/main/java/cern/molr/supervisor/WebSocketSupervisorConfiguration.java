@@ -29,8 +29,8 @@ public class WebSocketSupervisorConfiguration {
     @Bean
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put(MolrConfig.INSTANTIATE_PATH, new InstantiateSupervisorHandler(supervisor));
-        map.put(MolrConfig.INSTRUCT_PATH, new InstructSupervisorHandler(supervisor));
+        map.put(MolrConfig.INSTANTIATE_PATH, new InstantiateHandler(supervisor));
+        map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(supervisor));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setOrder(1);

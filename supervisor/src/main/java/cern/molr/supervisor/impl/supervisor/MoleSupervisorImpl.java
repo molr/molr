@@ -13,6 +13,8 @@ import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
 import cern.molr.supervisor.impl.spawner.JVMSpawner;
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -48,7 +50,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                     try {
                         session.getController().close();
                     } catch (IOException error) {
-                        error.printStackTrace();
+                        LOGGER.error("error while trying to close a session",error);
                     }
                 }
             });
@@ -61,7 +63,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                 });
             });
         } catch (Exception error) {
-            error.printStackTrace();
+            LOGGER.error("error while trying to spawn the mission on the MoleRunner",error);
             return Flux.just(new MissionException(error));
         }
     }

@@ -8,9 +8,9 @@ import cern.molr.client.api.ClientMissionController;
 import cern.molr.client.api.MissionExecutionService;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.InstantiationResponseBean;
 import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.web.MolrWebClient;
+import cern.molr.commons.web.MolrWebClientImpl;
+import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.commons.web.MolrWebSocketClientImpl;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.CompletionException;
 
 /**
  * Implementation used by the operator to interact with the server
@@ -32,8 +31,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MissionExecutionServiceImpl.class);
 
-    private MolrWebClient client;
-    private MolrWebSocketClientImpl clientSocket;
+    private MolrWebClientImpl client;
+    private MolrWebSocketClient clientSocket;
 
     public MissionExecutionServiceImpl() {
         try (InputStream input = MissionExecutionServiceImpl.class.getClassLoader()
@@ -48,18 +47,18 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
             int port = Integer.parseInt(properties.getProperty("port"));
 
-            client = new MolrWebClient(host, port);
+            client = new MolrWebClientImpl(host, port);
             clientSocket = new MolrWebSocketClientImpl(host, port);
 
         } catch (Exception error) {
             LOGGER.error("error while trying to get client properties", error);
-            client = new MolrWebClient("http://localhost", 8000);
+            client = new MolrWebClientImpl("http://localhost", 8000);
             clientSocket = new MolrWebSocketClientImpl("http://localhost", 8000);
         }
     }
 
     public MissionExecutionServiceImpl(String host, int port) {
-        client = new MolrWebClient(host, port);
+        client = new MolrWebClientImpl(host, port);
         clientSocket = new MolrWebSocketClientImpl(host, port);
     }
 
@@ -67,10 +66,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     public <I> Publisher<ClientMissionController> instantiate(String missionName, I args) {
 
 
-        return client.instantiate(missionName, args)
-                        .map(tryResp -> tryResp.match((Throwable e) -> { throw new CompletionException(e); },
-                                InstantiationResponseBean::getMissionExecutionId))
-                        .<ClientMissionController>map(missionExecutionId -> new ClientMissionController() {
+        return client.instantiate(missionName, args, missionExecutionId -> new ClientMissionController() {
                             @Override
                             public Publisher<MissionEvent> getEventsStream() {
                                 return clientSocket.getEventsStream(missionName,missionExecutionId);
@@ -79,8 +75,6 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             public Publisher<CommandResponse> instruct(MissionCommand command) {
                                 return clientSocket.instruct(missionName,missionExecutionId,command);
                             }
-                        }).doOnError((e) ->
-                        LOGGER.error("error while sending an instantiation request [mission name: {}]",
-                        missionName, e.getCause()));
+                        });
     }
 }

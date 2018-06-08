@@ -14,6 +14,7 @@ import cern.molr.commons.request.server.InstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.MolrConfig;
+import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.commons.web.MolrWebSocketClientImpl;
 import cern.molr.commons.web.SimpleSubscriber;
 import cern.molr.sample.mission.Fibonacci;
@@ -166,7 +167,7 @@ public class SupervisorTest {
                 new InstantiationRequest<>("1", Fibonacci.class.getName(), 42);
         MolrWebSocketClientImpl client = new MolrWebSocketClientImpl("http://localhost", 8080);
 
-        client.receiveFlux(MolrConfig.INSTRUCT_PATH, MissionEvent.class, request)
+        client.receiveFlux(MolrConfig.INSTANTIATE_PATH, MissionEvent.class, request)
                 .doOnError(Throwable::printStackTrace)
                 .subscribe((event) -> {
                     System.out.println("event: " + event);

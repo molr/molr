@@ -11,7 +11,7 @@ import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.InstantiationResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.MolrConfig;
-import cern.molr.commons.web.MolrWebClient;
+import cern.molr.commons.web.MolrWebClientImpl;
 import cern.molr.commons.web.MolrWebSocketClientImpl;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
@@ -36,7 +36,7 @@ public class ServerTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private MolrWebClient client = new MolrWebClient("http://localhost", 8000);
+    private MolrWebClientImpl client = new MolrWebClientImpl("http://localhost", 8000);
     private MolrWebSocketClientImpl clientSocket = new MolrWebSocketClientImpl("http://localhost", 8000);
 
     @Before

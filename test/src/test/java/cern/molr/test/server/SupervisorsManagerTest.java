@@ -1,6 +1,5 @@
 package cern.molr.test.server;
 
-import cern.molr.client.impl.MissionExecutionServiceImpl;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
@@ -9,20 +8,10 @@ import cern.molr.commons.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.impl.SupervisorsManagerImpl;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Assert;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Optional;
 

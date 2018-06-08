@@ -21,11 +21,11 @@ import reactor.core.publisher.Mono;
  * @author yassine-kr
  */
 @Component
-public class InstantiateSupervisorHandler implements WebSocketHandler {
+public class InstantiateHandler implements WebSocketHandler {
 
     private final MoleSupervisorService supervisor;
 
-    public InstantiateSupervisorHandler(MoleSupervisorService supervisor) {
+    public InstantiateHandler(MoleSupervisorService supervisor) {
         this.supervisor = supervisor;
     }
 

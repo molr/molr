@@ -6,7 +6,7 @@ import cern.molr.commons.response.MissionEvent;
 import org.reactivestreams.Publisher;
 
 /**
- * A client service which allows to perform certain defined websocket connection to a server
+ * A client service which allows to perform some defined websocket connection to a server
  *
  * @author yassine-kr
  */

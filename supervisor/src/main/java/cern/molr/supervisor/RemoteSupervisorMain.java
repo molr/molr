@@ -4,12 +4,8 @@
 
 package cern.molr.supervisor;
 
-import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
-import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
-import cern.molr.commons.response.SupervisorRegisterResponse;
-import cern.molr.commons.response.SupervisorUnregisterResponse;
-import cern.molr.commons.web.MolrConfig;
 import cern.molr.commons.web.MolrWebClient;
+import cern.molr.commons.web.MolrWebClientImpl;
 import cern.molr.supervisor.api.address.AddressGetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,8 +20,6 @@ import org.springframework.core.env.Environment;
 import javax.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -50,12 +44,10 @@ public class RemoteSupervisorMain {
         this.config = config;
         this.applicationEventPublisher = applicationEventPublisher;
         addressGetter.addListener(address -> {
-            MolrWebClient client = new MolrWebClient(config.getMolrHost(), config.getMolrPort());
-            SupervisorRegisterRequest request = new SupervisorRegisterRequest(address.getHost(), address.getPort(),
-                    Arrays.asList(config.getAcceptedMissions()));
+            MolrWebClient client = new MolrWebClientImpl(config.getMolrHost(), config.getMolrPort());
             try {
-                supervisorId = client.post(MolrConfig.REGISTER_PATH, SupervisorRegisterRequest.class, request,
-                        SupervisorRegisterResponse.class).block().getResult().getSupervisorId();
+                supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
+                        .getAcceptedMissions()));
             } catch (Exception error) {
                 error.printStackTrace();
             }
@@ -76,11 +68,10 @@ public class RemoteSupervisorMain {
 
     @PreDestroy
     public void close() {
-        MolrWebClient client = new MolrWebClient(config.getMolrHost(), config.getMolrPort());
-        SupervisorUnregisterRequest request = new SupervisorUnregisterRequest(supervisorId);
+        MolrWebClient client = new MolrWebClientImpl(config.getMolrHost(), config.getMolrPort());
+
         try {
-            client.post(MolrConfig.UNREGISTER_PATH, SupervisorUnregisterRequest.class, request, SupervisorUnregisterResponse.class)
-                    .block();
+            client.unregister(supervisorId);
         } catch (Exception error) {
             error.printStackTrace();
         }
