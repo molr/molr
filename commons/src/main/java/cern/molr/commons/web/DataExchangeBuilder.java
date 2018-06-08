@@ -6,13 +6,13 @@ import cern.molr.commons.type.trye.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -32,7 +32,7 @@ public class DataExchangeBuilder<Input, Output> {
     private Class<Input> inputType;
     private Class<Output> outputType;
     private Flux<String> preInput;
-    private ThrowingFunction<Input, Flux<Output>> generator;
+    private ThrowingFunction<Input, Publisher<Output>> generator;
     private Function<Throwable, Output> generatorExceptionHandler;
     public DataExchangeBuilder(Class<Input> inputType, Class<Output> outputType) {
         this.inputType = inputType;
@@ -62,7 +62,7 @@ public class DataExchangeBuilder<Input, Output> {
      *
      * @return this builder to chain other methods
      */
-    public DataExchangeBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Flux<Output>> generator) {
+    public DataExchangeBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
         this.generator = generator;
         return this;
     }
@@ -87,7 +87,7 @@ public class DataExchangeBuilder<Input, Output> {
     public Flux<String> build() {
         return preInput.take(1).<Try<Input>>map((data) -> {
             try {
-                return new Success(mapper.readValue(data, inputType));
+                return new Success<>(mapper.readValue(data, inputType));
             } catch (IOException error) {
                 return new Failure<>(error);
             }
@@ -96,7 +96,7 @@ public class DataExchangeBuilder<Input, Output> {
             return Mono.empty();
         },(input)->{
             try {
-                return generator.apply(input).map((output -> {
+                return Flux.from(generator.apply(input)).map((output -> {
                     try {
                         return mapper.writeValueAsString(output);
                     } catch (JsonProcessingException error) {

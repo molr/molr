@@ -31,9 +31,7 @@ public class InstructSupervisorHandler implements WebSocketHandler {
         return session.send(new DataExchangeBuilder<>
                 (MissionCommandRequest.class, CommandResponse.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
-                .setGenerator((commandRequest) ->
-                        Flux.from(supervisor.instruct(commandRequest))
-                )
+                .setGenerator(supervisor::instruct)
                 .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)
                 .build().map(session::textMessage));
     }

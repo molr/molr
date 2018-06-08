@@ -5,6 +5,7 @@ import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,9 +25,9 @@ public interface MoleSupervisor {
      * @param missionExecutionId
      * @param <I>
      *
-     * @return flux of events sent by the session controller
+     * @return an events stream sent by the session controller
      */
-    <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId);
+    <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId);
 
     /**
      * Send commands to the MoleRunner
@@ -35,7 +36,7 @@ public interface MoleSupervisor {
      *
      * @return a stream of one element containing the command response
      */
-    Mono<CommandResponse> instruct(MissionCommandRequest commandRequest);
+    Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
      * A method which should return the supervisor state

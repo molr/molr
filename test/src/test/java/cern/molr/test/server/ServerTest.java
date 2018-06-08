@@ -6,13 +6,13 @@ import cern.molr.commons.events.MissionStarted;
 import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.MissionEventsRequest;
 import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.InstantiationResponse;
 import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.web.MolrConfig;
 import cern.molr.commons.web.MolrWebClient;
-import cern.molr.commons.web.MolrWebSocketClient;
+import cern.molr.commons.web.MolrWebSocketClientImpl;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -37,7 +37,7 @@ public class ServerTest {
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
     private MolrWebClient client = new MolrWebClient("http://localhost", 8000);
-    private MolrWebSocketClient clientSocket = new MolrWebSocketClient("http://localhost", 8000);
+    private MolrWebSocketClientImpl clientSocket = new MolrWebSocketClientImpl("http://localhost", 8000);
 
     @Before
     public void initServers() {
@@ -65,16 +65,15 @@ public class ServerTest {
         ServerInstantiationRequest<Integer> request = new ServerInstantiationRequest<>(
                 Fibonacci.class.getCanonicalName(), 23);
 
-        InstantiationResponse response = client.post("/instantiate", ServerInstantiationRequest.class, request,
+        InstantiationResponse response = client.post(MolrConfig.INSTANTIATE_PATH, ServerInstantiationRequest.class, request,
                 InstantiationResponse.class).block();
 
         Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
 
 
-        MissionEventsRequest eventsRequest = new MissionEventsRequest(response.getResult().getMissionExecutionId());
-        clientSocket.receiveFlux("/getEventsStream", MissionEvent.class, eventsRequest)
+        clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionExecutionId())
                 .doOnError(Throwable::printStackTrace).subscribe(
-                tryElement -> tryElement.execute(Throwable::printStackTrace, (event) -> {
+                (event) -> {
                     System.out.println("event: " + event);
                     events.add(event);
                     endSignal.countDown();
@@ -82,19 +81,18 @@ public class ServerTest {
                     if (event instanceof SessionInstantiated) {
                         instantiateSignal.countDown();
                     }
-                }));
+                });
 
 
         instantiateSignal.await();
         System.out.println("sending start command");
 
-        clientSocket.receiveMono("/instruct", CommandResponse.class, new MissionCommandRequest(response
+        clientSocket.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest(response
                 .getResult().getMissionExecutionId(), new Start())).doOnError
-                (Throwable::printStackTrace).subscribe(tryElement -> tryElement
-                .execute(Throwable::printStackTrace, (result) -> {
+                (Throwable::printStackTrace).subscribe((result) -> {
                     System.out.println("response to start: " + result);
                     commandResponses.add(result);
-                }));
+                });
 
         endSignal.await();
 

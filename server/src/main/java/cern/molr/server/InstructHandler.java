@@ -3,6 +3,8 @@ package cern.molr.server;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.web.DataExchangeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -11,28 +13,29 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution
- *
+ * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution, it uses WebFlux
  * @author yassine-kr
  */
 @Component
-public class InstructServerHandler implements WebSocketHandler {
+public class InstructHandler implements WebSocketHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstructHandler.class);
 
     private final ServerRestExecutionService service;
 
-    public InstructServerHandler(ServerRestExecutionService service) {
+    public InstructHandler(ServerRestExecutionService service) {
         this.service = service;
     }
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
+        LOGGER.info("session created for a request received from the client: {}",session.getHandshakeInfo().getUri());
+
         return session.send(new DataExchangeBuilder<>
                 (MissionCommandRequest.class, CommandResponse.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
-                .setGenerator((commandRequest) ->
-                        Flux.from(service.instruct(commandRequest))
-                )
+                .setGenerator(service::instruct)
                 .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)
                 .build().map(session::textMessage));
     }

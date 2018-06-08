@@ -1,5 +1,6 @@
 package cern.molr.server;
 
+import cern.molr.commons.web.MolrConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
@@ -27,8 +28,8 @@ public class WebSocketServerConfiguration {
     @Bean
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/getEventsStream", new FluxServerHandler(service));
-        map.put("/instruct", new InstructServerHandler(service));
+        map.put(MolrConfig.EVENTS_STREAM_PATH, new EventsStreamHandler(service));
+        map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(service));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setOrder(1);

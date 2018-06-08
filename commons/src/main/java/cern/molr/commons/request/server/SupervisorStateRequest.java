@@ -11,17 +11,4 @@ package cern.molr.commons.request.server;
  */
 public class SupervisorStateRequest {
 
-    private String filter;
-
-    public SupervisorStateRequest() {
-    }
-
-    public SupervisorStateRequest(String filter) {
-        this.filter = filter;
-    }
-
-    public String getFilter() {
-        return filter;
-    }
-
 }

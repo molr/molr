@@ -10,10 +10,12 @@ import cern.molr.commons.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionMaterializer;
 import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.server.SupervisorInstantiationRequest;
+import cern.molr.commons.request.server.InstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.web.MolrWebSocketClient;
+import cern.molr.commons.web.MolrConfig;
+import cern.molr.commons.web.MolrWebSocketClientImpl;
+import cern.molr.commons.web.SimpleSubscriber;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.supervisor.RemoteSupervisorMain;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
@@ -45,9 +47,23 @@ public class SupervisorTest {
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();
-        supervisor.instantiate(mission, 42, "1").subscribe(event -> {
-            events.add(event);
-            signal.countDown();
+        supervisor.instantiate(mission, 42, "1").subscribe(new SimpleSubscriber<MissionEvent>() {
+
+            @Override
+            public void consume(MissionEvent event) {
+                events.add(event);
+                signal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         signal.await();
@@ -64,9 +80,23 @@ public class SupervisorTest {
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();
-        supervisor.instantiate(mission, 42, "1").subscribe(event -> {
-            events.add(event);
-            signal.countDown();
+        supervisor.instantiate(mission, 42, "1").subscribe(new SimpleSubscriber<MissionEvent>() {
+
+            @Override
+            public void consume(MissionEvent event) {
+                events.add(event);
+                signal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
 
         supervisor.instruct(new MissionCommandRequest("1", new Start()));
@@ -84,7 +114,7 @@ public class SupervisorTest {
      *
      * @throws Exception
      */
-    @Test
+        @Test
     public void terminateTest() throws Exception {
         CountDownLatch signal = new CountDownLatch(3);
 
@@ -93,10 +123,24 @@ public class SupervisorTest {
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();
-        supervisor.instantiate(mission, 42, "1").subscribe(event -> {
-            events.add(event);
-            signal.countDown();
-        });
+            supervisor.instantiate(mission, 42, "1").subscribe(new SimpleSubscriber<MissionEvent>() {
+
+                @Override
+                public void consume(MissionEvent event) {
+                    events.add(event);
+                    signal.countDown();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
         supervisor.instruct(new MissionCommandRequest("1", new Start()));
         supervisor.instruct(new MissionCommandRequest("1", new Terminate()));
 
@@ -118,13 +162,13 @@ public class SupervisorTest {
         List<MissionEvent> events = new ArrayList<>();
         List<CommandResponse> responses = new ArrayList<>();
 
-        SupervisorInstantiationRequest<Integer> request =
-                new SupervisorInstantiationRequest<>("1", Fibonacci.class.getName(), 42);
-        MolrWebSocketClient client = new MolrWebSocketClient("http://localhost", 8080);
+        InstantiationRequest<Integer> request =
+                new InstantiationRequest<>("1", Fibonacci.class.getName(), 42);
+        MolrWebSocketClientImpl client = new MolrWebSocketClientImpl("http://localhost", 8080);
 
-        client.receiveFlux("/instantiate", MissionEvent.class, request)
+        client.receiveFlux(MolrConfig.INSTRUCT_PATH, MissionEvent.class, request)
                 .doOnError(Throwable::printStackTrace)
-                .subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (event) -> {
+                .subscribe((event) -> {
                     System.out.println("event: " + event);
                     events.add(event);
                     endSignal.countDown();
@@ -132,16 +176,16 @@ public class SupervisorTest {
                     if (event instanceof SessionInstantiated) {
                         instantiateSignal.countDown();
                     }
-                }));
+                });
 
         instantiateSignal.await();
 
-        client.receiveMono("/instruct", CommandResponse.class, new MissionCommandRequest("1", new Start()))
+        client.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest("1", new Start()))
                 .doOnError(Throwable::printStackTrace)
-                .subscribe(tryElement -> tryElement.execute(Throwable::printStackTrace, (result) -> {
+                .subscribe((result) -> {
                     System.out.println("response to start: " + result);
                     responses.add(result);
-                }));
+                });
 
         endSignal.await();
 

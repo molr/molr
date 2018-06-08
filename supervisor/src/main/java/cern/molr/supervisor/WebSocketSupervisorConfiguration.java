@@ -1,5 +1,6 @@
 package cern.molr.supervisor;
 
+import cern.molr.commons.web.MolrConfig;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +29,8 @@ public class WebSocketSupervisorConfiguration {
     @Bean
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/instantiate", new InstantiateSupervisorHandler(supervisor));
-        map.put("/instruct", new InstructSupervisorHandler(supervisor));
+        map.put(MolrConfig.INSTANTIATE_PATH, new InstantiateSupervisorHandler(supervisor));
+        map.put(MolrConfig.INSTRUCT_PATH, new InstructSupervisorHandler(supervisor));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setOrder(1);

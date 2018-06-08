@@ -6,6 +6,7 @@ package cern.molr.supervisor;
 
 import cern.molr.commons.request.server.SupervisorStateRequest;
 import cern.molr.commons.response.SupervisorStateResponse;
+import cern.molr.commons.web.MolrConfig;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class RemoteSupervisorController {
     }
 
 
-    @RequestMapping(path = "/getState", method = RequestMethod.POST)
+    @RequestMapping(path = MolrConfig.GET_STATE_PATH, method = RequestMethod.POST)
     public Publisher<SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
         return Mono.create((emitter)->{

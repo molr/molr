@@ -14,6 +14,7 @@ import cern.molr.commons.response.InstantiationResponse.InstantiationResponseFai
 import cern.molr.commons.response.InstantiationResponse.InstantiationResponseSuccess;
 import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
+import cern.molr.commons.web.MolrConfig;
 import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,29 +44,29 @@ public class ServerRestController {
     }
 
 
-    @RequestMapping(path = "/instantiate", method = RequestMethod.POST)
+    @RequestMapping(path = MolrConfig.INSTANTIATE_PATH, method = RequestMethod.POST)
     public <I> Publisher<InstantiationResponse> instantiateMission(
             @RequestBody ServerInstantiationRequest<I> request) {
 
         return Mono.<InstantiationResponse>create((emitter)->{
             try {
-                String mEId = service.instantiate(request);
-                emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(mEId)));
+                String missionId = service.instantiate(request);
+                emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(missionId)));
             } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
                 emitter.success(new InstantiationResponseFailure(e));
             }
         }).subscribeOn(Schedulers.fromExecutorService(executorService));
     }
 
-    @RequestMapping(path = "/register", method = RequestMethod.POST)
+    @RequestMapping(path = MolrConfig.REGISTER_PATH, method = RequestMethod.POST)
     public Publisher<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         return Mono.create((emitter) -> {
-                String id = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
-                emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id)));
+                String supervisorId = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
+                emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(supervisorId)));
             });
     }
 
-    @RequestMapping(path = "/unregister", method = RequestMethod.POST)
+    @RequestMapping(path = MolrConfig.UNREGISTER_PATH, method = RequestMethod.POST)
     public Publisher<SupervisorUnregisterResponse> uNregister(
             @RequestBody SupervisorUnregisterRequest request) {
 

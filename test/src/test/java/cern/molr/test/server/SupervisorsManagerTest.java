@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Assert;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -39,7 +40,6 @@ public class SupervisorsManagerTest {
     @Test
     public void Test() {
 
-        /*
         RemoteMoleSupervisor s1 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s2 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s3 = new RemoteMoleSupervisorTest(false);
@@ -67,52 +67,7 @@ public class SupervisorsManagerTest {
 
         optional = manager.chooseSupervisor("P");
         Assert.assertFalse(optional.isPresent());
-        */
 
-        ObjectMapper mapper=new ObjectMapper();
-
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-
-        Serializable r=new TestO(50);
-        try {
-            String seri=mapper.writeValueAsString(r);
-            System.out.println(seri);
-            TestO r2=(TestO) mapper.readValue(seri,TestO.class);
-            System.out.println(r2.getA());
-            System.out.println(r2.getT());
-        } catch (JsonProcessingException error) {
-            error.printStackTrace();
-        } catch (IOException error) {
-            error.printStackTrace();
-        }
-
-        Logger LOGGER = LoggerFactory.getLogger(MissionExecutionServiceImpl.class);
-        LOGGER.error("error while receiving events flux [mission execution " +
-                        "Id: {}, mission name: {}]", "juj",
-                "deded", new Exception());
-
-    }
-
-    public static final class TestO implements Serializable {
-        private int a;
-        private String s;
-        private final Throwable t;
-
-        public TestO(@JsonProperty("a") int a) {
-            this.a = a;
-            this.s = s;
-            t=new Exception("kokok");
-        }
-
-        public int getA() {
-            return a;
-        }
-
-        public Throwable getT() {
-            return t;
-        }
     }
 
     public class RemoteMoleSupervisorTest implements RemoteMoleSupervisor {
@@ -123,12 +78,13 @@ public class SupervisorsManagerTest {
         }
 
         @Override
-        public <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> request, String missionExecutionId) {
+        public <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> request, String
+                missionExecutionId) {
             return null;
         }
 
         @Override
-        public Mono<CommandResponse> instruct(MissionCommandRequest command) {
+        public Publisher<CommandResponse> instruct(MissionCommandRequest command) {
             return null;
         }
 

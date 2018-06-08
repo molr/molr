@@ -7,6 +7,7 @@ import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
 import cern.molr.supervisor.SupervisorConfig;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -61,7 +62,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
      * @return a stream of events triggered by the mission execution
      */
     @Override
-    synchronized public <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+    synchronized public <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
         try {
             accept(mission);
             return super.instantiate(mission, args, missionExecutionId);

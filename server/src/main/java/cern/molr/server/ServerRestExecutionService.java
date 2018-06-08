@@ -16,9 +16,8 @@ import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Gateway used for communication between server and supervisors
+ * Service used for communication between server and supervisors
  *
  * @author yassine-kr
  */
@@ -39,8 +38,8 @@ public class ServerRestExecutionService {
 
 
     public ServerRestExecutionService(SupervisorsManager supervisorsManager) {
-        //TODO remove this init code after implementing a deployment service
 
+        //TODO remove this init code after implementing a deployment service
         registry.registerNewMission(RunnableHelloWriter.class.getName());
         registry.registerNewMission(IntDoubler.class.getName());
         registry.registerNewMission(Fibonacci.class.getName());
@@ -52,14 +51,14 @@ public class ServerRestExecutionService {
     }
 
 
-    public <I, O> String instantiate(ServerInstantiationRequest<I> request)
+    public <I> String instantiate(ServerInstantiationRequest<I> request)
             throws MissionExecutionNotAccepted, NoAppropriateSupervisorFound {
         String missionEId = makeEId();
         missionExists(request.getMissionName());
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
-            Flux<MissionEvent> executionEventFlux = supervisor.instantiate(request, missionEId);
-            registry.registerNewMissionExecution(missionEId, supervisor, executionEventFlux);
+            Publisher<MissionEvent> executionEventStream = supervisor.instantiate(request, missionEId);
+            registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->
                 new NoAppropriateSupervisorFound("No appropriate supervisor found to execute such mission!"));
@@ -72,16 +71,16 @@ public class ServerRestExecutionService {
         }
     }
 
-    public Flux<MissionEvent> getFlux(String mEId) throws UnknownMissionException {
-        Optional<Flux<MissionEvent>> optionalFlux = registry.getMissionExecutionFlux(mEId);
-        return optionalFlux.orElseThrow(() -> new UnknownMissionException("No such mission running"));
+    public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
+        Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
+        return optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running"));
     }
 
     private String makeEId() {
         return UUID.randomUUID().toString();
     }
 
-    public Mono<CommandResponse> instruct(MissionCommandRequest commandRequest)
+    public Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest)
             throws UnknownMissionException {
         Optional<RemoteMoleSupervisor> optionalSupervisor = registry.getMoleSupervisor(commandRequest.getMissionId());
         return optionalSupervisor
@@ -104,7 +103,7 @@ public class ServerRestExecutionService {
          * Accepted missions
          */
         private ConcurrentSet<String> missionRegistry = new ConcurrentSet<>();
-        private ConcurrentMap<String, Flux<MissionEvent>> missionExecutionRegistry = new ConcurrentHashMap<>();
+        private ConcurrentMap<String, Publisher<MissionEvent>> missionExecutionRegistry = new ConcurrentHashMap<>();
         private ConcurrentMap<String, RemoteMoleSupervisor> moleSupervisorRegistry = new ConcurrentHashMap<>();
 
         public void registerNewMission(String missionName) {
@@ -112,16 +111,16 @@ public class ServerRestExecutionService {
         }
 
         public void registerNewMissionExecution(String missionId,
-                                                RemoteMoleSupervisor supervisor, Flux<MissionEvent> flux) {
+                                                RemoteMoleSupervisor supervisor, Publisher<MissionEvent> stream) {
             moleSupervisorRegistry.put(missionId, supervisor);
-            missionExecutionRegistry.put(missionId, flux);
+            missionExecutionRegistry.put(missionId, stream);
         }
 
         public boolean missionExists(String missionName) {
             return missionRegistry.contains(missionName);
         }
 
-        public Optional<Flux<MissionEvent>> getMissionExecutionFlux(String missionEId) {
+        public Optional<Publisher<MissionEvent>> getMissionExecutionStream(String missionEId) {
             return Optional.ofNullable(missionExecutionRegistry.get(missionEId));
         }
 

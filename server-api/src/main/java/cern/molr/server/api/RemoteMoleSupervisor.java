@@ -5,6 +5,7 @@ import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,7 +27,7 @@ public interface RemoteMoleSupervisor {
      *
      * @return a publisher of events triggered by the mission execution
      */
-    <I> Flux<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId);
+    <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId);
 
 
     /**
@@ -34,9 +35,9 @@ public interface RemoteMoleSupervisor {
      *
      * @param commandRequest
      *
-     * @return a publisher of the command response
+     * @return a publisher of the command response, it contains one element
      */
-    Mono<CommandResponse> instruct(MissionCommandRequest commandRequest);
+    Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
      * A method which should return the supervisor state

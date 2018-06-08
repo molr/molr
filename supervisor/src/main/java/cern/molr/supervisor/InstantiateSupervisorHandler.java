@@ -4,7 +4,7 @@ import cern.molr.commons.events.MissionException;
 import cern.molr.commons.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionMaterializer;
-import cern.molr.commons.request.server.SupervisorInstantiationRequest;
+import cern.molr.commons.request.server.InstantiationRequest;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
@@ -33,7 +33,7 @@ public class InstantiateSupervisorHandler implements WebSocketHandler {
     public Mono<Void> handle(WebSocketSession session) {
 
         return session.send(new DataExchangeBuilder<>
-                (SupervisorInstantiationRequest.class, MissionEvent.class)
+                (InstantiationRequest.class, MissionEvent.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator((request) -> {
                     MissionMaterializer materializer = new AnnotatedMissionMaterializer();

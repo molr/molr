@@ -11,16 +11,16 @@ package cern.molr.commons.request.server;
  *
  * @author yassine-kr
  */
-public class SupervisorInstantiationRequest<I> {
+public class InstantiationRequest<I> {
 
     private String missionExecutionId;
     private String missionName;
     private I args;
 
-    public SupervisorInstantiationRequest() {
+    public InstantiationRequest() {
     }
 
-    public SupervisorInstantiationRequest(String missionExecutionId, String missionName, I args) {
+    public InstantiationRequest(String missionExecutionId, String missionName, I args) {
         this.missionExecutionId = missionExecutionId;
         this.missionName = missionName;
         this.args = args;

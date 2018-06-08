@@ -4,6 +4,11 @@
 
 package cern.molr.commons.web;
 
+import cern.molr.commons.request.client.ServerInstantiationRequest;
+import cern.molr.commons.request.server.SupervisorStateRequest;
+import cern.molr.commons.response.InstantiationResponse;
+import cern.molr.commons.response.SupervisorState;
+import cern.molr.commons.response.SupervisorStateResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.http.MediaType;
@@ -53,4 +58,14 @@ public class MolrWebClient {
         return processor.next();
     }
 
+
+    public <I> Mono<InstantiationResponse> instantiate(String missionName, I args) {
+        ServerInstantiationRequest<I> request = new ServerInstantiationRequest<>(missionName, args);
+        return post(MolrConfig.INSTANTIATE_PATH,ServerInstantiationRequest.class, request, InstantiationResponse.class);
+    }
+
+    public Mono<SupervisorStateResponse> getState() {
+        return post(MolrConfig.GET_STATE_PATH,SupervisorStateRequest.class, new SupervisorStateRequest(), SupervisorStateResponse.class);
+
+    }
 }

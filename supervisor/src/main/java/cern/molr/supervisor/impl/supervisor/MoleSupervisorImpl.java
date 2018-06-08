@@ -12,6 +12,7 @@ import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
 import cern.molr.supervisor.impl.spawner.JVMSpawner;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -35,7 +36,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
 
      */
     @Override
-    public <I> Flux<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+    public <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
         try {
             MissionSession session;
             JVMSpawner<I> spawner = new JVMSpawner<>();
@@ -66,7 +67,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     }
 
     @Override
-    public Mono<CommandResponse> instruct(MissionCommandRequest commandRequest) {
+    public Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest) {
         return Mono.just(sessionsManager.getSession(commandRequest.getMissionId()).map((session) -> {
             CommandResponse response = session.getController().sendCommand(commandRequest.getCommand());
             LOGGER.info("Receiving command response from the session controller: {}", response);

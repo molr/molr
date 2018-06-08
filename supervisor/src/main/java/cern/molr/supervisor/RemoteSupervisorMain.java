@@ -8,6 +8,7 @@ import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.response.SupervisorRegisterResponse;
 import cern.molr.commons.response.SupervisorUnregisterResponse;
+import cern.molr.commons.web.MolrConfig;
 import cern.molr.commons.web.MolrWebClient;
 import cern.molr.supervisor.api.address.AddressGetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +54,7 @@ public class RemoteSupervisorMain {
             SupervisorRegisterRequest request = new SupervisorRegisterRequest(address.getHost(), address.getPort(),
                     Arrays.asList(config.getAcceptedMissions()));
             try {
-                supervisorId = client.post("/register", SupervisorRegisterRequest.class, request,
+                supervisorId = client.post(MolrConfig.REGISTER_PATH, SupervisorRegisterRequest.class, request,
                         SupervisorRegisterResponse.class).block().getResult().getSupervisorId();
             } catch (Exception error) {
                 error.printStackTrace();
@@ -78,7 +79,7 @@ public class RemoteSupervisorMain {
         MolrWebClient client = new MolrWebClient(config.getMolrHost(), config.getMolrPort());
         SupervisorUnregisterRequest request = new SupervisorUnregisterRequest(supervisorId);
         try {
-            client.post("/unregister", SupervisorUnregisterRequest.class, request, SupervisorUnregisterResponse.class)
+            client.post(MolrConfig.UNREGISTER_PATH, SupervisorUnregisterRequest.class, request, SupervisorUnregisterResponse.class)
                     .block();
         } catch (Exception error) {
             error.printStackTrace();
