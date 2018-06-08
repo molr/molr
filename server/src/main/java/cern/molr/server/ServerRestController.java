@@ -12,16 +12,16 @@ import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.response.*;
 import cern.molr.commons.response.InstantiationResponse.InstantiationResponseFailure;
 import cern.molr.commons.response.InstantiationResponse.InstantiationResponseSuccess;
-import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseFailure;
 import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
-import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseFailure;
 import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
+import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -44,42 +44,35 @@ public class ServerRestController {
 
 
     @RequestMapping(path = "/instantiate", method = RequestMethod.POST)
-    public <I> CompletableFuture<InstantiationResponse> instantiateMission(
+    public <I> Publisher<InstantiationResponse> instantiateMission(
             @RequestBody ServerInstantiationRequest<I> request) {
-        return CompletableFuture.<InstantiationResponse>supplyAsync(() -> {
+
+        return Mono.<InstantiationResponse>create((emitter)->{
             try {
                 String mEId = service.instantiate(request);
-                return new InstantiationResponseSuccess(new InstantiationResponseBean(mEId));
+                emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(mEId)));
             } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
-                return new InstantiationResponseFailure(e);
+                emitter.success(new InstantiationResponseFailure(e));
             }
-        }, executorService);
+        }).subscribeOn(Schedulers.fromExecutorService(executorService));
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
-        try {
-            return CompletableFuture.<SupervisorRegisterResponse>supplyAsync(() -> {
+    public Publisher<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
+        return Mono.create((emitter) -> {
                 String id = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
-                return new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id));
-            }).exceptionally(SupervisorRegisterResponseFailure::new);
-        } catch (Exception error) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorRegisterResponseFailure(error));
-        }
+                emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(id)));
+            });
     }
 
     @RequestMapping(path = "/unregister", method = RequestMethod.POST)
-    public CompletableFuture<SupervisorUnregisterResponse> uNregister(
+    public Publisher<SupervisorUnregisterResponse> uNregister(
             @RequestBody SupervisorUnregisterRequest request) {
-        try {
-            return CompletableFuture.<SupervisorUnregisterResponse>supplyAsync(() -> {
-                service.removeSupervisor(request.getId());
-                return new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully"));
-            }).exceptionally(SupervisorUnregisterResponseFailure::new);
-        } catch (Exception error) {
-            return CompletableFuture.supplyAsync(() -> new SupervisorUnregisterResponseFailure(error));
-        }
-    }
 
+        return Mono.create((emitter) -> {
+            service.removeSupervisor(request.getId());
+            emitter.success(new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully")));
+        });
+    }
 
 }

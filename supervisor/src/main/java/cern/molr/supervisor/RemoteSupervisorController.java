@@ -7,14 +7,14 @@ package cern.molr.supervisor;
 import cern.molr.commons.request.server.SupervisorStateRequest;
 import cern.molr.commons.response.SupervisorStateResponse;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
+import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 /**
  * {@link RestController} for {@link RemoteSupervisorMain} spring application
@@ -27,21 +27,19 @@ public class RemoteSupervisorController {
 
     private final MoleSupervisorService moleSupervisorService;
 
-    private final ExecutorService executorService;
-
-    public RemoteSupervisorController(MoleSupervisorService service, ExecutorService executorService) {
+    public RemoteSupervisorController(MoleSupervisorService service) {
         this.moleSupervisorService = service;
-        this.executorService = executorService;
     }
 
 
     @RequestMapping(path = "/getState", method = RequestMethod.POST)
-    public Future<? extends SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
+    public Publisher<SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
-        return CompletableFuture.<SupervisorStateResponse>supplyAsync(() -> new
-                        SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState())
-                , executorService)
-                .exceptionally(SupervisorStateResponse.SupervisorStateResponseFailure::new);
+        return Mono.create((emitter)->{
+           emitter.success(new
+                   SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState()));
+        });
+
     }
 
 }

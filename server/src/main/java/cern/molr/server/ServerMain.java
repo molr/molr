@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,12 @@ public class ServerMain {
             return mapper;
         }
 
+        /**
+         * Executor service needed for running the response to an instantiate request in a thread able to wait using
+         * the blocking method of a {@link Mono}
+         * TODO maybe this executor is not needed
+         * @return the executor service
+         */
         @Bean
         public ExecutorService getExecutorService() {
             return Executors.newFixedThreadPool(10);
