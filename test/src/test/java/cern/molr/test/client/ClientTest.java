@@ -75,11 +75,11 @@ public class ClientTest {
         futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
                 controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
                     @Override
-                    public void onConsume(MissionEvent event) {
+                    public void consume(MissionEvent event) {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
@@ -107,10 +107,23 @@ public class ClientTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println(execName + " response to start: " + response);
-                    commandResponses.add(response);
-                    endSignal.countDown();
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println(execName + " response to start: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
 
                 try {
@@ -119,10 +132,24 @@ public class ClientTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe((response) -> {
-                    System.out.println(execName + " response to terminate: " + response);
-                    commandResponses.add(response);
-                    endSignal.countDown();
+
+                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println(execName + " response to terminate: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
             }
 
@@ -206,11 +233,11 @@ public class ClientTest {
         futureController2.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
                 controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
                     @Override
-                    public void onConsume(MissionEvent event) {
+                    public void consume(MissionEvent event) {
                         System.out.println("exec2 event: " + event);
                         events2.add(event);
                         endSignal2.countDown();
@@ -239,26 +266,69 @@ public class ClientTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println("exec2 response to start: " + response);
-                    commandResponses2.add(response);
-                    endSignal2.countDown();
+
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("exec2 response to start: " + response);
+                        commandResponses2.add(response);
+                        endSignal2.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println("exec2 response to start 2: " + response);
-                    commandResponses2.add(response);
-                    endSignal2.countDown();
+
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("exec2 response to start 2: " + response);
+                        commandResponses2.add(response);
+                        endSignal2.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
+
                 try {
                     startSignal2.await();
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe((response) -> {
-                    System.out.println("exec2 response to terminate: " + response);
-                    commandResponses2.add(response);
-                    endSignal2.countDown();
+
+                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("exec2 response to terminate: " + response);
+                        commandResponses2.add(response);
+                        endSignal2.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
             }
 

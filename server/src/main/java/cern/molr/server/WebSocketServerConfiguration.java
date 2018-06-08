@@ -27,7 +27,7 @@ public class WebSocketServerConfiguration {
     @Bean
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/getFlux", new FluxServerHandler(service));
+        map.put("/getEventsStream", new FluxServerHandler(service));
         map.put("/instruct", new InstructServerHandler(service));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();

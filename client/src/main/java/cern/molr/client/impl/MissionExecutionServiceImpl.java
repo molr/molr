@@ -96,7 +96,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
                             }
 
                             @Override
-                            public Mono<CommandResponse> instruct(MissionCommand command) {
+                            public Publisher<CommandResponse> instruct(MissionCommand command) {
                                 MissionCommandRequest commandRequest = new MissionCommandRequest(missionExecutionId,
                                         command);
                                 return clientSocket.

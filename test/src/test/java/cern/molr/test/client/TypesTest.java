@@ -73,11 +73,11 @@ public class TypesTest {
         futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
                 controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
                     @Override
-                    public void onConsume(MissionEvent event) {
+                    public void consume(MissionEvent event) {
                         System.out.println("event: " + event);
                         endSignal.countDown();
 
@@ -105,15 +105,41 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println("response to start: " + response);
-                    commandResponses.add(response);
-                    endSignal.countDown();
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("response to start: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println("response to start 2: " + response);
-                    commandResponses.add(response);
-                    endSignal.countDown();
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("response to start 2: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
                 try {
                     startSignal.await();
@@ -121,10 +147,23 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe((response) -> {
-                    System.out.println("response to terminate: " + response);
-                    commandResponses.add(response);
-                    endSignal.countDown();
+                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("response to terminate: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
             }
 
@@ -166,11 +205,11 @@ public class TypesTest {
         futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
                 controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
                     @Override
-                    public void onConsume(MissionEvent event) {
+                    public void consume(MissionEvent event) {
                         System.out.println("event: " + event);
                         events.add(event);
                         endSignal.countDown();
@@ -226,11 +265,11 @@ public class TypesTest {
         futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
                 controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
                     @Override
-                    public void onConsume(MissionEvent event) {
+                    public void consume(MissionEvent event) {
                         System.out.println("event: " + event);
                         events.add(event);
                         endSignal.countDown();
@@ -258,9 +297,22 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe((response) -> {
-                    System.out.println("response to start: " + response);
-                    endSignal.countDown();
+                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("response to start: " + response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
 
                 try {
@@ -269,10 +321,24 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe((response) -> {
-                    System.out.println("response to terminate: " + response);
-                    endSignal.countDown();
+                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("response to terminate: " + response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
+
             }
 
             @Override
@@ -308,7 +374,7 @@ public class TypesTest {
         futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
-            public void onConsume(ClientMissionController controller) {
+            public void consume(ClientMissionController controller) {
 
             }
 

@@ -28,9 +28,9 @@ public interface ClientMissionController {
     /**
      * A method which sends a {@link MissionCommand} to the supervisor where the mission is being executed
      *
-     * @param command
+     * @param command the command to execute
      *
      * @return a stream of one element which tells whether the command was accepted or not
      */
-    Mono<CommandResponse> instruct(MissionCommand command);
+    Publisher<CommandResponse> instruct(MissionCommand command);
 }

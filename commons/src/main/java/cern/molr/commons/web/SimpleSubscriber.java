@@ -21,9 +21,9 @@ public abstract class SimpleSubscriber<T> implements Subscriber<T> {
 
     @Override
     public void onNext(T t) {
-        onConsume(t);
+        consume(t);
         subscription.request(1);
     }
 
-    public abstract void onConsume(T t);
+    public abstract void consume(T t);
 }
