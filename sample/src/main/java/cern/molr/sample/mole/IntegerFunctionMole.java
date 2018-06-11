@@ -9,7 +9,10 @@ package cern.molr.sample.mole;
 
 import cern.molr.commons.exception.IncompatibleMissionException;
 import cern.molr.commons.exception.MissionExecutionException;
+import cern.molr.commons.exception.MissionMaterializationException;
+import cern.molr.commons.exception.MissionResolvingException;
 import cern.molr.commons.mission.Mission;
+import cern.molr.commons.mission.MissionResolver;
 import cern.molr.commons.mission.Mole;
 
 import java.lang.reflect.Method;
@@ -26,8 +29,15 @@ import java.util.function.Function;
 public class IntegerFunctionMole implements Mole<Integer, Integer> {
 
     @Override
-    public void verify(Class<?> classType) throws IncompatibleMissionException {
-        if (null == classType) {
+    public void verify(String missionName) throws IncompatibleMissionException {
+        Class<?> classType = null;
+        try {
+            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+        } catch (MissionResolvingException error) {
+            throw new IncompatibleMissionException(error);
+        }
+
+        if (null == missionName) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
         if (Function.class.isAssignableFrom(classType)) {
@@ -48,7 +58,7 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
         try {
             @SuppressWarnings("unchecked")
             Class<Function<Integer, Integer>> missionClass =
-                    (Class<Function<Integer, Integer>>) Class.forName(mission.getMissionName());
+                    (Class<Function<Integer, Integer>>) MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
             Function<Integer, Integer> missionInstance = missionClass.getConstructor().newInstance();
             return missionInstance.apply(arg);
         } catch (Exception error) {

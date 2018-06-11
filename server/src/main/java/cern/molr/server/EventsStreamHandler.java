@@ -1,6 +1,6 @@
 package cern.molr.server;
 
-import cern.molr.commons.events.MissionException;
+import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class EventsStreamHandler implements WebSocketHandler {
                 (String.class, MissionEvent.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::getEventsStream)
-                .setGeneratorExceptionHandler(MissionException::new)
+                .setGeneratorExceptionHandler(MissionExceptionEvent::new)
                 .build().map(session::textMessage));
     }
 }

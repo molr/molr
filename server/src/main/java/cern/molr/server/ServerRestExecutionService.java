@@ -4,8 +4,8 @@
 
 package cern.molr.server;
 
-import cern.molr.commons.exception.MissionExecutionNotAccepted;
-import cern.molr.commons.exception.NoAppropriateSupervisorFound;
+import cern.molr.commons.exception.ExecutionNotAcceptedException;
+import cern.molr.commons.exception.NoSupervisorFoundException;
 import cern.molr.commons.exception.UnknownMissionException;
 import cern.molr.commons.request.MissionCommandRequest;
 import cern.molr.commons.request.client.ServerInstantiationRequest;
@@ -52,7 +52,7 @@ public class ServerRestExecutionService {
 
 
     public <I> String instantiate(ServerInstantiationRequest<I> request)
-            throws MissionExecutionNotAccepted, NoAppropriateSupervisorFound {
+            throws ExecutionNotAcceptedException, NoSupervisorFoundException {
         String missionEId = makeEId();
         missionExists(request.getMissionName());
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
@@ -61,13 +61,13 @@ public class ServerRestExecutionService {
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->
-                new NoAppropriateSupervisorFound("No appropriate supervisor found to execute such mission!"));
+                new NoSupervisorFoundException("No appropriate supervisor found to execute such mission!"));
 
     }
 
-    private void missionExists(String missionName) throws MissionExecutionNotAccepted {
+    private void missionExists(String missionName) throws ExecutionNotAcceptedException {
         if (!registry.missionExists(missionName)) {
-            throw new MissionExecutionNotAccepted("Mission not defined in MolR registry");
+            throw new ExecutionNotAcceptedException("Mission not defined in MolR registry");
         }
     }
 

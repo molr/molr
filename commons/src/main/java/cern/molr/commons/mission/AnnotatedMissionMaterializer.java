@@ -7,11 +7,13 @@
 package cern.molr.commons.mission;
 
 import cern.molr.commons.exception.MissionMaterializationException;
+import cern.molr.commons.exception.MissionResolvingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 /**
  * Implementation of {@link MissionMaterializer} that can instantiate {@link Mission}s from {@link Class}es
@@ -37,15 +39,23 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
     }
 
     @Override
-    public Mission materialize(Class<?> classType) throws MissionMaterializationException {
-        if (null == classType) {
+    public Mission materialize(String missionName) throws MissionMaterializationException {
+
+        Class<?> classType = null;
+        try {
+            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+        } catch (MissionResolvingException error) {
+            throw new MissionMaterializationException(error);
+        }
+
+        if (null == missionName) {
             throw new MissionMaterializationException(new IllegalArgumentException("Class type cannot be null"));
         }
         LOGGER.info("Materializing annotated mission class [{}]", classType.getCanonicalName());
         RunWithMole moleAnnotation = classType.getAnnotation(RunWithMole.class);
         if (null == moleAnnotation) {
             throw new MissionMaterializationException(new IllegalArgumentException(String.format("Class type [%s] is " +
-                    "not annotated with RunWithMole", classType)));
+                    "not annotated with RunWithMole", missionName)));
         }
         Class<? extends Mole> moleClass = moleAnnotation.value();
         LOGGER.debug("Annotation RunWithMole found with mole class [{}]", moleClass.getCanonicalName());
@@ -53,9 +63,9 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
             Mole<?, ?> mole = instantiateMole(moleClass);
             LOGGER.debug("Mole class instantiated");
             String moleClassName = moleClass.getName();
-            LOGGER.debug("Running mole discovery method");
-            mole.verify(classType);
-            Mission mission = new MissionImpl(moleClassName, classType.getName());
+            LOGGER.debug("Running mole verify method");
+            mole.verify(missionName);
+            Mission mission = new MissionImpl(moleClassName, missionName);
             LOGGER.debug("Mission created [{}]", mission);
             return mission;
         } catch (Exception error) {

@@ -7,12 +7,20 @@ package cern.molr.commons.mission;
 import cern.molr.commons.exception.MissionMaterializationException;
 
 /**
- * Used to converts a given mission definition class file into a mission object
+ * Used to converts a given mission name into a mission object. Actually it deduces the mole class name corresponding
+ * to the mission
  *
  * @author nachivpn
+ * @author yassine-kr
  */
 public interface MissionMaterializer {
 
-    Mission materialize(Class<?> classType) throws MissionMaterializationException;
+    /**
+     * Converts the mission name to a mission object
+     * @param missionName
+     * @return the mission object containing the mole class name
+     * @throws MissionMaterializationException
+     */
+    Mission materialize(String missionName) throws MissionMaterializationException;
 
 }

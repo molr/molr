@@ -32,7 +32,7 @@ public class JVMSpawnerTest {
     private <I> MoleController getController(Class<?> missionClass, I args) throws Exception {
         JVMSpawner<I> spawner = new JVMSpawner<>();
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
-        Mission mission = materializer.materialize(missionClass);
+        Mission mission = materializer.materialize(missionClass.getName());
         MissionSession session = spawner.spawnMoleRunner(mission, args);
         return session.getController();
     }

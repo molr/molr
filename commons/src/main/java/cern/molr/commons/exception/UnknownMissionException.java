@@ -9,7 +9,8 @@ package cern.molr.commons.exception;
 import cern.molr.commons.mission.Mission;
 
 /**
- * Thrown when a request concerning an unknown {@link Mission} is received by MolR server or the supervisor
+ * Thrown when a request concerning an unknown {@link Mission} is received by MolR server or the supervisor. That
+ * means when a request mission ID is not found in the set of missions being executed.
  *
  * @author nachivpn
  * @author yassine-kr

@@ -9,7 +9,9 @@ package cern.molr.sample.mole;
 
 import cern.molr.commons.exception.IncompatibleMissionException;
 import cern.molr.commons.exception.MissionExecutionException;
+import cern.molr.commons.exception.MissionResolvingException;
 import cern.molr.commons.mission.Mission;
+import cern.molr.commons.mission.MissionResolver;
 import cern.molr.commons.mission.Mole;
 
 /**
@@ -24,7 +26,14 @@ import cern.molr.commons.mission.Mole;
 public class RunnableMole implements Mole<Void, Void> {
 
     @Override
-    public void verify(Class<?> classType) throws IncompatibleMissionException {
+    public void verify(String missionName) throws IncompatibleMissionException {
+        Class<?> classType = null;
+        try {
+            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+        } catch (MissionResolvingException error) {
+            throw new IncompatibleMissionException(error);
+        }
+
         if (null == classType) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
@@ -41,7 +50,7 @@ public class RunnableMole implements Mole<Void, Void> {
     @Override
     public Void run(Mission mission, Void args) throws MissionExecutionException {
         try {
-            Class<?> missionClass = Class.forName(mission.getMissionName());
+            Class<?> missionClass = MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
             Object missionInstance = missionClass.getConstructor().newInstance();
             if (!(missionInstance instanceof Runnable)) {
                 throw new IllegalArgumentException(String

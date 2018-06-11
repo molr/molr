@@ -7,18 +7,18 @@ import cern.molr.commons.response.MissionEvent;
  *
  * @author yassine-kr
  */
-public class MissionException implements MissionEvent {
+public class MissionExceptionEvent implements MissionEvent {
     private Throwable throwable;
     private String message;
 
-    public MissionException() {
+    public MissionExceptionEvent() {
     }
 
-    public MissionException(String message) {
+    public MissionExceptionEvent(String message) {
         this.message = message;
     }
 
-    public MissionException(Throwable throwable) {
+    public MissionExceptionEvent(Throwable throwable) {
         this.throwable = throwable;
         this.message = throwable.getMessage();
     }

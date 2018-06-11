@@ -5,7 +5,7 @@ import cern.molr.client.api.MissionExecutionService;
 import cern.molr.client.impl.MissionExecutionServiceImpl;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionException;
+import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionStarted;
 import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.exception.*;
@@ -240,13 +240,13 @@ public class TypesTest {
 
         endSignal.await();
 
-        Assert.assertEquals(MissionException.class, events.get(0).getClass());
+        Assert.assertEquals(MissionExceptionEvent.class, events.get(0).getClass());
         Assert.assertEquals(MissionMaterializationException.class,
-                ((MissionException) events.get(0)).getThrowable().getClass());
+                ((MissionExceptionEvent) events.get(0)).getThrowable().getClass());
         Assert.assertEquals(IncompatibleMissionException.class,
-                ((MissionException) events.get(0)).getThrowable().getCause().getClass());
+                ((MissionExceptionEvent) events.get(0)).getThrowable().getCause().getClass());
         Assert.assertEquals("Mission must implement Runnable interface",
-                ((MissionException) events.get(0)).getThrowable().getCause().getMessage());
+                ((MissionExceptionEvent) events.get(0)).getThrowable().getCause().getMessage());
 
     }
 
@@ -354,11 +354,11 @@ public class TypesTest {
 
         endSignal.await();
 
-        Assert.assertEquals(MissionException.class, events.get(2).getClass());
+        Assert.assertEquals(MissionExceptionEvent.class, events.get(2).getClass());
         Assert.assertEquals(MissionExecutionException.class,
-                ((MissionException) events.get(2)).getThrowable().getClass());
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getClass());
         Assert.assertEquals(RuntimeException.class,
-                ((MissionException) events.get(2)).getThrowable().getCause().getClass());
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getClass());
 
     }
 
@@ -392,7 +392,7 @@ public class TypesTest {
 
         endSignal.await();
 
-        Assert.assertEquals(MissionExecutionNotAccepted.class, exception[0].getClass());
+        Assert.assertEquals(ExecutionNotAcceptedException.class, exception[0].getClass());
         Assert.assertEquals("Mission not defined in MolR registry", exception[0].getMessage());
 
 

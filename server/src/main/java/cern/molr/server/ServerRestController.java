@@ -4,8 +4,8 @@
 
 package cern.molr.server;
 
-import cern.molr.commons.exception.MissionExecutionNotAccepted;
-import cern.molr.commons.exception.NoAppropriateSupervisorFound;
+import cern.molr.commons.exception.ExecutionNotAcceptedException;
+import cern.molr.commons.exception.NoSupervisorFoundException;
 import cern.molr.commons.request.client.ServerInstantiationRequest;
 import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
@@ -52,7 +52,7 @@ public class ServerRestController {
             try {
                 String missionId = service.instantiate(request);
                 emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(missionId)));
-            } catch (MissionExecutionNotAccepted | NoAppropriateSupervisorFound e) {
+            } catch (ExecutionNotAcceptedException | NoSupervisorFoundException e) {
                 emitter.success(new InstantiationResponseFailure(e));
             }
         }).subscribeOn(Schedulers.fromExecutorService(executorService));

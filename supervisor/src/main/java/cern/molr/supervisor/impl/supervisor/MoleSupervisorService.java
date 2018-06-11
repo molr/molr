@@ -1,7 +1,7 @@
 package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.commons.events.MissionException;
-import cern.molr.commons.exception.MissionExecutionNotAccepted;
+import cern.molr.commons.events.MissionExceptionEvent;
+import cern.molr.commons.exception.ExecutionNotAcceptedException;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.response.SupervisorState;
@@ -66,9 +66,9 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
         try {
             accept(mission);
             return super.instantiate(mission, args, missionExecutionId);
-        } catch (MissionExecutionNotAccepted e) {
+        } catch (ExecutionNotAcceptedException e) {
             return Flux.create((FluxSink<MissionEvent> emitter) -> {
-                emitter.next(new MissionException(e));
+                emitter.next(new MissionExceptionEvent(e));
                 emitter.complete();
             });
         }
@@ -78,16 +78,16 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
      * A method which verify whether a mission is accepted by the supervisor or not
      *
      * @param mission the mission to verify
-     * @throws MissionExecutionNotAccepted thrown when the mission is not accepted
+     * @throws ExecutionNotAcceptedException thrown when the mission is not accepted
      *
      */
-    private void accept(Mission mission) throws MissionExecutionNotAccepted {
+    private void accept(Mission mission) throws ExecutionNotAcceptedException {
         if (!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionName())) {
-            throw new MissionExecutionNotAccepted(
+            throw new ExecutionNotAcceptedException(
                     "Cannot accept execution of this mission: mission not accepted by the supervisor");
         }
         if (!supervisorState.isAvailable()) {
-            throw new MissionExecutionNotAccepted(
+            throw new ExecutionNotAcceptedException(
                     "Cannot accept execution of this mission: the supervisor cannot execute more missions");
         }
     }

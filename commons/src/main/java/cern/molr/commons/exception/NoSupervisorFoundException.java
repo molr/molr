@@ -6,19 +6,19 @@ package cern.molr.commons.exception;
  *
  * @author yassine-kr
  */
-public class NoAppropriateSupervisorFound extends Exception {
+public class NoSupervisorFoundException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public NoAppropriateSupervisorFound(String message) {
+    public NoSupervisorFoundException(String message) {
         super(message);
     }
 
-    public NoAppropriateSupervisorFound(Throwable cause) {
+    public NoSupervisorFoundException(Throwable cause) {
         super(cause);
     }
 
-    public NoAppropriateSupervisorFound(String message, Throwable cause) {
+    public NoSupervisorFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 }

@@ -44,7 +44,7 @@ public class SupervisorTest {
         CountDownLatch signal = new CountDownLatch(1);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
-        Mission mission = materializer.materialize(MissionTest.class);
+        Mission mission = materializer.materialize(MissionTest.class.getName());
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();
@@ -77,7 +77,7 @@ public class SupervisorTest {
         CountDownLatch signal = new CountDownLatch(4);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
-        Mission mission = materializer.materialize(MissionTest.class);
+        Mission mission = materializer.materialize(MissionTest.class.getName());
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();
@@ -120,7 +120,7 @@ public class SupervisorTest {
         CountDownLatch signal = new CountDownLatch(3);
 
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
-        Mission mission = materializer.materialize(MissionTest.class);
+        Mission mission = materializer.materialize(MissionTest.class.getName());
         List<MissionEvent> events = new ArrayList<>();
 
         MoleSupervisor supervisor = new MoleSupervisorImpl();

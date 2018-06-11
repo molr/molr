@@ -104,7 +104,7 @@ public class MoleRunner implements CommandListener {
         try {
 
             Mole<Object, Object> mole = createMoleInstance(mission.getMoleClassName());
-            mole.verify(Class.forName(mission.getMissionName()));
+            mole.verify(mission.getMissionName());
 
             CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -133,7 +133,7 @@ public class MoleRunner implements CommandListener {
                     LOGGER.error("unable to serialize an event",error);
                 } catch (ExecutionException | InterruptedException error) {
                     try {
-                        System.out.println(mapper.writeValueAsString(new MissionException(error.getCause())));
+                        System.out.println(mapper.writeValueAsString(new MissionExceptionEvent(error.getCause())));
                     } catch (JsonProcessingException error1) {
                         LOGGER.error("unable to serialize an event",error1);
                     }
@@ -144,7 +144,7 @@ public class MoleRunner implements CommandListener {
             LOGGER.error("unable to serialize an event",error);
         } catch (Exception error) {
             try {
-                System.out.println(mapper.writeValueAsString(new MissionException(error)));
+                System.out.println(mapper.writeValueAsString(new MissionExceptionEvent(error)));
             } catch (JsonProcessingException error1) {
                 LOGGER.error("unable to serialize an event",error1);
             }

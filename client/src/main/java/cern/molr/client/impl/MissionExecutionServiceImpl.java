@@ -9,6 +9,7 @@ import cern.molr.client.api.MissionExecutionService;
 import cern.molr.commons.request.MissionCommand;
 import cern.molr.commons.response.CommandResponse;
 import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.web.MolrWebClient;
 import cern.molr.commons.web.MolrWebClientImpl;
 import cern.molr.commons.web.MolrWebSocketClient;
 import cern.molr.commons.web.MolrWebSocketClientImpl;
@@ -22,18 +23,20 @@ import java.util.Properties;
 
 /**
  * Implementation used by the operator to interact with the server
- * The constructor searches for MolR address (host and port) in "config.properties"
- * The default values are "http://localhost" and "8000"
- *
+ * The constructor only constructs the client, it does not perform any attempt to check the connection to the server.
  * @author yassine-kr
  */
 public class MissionExecutionServiceImpl implements MissionExecutionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MissionExecutionServiceImpl.class);
 
-    private MolrWebClientImpl client;
+    private MolrWebClient client;
     private MolrWebSocketClient clientSocket;
 
+    /**
+     * This constructor searches for MolR address (host and port) in "config.properties"
+     * The default values are "http://localhost" and "8000"
+     */
     public MissionExecutionServiceImpl() {
         try (InputStream input = MissionExecutionServiceImpl.class.getClassLoader()
                 .getResourceAsStream("config.properties")) {
@@ -64,7 +67,6 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
     @Override
     public <I> Publisher<ClientMissionController> instantiate(String missionName, I args) {
-
 
         return client.instantiate(missionName, args, missionExecutionId -> new ClientMissionController() {
                             @Override

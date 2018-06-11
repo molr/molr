@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl.supervisor;
 
-import cern.molr.commons.events.MissionException;
+import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.exception.UnknownMissionException;
 import cern.molr.commons.mission.Mission;
@@ -13,8 +13,6 @@ import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
 import cern.molr.supervisor.impl.spawner.JVMSpawner;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -64,7 +62,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             });
         } catch (Exception error) {
             LOGGER.error("error while trying to spawn the mission on the MoleRunner",error);
-            return Flux.just(new MissionException(error));
+            return Flux.just(new MissionExceptionEvent(error));
         }
     }
 

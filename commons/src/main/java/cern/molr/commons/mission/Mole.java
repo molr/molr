@@ -20,17 +20,17 @@ import cern.molr.commons.exception.MissionExecutionException;
 public interface Mole<I, O> {
 
     /**
-     * Method which verifies if a class type is compatible with the mole
-     * @param classType the mission class type
-     * @throws IncompatibleMissionException thrown when the mission class type is incompatible with the mole
+     * Method which verifies if a mission is compatible with the mole
+     * @param missionName the mission name
+     * @throws IncompatibleMissionException thrown when the mission is incompatible with the mole
      */
-    void verify(Class<?> classType) throws IncompatibleMissionException;
+    void verify(String missionName) throws IncompatibleMissionException;
 
     /**
      * Method which runs a mission
      * @param mission the mission to run
      * @param args the execution arguments
-     * @return the output returned by the misison execution
+     * @return the output returned by the mission execution
      * @throws MissionExecutionException a wrapper of an exception thrown during the mission execution
      */
     O run(Mission mission, I args) throws MissionExecutionException;

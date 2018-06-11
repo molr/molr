@@ -6,19 +6,19 @@ package cern.molr.commons.exception;
  *
  * @author yassine-kr
  */
-public class MissionExecutionNotAccepted extends Exception {
+public class ExecutionNotAcceptedException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public MissionExecutionNotAccepted(String message) {
+    public ExecutionNotAcceptedException(String message) {
         super(message);
     }
 
-    public MissionExecutionNotAccepted(Throwable cause) {
+    public ExecutionNotAcceptedException(Throwable cause) {
         super(cause);
     }
 
-    public MissionExecutionNotAccepted(String message, Throwable cause) {
+    public ExecutionNotAcceptedException(String message, Throwable cause) {
         super(message, cause);
     }
 }

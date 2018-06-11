@@ -2,7 +2,7 @@ package cern.molr.test.supervisor.spawner;
 
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionException;
+import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.exception.IncompatibleMissionException;
 import cern.molr.commons.mission.Mission;
 import cern.molr.commons.mission.MissionImpl;
@@ -49,11 +49,11 @@ public class TypesTest {
 
         signal.await();
 
-        Assert.assertEquals(MissionException.class, events.get(1).getClass());
+        Assert.assertEquals(MissionExceptionEvent.class, events.get(1).getClass());
         Assert.assertEquals(IncompatibleMissionException.class,
-                ((MissionException) events.get(1)).getThrowable().getClass());
+                ((MissionExceptionEvent) events.get(1)).getThrowable().getClass());
         Assert.assertEquals("Mission must implement Runnable interface",
-                ((MissionException) events.get(1)).getThrowable().getMessage());
+                ((MissionExceptionEvent) events.get(1)).getThrowable().getMessage());
     }
 
 
