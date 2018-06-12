@@ -42,7 +42,7 @@ public class EventsReader extends RemoteReader {
             listener.onEvent(event);
             LOGGER.info("Reading string event from MoleRunner: {}", line);
         } catch (IOException error) {
-            error.printStackTrace();
+            LOGGER.error("Error while trying to read an event from the MoleRunner", error);
         }
     }
 

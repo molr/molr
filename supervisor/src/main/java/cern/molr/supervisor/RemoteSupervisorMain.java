@@ -9,6 +9,8 @@ import cern.molr.commons.impl.web.MolrWebClientImpl;
 import cern.molr.supervisor.api.address.AddressGetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,6 +34,8 @@ import java.util.Optional;
 @SpringBootApplication
 public class RemoteSupervisorMain {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSupervisorMain.class);
+
     private final AddressGetter addressGetter;
     private final SupervisorConfig config;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -49,7 +53,7 @@ public class RemoteSupervisorMain {
                 supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
                         .getAcceptedMissions()));
             } catch (Exception error) {
-                error.printStackTrace();
+                LOGGER.error("error while attempting to register in the MolR server", error);
             }
         });
     }
@@ -73,7 +77,7 @@ public class RemoteSupervisorMain {
         try {
             client.unregister(supervisorId);
         } catch (Exception error) {
-            error.printStackTrace();
+            LOGGER.error("error while attempting to unregister from MolR server", error);
         }
     }
 

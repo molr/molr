@@ -9,6 +9,8 @@ import cern.molr.supervisor.api.session.MoleController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.HashSet;
@@ -24,6 +26,8 @@ import java.util.concurrent.Future;
  * @author yassine-kr
  */
 public class ControllerImpl implements MoleController, EventsListener, Closeable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerImpl.class);
 
     private final Set<EventsListener> listeners = new HashSet<>();
     private final PrintWriter printWriter;
@@ -56,8 +60,8 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
                     logLine(errorReader);
                 }
             } catch (IOException error) {
-                error.printStackTrace(System.err);
-            } catch (InterruptedException error) {
+                LOGGER.error("error while trying to read the MoleRunner error stream", error);
+            } catch (InterruptedException ignored) {
 
             }
         });
@@ -112,7 +116,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
             }
         } catch (JsonProcessingException error) {
             commandStatus = null;
-            error.printStackTrace();
+            LOGGER.error("error while serializing a command {}", command, error);
             return new CommandResponse.CommandResponseFailure(error);
         }
     }
