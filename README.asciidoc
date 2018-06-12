@@ -1,8 +1,0 @@
-# molr-remote
-
-image:https://img.shields.io/travis/molr/molr-remote/manage-several-requests.svg[]
-image:https://codecov.io/gh/molr/molr-remote/branch/manage-several-requests/graph/badge.svg["codecov", link="https://codecov.io/gh/molr/molr-remote/branch/manage-several-requests"]
-
-A delegation framework for accelerator commissioning with remote execution
-
-For a high level overview on Molr, check out this presentation (includes slides and video): https://indico.cern.ch/event/658004/contributions/2682253/
