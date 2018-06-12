@@ -1,6 +1,6 @@
 package cern.molr.supervisor.api.session;
 
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.response.MissionEvent;
 
 /**
  * Listener for events triggered by execution of a mole in a MoleRrunner

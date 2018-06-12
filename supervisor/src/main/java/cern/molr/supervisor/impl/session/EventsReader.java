@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl.session;
 
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.supervisor.api.session.EventsListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

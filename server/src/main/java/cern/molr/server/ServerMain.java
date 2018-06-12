@@ -48,7 +48,7 @@ public class ServerMain {
         /**
          * Executor service needed for running the response to an instantiate request in a thread able to wait using
          * the blocking method of a {@link Mono}
-         * TODO maybe this executor is not needed
+         *
          * @return the executor service
          */
         @Bean

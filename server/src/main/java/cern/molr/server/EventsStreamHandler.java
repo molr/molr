@@ -1,7 +1,7 @@
 package cern.molr.server;
 
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.response.MissionEvent;
 import cern.molr.commons.web.DataExchangeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class EventsStreamHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
-        LOGGER.info("session created for a request received from the client: {}",session.getHandshakeInfo().getUri());
+        LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
         return session.send(new DataExchangeBuilder<>
                 (String.class, MissionEvent.class)

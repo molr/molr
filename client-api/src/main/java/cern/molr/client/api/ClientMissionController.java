@@ -4,9 +4,9 @@
 
 package cern.molr.client.api;
 
-import cern.molr.commons.request.MissionCommand;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
 import org.reactivestreams.Publisher;
 
 /**
@@ -28,6 +28,7 @@ public interface ClientMissionController {
      * A method which sends a {@link MissionCommand} to the supervisor where the mission is being executed
      *
      * @param command the command to execute
+     *
      * @return a stream of one element which tells whether the command was accepted or not
      */
     Publisher<CommandResponse> instruct(MissionCommand command);

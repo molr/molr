@@ -1,6 +1,6 @@
 package cern.molr.supervisor.api.session;
 
-import cern.molr.commons.mission.Mission;
+import cern.molr.commons.api.mission.Mission;
 
 /**
  * Session corresponding to the execution of a mission by a supervisor

@@ -1,12 +1,12 @@
 package cern.molr.test.supervisor.spawner;
 
+import cern.molr.commons.api.exception.IncompatibleMissionException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.exception.IncompatibleMissionException;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.mission.MissionImpl;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.sample.mole.RunnableMole;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;

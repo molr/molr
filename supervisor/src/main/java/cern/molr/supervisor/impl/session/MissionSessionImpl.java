@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl.session;
 
-import cern.molr.commons.mission.Mission;
+import cern.molr.commons.api.mission.Mission;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;
 

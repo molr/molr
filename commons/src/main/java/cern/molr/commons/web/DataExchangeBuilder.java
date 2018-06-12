@@ -1,8 +1,8 @@
 package cern.molr.commons.web;
 
-import cern.molr.commons.type.trye.Failure;
-import cern.molr.commons.type.trye.Success;
-import cern.molr.commons.type.trye.Try;
+import cern.molr.commons.api.type.trye.Failure;
+import cern.molr.commons.api.type.trye.Success;
+import cern.molr.commons.api.type.trye.Try;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -34,6 +34,7 @@ public class DataExchangeBuilder<Input, Output> {
     private Flux<String> preInput;
     private ThrowingFunction<Input, Publisher<Output>> generator;
     private Function<Throwable, Output> generatorExceptionHandler;
+
     public DataExchangeBuilder(Class<Input> inputType, Class<Output> outputType) {
         this.inputType = inputType;
         this.outputType = outputType;
@@ -91,10 +92,10 @@ public class DataExchangeBuilder<Input, Output> {
             } catch (IOException error) {
                 return new Failure<>(error);
             }
-        }).concatMap((tryInput) -> tryInput.match((error)->{
-            LOGGER.error("unable to deserialize the input data",error);
+        }).concatMap((tryInput) -> tryInput.match((error) -> {
+            LOGGER.error("unable to deserialize the input data", error);
             return Mono.empty();
-        },(input)->{
+        }, (input) -> {
             try {
                 return Flux.from(generator.apply(input)).map((output -> {
                     try {
@@ -105,10 +106,10 @@ public class DataExchangeBuilder<Input, Output> {
                 }));
             } catch (Exception error) {
                 try {
-                    LOGGER.error("exception in getting the result stream",error);
+                    LOGGER.error("exception in getting the result stream", error);
                     return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.apply(error)));
                 } catch (JsonProcessingException error1) {
-                    LOGGER.error("unable to serialize an output data",error1);
+                    LOGGER.error("unable to serialize an output data", error1);
                     return Mono.empty();
                 }
             }
@@ -116,7 +117,7 @@ public class DataExchangeBuilder<Input, Output> {
     }
 
     /**
-     * A function which can throws an exception
+     * A function which can throw an exception
      *
      * @param <T> parameter type
      * @param <R> return type

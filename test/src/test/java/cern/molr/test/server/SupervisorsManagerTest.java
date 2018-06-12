@@ -1,10 +1,10 @@
 package cern.molr.test.server;
 
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.impl.SupervisorsManagerImpl;
@@ -68,7 +68,7 @@ public class SupervisorsManagerTest {
 
         @Override
         public <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> request, String
-                missionExecutionId) {
+                missionId) {
             return null;
         }
 

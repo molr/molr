@@ -1,6 +1,6 @@
 package cern.molr.supervisor.api.session.runner;
 
-import cern.molr.commons.request.MissionCommand;
+import cern.molr.commons.api.request.MissionCommand;
 
 /**
  * Listener for commands sent by supervisor to the MoleRunner

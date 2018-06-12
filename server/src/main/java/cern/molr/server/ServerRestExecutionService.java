@@ -4,13 +4,13 @@
 
 package cern.molr.server;
 
-import cern.molr.commons.exception.ExecutionNotAcceptedException;
-import cern.molr.commons.exception.NoSupervisorFoundException;
-import cern.molr.commons.exception.UnknownMissionException;
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.exception.ExecutionNotAcceptedException;
+import cern.molr.commons.api.exception.NoSupervisorFoundException;
+import cern.molr.commons.api.exception.UnknownMissionException;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
@@ -124,8 +124,8 @@ public class ServerRestExecutionService {
             return Optional.ofNullable(missionExecutionRegistry.get(missionEId));
         }
 
-        public Optional<RemoteMoleSupervisor> getMoleSupervisor(String missionExecutionId) {
-            return Optional.ofNullable(moleSupervisorRegistry.get(missionExecutionId));
+        public Optional<RemoteMoleSupervisor> getMoleSupervisor(String missionId) {
+            return Optional.ofNullable(moleSupervisorRegistry.get(missionId));
         }
 
         public void removeMissionExecution(String missionId) {

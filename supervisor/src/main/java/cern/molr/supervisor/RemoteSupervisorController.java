@@ -4,8 +4,8 @@
 
 package cern.molr.supervisor;
 
-import cern.molr.commons.request.server.SupervisorStateRequest;
-import cern.molr.commons.response.SupervisorStateResponse;
+import cern.molr.commons.api.request.server.SupervisorStateRequest;
+import cern.molr.commons.api.response.SupervisorStateResponse;
 import cern.molr.commons.web.MolrConfig;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.reactivestreams.Publisher;
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.util.concurrent.ExecutorService;
 
 /**
  * {@link RestController} for {@link RemoteSupervisorMain} spring application
@@ -36,9 +34,9 @@ public class RemoteSupervisorController {
     @RequestMapping(path = MolrConfig.GET_STATE_PATH, method = RequestMethod.POST)
     public Publisher<SupervisorStateResponse> getState(@RequestBody SupervisorStateRequest request) {
 
-        return Mono.create((emitter)->{
-           emitter.success(new
-                   SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState()));
+        return Mono.create((emitter) -> {
+            emitter.success(new
+                    SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState()));
         });
 
     }

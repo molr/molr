@@ -1,14 +1,14 @@
 package cern.molr.server.impl;
 
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
-import cern.molr.commons.web.MolrWebClient;
-import cern.molr.commons.web.MolrWebClientImpl;
-import cern.molr.commons.web.MolrWebSocketClient;
-import cern.molr.commons.web.MolrWebSocketClientImpl;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
+import cern.molr.commons.api.web.MolrWebClient;
+import cern.molr.commons.api.web.MolrWebSocketClient;
+import cern.molr.commons.impl.web.MolrWebClientImpl;
+import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import org.reactivestreams.Publisher;
 
@@ -31,20 +31,18 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
 
     @Override
     public <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String
-            missionExecutionId) {
-        return socketClient.instantiate(serverRequest.getMissionName(), missionExecutionId, serverRequest.getArgs());
+            missionId) {
+        return socketClient.instantiate(serverRequest.getMissionName(), missionId, serverRequest.getMissionArguments());
     }
 
     @Override
     public Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest) {
-        return socketClient.instruct("unknown",commandRequest.getMissionId(),commandRequest.getCommand());
+        return socketClient.instruct("unknown", commandRequest.getMissionId(), commandRequest.getCommand());
     }
 
-
-    //TODO when MolR server is unable to get the state of the supervisor, it should unregister it from supervisors manager
     @Override
     public Optional<SupervisorState> getSupervisorState() {
-            return client.getState();
+        return client.getState();
     }
 
 }

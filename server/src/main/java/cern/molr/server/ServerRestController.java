@@ -4,16 +4,16 @@
 
 package cern.molr.server;
 
-import cern.molr.commons.exception.ExecutionNotAcceptedException;
-import cern.molr.commons.exception.NoSupervisorFoundException;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.request.supervisor.SupervisorRegisterRequest;
-import cern.molr.commons.request.supervisor.SupervisorUnregisterRequest;
-import cern.molr.commons.response.*;
-import cern.molr.commons.response.InstantiationResponse.InstantiationResponseFailure;
-import cern.molr.commons.response.InstantiationResponse.InstantiationResponseSuccess;
-import cern.molr.commons.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
-import cern.molr.commons.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
+import cern.molr.commons.api.exception.ExecutionNotAcceptedException;
+import cern.molr.commons.api.exception.NoSupervisorFoundException;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.request.supervisor.SupervisorRegisterRequest;
+import cern.molr.commons.api.request.supervisor.SupervisorUnregisterRequest;
+import cern.molr.commons.api.response.*;
+import cern.molr.commons.api.response.InstantiationResponse.InstantiationResponseFailure;
+import cern.molr.commons.api.response.InstantiationResponse.InstantiationResponseSuccess;
+import cern.molr.commons.api.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
+import cern.molr.commons.api.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
 import cern.molr.commons.web.MolrConfig;
 import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,7 +48,7 @@ public class ServerRestController {
     public <I> Publisher<InstantiationResponse> instantiateMission(
             @RequestBody ServerInstantiationRequest<I> request) {
 
-        return Mono.<InstantiationResponse>create((emitter)->{
+        return Mono.<InstantiationResponse>create((emitter) -> {
             try {
                 String missionId = service.instantiate(request);
                 emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(missionId)));
@@ -61,9 +61,9 @@ public class ServerRestController {
     @RequestMapping(path = MolrConfig.REGISTER_PATH, method = RequestMethod.POST)
     public Publisher<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         return Mono.create((emitter) -> {
-                String supervisorId = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
-                emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(supervisorId)));
-            });
+            String supervisorId = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
+            emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(supervisorId)));
+        });
     }
 
     @RequestMapping(path = MolrConfig.UNREGISTER_PATH, method = RequestMethod.POST)
@@ -71,7 +71,7 @@ public class ServerRestController {
             @RequestBody SupervisorUnregisterRequest request) {
 
         return Mono.create((emitter) -> {
-            service.removeSupervisor(request.getId());
+            service.removeSupervisor(request.getSupervisorId());
             emitter.success(new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully")));
         });
     }

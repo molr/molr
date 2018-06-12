@@ -1,13 +1,13 @@
 package cern.molr.supervisor.impl.supervisor;
 
+import cern.molr.commons.api.exception.UnknownMissionException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.SessionTerminated;
-import cern.molr.commons.exception.UnknownMissionException;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
@@ -36,19 +36,19 @@ public class MoleSupervisorImpl implements MoleSupervisor {
 
      */
     @Override
-    public <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+    public <I> Publisher<MissionEvent> instantiate(Mission mission, I missionArguments, String missionId) {
         try {
             MissionSession session;
             JVMSpawner<I> spawner = new JVMSpawner<>();
-            session = spawner.spawnMoleRunner(mission, args);
-            sessionsManager.addSession(missionExecutionId, session);
+            session = spawner.spawnMoleRunner(mission, missionArguments);
+            sessionsManager.addSession(missionId, session);
             session.getController().addMoleExecutionListener((event) -> {
                 if (event instanceof SessionTerminated) {
                     sessionsManager.removeSession(session);
                     try {
                         session.getController().close();
                     } catch (IOException error) {
-                        LOGGER.error("error while trying to close a session",error);
+                        LOGGER.error("error while trying to close a session", error);
                     }
                 }
             });
@@ -61,7 +61,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                 });
             });
         } catch (Exception error) {
-            LOGGER.error("error while trying to spawn the mission on the MoleRunner",error);
+            LOGGER.error("error while trying to spawn the mission on the MoleRunner", error);
             return Flux.just(new MissionExceptionEvent(error));
         }
     }

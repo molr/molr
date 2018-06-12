@@ -1,11 +1,11 @@
 package cern.molr.supervisor;
 
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionMaterializer;
+import cern.molr.commons.api.request.server.InstantiationRequest;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.mission.AnnotatedMissionMaterializer;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.mission.MissionMaterializer;
-import cern.molr.commons.request.server.InstantiationRequest;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ public class InstantiateHandler implements WebSocketHandler {
                 .setGenerator((request) -> {
                     MissionMaterializer materializer = new AnnotatedMissionMaterializer();
                     Mission mission = materializer.materialize(request.getMissionName());
-                    return supervisor.instantiate(mission, request.getArgs(), request.getMissionExecutionId());
+                    return supervisor.instantiate(mission, request.getMissionArguments(), request.getMissionId());
                 })
                 .setGeneratorExceptionHandler(MissionExceptionEvent::new).build().map(session::textMessage));
 

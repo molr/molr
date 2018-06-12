@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl.session;
 
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.response.MissionEvent;
 
 
 /**
@@ -8,7 +8,7 @@ import cern.molr.commons.response.MissionEvent;
  *
  * @author yassine-kr
  */
-public class CommandStatus implements MissionEvent{
+public class CommandStatus implements MissionEvent {
     private boolean accepted;
     private String reason;
     private Throwable exception;

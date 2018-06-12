@@ -7,13 +7,12 @@
 package cern.molr.sample.mole;
 
 
-import cern.molr.commons.exception.IncompatibleMissionException;
-import cern.molr.commons.exception.MissionExecutionException;
-import cern.molr.commons.exception.MissionMaterializationException;
-import cern.molr.commons.exception.MissionResolvingException;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.mission.MissionResolver;
-import cern.molr.commons.mission.Mole;
+import cern.molr.commons.api.exception.IncompatibleMissionException;
+import cern.molr.commons.api.exception.MissionExecutionException;
+import cern.molr.commons.api.exception.MissionResolvingException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionResolver;
+import cern.molr.commons.api.mission.Mole;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
@@ -54,13 +53,13 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
     }
 
     @Override
-    public Integer run(Mission mission, Integer arg) throws MissionExecutionException {
+    public Integer run(Mission mission, Integer missionArguments) throws MissionExecutionException {
         try {
             @SuppressWarnings("unchecked")
             Class<Function<Integer, Integer>> missionClass =
                     (Class<Function<Integer, Integer>>) MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
             Function<Integer, Integer> missionInstance = missionClass.getConstructor().newInstance();
-            return missionInstance.apply(arg);
+            return missionInstance.apply(missionArguments);
         } catch (Exception error) {
             throw new MissionExecutionException(error);
         }

@@ -4,8 +4,8 @@
 
 package cern.molr.supervisor;
 
-import cern.molr.commons.web.MolrWebClient;
-import cern.molr.commons.web.MolrWebClientImpl;
+import cern.molr.commons.api.web.MolrWebClient;
+import cern.molr.commons.impl.web.MolrWebClientImpl;
 import cern.molr.supervisor.api.address.AddressGetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

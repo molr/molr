@@ -1,14 +1,16 @@
 package cern.molr.supervisor;
 
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.response.CommandResponse;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.web.DataExchangeBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;;
+import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
+
+;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for instructing the MoleRunner. It returns a mono, It

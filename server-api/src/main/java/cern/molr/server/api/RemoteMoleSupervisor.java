@@ -1,10 +1,10 @@
 package cern.molr.server.api;
 
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import org.reactivestreams.Publisher;
 
 import java.util.Optional;
@@ -20,18 +20,18 @@ public interface RemoteMoleSupervisor {
      * A method which should send an instantiation request to the supervisor
      *
      * @param serverRequest the request sent by the client to mMolR server
-     * @param missionExecutionId the mission ID of the execution
-     * @param <I>                the argument type
+     * @param missionId     the ID of the execution
+     * @param <I>           the argument type
      *
      * @return a publisher of events triggered by the mission execution
      */
-    <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionExecutionId);
+    <I> Publisher<MissionEvent> instantiate(ServerInstantiationRequest<I> serverRequest, String missionId);
 
 
     /**
      * A method which should send a command request to the impl
      *
-     * @param commandRequest
+     * @param commandRequest The command request
      *
      * @return a publisher of the command response, it contains one element
      */

@@ -1,6 +1,6 @@
 package cern.molr.server.impl;
 
-import cern.molr.commons.response.SupervisorState;
+import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
 import org.slf4j.Logger;
@@ -63,10 +63,15 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
                 .ofNullable(possibleSupervisorsRegistry.get(missionName));
 
         return optional.flatMap((vec) -> {
-            for (RemoteMoleSupervisor supervisor : vec) {
-                Optional<SupervisorState> state = supervisor.getSupervisorState();
-                if (state.isPresent() && state.get().isAvailable()) {
-                    return Optional.of(supervisor);
+            for (int i=0; i<vec.size(); i++) {
+                Optional<SupervisorState> state = vec.get(i).getSupervisorState();
+                if (state.isPresent()) {
+                    if (state.get().isAvailable()) {
+                        return Optional.of(vec.get(i));
+                    }
+                } else {
+                    removeSupervisor(vec.get(i));
+                    i--;
                 }
             }
             return Optional.empty();

@@ -1,7 +1,7 @@
 package cern.molr.supervisor.api.session.runner;
 
-import cern.molr.commons.exception.CommandNotAcceptedException;
-import cern.molr.commons.request.MissionCommand;
+import cern.molr.commons.api.exception.CommandNotAcceptedException;
+import cern.molr.commons.api.request.MissionCommand;
 
 /**
  * Represents the MoleRunner state.

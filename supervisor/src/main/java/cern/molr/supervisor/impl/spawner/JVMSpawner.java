@@ -1,7 +1,7 @@
 package cern.molr.supervisor.impl.spawner;
 
 
-import cern.molr.commons.mission.Mission;
+import cern.molr.commons.api.mission.Mission;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.spawner.MoleSpawner;
 import cern.molr.supervisor.impl.session.ControllerImpl;
@@ -21,7 +21,7 @@ public class JVMSpawner<I> implements MoleSpawner<I, MissionSession> {
     private static final String EXECUTOR_MAIN_CLASS = MoleRunner.class.getName();
 
     @Override
-    public MissionSession spawnMoleRunner(Mission mission, I args) throws Exception {
+    public MissionSession spawnMoleRunner(Mission mission, I missionArguments) throws Exception {
         if (mission == null) {
             throw new IllegalArgumentException("The mission must not be null");
         }
@@ -29,11 +29,11 @@ public class JVMSpawner<I> implements MoleSpawner<I, MissionSession> {
         ObjectMapper mapper = new ObjectMapper();
 
         String missionObjString = mapper.writeValueAsString(mission);
-        String missionInputObjString = mapper.writeValueAsString(args);
+        String missionInputObjString = mapper.writeValueAsString(missionArguments);
 
         MoleRunnerArgument argument =
                 new MoleRunnerArgument(missionObjString, missionInputObjString,
-                        args == null ? Object.class.getName() : args.getClass().getName());
+                        missionArguments == null ? Object.class.getName() : missionArguments.getClass().getName());
 
         String[] completedArgs = new String[1];
         completedArgs[0] = mapper.writeValueAsString(argument);

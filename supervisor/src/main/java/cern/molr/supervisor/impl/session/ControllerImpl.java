@@ -1,9 +1,9 @@
 package cern.molr.supervisor.impl.session;
 
-import cern.molr.commons.request.MissionCommand;
-import cern.molr.commons.response.Ack;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.api.response.Ack;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.supervisor.api.session.EventsListener;
 import cern.molr.supervisor.api.session.MoleController;
 import com.fasterxml.jackson.core.JsonProcessingException;

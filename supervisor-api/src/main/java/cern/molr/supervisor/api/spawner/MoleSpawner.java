@@ -5,7 +5,7 @@
 package cern.molr.supervisor.api.spawner;
 
 
-import cern.molr.commons.mission.Mission;
+import cern.molr.commons.api.mission.Mission;
 
 /**
  * The {@link MoleSpawner} spawns a mission for execution
@@ -17,6 +17,6 @@ import cern.molr.commons.mission.Mission;
  */
 public interface MoleSpawner<I, T> {
 
-    T spawnMoleRunner(Mission m, I args) throws Exception;
+    T spawnMoleRunner(Mission m, I missionArguments) throws Exception;
 
 }

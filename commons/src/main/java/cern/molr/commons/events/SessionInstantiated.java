@@ -1,6 +1,6 @@
 package cern.molr.commons.events;
 
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.response.MissionEvent;
 
 /**
  * Event sent back by the supervisor when the session is instantiated.

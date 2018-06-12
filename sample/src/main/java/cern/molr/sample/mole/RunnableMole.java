@@ -7,12 +7,12 @@
 package cern.molr.sample.mole;
 
 
-import cern.molr.commons.exception.IncompatibleMissionException;
-import cern.molr.commons.exception.MissionExecutionException;
-import cern.molr.commons.exception.MissionResolvingException;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.mission.MissionResolver;
-import cern.molr.commons.mission.Mole;
+import cern.molr.commons.api.exception.IncompatibleMissionException;
+import cern.molr.commons.api.exception.MissionExecutionException;
+import cern.molr.commons.api.exception.MissionResolvingException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionResolver;
+import cern.molr.commons.api.mission.Mole;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the
@@ -48,7 +48,7 @@ public class RunnableMole implements Mole<Void, Void> {
     }
 
     @Override
-    public Void run(Mission mission, Void args) throws MissionExecutionException {
+    public Void run(Mission mission, Void missionArguments) throws MissionExecutionException {
         try {
             Class<?> missionClass = MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
             Object missionInstance = missionClass.getConstructor().newInstance();

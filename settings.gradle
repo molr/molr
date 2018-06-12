@@ -3,4 +3,5 @@ include "client", "server", "supervisor"
 include "client-api", "server-api", "supervisor-api"
 include 'test'
 include 'demo'
+include 'commons-api'
 

@@ -1,6 +1,6 @@
 package cern.molr.supervisor.impl.session.runner;
 
-import cern.molr.commons.request.MissionCommand;
+import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.impl.session.RemoteReader;
 import com.fasterxml.jackson.databind.ObjectMapper;

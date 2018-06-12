@@ -1,6 +1,7 @@
 package cern.molr.commons.events;
 
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.api.response.MissionEvent;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Event sent back by the supervisor when there is an exception
@@ -8,27 +9,14 @@ import cern.molr.commons.response.MissionEvent;
  * @author yassine-kr
  */
 public class MissionExceptionEvent implements MissionEvent {
-    private Throwable throwable;
-    private String message;
+    private final Throwable throwable;
 
-    public MissionExceptionEvent() {
-    }
-
-    public MissionExceptionEvent(String message) {
-        this.message = message;
-    }
-
-    public MissionExceptionEvent(Throwable throwable) {
+    public MissionExceptionEvent(@JsonProperty("throwable") Throwable throwable) {
         this.throwable = throwable;
-        this.message = throwable.getMessage();
     }
 
     public Throwable getThrowable() {
         return throwable;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     @Override

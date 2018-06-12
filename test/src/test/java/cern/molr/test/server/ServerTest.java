@@ -1,18 +1,18 @@
 package cern.molr.test.server;
 
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.request.client.ServerInstantiationRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.InstantiationResponse;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionStarted;
 import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.events.SessionTerminated;
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.request.client.ServerInstantiationRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.InstantiationResponse;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.impl.web.MolrWebClientImpl;
+import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
 import cern.molr.commons.web.MolrConfig;
-import cern.molr.commons.web.MolrWebClientImpl;
-import cern.molr.commons.web.MolrWebSocketClientImpl;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -71,7 +71,7 @@ public class ServerTest {
         Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
 
 
-        clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionExecutionId())
+        clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionId())
                 .doOnError(Throwable::printStackTrace).subscribe(
                 (event) -> {
                     System.out.println("event: " + event);
@@ -88,11 +88,11 @@ public class ServerTest {
         System.out.println("sending start command");
 
         clientSocket.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest(response
-                .getResult().getMissionExecutionId(), new Start())).doOnError
+                .getResult().getMissionId(), new Start())).doOnError
                 (Throwable::printStackTrace).subscribe((result) -> {
-                    System.out.println("response to start: " + result);
-                    commandResponses.add(result);
-                });
+            System.out.println("response to start: " + result);
+            commandResponses.add(result);
+        });
 
         endSignal.await();
 

@@ -1,15 +1,15 @@
 package cern.molr.test.supervisor.spawner;
 
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionMaterializer;
+import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionStarted;
 import cern.molr.commons.events.SessionInstantiated;
 import cern.molr.commons.events.SessionTerminated;
-import cern.molr.commons.mission.AnnotatedMissionMaterializer;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.mission.MissionMaterializer;
-import cern.molr.commons.response.MissionEvent;
+import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.supervisor.impl.session.ControllerImpl;
@@ -29,11 +29,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class JVMSpawnerTest {
 
-    private <I> MoleController getController(Class<?> missionClass, I args) throws Exception {
+    private <I> MoleController getController(Class<?> missionClass, I missionArguments) throws Exception {
         JVMSpawner<I> spawner = new JVMSpawner<>();
         MissionMaterializer materializer = new AnnotatedMissionMaterializer();
         Mission mission = materializer.materialize(missionClass.getName());
-        MissionSession session = spawner.spawnMoleRunner(mission, args);
+        MissionSession session = spawner.spawnMoleRunner(mission, missionArguments);
         return session.getController();
     }
 

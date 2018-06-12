@@ -1,7 +1,7 @@
 package cern.molr.supervisor.api.session;
 
-import cern.molr.commons.request.MissionCommand;
-import cern.molr.commons.response.CommandResponse;
+import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.api.response.CommandResponse;
 
 import java.io.Closeable;
 

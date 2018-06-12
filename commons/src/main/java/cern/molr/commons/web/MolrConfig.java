@@ -2,6 +2,7 @@ package cern.molr.commons.web;
 
 /**
  * A class wrapping the MolR configuration properties
+ *
  * @author yassine-kr
  * TODO the configuration must be loaded from a properties file
  */
@@ -14,6 +15,7 @@ public class MolrConfig {
     public static final String REGISTER_PATH = "/register";
     public static final String UNREGISTER_PATH = "/unregister";
 
-    private MolrConfig(){}
+    private MolrConfig() {
+    }
 
 }

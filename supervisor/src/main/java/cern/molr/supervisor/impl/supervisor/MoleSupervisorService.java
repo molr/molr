@@ -1,10 +1,10 @@
 package cern.molr.supervisor.impl.supervisor;
 
+import cern.molr.commons.api.exception.ExecutionNotAcceptedException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.exception.ExecutionNotAcceptedException;
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
 import cern.molr.supervisor.SupervisorConfig;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManagerListener;
 import org.reactivestreams.Publisher;
@@ -29,17 +29,17 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
-        supervisorState = new SupervisorState(0,config.getMaxMissions());
+        supervisorState = new SupervisorState(0, config.getMaxMissions());
         sessionsManager.addListener(new SupervisorSessionsManagerListener() {
             @Override
             public void onSessionAdded(String missionId) {
-                supervisorState=new SupervisorState(sessionsManager.getSessionsNumber(),supervisorState
+                supervisorState = new SupervisorState(sessionsManager.getSessionsNumber(), supervisorState
                         .getMaxMissions());
             }
 
             @Override
             public void onSessionRemoved(String missionId) {
-                supervisorState=new SupervisorState(sessionsManager.getSessionsNumber(),supervisorState
+                supervisorState = new SupervisorState(sessionsManager.getSessionsNumber(), supervisorState
                         .getMaxMissions());
             }
         });
@@ -55,17 +55,17 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
      * to determine whether the instantiation is accepted
      *
      * @param mission
-     * @param args
-     * @param missionExecutionId
+     * @param missionArguments
+     * @param missionId
      * @param <I>
      *
      * @return a stream of events triggered by the mission execution
      */
     @Override
-    synchronized public <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId) {
+    synchronized public <I> Publisher<MissionEvent> instantiate(Mission mission, I missionArguments, String missionId) {
         try {
             accept(mission);
-            return super.instantiate(mission, args, missionExecutionId);
+            return super.instantiate(mission, missionArguments, missionId);
         } catch (ExecutionNotAcceptedException e) {
             return Flux.create((FluxSink<MissionEvent> emitter) -> {
                 emitter.next(new MissionExceptionEvent(e));
@@ -78,8 +78,8 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
      * A method which verify whether a mission is accepted by the supervisor or not
      *
      * @param mission the mission to verify
-     * @throws ExecutionNotAcceptedException thrown when the mission is not accepted
      *
+     * @throws ExecutionNotAcceptedException thrown when the mission is not accepted
      */
     private void accept(Mission mission) throws ExecutionNotAcceptedException {
         if (!Arrays.asList(config.getAcceptedMissions()).contains(mission.getMissionName())) {

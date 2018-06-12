@@ -1,4 +1,5 @@
 dependencies {
+    compile project(":commons-api")
     compile group: 'org.springframework', name: 'spring-webflux', version: springFrameworkVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: fasterXmlJacksonVersion
 }

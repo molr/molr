@@ -1,10 +1,10 @@
 package cern.molr.supervisor.api.supervisor;
 
-import cern.molr.commons.mission.Mission;
-import cern.molr.commons.request.MissionCommandRequest;
-import cern.molr.commons.response.CommandResponse;
-import cern.molr.commons.response.MissionEvent;
-import cern.molr.commons.response.SupervisorState;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.request.MissionCommandRequest;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import org.reactivestreams.Publisher;
 
 /**
@@ -19,13 +19,13 @@ public interface MoleSupervisor {
      * Create the MoleRunner which should execute the mission
      *
      * @param mission
-     * @param args
-     * @param missionExecutionId
+     * @param missionArguments
+     * @param missionId
      * @param <I>
      *
      * @return an events stream sent by the session controller
      */
-    <I> Publisher<MissionEvent> instantiate(Mission mission, I args, String missionExecutionId);
+    <I> Publisher<MissionEvent> instantiate(Mission mission, I missionArguments, String missionId);
 
     /**
      * Send commands to the MoleRunner

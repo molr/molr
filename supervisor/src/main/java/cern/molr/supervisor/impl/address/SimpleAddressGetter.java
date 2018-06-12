@@ -35,7 +35,7 @@ public class SimpleAddressGetter implements AddressGetter, ApplicationListener<W
             for (NetworkInterface netInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 for (InetAddress inetAddress : Collections.list(netInterface.getInetAddresses())) {
                     if (!inetAddress.isLinkLocalAddress() && !inetAddress.isLoopbackAddress()) {
-                        address.setHost("http://"+inetAddress.getHostName());
+                        address.setHost("http://" + inetAddress.getHostName());
                         return;
                     }
 
