@@ -7,54 +7,62 @@
 package cern.molr.sample.mole;
 
 
+import cern.molr.commons.api.exception.IncompatibleMissionException;
+import cern.molr.commons.api.exception.MissionExecutionException;
+import cern.molr.commons.api.exception.MissionResolvingException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionResolver;
+import cern.molr.commons.api.mission.Mole;
+
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
 
-import cern.molr.exception.IncompatibleMissionException;
-import cern.molr.exception.MissionExecutionException;
-import cern.molr.mission.Mission;
-import cern.molr.mole.Mole;
-
 /**
- * Implementation of {@link Mole} which allows for the discovery and execution of classes implementing the
+ * Implementation of {@link Mole} which allows for the execution of classes implementing the
  * {@link Function<Integer,Integer>} interface.
  *
  * @author nachivpn
+ * @author yassine-kr
  * @see Mole
  */
-public class IntegerFunctionMole implements Mole<Integer,Integer> {
+public class IntegerFunctionMole implements Mole<Integer, Integer> {
 
     @Override
-    public Integer run(Mission mission, Integer arg) throws MissionExecutionException {
+    public void verify(String missionName) throws IncompatibleMissionException {
+        Class<?> classType = null;
         try {
-            @SuppressWarnings("unchecked")
-            Class<Function<Integer,Integer>> missionContentClass = (Class<Function<Integer,Integer>>) Class.forName(mission.getMissionDefnClassName());
-            Function<Integer,Integer> missionContentInstance = missionContentClass.getConstructor().newInstance();
-            return missionContentInstance.apply(arg);
-        } catch (Exception e) {
-            throw new MissionExecutionException(e);
+            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+        } catch (MissionResolvingException error) {
+            throw new IncompatibleMissionException(error);
         }
-    }
 
-    @Override
-    public List<Method> discover(Class<?> classType) throws IncompatibleMissionException {
-        if (null == classType) {
+        if (null == missionName) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
         if (Function.class.isAssignableFrom(classType)) {
             try {
                 Method m = classType.getMethod("apply", Integer.class);
-                if(m.getReturnType() == Integer.class)
-                    return Collections.singletonList(m);
-                else
+                if (m.getReturnType() != Integer.class) {
                     throw new IncompatibleMissionException("Mission must implement IntFunction interface");
-            } catch (NoSuchMethodException e) {
-                throw new IncompatibleMissionException(e);
+                }
+            } catch (NoSuchMethodException error) {
+                throw new IncompatibleMissionException(error);
             }
+        } else
+            throw new IncompatibleMissionException("Mission must implement IntFunction interface");
+    }
+
+    @Override
+    public Integer run(Mission mission, Integer missionArguments) throws MissionExecutionException {
+        try {
+            @SuppressWarnings("unchecked")
+            Class<Function<Integer, Integer>> missionClass =
+                    (Class<Function<Integer, Integer>>) MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
+            Function<Integer, Integer> missionInstance = missionClass.getConstructor().newInstance();
+            return missionInstance.apply(missionArguments);
+        } catch (Exception error) {
+            throw new MissionExecutionException(error);
         }
-        throw new IncompatibleMissionException("Mission must implement IntFunction interface");
     }
 
 }

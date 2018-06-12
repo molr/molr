@@ -7,53 +7,58 @@
 package cern.molr.sample.mole;
 
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-
-import cern.molr.exception.IncompatibleMissionException;
-import cern.molr.exception.MissionExecutionException;
-import cern.molr.mission.Mission;
-import cern.molr.mole.Mole;
+import cern.molr.commons.api.exception.IncompatibleMissionException;
+import cern.molr.commons.api.exception.MissionExecutionException;
+import cern.molr.commons.api.exception.MissionResolvingException;
+import cern.molr.commons.api.mission.Mission;
+import cern.molr.commons.api.mission.MissionResolver;
+import cern.molr.commons.api.mission.Mole;
 
 /**
- * Implementation of {@link Mole} which allows for the discovery and execution of classes implementing the
+ * Implementation of {@link Mole} which allows for the execution of classes implementing the
  * {@link Runnable} interface.
- * <h3>Discovery:</h3> All classes annotated with {@link Runnable} are exposed as services.
- * <h3>Execution:</h3> Allows for the execution of the {@link Runnable#run()} entry point.
  *
  * @author tiagomr
  * @author nachivpn
+ * @author yassine-kr
  * @see Mole
  */
-public class RunnableMole implements Mole<Void,Void> {
+public class RunnableMole implements Mole<Void, Void> {
 
     @Override
-    public List<Method> discover(Class<?> classType) throws IncompatibleMissionException {
+    public void verify(String missionName) throws IncompatibleMissionException {
+        Class<?> classType = null;
+        try {
+            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+        } catch (MissionResolvingException error) {
+            throw new IncompatibleMissionException(error);
+        }
+
         if (null == classType) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
         if (Runnable.class.isAssignableFrom(classType)) {
             try {
-                return Collections.singletonList(classType.getMethod("run"));
-            } catch (NoSuchMethodException e) {
-                throw new IncompatibleMissionException(e);
+                classType.getMethod("run");
+            } catch (NoSuchMethodException error) {
+                throw new IncompatibleMissionException(error);
             }
-        }
-        return Collections.emptyList();
+        } else
+            throw new IncompatibleMissionException("Mission must implement Runnable interface");
     }
 
     @Override
-    public Void run(Mission mission, Void args) throws MissionExecutionException {
+    public Void run(Mission mission, Void missionArguments) throws MissionExecutionException {
         try {
-            Class<?> missionContentClass = Class.forName(mission.getMissionDefnClassName());
-            Object missionContentInstance = missionContentClass.getConstructor().newInstance();
-            if (!(missionContentInstance instanceof Runnable)) {
-                throw new IllegalArgumentException(String.format("Mission content class must implement the %s interface", Runnable.class.getName()));
+            Class<?> missionClass = MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
+            Object missionInstance = missionClass.getConstructor().newInstance();
+            if (!(missionInstance instanceof Runnable)) {
+                throw new IllegalArgumentException(String
+                        .format("Mission content class must implement the %s interface", Runnable.class.getName()));
             }
-            ((Runnable) missionContentInstance).run();
-        } catch (Exception e) {
-            throw new MissionExecutionException(e);
+            ((Runnable) missionInstance).run();
+        } catch (Exception error) {
+            throw new MissionExecutionException(error);
         }
         return null;
     }
