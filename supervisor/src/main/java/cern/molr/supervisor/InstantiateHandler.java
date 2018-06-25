@@ -33,8 +33,7 @@ public class InstantiateHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
-        return session.send(new DataExchangeBuilder<>
-                (InstantiationRequest.class, MissionEvent.class)
+        return session.send(new DataExchangeBuilder<InstantiationRequest, MissionEvent>(InstantiationRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator((request) -> {
                     Mission mission = MissionServices.getMaterializer().materialize(request.getMissionName());

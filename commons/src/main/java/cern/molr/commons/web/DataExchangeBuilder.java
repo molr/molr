@@ -30,14 +30,12 @@ public class DataExchangeBuilder<Input, Output> {
      */
     private ObjectMapper mapper;
     private Class<Input> inputType;
-    private Class<Output> outputType;
     private Flux<String> preInput;
     private ThrowingFunction<Input, Publisher<Output>> generator;
     private Function<Throwable, Output> generatorExceptionHandler;
 
-    public DataExchangeBuilder(Class<Input> inputType, Class<Output> outputType) {
+    public DataExchangeBuilder(Class<Input> inputType) {
         this.inputType = inputType;
-        this.outputType = outputType;
 
         mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);

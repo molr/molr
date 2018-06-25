@@ -30,8 +30,7 @@ public class InstructHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
-        return session.send(new DataExchangeBuilder<>
-                (MissionCommandRequest.class, CommandResponse.class)
+        return session.send(new DataExchangeBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(supervisor::instruct)
                 .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)
