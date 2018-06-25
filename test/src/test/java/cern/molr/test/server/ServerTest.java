@@ -6,16 +6,14 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.InstantiationResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.Start;
-import cern.molr.commons.events.MissionFinished;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
-import cern.molr.commons.events.SessionTerminated;
+import cern.molr.commons.events.*;
 import cern.molr.commons.impl.web.MolrWebClientImpl;
 import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
 import cern.molr.commons.web.MolrConfig;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
+import cern.molr.test.ResponseTester;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +24,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing the server Api.
@@ -41,10 +41,10 @@ public class ServerTest {
 
     @Before
     public void initServers() {
-        serverContext = SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        serverContext = SpringApplication.run(ServerMain.class, "--server.port=8000");
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000"});
+                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000");
     }
 
     @After
@@ -78,7 +78,8 @@ public class ServerTest {
                     events.add(event);
                     endSignal.countDown();
 
-                    if (event instanceof SessionInstantiated) {
+                    if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals
+                            (SESSION_INSTANTIATED)) {
                         instantiateSignal.countDown();
                     }
                 });
@@ -97,11 +98,11 @@ public class ServerTest {
         endSignal.await();
 
         Assert.assertEquals(4, events.size());
-        Assert.assertEquals(SessionInstantiated.class, events.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events.get(1).getClass());
+        ResponseTester.testInstantiationEvent(events.get(0));
+        ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
-        Assert.assertEquals(SessionTerminated.class, events.get(3).getClass());
+        ResponseTester.testTerminatedEvent(events.get(3));
         Assert.assertEquals(1, commandResponses.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(0).getClass());
+        ResponseTester.testCommandResponseSuccess(commandResponses.get(0));
     }
 }

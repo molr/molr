@@ -10,14 +10,14 @@ import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.IncompatibleMission;
 import cern.molr.sample.mission.NotAcceptedMission;
 import cern.molr.sample.mission.RunnableExceptionMission;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
+import cern.molr.test.ResponseTester;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +29,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static cern.molr.commons.events.MissionStateEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing object types returned by the server
@@ -45,10 +48,10 @@ public class TypesTest {
 
     @Before
     public void initServers() {
-        serverContext = SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        serverContext = SpringApplication.run(ServerMain.class, "--server.port=8000");
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000"});
+                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000");
     }
 
     @After
@@ -81,9 +84,10 @@ public class TypesTest {
                         System.out.println("event: " + event);
                         endSignal.countDown();
 
-                        if (event instanceof SessionInstantiated) {
+                        if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStarted) {
+                        } else if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent()
+                                .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
                     }
@@ -181,14 +185,12 @@ public class TypesTest {
         endSignal.await();
 
         Assert.assertEquals(3, commandResponses.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(0).getClass());
-        Assert.assertEquals("command accepted by the MoleRunner",
-                ((CommandResponse.CommandResponseSuccess) commandResponses.get(0)).getResult().getMessage());
-        Assert.assertEquals(CommandResponse.CommandResponseFailure.class, commandResponses.get(1).getClass());
-        Assert.assertEquals(CommandNotAcceptedException.class,
-                ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getClass());
+        ResponseTester.testCommandResponseSuccess(commandResponses.get(0));
+        Assert.assertEquals("command accepted by the MoleRunner", commandResponses.get(0).getResult().getMessage());
+        ResponseTester.testCommandResponseFailure(commandResponses.get(1));
+        Assert.assertEquals(CommandNotAcceptedException.class, commandResponses.get(1).getThrowable().getClass());
         Assert.assertEquals("Command not accepted by the MoleRunner: the mission is already started",
-                ((CommandResponse.CommandResponseFailure) commandResponses.get(1)).getThrowable().getMessage());
+                commandResponses.get(1).getThrowable().getMessage());
 
     }
 
@@ -273,9 +275,10 @@ public class TypesTest {
                         System.out.println("event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof SessionInstantiated) {
+                        if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStarted) {
+                        } else if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent()
+                                .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
                     }

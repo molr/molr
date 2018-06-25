@@ -6,15 +6,13 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionFinished;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
-import cern.molr.commons.events.SessionTerminated;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;
 import cern.molr.supervisor.impl.session.ControllerImpl;
 import cern.molr.supervisor.impl.spawner.JVMSpawner;
 import cern.molr.test.MissionTest;
+import cern.molr.test.ResponseTester;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +48,7 @@ public class JVMSpawnerTest {
         });
         signal.await();
         Assert.assertEquals(1, events.size());
-        Assert.assertEquals(SessionInstantiated.class, events.get(0).getClass());
+        ResponseTester.testInstantiationEvent(events.get(0));
     }
 
     @Test
@@ -66,9 +64,9 @@ public class JVMSpawnerTest {
         controller.sendCommand(new Start());
         signal.await();
         Assert.assertEquals(4, events.size());
-        Assert.assertEquals(MissionStarted.class, events.get(1).getClass());
+        ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
-        Assert.assertEquals(SessionTerminated.class, events.get(3).getClass());
+        ResponseTester.testTerminatedEvent(events.get(3));
         Assert.assertEquals(84, ((MissionFinished) events.get(2)).getResult());
     }
 
@@ -92,7 +90,7 @@ public class JVMSpawnerTest {
         controller.sendCommand(new Terminate());
         signal.await();
         Assert.assertEquals(3, events.size());
-        Assert.assertEquals(SessionTerminated.class, events.get(2).getClass());
+        ResponseTester.testTerminatedEvent(events.get(2));
     }
 
 

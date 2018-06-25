@@ -9,10 +9,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionFinished;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
-import cern.molr.commons.events.SessionTerminated;
+import cern.molr.commons.events.*;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
 import cern.molr.commons.web.MolrConfig;
@@ -21,6 +18,7 @@ import cern.molr.supervisor.RemoteSupervisorMain;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorImpl;
 import cern.molr.test.MissionTest;
+import cern.molr.test.ResponseTester;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
@@ -29,6 +27,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
@@ -68,7 +68,7 @@ public class SupervisorTest {
 
         signal.await();
         Assert.assertEquals(1, events.size());
-        Assert.assertEquals(SessionInstantiated.class, events.get(0).getClass());
+        ResponseTester.testInstantiationEvent(events.get(0));
     }
 
     @Test
@@ -103,9 +103,9 @@ public class SupervisorTest {
 
         signal.await();
         Assert.assertEquals(4, events.size());
-        Assert.assertEquals(MissionStarted.class, events.get(1).getClass());
+        ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
-        Assert.assertEquals(SessionTerminated.class, events.get(3).getClass());
+        ResponseTester.testTerminatedEvent(events.get(3));
         Assert.assertEquals(84, ((MissionFinished) events.get(2)).getResult());
     }
 
@@ -155,8 +155,7 @@ public class SupervisorTest {
         CountDownLatch endSignal = new CountDownLatch(4);
 
 
-        ConfigurableApplicationContext context = SpringApplication.run(RemoteSupervisorMain.class, new
-                String[]{"--server.port=8080"});
+        ConfigurableApplicationContext context = SpringApplication.run(RemoteSupervisorMain.class, "--server.port=8080");
 
 
         List<MissionEvent> events = new ArrayList<>();
@@ -173,7 +172,7 @@ public class SupervisorTest {
                     events.add(event);
                     endSignal.countDown();
 
-                    if (event instanceof SessionInstantiated) {
+                    if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                         instantiateSignal.countDown();
                     }
                 });
@@ -190,12 +189,12 @@ public class SupervisorTest {
         endSignal.await();
 
         Assert.assertEquals(4, events.size());
-        Assert.assertEquals(SessionInstantiated.class, events.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events.get(1).getClass());
+        ResponseTester.testInstantiationEvent(events.get(0));
+        ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
-        Assert.assertEquals(SessionTerminated.class, events.get(3).getClass());
+        ResponseTester.testTerminatedEvent(events.get(3));
         Assert.assertEquals(1, responses.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, responses.get(0).getClass());
+        ResponseTester.testCommandResponseSuccess(responses.get(0));
 
         SpringApplication.exit(context);
 

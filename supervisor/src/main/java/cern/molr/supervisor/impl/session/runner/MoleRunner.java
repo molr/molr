@@ -80,13 +80,12 @@ public class MoleRunner implements CommandListener {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        System.out.println(mapper.writeValueAsString(new SessionInstantiated()));
+        System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.SESSION_INSTANTIATED)));
         new MoleRunner(args[0]);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            MissionEvent jvmDestroyedEvent = new SessionTerminated();
             try {
-                System.out.println(mapper.writeValueAsString(jvmDestroyedEvent));
+                System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.SESSION_TERMINATED)));
             } catch (JsonProcessingException error) {
                 error.printStackTrace();
             }
@@ -114,10 +113,7 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            MissionEvent missionStartedEvent =
-                    new MissionStarted(
-                            mission.getMissionName(), missionInput, mission.getMoleClassName());
-            System.out.println(mapper.writeValueAsString(missionStartedEvent));
+            System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.MISSION_STARTED)));
 
             moleRunnerState.changeState();
 
