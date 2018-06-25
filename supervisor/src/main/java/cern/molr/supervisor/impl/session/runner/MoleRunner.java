@@ -124,8 +124,7 @@ public class MoleRunner implements CommandListener {
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {
                     MissionEvent missionFinishedEvent =
-                            new MissionFinished(mission.getMissionName(),
-                                    future.get(), mission.getMoleClassName());
+                            new MissionFinished(mission.getMissionName(), future.get());
                     System.out.println(mapper.writeValueAsString(missionFinishedEvent));
                     System.exit(0);
                     return null;

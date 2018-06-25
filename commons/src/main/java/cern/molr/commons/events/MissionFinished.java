@@ -11,13 +11,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class MissionFinished implements MissionEvent {
     private String missionName;
     private Object result;
-    private String moleClassName;
 
-    public MissionFinished(@JsonProperty("missionName") String missionName, @JsonProperty("result") Object result,
-                           @JsonProperty("moleClassName") String moleClassName) {
+    public MissionFinished(@JsonProperty("missionName") String missionName, @JsonProperty("result") Object result) {
         this.missionName = missionName;
         this.result = result;
-        this.moleClassName = moleClassName;
     }
 
     public String getMissionName() {
@@ -28,7 +25,4 @@ public class MissionFinished implements MissionEvent {
         return result;
     }
 
-    public String getMoleClassName() {
-        return moleClassName;
-    }
 }
