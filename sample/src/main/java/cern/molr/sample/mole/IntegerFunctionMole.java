@@ -13,7 +13,11 @@ import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.MissionResolver;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.impl.mission.MissionServices;
+import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
@@ -64,6 +68,21 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
         } catch (Exception error) {
             throw new MissionExecutionException(error);
         }
+    }
+
+    @Override
+    public boolean sendCommand(MissionCommand command) {
+        return false;
+    }
+
+    @Override
+    public Publisher<MissionEvent> getEventsPublisher() {
+        return null;
+    }
+
+    @Override
+    public Publisher<MissionState> getStatesPublisher() {
+        return null;
     }
 
 }

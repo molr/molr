@@ -2,7 +2,7 @@ package cern.molr.test;
 
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.events.MissionStateEvent;
+import cern.molr.commons.events.MissionControlEvent;
 import org.junit.Assert;
 
 import java.util.List;
@@ -14,18 +14,18 @@ import java.util.List;
 public abstract class ResponseTester {
 
     public static void testInstantiationEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionStateEvent.class,actual.getClass());
-        Assert.assertEquals(MissionStateEvent.Event.SESSION_INSTANTIATED,((MissionStateEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.SESSION_INSTANTIATED,((MissionControlEvent)actual).getEvent());
     }
 
     public static void testStartedEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionStateEvent.class,actual.getClass());
-        Assert.assertEquals(MissionStateEvent.Event.MISSION_STARTED,((MissionStateEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.MISSION_STARTED,((MissionControlEvent)actual).getEvent());
     }
 
     public static void testTerminatedEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionStateEvent.class,actual.getClass());
-        Assert.assertEquals(MissionStateEvent.Event.SESSION_TERMINATED,((MissionStateEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.SESSION_TERMINATED,((MissionControlEvent)actual).getEvent());
     }
 
     public static void testCommandResponseSuccess(CommandResponse actual) {

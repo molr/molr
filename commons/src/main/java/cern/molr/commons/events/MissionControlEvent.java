@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Kind of events which are sent back by the MoleRunner
  * @author yassine-kr
  */
-public class MissionStateEvent implements MissionEvent {
+public class MissionControlEvent implements MissionEvent {
 
     private final Event event;
 
-    public MissionStateEvent(@JsonProperty("event") Event event) {
+    public MissionControlEvent(@JsonProperty("event") Event event) {
         this.event = event;
     }
 

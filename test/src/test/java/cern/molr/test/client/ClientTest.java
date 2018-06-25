@@ -7,9 +7,7 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionStateEvent;
+import cern.molr.commons.events.MissionControlEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -26,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionStateEvent.Event.MISSION_STARTED;
-import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing client Api.
@@ -85,9 +83,9 @@ public class ClientTest {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent()
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
@@ -240,9 +238,9 @@ public class ClientTest {
                         events2.add(event);
                         endSignal2.countDown();
 
-                        if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal2.countDown();
-                        } else if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent()
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal2.countDown();
                         }

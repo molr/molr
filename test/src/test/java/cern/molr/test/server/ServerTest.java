@@ -6,7 +6,6 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.InstantiationResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.web.MolrWebClientImpl;
 import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing the server Api.
@@ -79,7 +78,7 @@ public class ServerTest {
                     events.add(event);
                     endSignal.countDown();
 
-                    if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals
+                    if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals
                             (SESSION_INSTANTIATED)) {
                         instantiateSignal.countDown();
                     }

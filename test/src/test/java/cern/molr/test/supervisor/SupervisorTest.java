@@ -8,8 +8,6 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
@@ -29,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing {@link MoleSupervisorImpl}
@@ -173,7 +171,7 @@ public class SupervisorTest {
                     events.add(event);
                     endSignal.countDown();
 
-                    if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                    if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                         instantiateSignal.countDown();
                     }
                 });

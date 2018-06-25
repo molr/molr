@@ -4,8 +4,6 @@ import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.MissionMaterializer;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.supervisor.api.session.MissionSession;

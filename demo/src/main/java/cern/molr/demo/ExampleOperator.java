@@ -7,9 +7,7 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionStateEvent;
+import cern.molr.commons.events.MissionControlEvent;
 import cern.molr.sample.mission.Fibonacci;
 import org.reactivestreams.Publisher;
 
@@ -18,8 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionStateEvent.Event.MISSION_STARTED;
-import static cern.molr.commons.events.MissionStateEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Operator example
@@ -66,9 +64,9 @@ public class ExampleOperator {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStateEvent && ((MissionStateEvent) event).getEvent()
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }

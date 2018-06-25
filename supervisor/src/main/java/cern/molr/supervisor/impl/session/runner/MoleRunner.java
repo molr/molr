@@ -11,8 +11,6 @@ import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.supervisor.api.session.runner.CommandListener;
@@ -81,12 +79,12 @@ public class MoleRunner implements CommandListener {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.SESSION_INSTANTIATED)));
+        System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED)));
         new MoleRunner(args[0]);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.SESSION_TERMINATED)));
+                System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED)));
             } catch (JsonProcessingException error) {
                 error.printStackTrace();
             }
@@ -114,7 +112,7 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            System.out.println(mapper.writeValueAsString(new MissionStateEvent(MissionStateEvent.Event.MISSION_STARTED)));
+            System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED)));
 
             moleRunnerState.changeState();
 

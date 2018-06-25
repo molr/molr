@@ -3,7 +3,6 @@ package cern.molr.supervisor.impl.session.runner;
 import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.commands.Start;
 import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 
 /**
