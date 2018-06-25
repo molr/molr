@@ -5,6 +5,7 @@ import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.InstantiationResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.web.MolrWebClientImpl;
@@ -89,7 +90,7 @@ public class ServerTest {
         System.out.println("sending start command");
 
         clientSocket.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest(response
-                .getResult().getMissionId(), new Start())).doOnError
+                .getResult().getMissionId(), new MissionControlCommand(MissionControlCommand.Command.START))).doOnError
                 (Throwable::printStackTrace).subscribe((result) -> {
             System.out.println("response to start: " + result);
             commandResponses.add(result);

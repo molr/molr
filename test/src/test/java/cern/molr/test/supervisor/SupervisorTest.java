@@ -7,6 +7,7 @@ import cern.molr.commons.api.request.server.InstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
@@ -99,7 +100,7 @@ public class SupervisorTest {
             }
         });
 
-        supervisor.instruct(new MissionCommandRequest("1", new Start()));
+        supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)));
 
         signal.await();
         Assert.assertEquals(4, events.size());
@@ -141,8 +142,8 @@ public class SupervisorTest {
 
             }
         });
-        supervisor.instruct(new MissionCommandRequest("1", new Start()));
-        supervisor.instruct(new MissionCommandRequest("1", new Terminate()));
+        supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)));
+        supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.TERMINATE)));
 
         signal.await();
         Assert.assertEquals(3, events.size());
@@ -179,7 +180,7 @@ public class SupervisorTest {
 
         instantiateSignal.await();
 
-        client.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest("1", new Start()))
+        client.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)))
                 .doOnError(Throwable::printStackTrace)
                 .subscribe((result) -> {
                     System.out.println("response to start: " + result);

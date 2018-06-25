@@ -10,6 +10,7 @@ import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.*;
@@ -177,11 +178,18 @@ public class MoleRunner implements CommandListener {
                     "command accepted by the MoleRunner");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
-            if (command instanceof Start) {
-                startMission();
-            } else if (command instanceof Terminate) {
-                terminate();
+            if (command instanceof MissionControlCommand) {
+                MissionControlCommand c = (MissionControlCommand) command;
+                switch (c.getCommand()) {
+                    case START:
+                        startMission();
+                        break;
+                    case TERMINATE:
+                        terminate();
+                        break;
+                }
             }
+
 
         } catch (JsonProcessingException error) {
             LOGGER.error("unable to serialize a command status", error);

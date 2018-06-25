@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class MissionStateEvent implements MissionEvent {
 
-    private Event event;
+    private final Event event;
 
     public MissionStateEvent(@JsonProperty("event") Event event) {
         this.event = event;

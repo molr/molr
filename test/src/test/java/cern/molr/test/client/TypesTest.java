@@ -7,6 +7,7 @@ import cern.molr.commons.api.exception.*;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionExceptionEvent;
@@ -109,7 +110,7 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to start: " + response);
@@ -127,7 +128,7 @@ public class TypesTest {
 
                     }
                 });
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to start 2: " + response);
@@ -151,7 +152,7 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to terminate: " + response);
@@ -300,7 +301,7 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to start: " + response);
@@ -324,7 +325,7 @@ public class TypesTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to terminate: " + response);

@@ -3,6 +3,7 @@ package cern.molr.test.supervisor.spawner;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.MissionMaterializer;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.commands.Start;
 import cern.molr.commons.commands.Terminate;
 import cern.molr.commons.events.MissionFinished;
@@ -61,7 +62,7 @@ public class JVMSpawnerTest {
             events.add(event);
             signal.countDown();
         });
-        controller.sendCommand(new Start());
+        controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
         signal.await();
         Assert.assertEquals(4, events.size());
         ResponseTester.testStartedEvent(events.get(1));
@@ -86,8 +87,8 @@ public class JVMSpawnerTest {
             events.add(event);
             signal.countDown();
         });
-        controller.sendCommand(new Start());
-        controller.sendCommand(new Terminate());
+        controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
+        controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.TERMINATE));
         signal.await();
         Assert.assertEquals(3, events.size());
         ResponseTester.testTerminatedEvent(events.get(2));
