@@ -32,7 +32,6 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 /**
- * @author ?
  * @author yassine-kr
  */
 public class MolrWebClientImpl implements MolrWebClient {

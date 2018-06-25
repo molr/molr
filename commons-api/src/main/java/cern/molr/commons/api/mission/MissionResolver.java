@@ -9,19 +9,5 @@ import cern.molr.commons.api.exception.MissionResolvingException;
  */
 public interface MissionResolver {
 
-    /**
-     * A simple implementation which uses the current class loader
-     */
-    MissionResolver defaultMissionResolver = new MissionResolver() {
-        @Override
-        public Class<?> resolve(String missionName) throws MissionResolvingException {
-            try {
-                return Class.forName(missionName);
-            } catch (ClassNotFoundException error) {
-                throw new MissionResolvingException(error);
-            }
-        }
-    };
-
     Class<?> resolve(String missionName) throws MissionResolvingException;
 }

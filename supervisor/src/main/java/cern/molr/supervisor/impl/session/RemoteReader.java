@@ -16,7 +16,6 @@ import java.util.function.Consumer;
  * specified, the interval defaults to 100 milliseconds. The reader runs a separate thread to continuously read input
  * from the stream without blocking.
  *
- * @author ?
  * @author yassine-kr
  */
 public abstract class RemoteReader implements AutoCloseable {

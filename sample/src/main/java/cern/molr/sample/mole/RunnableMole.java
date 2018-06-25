@@ -13,6 +13,7 @@ import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.MissionResolver;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.impl.mission.MissionServices;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the
@@ -29,7 +30,7 @@ public class RunnableMole implements Mole<Void, Void> {
     public void verify(String missionName) throws IncompatibleMissionException {
         Class<?> classType = null;
         try {
-            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+            classType = MissionServices.getResolver().resolve(missionName);
         } catch (MissionResolvingException error) {
             throw new IncompatibleMissionException(error);
         }
@@ -50,7 +51,7 @@ public class RunnableMole implements Mole<Void, Void> {
     @Override
     public Void run(Mission mission, Void missionArguments) throws MissionExecutionException {
         try {
-            Class<?> missionClass = MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
+            Class<?> missionClass = MissionServices.getResolver().resolve(mission.getMissionName());
             Object missionInstance = missionClass.getConstructor().newInstance();
             if (!(missionInstance instanceof Runnable)) {
                 throw new IllegalArgumentException(String

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * @author ?
  * @author yassine-kr
  */
 public class TryResponseFailure<T> extends Failure<T> implements TryResponse<T> {
