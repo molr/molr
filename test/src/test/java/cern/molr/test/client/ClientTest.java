@@ -43,7 +43,8 @@ public class ClientTest {
         serverContext = SpringApplication.run(ServerMain.class, "--server.port=8000");
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000");
+                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000",
+                "--supervisor.host=http://localhost", "--supervisor.port=8056");
     }
 
     @After

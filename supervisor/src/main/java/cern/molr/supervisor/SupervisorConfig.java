@@ -17,6 +17,26 @@ public class SupervisorConfig {
 
     private int molrPort;
 
+    private String supervisorHost;
+
+    private int supervisorPort;
+
+    public String getSupervisorHost() {
+        return supervisorHost;
+    }
+
+    public int getSupervisorPort() {
+        return supervisorPort;
+    }
+
+    public void setSupervisorHost(String supervisorHost) {
+        this.supervisorHost = supervisorHost;
+    }
+
+    public void setSupervisorPort(int supervisorPort) {
+        this.supervisorPort = supervisorPort;
+    }
+
     public int getMaxMissions() {
         return maxMissions;
     }
