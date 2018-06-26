@@ -57,8 +57,6 @@ public class DataExchangeBuilder<Input, Output> {
     /**
      * Set the generator which generates the output flux from the received input data
      *
-     * @param generator
-     *
      * @return this builder to chain other methods
      */
     public DataExchangeBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
@@ -84,35 +82,85 @@ public class DataExchangeBuilder<Input, Output> {
      * @return the publisher
      */
     public Flux<String> build() {
-        return preInput.take(1).<Try<Input>>map((data) -> {
+        return preInput.take(1)
+                .map(getDeserializer())
+                .concatMap((tryInput) -> tryInput.match(getDeserializationErrorHandler(),
+                        getGenerator().andThen((tryFlux) -> tryFlux.match(getGenerationErrorHandler(),
+                                (flux) -> flux.map(getSerializer()))
+                )));
+    }
+
+    /**
+     * Returns the function which try to deserialize the string input
+     * @return the deserializer function
+     */
+    private Function<String, Try<Input>> getDeserializer() {
+        return data -> {
             try {
                 return new Success<>(mapper.readValue(data, inputType));
             } catch (IOException error) {
                 return new Failure<>(error);
             }
-        }).concatMap((tryInput) -> tryInput.match((error) -> {
+        };
+    }
+
+    /**
+     * Returns the handler which is called when there is a deserialization error
+     * @return the function which returns a string publisher
+     */
+    private Function<Throwable, Publisher<String>> getDeserializationErrorHandler() {
+        return error -> {
             LOGGER.error("unable to deserialize the input data", error);
             return Mono.empty();
-        }, (input) -> {
-            try {
-                return Flux.from(generator.apply(input)).map((output -> {
-                    try {
-                        return mapper.writeValueAsString(output);
-                    } catch (JsonProcessingException error) {
-                        return null;
-                    }
-                }));
-            } catch (Exception error) {
-                try {
-                    LOGGER.error("exception in getting the result stream", error);
-                    return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.apply(error)));
-                } catch (JsonProcessingException error1) {
-                    LOGGER.error("unable to serialize an output data", error1);
-                    return Mono.empty();
-                }
-            }
-        }));
+        };
     }
+
+    /**
+     * Returns the generator which generates the output publisher from the input
+     * @return the function which returns the output publisher
+     */
+    private Function<Input, Try<Flux<Output>>> getGenerator() {
+        return input -> {
+            try {
+                return new Success<>(Flux.from(generator.apply(input)));
+            } catch (Exception error) {
+                return new Failure<>(error);
+            }
+        };
+    }
+
+    /**
+     * Returns the handler called when there is a problem in output generation
+     * @return the function which handles the error
+     */
+    private Function<Throwable, Publisher<String>> getGenerationErrorHandler() {
+        return error -> {
+            try {
+                LOGGER.error("exception in getting the result stream", error);
+                return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.apply(error)));
+            } catch (JsonProcessingException error1) {
+                LOGGER.error("unable to serialize an output data", error1);
+                return Mono.empty();
+            }
+        };
+    }
+
+    /**
+     * Returns the serialiser which transforms the output to a string
+     * @return the function which serialize the output
+     */
+    private Function<Output, String> getSerializer() {
+        return output -> {
+            try {
+                return mapper.writeValueAsString(output);
+            } catch (JsonProcessingException error) {
+                LOGGER.error("unable to serialize an output data", error);
+                return null;
+            }
+        };
+    }
+
+
 
     /**
      * A function which can throw an exception
