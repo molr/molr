@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionFinished implements MissionEvent {
+public class MissionFinished<I> implements MissionEvent {
     private String missionName;
-    private Object result;
+    private I result;
 
-    public MissionFinished(@JsonProperty("missionName") String missionName, @JsonProperty("result") Object result) {
+    public MissionFinished(@JsonProperty("missionName") String missionName, @JsonProperty("result") I result) {
         this.missionName = missionName;
         this.result = result;
     }
@@ -21,7 +21,7 @@ public class MissionFinished implements MissionEvent {
         return missionName;
     }
 
-    public Object getResult() {
+    public I getResult() {
         return result;
     }
 
