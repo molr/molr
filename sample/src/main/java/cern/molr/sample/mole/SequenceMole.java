@@ -18,7 +18,10 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.impl.mission.MissionServices;
 import cern.molr.sample.commands.SequenceCommand;
+import cern.molr.sample.events.SequenceMissionEvent;
+import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.DirectProcessor;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -38,6 +41,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private int currentTask = 0;
     private CountDownLatch endSignal = new CountDownLatch(1);
     private boolean running = false;
+    private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -95,23 +99,16 @@ public class SequenceMole implements Mole<Void, Void> {
 
         switch (((SequenceCommand) command).getCommand()) {
              case STEP:
-                 running = true;
-                 new Thread(() -> {
-                    tasks.get(currentTask).run();
-                     nextTask();
-                    running = false;
-                 }).start();
+                 new Thread(this::runTask).start();
                  break;
             case SKIP:
                 nextTask();
                 break;
             case FINISH:
-                running = true;
                 new Thread(() -> {
-                    for (; currentTask < tasks.size(); nextTask()) {
-                        tasks.get(currentTask).run();
+                    for (; currentTask < tasks.size();) {
+                        runTask();
                     }
-                    running = false;
                 }).start();
                 break;
         }
@@ -124,9 +121,18 @@ public class SequenceMole implements Mole<Void, Void> {
         }
     }
 
+    private void runTask() {
+        running = true;
+        eventsProcessor.onNext(new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_STARTED));
+        tasks.get(currentTask).run();
+        running = false;
+        eventsProcessor.onNext(new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_FINISHED));
+        nextTask();
+    }
+
     @Override
     public Publisher<MissionEvent> getEventsPublisher() {
-        return null;
+        return eventsProcessor;
     }
 
     @Override

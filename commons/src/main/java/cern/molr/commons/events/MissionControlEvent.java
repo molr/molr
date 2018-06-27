@@ -24,5 +24,4 @@ public class MissionControlEvent implements MissionEvent {
         SESSION_INSTANTIATED,
         SESSION_TERMINATED
     }
-
 }

@@ -259,8 +259,7 @@ public class TypesTest {
         List<MissionEvent> events = new ArrayList<>();
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
-        CountDownLatch startSignal = new CountDownLatch(1);
-        CountDownLatch endSignal = new CountDownLatch(5);
+        CountDownLatch endSignal = new CountDownLatch(4);
 
         Publisher<ClientMissionController> futureController = service.instantiate(RunnableExceptionMission.class
                 .getCanonicalName(), null);
@@ -277,9 +276,6 @@ public class TypesTest {
                         endSignal.countDown();
                         if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
-                                .equals(MISSION_STARTED)) {
-                            startSignal.countDown();
                         }
                     }
 
@@ -317,31 +313,6 @@ public class TypesTest {
 
                     }
                 });
-
-                try {
-                    startSignal.await();
-                } catch (InterruptedException error) {
-                    error.printStackTrace();
-                    Assert.fail();
-                }
-                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println("response to terminate: " + response);
-                        endSignal.countDown();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
             }
 
             @Override

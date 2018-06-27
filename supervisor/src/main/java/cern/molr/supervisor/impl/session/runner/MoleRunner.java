@@ -10,6 +10,7 @@ import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.mission.MissionImpl;
@@ -105,6 +106,30 @@ public class MoleRunner implements CommandListener {
             mole = createMoleInstance(mission.getMoleClassName());
             mole.verify(mission.getMissionName());
 
+            if (mole.getEventsPublisher() != null) {
+                mole.getEventsPublisher().subscribe(new SimpleSubscriber<MissionEvent>() {
+                    @Override
+                    public void consume(MissionEvent event) {
+                        try {
+                            System.out.println(mapper.writeValueAsString(event));
+                        } catch (JsonProcessingException error) {
+                            LOGGER.error("unable to serialize a mole event", error);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+
+
             CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
                 try {
                     return mole.run(mission, missionInput);
@@ -122,8 +147,6 @@ public class MoleRunner implements CommandListener {
                     MissionEvent missionFinishedEvent =
                             new MissionFinished(mission.getMissionName(), future.get());
                     System.out.println(mapper.writeValueAsString(missionFinishedEvent));
-                    System.exit(0);
-                    return null;
                 } catch (JsonProcessingException error) {
                     LOGGER.error("unable to serialize an event", error);
                 } catch (ExecutionException | InterruptedException error) {
@@ -133,6 +156,7 @@ public class MoleRunner implements CommandListener {
                         LOGGER.error("unable to serialize an event", error1);
                     }
                 }
+                System.exit(0);
                 return null;
             });
         } catch (JsonProcessingException error) {
@@ -196,7 +220,7 @@ public class MoleRunner implements CommandListener {
                 CommandStatus commandStatus = new CommandStatus(error);
                 System.out.println(mapper.writeValueAsString(commandStatus));
             } catch (JsonProcessingException error1) {
-                LOGGER.error("unable to serialize an event", error1);
+                LOGGER.error("unable to serialize a command status", error1);
             }
         }
     }
