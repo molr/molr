@@ -12,23 +12,32 @@ import cern.molr.commons.api.exception.IncompatibleMissionException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
-import cern.molr.commons.api.mission.MissionResolver;
 import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.impl.mission.MissionServices;
+import cern.molr.sample.commands.SequenceCommand;
 import org.reactivestreams.Publisher;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 /**
- * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link Runnable} interface
+ * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link SequenceMission}
+ * interface
  *
- * @author tiagomr
- * @author nachivpn
+ * It runs the tasks of the mission consecutively
+ *
  * @author yassine-kr
  * @see Mole
  */
-public class RunnableMole implements Mole<Void, Void> {
+public class SequenceMole implements Mole<Void, Void> {
+
+    private List<Runnable> tasks;
+    private int currentTask = 0;
+    private CountDownLatch endSignal = new CountDownLatch(1);
+    private boolean running = false;
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -42,14 +51,14 @@ public class RunnableMole implements Mole<Void, Void> {
         if (null == classType) {
             throw new IllegalArgumentException("Class type cannot be null");
         }
-        if (Runnable.class.isAssignableFrom(classType)) {
+        if (SequenceMission.class.isAssignableFrom(classType)) {
             try {
-                classType.getMethod("run");
+                classType.getMethod("getTasks");
             } catch (NoSuchMethodException error) {
                 throw new IncompatibleMissionException(error);
             }
         } else
-            throw new IncompatibleMissionException("Mission must implement Runnable interface");
+            throw new IncompatibleMissionException("Mission must implement SequenceMission interface");
     }
 
     @Override
@@ -57,11 +66,15 @@ public class RunnableMole implements Mole<Void, Void> {
         try {
             Class<?> missionClass = MissionServices.getResolver().resolve(mission.getMissionName());
             Object missionInstance = missionClass.getConstructor().newInstance();
-            if (!(missionInstance instanceof Runnable)) {
+            if (!(missionInstance instanceof SequenceMission)) {
                 throw new IllegalArgumentException(String
-                        .format("Mission content class must implement the %s interface", Runnable.class.getName()));
+                        .format("Mission content class must implement the %s interface", SequenceMission.class.getName()));
             }
-            ((Runnable) missionInstance).run();
+            tasks = ((SequenceMission) missionInstance).getTasks();
+            if (tasks == null || tasks.size() == 0) {
+                throw new IllegalArgumentException("Null or Empty tasks list");
+            }
+            endSignal.await();
         } catch (Exception error) {
             throw new MissionExecutionException(error);
         }
@@ -70,6 +83,45 @@ public class RunnableMole implements Mole<Void, Void> {
 
     @Override
     public void sendCommand(MissionCommand command) throws CommandNotAcceptedException {
+        if (!(command instanceof SequenceCommand)) {
+            throw new CommandNotAcceptedException("Command not accepted by the Mole; it is not a known a command by " +
+                    "the mole");
+        }
+
+        if (running || endSignal.getCount() == 0) {
+            throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
+                    "finished");
+        }
+
+        switch (((SequenceCommand) command).getCommand()) {
+             case STEP:
+                 running = true;
+                 new Thread(() -> {
+                    tasks.get(currentTask).run();
+                     nextTask();
+                    running = false;
+                 }).start();
+                 break;
+            case SKIP:
+                nextTask();
+                break;
+            case FINISH:
+                running = true;
+                new Thread(() -> {
+                    for (; currentTask < tasks.size(); nextTask()) {
+                        tasks.get(currentTask).run();
+                    }
+                    running = false;
+                }).start();
+                break;
+        }
+    }
+
+    private void nextTask() {
+        currentTask++;
+        if (currentTask == tasks.size()) {
+            endSignal.countDown();
+        }
     }
 
     @Override
