@@ -16,14 +16,14 @@ import java.io.IOException;
 import java.util.function.Function;
 
 /**
- * A data exchange builder between the client and the server. It builds a publisher of string messages which is
- * generated from one element received from a Flux of strings
+ * A data processor builder between the client and the server. It builds a publisher of string messages which is
+ * generated from one element received from a publisher of strings
  *
  * @author yassine-kr
  */
-public class DataExchangeBuilder<Input, Output> {
+public class DataProcessorBuilder<Input, Output> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataExchangeBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataProcessorBuilder.class);
 
     /**
      * The mapper used for serializing output and deserializing input
@@ -34,7 +34,7 @@ public class DataExchangeBuilder<Input, Output> {
     private ThrowingFunction<Input, Publisher<Output>> generator;
     private Function<Throwable, Output> generatorExceptionHandler;
 
-    public DataExchangeBuilder(Class<Input> inputType) {
+    public DataProcessorBuilder(Class<Input> inputType) {
         this.inputType = inputType;
 
         mapper = new ObjectMapper();
@@ -49,7 +49,7 @@ public class DataExchangeBuilder<Input, Output> {
      *
      * @return this builder to chain other methods
      */
-    public DataExchangeBuilder<Input, Output> setPreInput(Flux<String> preInput) {
+    public DataProcessorBuilder<Input, Output> setPreInput(Flux<String> preInput) {
         this.preInput = preInput;
         return this;
     }
@@ -59,7 +59,7 @@ public class DataExchangeBuilder<Input, Output> {
      *
      * @return this builder to chain other methods
      */
-    public DataExchangeBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
+    public DataProcessorBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
         this.generator = generator;
         return this;
     }
@@ -71,7 +71,7 @@ public class DataExchangeBuilder<Input, Output> {
      *
      * @return this builder to chain other methods
      */
-    public DataExchangeBuilder<Input, Output> setGeneratorExceptionHandler(Function<Throwable, Output> function) {
+    public DataProcessorBuilder<Input, Output> setGeneratorExceptionHandler(Function<Throwable, Output> function) {
         this.generatorExceptionHandler = function;
         return this;
     }

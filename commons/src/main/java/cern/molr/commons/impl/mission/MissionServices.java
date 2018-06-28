@@ -17,7 +17,7 @@ public class MissionServices {
     /**
      * The materializer used to deduce the mole class name corresponding to a mission name
      */
-    private static final MissionMaterializer materializer =new AnnotatedMissionMaterializer();
+    private static final MissionMaterializer materializer = new AnnotatedMissionMaterializer();
 
     public static MissionResolver getResolver() {
         return resolver;

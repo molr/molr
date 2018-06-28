@@ -1,9 +1,7 @@
 package cern.molr.server;
 
-import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
-import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.web.DataExchangeBuilder;
+import cern.molr.commons.web.DataProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +32,7 @@ public class StatesStreamHandler implements WebSocketHandler {
 
         LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
-        return session.send(new DataExchangeBuilder<String, MissionState>(String.class)
+        return session.send(new DataProcessorBuilder<String, MissionState>(String.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::getStatesStream)
                 .setGeneratorExceptionHandler(null)
