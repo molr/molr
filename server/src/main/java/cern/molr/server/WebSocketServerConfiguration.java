@@ -29,6 +29,7 @@ public class WebSocketServerConfiguration {
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put(MolrConfig.EVENTS_STREAM_PATH, new EventsStreamHandler(service));
+        map.put(MolrConfig.STATES_STREAM_PATH, new StatesStreamHandler(service));
         map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(service));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();

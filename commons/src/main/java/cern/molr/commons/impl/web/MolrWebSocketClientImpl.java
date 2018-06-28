@@ -5,6 +5,7 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.server.InstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.MolrWebSocketClient;
 import cern.molr.commons.web.MolrConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -110,6 +111,14 @@ public class MolrWebSocketClientImpl implements MolrWebSocketClient {
         return receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, missionId)
                 .doOnError((e) ->
                         LOGGER.error("error in events stream [mission execution Id: {}, mission name: {}]", missionId,
+                                missionName, e));
+    }
+
+    @Override
+    public Publisher<MissionState> getStatesStream(String missionName, String missionId) {
+        return receiveFlux(MolrConfig.STATES_STREAM_PATH, MissionState.class, missionId)
+                .doOnError((e) ->
+                        LOGGER.error("error in states stream [mission execution Id: {}, mission name: {}]", missionId,
                                 missionName, e));
     }
 

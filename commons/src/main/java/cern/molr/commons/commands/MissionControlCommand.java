@@ -23,4 +23,17 @@ public class MissionControlCommand implements MissionCommand {
         START,
         TERMINATE
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MissionControlCommand other = (MissionControlCommand) o;
+        return !(command != null ? !command.equals(other.command) : other.command != null);
+
+    }
 }

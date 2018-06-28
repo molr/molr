@@ -11,6 +11,7 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
@@ -60,8 +61,7 @@ public class ServerRestExecutionService {
         missionExists(request.getMissionName());
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
-            Publisher<MissionEvent> executionEventStream = Flux.from(supervisor.instantiate(request, missionEId))
-                    .filter(event -> ! (event instanceof MissionStateEvent));
+            Publisher<MissionEvent> executionEventStream = supervisor.instantiate(request, missionEId);
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->
@@ -77,7 +77,15 @@ public class ServerRestExecutionService {
 
     public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
-        return optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running"));
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> ! (event instanceof MissionStateEvent));
+    }
+
+    public Publisher<MissionState> getStatesStream(String mEId) throws UnknownMissionException {
+        Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> (event instanceof MissionStateEvent))
+                .map((event -> ((MissionStateEvent)event).getState()));
     }
 
     private String makeEId() {
