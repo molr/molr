@@ -38,4 +38,6 @@ public interface StateManager {
      * @param event the triggered event
      */
     void changeState(MissionEvent event);
+
+    void addListener(StateManagerListener listener);
 }

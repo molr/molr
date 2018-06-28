@@ -70,8 +70,13 @@ public class MoleRunnerStateManager implements StateManager {
 
     }
 
+    /**
+     * Add a listener and notifies it to take into account the current state
+     * @param listener the listener to add
+     */
     public void addListener(StateManagerListener listener) {
         listeners.add(listener);
+        listener.onStateChanged();
     }
 
     private void notifyListeners() {

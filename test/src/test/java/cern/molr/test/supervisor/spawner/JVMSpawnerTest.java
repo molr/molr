@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.MissionMaterializer;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.session.MoleController;
@@ -42,6 +43,9 @@ public class JVMSpawnerTest {
         MoleController controller = getController(MissionTest.class, 42);
         List<MissionEvent> events = new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
+            if (event instanceof MissionStateEvent) {
+                return;
+            }
             events.add(event);
             signal.countDown();
         });
@@ -57,6 +61,9 @@ public class JVMSpawnerTest {
         MoleController controller = getController(MissionTest.class, 42);
         List<MissionEvent> events = new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
+            if (event instanceof MissionStateEvent) {
+                return;
+            }
             events.add(event);
             signal.countDown();
         });
@@ -81,6 +88,9 @@ public class JVMSpawnerTest {
         MoleController controller = getController(MissionTest.class, 42);
         List<MissionEvent> events = new ArrayList<>();
         controller.addMoleExecutionListener(event -> {
+            if (event instanceof MissionStateEvent) {
+                return;
+            }
             System.out.println(event);
             events.add(event);
             signal.countDown();

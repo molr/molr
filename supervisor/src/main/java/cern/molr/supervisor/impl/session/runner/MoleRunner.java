@@ -8,8 +8,10 @@ import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.*;
@@ -64,16 +66,19 @@ public class MoleRunner implements CommandListener {
             missionInputClass = Class.forName(argument.getMissionInputClassName());
             missionInput = mapper.readValue(argument.getMissionInputObjString(), missionInputClass);
 
-            reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
-
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
             mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+            stateManager.addListener(() -> sendStateEvent(new MissionState(MissionState.Level.MOLE_RUNNER, stateManager.getStatus(),
+                    stateManager.getPossibleCommands())));
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED));
             }));
 
             sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED));
+
+            reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
 
         } catch (Exception error) {
             LOGGER.error("error while initializing the session", error);
@@ -90,6 +95,17 @@ public class MoleRunner implements CommandListener {
             System.out.println(mapper.writeValueAsString(event));
         } catch (JsonProcessingException error) {
             LOGGER.error("unable to serialize an event", error);
+        }
+    }
+
+    /**
+     * Method which writes a state wrapped in an event
+     */
+    private void sendStateEvent(MissionState state) {
+        try {
+            System.out.println(mapper.writeValueAsString(new MissionStateEvent(state)));
+        } catch (JsonProcessingException error) {
+            LOGGER.error("unable to serialize a state event", error);
         }
     }
 

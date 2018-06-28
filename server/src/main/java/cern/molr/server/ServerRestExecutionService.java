@@ -11,6 +11,7 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
@@ -18,6 +19,7 @@ import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +60,8 @@ public class ServerRestExecutionService {
         missionExists(request.getMissionName());
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
-            Publisher<MissionEvent> executionEventStream = supervisor.instantiate(request, missionEId);
+            Publisher<MissionEvent> executionEventStream = Flux.from(supervisor.instantiate(request, missionEId))
+                    .filter(event -> ! (event instanceof MissionStateEvent));
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->

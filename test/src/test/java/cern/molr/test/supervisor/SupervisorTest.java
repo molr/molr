@@ -50,6 +50,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -83,6 +86,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -126,6 +132,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -167,6 +176,9 @@ public class SupervisorTest {
         client.receiveFlux(MolrConfig.INSTANTIATE_PATH, MissionEvent.class, request)
                 .doOnError(Throwable::printStackTrace)
                 .subscribe((event) -> {
+                    if (event instanceof MissionStateEvent) {
+                        return;
+                    }
                     System.out.println("event: " + event);
                     events.add(event);
                     endSignal.countDown();
