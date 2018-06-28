@@ -13,6 +13,8 @@ import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.mission.StateManager;
+import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
@@ -40,8 +42,9 @@ public class SequenceMole implements Mole<Void, Void> {
     private List<Runnable> tasks;
     private int currentTask = 0;
     private CountDownLatch endSignal = new CountDownLatch(1);
-    private boolean running = false;
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
+    private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
+    private StateManager stateManager;
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -78,6 +81,11 @@ public class SequenceMole implements Mole<Void, Void> {
             if (tasks == null || tasks.size() == 0) {
                 throw new IllegalArgumentException("Null or Empty tasks list");
             }
+            stateManager = new SequenceMoleStateManager(tasks.size());
+            stateManager.addListener(() -> {
+                statesProcessor.onNext(new MissionState(MissionState.Level.MOLE, stateManager.getStatus(),
+                        stateManager.getPossibleCommands()));
+            });
             endSignal.await();
         } catch (Exception error) {
             throw new MissionExecutionException(error);
@@ -87,21 +95,14 @@ public class SequenceMole implements Mole<Void, Void> {
 
     @Override
     public void sendCommand(MissionCommand command) throws CommandNotAcceptedException {
-        if (!(command instanceof SequenceCommand)) {
-            throw new CommandNotAcceptedException("Command not accepted by the Mole; it is not a known a command by " +
-                    "the mole");
-        }
-
-        if (running || endSignal.getCount() == 0) {
-            throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
-                    "finished");
-        }
+        stateManager.acceptCommand(command);
 
         switch (((SequenceCommand) command).getCommand()) {
              case STEP:
                  new Thread(this::runTask).start();
                  break;
             case SKIP:
+                stateManager.changeState(new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_SKIPPED));
                 nextTask();
                 break;
             case FINISH:
@@ -122,11 +123,13 @@ public class SequenceMole implements Mole<Void, Void> {
     }
 
     private void runTask() {
-        running = true;
-        eventsProcessor.onNext(new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_STARTED));
+        MissionEvent event = new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_STARTED);
+        eventsProcessor.onNext(event);
+        stateManager.changeState(event);
         tasks.get(currentTask).run();
-        running = false;
-        eventsProcessor.onNext(new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_FINISHED));
+        event = new SequenceMissionEvent(currentTask,SequenceMissionEvent.Event.TASK_FINISHED);
+        eventsProcessor.onNext(event);
+        stateManager.changeState(event);
         nextTask();
     }
 
@@ -137,7 +140,7 @@ public class SequenceMole implements Mole<Void, Void> {
 
     @Override
     public Publisher<MissionState> getStatesPublisher() {
-        return null;
+        return statesProcessor;
     }
 
 }

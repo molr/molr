@@ -110,7 +110,7 @@ public class MoleRunner implements CommandListener {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length < 1) {
             throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
                     " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
@@ -138,6 +138,25 @@ public class MoleRunner implements CommandListener {
                     @Override
                     public void consume(MissionEvent event) {
                         sendEvent(event);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+
+            if (mole.getStatesPublisher() != null) {
+                mole.getStatesPublisher().subscribe(new SimpleSubscriber<MissionState>() {
+                    @Override
+                    public void consume(MissionState state) {
+                        sendStateEvent(state);
                     }
 
                     @Override

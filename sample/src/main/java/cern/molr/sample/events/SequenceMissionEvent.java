@@ -28,6 +28,7 @@ public class SequenceMissionEvent implements MissionEvent {
 
     public enum Event {
         TASK_STARTED,
-        TASK_FINISHED
+        TASK_FINISHED,
+        TASK_SKIPPED
     }
 }

@@ -7,7 +7,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import java.util.List;
 
 /**
- * It is used by the MoleRunner and a Mole to manage their own states
+ * It is used by the MoleRunner to manage its own states. It can also be used by a Mole to manage its state.
  *
  * @author yassine-kr
  */

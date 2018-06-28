@@ -24,4 +24,17 @@ public class SequenceCommand implements MissionCommand {
         SKIP,//skip the current task
         FINISH//finish all the remaining tasks
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SequenceCommand other = (SequenceCommand) o;
+        return !(command != null ? !command.equals(other.command) : other.command != null);
+
+    }
 }
