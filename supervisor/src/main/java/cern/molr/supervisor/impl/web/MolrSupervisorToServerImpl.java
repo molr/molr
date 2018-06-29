@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 /**
  * Implementation using Spring WebFlux
+ *
  * @author yassine-kr
  */
 public class MolrSupervisorToServerImpl implements MolrSupervisorToServer {
@@ -37,7 +38,7 @@ public class MolrSupervisorToServerImpl implements MolrSupervisorToServer {
         SupervisorRegisterRequest request = new SupervisorRegisterRequest(host, port, acceptedMissions);
         return restClient.post(MolrConfig.REGISTER_PATH, SupervisorRegisterRequest.class, request,
                 SupervisorRegisterResponse
-                .class).map((tryResponse) -> tryResponse.match(throwable -> {
+                        .class).map((tryResponse) -> tryResponse.match(throwable -> {
                     throw new CompletionException(throwable);
                 }
                 , Function.identity())).block().getSupervisorId();

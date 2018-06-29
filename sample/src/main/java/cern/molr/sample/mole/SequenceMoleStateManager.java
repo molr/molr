@@ -5,7 +5,6 @@ import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
 
@@ -21,10 +20,10 @@ import java.util.List;
  */
 public class SequenceMoleStateManager implements StateManager {
 
+    private final int numTasks;
     private HashSet<StateManagerListener> listeners = new HashSet<>();
     private int currentTask = 0;
     private State state = State.WAITING;
-    private final int numTasks;
 
     public SequenceMoleStateManager(int numTasks) {
         this.numTasks = numTasks;
@@ -34,9 +33,9 @@ public class SequenceMoleStateManager implements StateManager {
     public String getStatus() {
         switch (state) {
             case RUNNING:
-                return "RUNNING TASK "+currentTask;
+                return "RUNNING TASK " + currentTask;
             case WAITING:
-                return "WAITING NEXT TASK "+currentTask;
+                return "WAITING NEXT TASK " + currentTask;
             case FINISHED:
                 return "ALL TASKS FINISHED";
         }
@@ -77,7 +76,7 @@ public class SequenceMoleStateManager implements StateManager {
                     break;
                 case TASK_FINISHED:
                 case TASK_SKIPPED:
-                    if (e.getTaskNumber() == numTasks-1) {
+                    if (e.getTaskNumber() == numTasks - 1) {
                         state = State.FINISHED;
                     } else {
                         state = State.WAITING;
@@ -92,6 +91,7 @@ public class SequenceMoleStateManager implements StateManager {
 
     /**
      * Add a listener and notifies it to take into account the current state
+     *
      * @param listener the listener to add
      */
     public void addListener(StateManagerListener listener) {

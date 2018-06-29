@@ -3,15 +3,8 @@ package cern.molr.supervisor.impl.address;
 import cern.molr.supervisor.SupervisorConfig;
 import cern.molr.supervisor.api.address.AddressGetter;
 import cern.molr.supervisor.api.address.AddressGetterListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Collections;
 import java.util.HashSet;
 
 /**
@@ -22,7 +15,7 @@ import java.util.HashSet;
  * @author yassine-kr
  */
 @Component
-public class ConfigurationAddressGetter implements AddressGetter{
+public class ConfigurationAddressGetter implements AddressGetter {
 
     private Address address;
     private HashSet<AddressGetterListener> listeners = new HashSet<>();

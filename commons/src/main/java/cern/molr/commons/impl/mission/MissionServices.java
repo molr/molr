@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.MissionResolver;
 
 /**
  * Class wrapping the services used for managing missions
+ *
  * @author yassine-kr
  */
 public class MissionServices {

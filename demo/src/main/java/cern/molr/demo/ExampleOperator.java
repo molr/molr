@@ -90,24 +90,24 @@ public class ExampleOperator {
                     System.exit(-1);
                 }
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
-                                                                                            SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println(execName + " response to start: " + response);
-                        commandResponses.add(response);
-                        endSignal.countDown();
-                    }
+                                                                                                                      SimpleSubscriber<CommandResponse>() {
+                                                                                                                          @Override
+                                                                                                                          public void consume(CommandResponse response) {
+                                                                                                                              System.out.println(execName + " response to start: " + response);
+                                                                                                                              commandResponses.add(response);
+                                                                                                                              endSignal.countDown();
+                                                                                                                          }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                                                                                                          @Override
+                                                                                                                          public void onError(Throwable throwable) {
+                                                                                                                              throwable.printStackTrace();
+                                                                                                                          }
 
-                    @Override
-                    public void onComplete() {
+                                                                                                                          @Override
+                                                                                                                          public void onComplete() {
 
-                    }
-                });
+                                                                                                                          }
+                                                                                                                      });
 
                 try {
                     startSignal.await();

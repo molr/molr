@@ -14,13 +14,11 @@ import java.util.List;
 public interface StateManager {
 
     /**
-     *
      * @return a string representing the state status
      */
     String getStatus();
 
     /**
-     *
      * @return the possible commands which are accepted by the state
      */
     List<MissionCommand> getPossibleCommands();
@@ -29,12 +27,14 @@ public interface StateManager {
      * Method which verifies whether a command is accepted by the current state
      *
      * @param command the command to accept
+     *
      * @throws CommandNotAcceptedException if the command is not accepted
      */
     void acceptCommand(MissionCommand command) throws CommandNotAcceptedException;
 
     /**
      * Change the current state according to an event
+     *
      * @param event the triggered event
      */
     void changeState(MissionEvent event);

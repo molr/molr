@@ -18,6 +18,7 @@ import reactor.core.publisher.TopicProcessor;
 
 /**
  * A client which can perform HTTP POST request using Spring WebFlux
+ *
  * @author yassine-kr
  */
 public class WebFluxRestClient {

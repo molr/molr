@@ -24,6 +24,7 @@ import java.util.Optional;
 
 /**
  * Implementation using Spring WebFlux
+ *
  * @author yassine-kr
  */
 public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {

@@ -4,11 +4,8 @@ import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
-import cern.molr.commons.api.response.SupervisorState;
 import org.reactivestreams.Publisher;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**

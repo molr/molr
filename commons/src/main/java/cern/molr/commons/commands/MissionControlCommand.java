@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A command which is intrpreted by the MoleRunner
+ *
  * @author yassine-kr
  */
 public class MissionControlCommand implements MissionCommand {
@@ -17,11 +18,6 @@ public class MissionControlCommand implements MissionCommand {
 
     public Command getCommand() {
         return command;
-    }
-
-    public enum Command {
-        START,
-        TERMINATE
     }
 
     @Override
@@ -40,5 +36,10 @@ public class MissionControlCommand implements MissionCommand {
     @Override
     public String toString() {
         return command.toString();
+    }
+
+    public enum Command {
+        START,
+        TERMINATE
     }
 }

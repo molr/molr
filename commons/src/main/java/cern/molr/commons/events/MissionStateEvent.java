@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * An event wrapping a mission state. It is used by the communication between the MoleRunner and the supervisor, and
  * the communication between the supervisor and the MolR server.
+ *
  * @author yassine-kr
  */
 public class MissionStateEvent implements MissionEvent {

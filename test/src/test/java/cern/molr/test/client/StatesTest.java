@@ -65,7 +65,6 @@ public class StatesTest {
      * @param commandResponses the command responses list which will be filled
      * @param states           the states list which will be filled
      * @param finishSignal     the signal to be triggered when the all events and missions received
-     *
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>
@@ -206,7 +205,7 @@ public class StatesTest {
 
         List<MissionEvent> events = new ArrayList<>();
         List<CommandResponse> commandResponses = new ArrayList<>();
-        List<MissionState> states= new ArrayList<>();
+        List<MissionState> states = new ArrayList<>();
 
         CountDownLatch finishSignal = new CountDownLatch(1);
 
@@ -214,15 +213,15 @@ public class StatesTest {
         finishSignal.await();
 
         ResponseTester.testInstantiateStartTerminate(events, commandResponses);
-        Assert.assertEquals( 2, states.size());
-        Assert.assertEquals( MissionState.Level.MOLE_RUNNER, states.get(0).getLevel());
-        Assert.assertEquals( "NOT YET STARTED", states.get(0).getStatus());
-        Assert.assertArrayEquals( new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command.TERMINATE),
+        Assert.assertEquals(2, states.size());
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(0).getLevel());
+        Assert.assertEquals("NOT YET STARTED", states.get(0).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command.TERMINATE),
                         new MissionControlCommand(MissionControlCommand.Command.START)},
                 states.get(0).getPossibleCommands().toArray());
-        Assert.assertEquals( MissionState.Level.MOLE_RUNNER, states.get(1).getLevel());
-        Assert.assertEquals( "MISSION STARTED", states.get(1).getStatus());
-        Assert.assertArrayEquals( new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(1).getLevel());
+        Assert.assertEquals("MISSION STARTED", states.get(1).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
     }

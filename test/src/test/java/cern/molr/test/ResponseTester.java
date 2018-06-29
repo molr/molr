@@ -9,23 +9,24 @@ import java.util.List;
 
 /**
  * Class for testing the responses returned while executing a mission
+ *
  * @author yassine-kr
  */
 public abstract class ResponseTester {
 
     public static void testInstantiationEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
-        Assert.assertEquals(MissionControlEvent.Event.SESSION_INSTANTIATED,((MissionControlEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class, actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.SESSION_INSTANTIATED, ((MissionControlEvent) actual).getEvent());
     }
 
     public static void testStartedEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
-        Assert.assertEquals(MissionControlEvent.Event.MISSION_STARTED,((MissionControlEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class, actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.MISSION_STARTED, ((MissionControlEvent) actual).getEvent());
     }
 
     public static void testTerminatedEvent(MissionEvent actual) {
-        Assert.assertEquals(MissionControlEvent.class,actual.getClass());
-        Assert.assertEquals(MissionControlEvent.Event.SESSION_TERMINATED,((MissionControlEvent)actual).getEvent());
+        Assert.assertEquals(MissionControlEvent.class, actual.getClass());
+        Assert.assertEquals(MissionControlEvent.Event.SESSION_TERMINATED, ((MissionControlEvent) actual).getEvent());
     }
 
     public static void testCommandResponseSuccess(CommandResponse actual) {
@@ -39,6 +40,7 @@ public abstract class ResponseTester {
     /**
      * Test that events list contains SESSION_INSTANTIATED, MISSION_STARTED and SESSION_TERMINATED and command
      * responses contain two success responses
+     *
      * @param events
      * @param commandResponses
      */

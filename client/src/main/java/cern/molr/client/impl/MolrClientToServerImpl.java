@@ -21,6 +21,7 @@ import java.util.function.Function;
 
 /**
  * Implementation using Spring WebFlux
+ *
  * @author yassine-kr
  */
 public class MolrClientToServerImpl implements MolrClientToServer {

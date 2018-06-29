@@ -46,18 +46,21 @@ public interface Mole<I, O> {
 
     /**
      * It should send a command to the mole; the MoleRunner use it to forward commands which are not interpreted
+     *
      * @throws CommandNotAcceptedException when the command is not accepted by the mole
      */
     void sendCommand(MissionCommand command) throws CommandNotAcceptedException;
 
     /**
      * It should return the stream of events triggered by the mole itself during the mission execution
+     *
      * @return the events stream
      */
     Publisher<MissionEvent> getEventsPublisher();
 
     /**
      * It should return the stream of states triggered by the mole itself during the mission execution
+     *
      * @return the states stream
      */
     Publisher<MissionState> getStatesPublisher();

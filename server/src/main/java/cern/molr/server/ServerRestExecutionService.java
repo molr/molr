@@ -78,14 +78,14 @@ public class ServerRestExecutionService {
     public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
         return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
-                .filter(event -> ! (event instanceof MissionStateEvent));
+                .filter(event -> !(event instanceof MissionStateEvent));
     }
 
     public Publisher<MissionState> getStatesStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
         return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
                 .filter(event -> (event instanceof MissionStateEvent))
-                .map((event -> ((MissionStateEvent)event).getState()));
+                .map((event -> ((MissionStateEvent) event).getState()));
     }
 
     private String makeEId() {

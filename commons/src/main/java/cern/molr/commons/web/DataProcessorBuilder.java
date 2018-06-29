@@ -55,16 +55,6 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Set the generator which generates the output flux from the received input data
-     *
-     * @return this builder to chain other methods
-     */
-    public DataProcessorBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
-        this.generator = generator;
-        return this;
-    }
-
-    /**
      * Set the handler of the exception thrown by the generator
      *
      * @param function the returned output will be serialized and wrapped in a publisher of one element
@@ -87,11 +77,12 @@ public class DataProcessorBuilder<Input, Output> {
                 .concatMap((tryInput) -> tryInput.match(getDeserializationErrorHandler(),
                         getGenerator().andThen((tryFlux) -> tryFlux.match(getGenerationErrorHandler(),
                                 (flux) -> flux.map(getSerializer()))
-                )));
+                        )));
     }
 
     /**
      * Returns the function which try to deserialize the string input
+     *
      * @return the deserializer function
      */
     private Function<String, Try<Input>> getDeserializer() {
@@ -106,6 +97,7 @@ public class DataProcessorBuilder<Input, Output> {
 
     /**
      * Returns the handler which is called when there is a deserialization error
+     *
      * @return the function which returns a string publisher
      */
     private Function<Throwable, Publisher<String>> getDeserializationErrorHandler() {
@@ -117,6 +109,7 @@ public class DataProcessorBuilder<Input, Output> {
 
     /**
      * Returns the generator which generates the output publisher from the input
+     *
      * @return the function which returns the output publisher
      */
     private Function<Input, Try<Flux<Output>>> getGenerator() {
@@ -130,7 +123,18 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
+     * Set the generator which generates the output flux from the received input data
+     *
+     * @return this builder to chain other methods
+     */
+    public DataProcessorBuilder<Input, Output> setGenerator(ThrowingFunction<Input, Publisher<Output>> generator) {
+        this.generator = generator;
+        return this;
+    }
+
+    /**
      * Returns the handler called when there is a problem in output generation
+     *
      * @return the function which handles the error
      */
     private Function<Throwable, Publisher<String>> getGenerationErrorHandler() {
@@ -150,6 +154,7 @@ public class DataProcessorBuilder<Input, Output> {
 
     /**
      * Returns the serialiser which transforms the output to a string
+     *
      * @return the function which serialize the output
      */
     private Function<Output, String> getSerializer() {
@@ -162,7 +167,6 @@ public class DataProcessorBuilder<Input, Output> {
             }
         };
     }
-
 
 
     /**

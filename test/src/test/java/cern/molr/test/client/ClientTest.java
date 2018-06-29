@@ -62,7 +62,6 @@ public class ClientTest {
      * @param events           the events list which will be filled
      * @param commandResponses the command responses list which will be filled
      * @param finishSignal     the signal to be triggered when the all events and missions received
-     *
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>
@@ -110,24 +109,24 @@ public class ClientTest {
                     Assert.fail();
                 }
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
-                                                                                            SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println(execName + " response to start: " + response);
-                        commandResponses.add(response);
-                        endSignal.countDown();
-                    }
+                                                                                                                      SimpleSubscriber<CommandResponse>() {
+                                                                                                                          @Override
+                                                                                                                          public void consume(CommandResponse response) {
+                                                                                                                              System.out.println(execName + " response to start: " + response);
+                                                                                                                              commandResponses.add(response);
+                                                                                                                              endSignal.countDown();
+                                                                                                                          }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                                                                                                          @Override
+                                                                                                                          public void onError(Throwable throwable) {
+                                                                                                                              throwable.printStackTrace();
+                                                                                                                          }
 
-                    @Override
-                    public void onComplete() {
+                                                                                                                          @Override
+                                                                                                                          public void onComplete() {
 
-                    }
-                });
+                                                                                                                          }
+                                                                                                                      });
 
                 try {
                     startSignal.await();

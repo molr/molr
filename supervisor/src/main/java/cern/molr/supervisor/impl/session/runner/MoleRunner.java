@@ -8,16 +8,18 @@ import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
-import cern.molr.commons.api.mission.StateManagerListener;
+import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.*;
+import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionExceptionEvent;
+import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.supervisor.api.session.runner.CommandListener;
-import cern.molr.commons.api.mission.StateManager;
 import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -86,6 +88,17 @@ public class MoleRunner implements CommandListener {
         }
     }
 
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
+                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
+                    "the Mission to be executed");
+        }
+        new MoleRunner(args[0]);
+
+        while (true) ;
+    }
+
     /**
      * Method which writes an event to the output stream
      */
@@ -107,18 +120,6 @@ public class MoleRunner implements CommandListener {
         } catch (JsonProcessingException error) {
             LOGGER.error("unable to serialize a state event", error);
         }
-    }
-
-
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
-                    " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
-                    "the Mission to be executed");
-        }
-        new MoleRunner(args[0]);
-        
-        while (true) ;
     }
 
     /**

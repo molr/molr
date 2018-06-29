@@ -1,11 +1,11 @@
 package cern.molr.supervisor.impl.session.runner;
 
 import cern.molr.commons.api.exception.CommandNotAcceptedException;
+import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.events.MissionControlEvent;
 
 import java.util.ArrayList;
@@ -72,6 +72,7 @@ public class MoleRunnerStateManager implements StateManager {
 
     /**
      * Add a listener and notifies it to take into account the current state
+     *
      * @param listener the listener to add
      */
     public void addListener(StateManagerListener listener) {

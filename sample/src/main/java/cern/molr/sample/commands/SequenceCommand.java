@@ -19,12 +19,6 @@ public class SequenceCommand implements MissionCommand {
         return command;
     }
 
-    public enum Command {
-        STEP,//run the current task
-        SKIP,//skip the current task
-        FINISH//finish all the remaining tasks
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -41,5 +35,11 @@ public class SequenceCommand implements MissionCommand {
     @Override
     public String toString() {
         return command.toString();
+    }
+
+    public enum Command {
+        STEP,//run the current task
+        SKIP,//skip the current task
+        FINISH//finish all the remaining tasks
     }
 }

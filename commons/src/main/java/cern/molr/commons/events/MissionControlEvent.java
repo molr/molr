@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Kind of events which are sent back by the MoleRunner
+ *
  * @author yassine-kr
  */
 public class MissionControlEvent implements MissionEvent {
@@ -19,14 +20,14 @@ public class MissionControlEvent implements MissionEvent {
         return event;
     }
 
+    @Override
+    public String toString() {
+        return event.toString();
+    }
+
     public enum Event {
         MISSION_STARTED,
         SESSION_INSTANTIATED,
         SESSION_TERMINATED
-    }
-
-    @Override
-    public String toString() {
-        return event.toString();
     }
 }

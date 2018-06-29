@@ -1,11 +1,6 @@
 package cern.molr.supervisor.api.web;
 
-import cern.molr.commons.api.response.SupervisorState;
-import org.reactivestreams.Publisher;
-
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * A client service which allows to perform some defined requests to a the MolR server
