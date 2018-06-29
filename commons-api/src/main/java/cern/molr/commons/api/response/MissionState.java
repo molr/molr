@@ -38,4 +38,9 @@ public final class MissionState {
         MOLE_RUNNER,
         MOLE
     }
+
+    @Override
+    public String toString() {
+        return level.toString() + " " + status + " " + possibleCommands;
+    }
 }

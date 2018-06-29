@@ -36,4 +36,9 @@ public class MissionControlCommand implements MissionCommand {
         return !(command != null ? !command.equals(other.command) : other.command != null);
 
     }
+
+    @Override
+    public String toString() {
+        return command.toString();
+    }
 }

@@ -185,7 +185,7 @@ public class MoleRunner implements CommandListener {
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {
                     MissionEvent missionFinishedEvent =
-                            new MissionFinished(mission.getMissionName(), future.get());
+                            new MissionFinished(future.get());
                     sendEvent(missionFinishedEvent);
                 } catch (ExecutionException | InterruptedException error) {
                     sendEvent(new MissionExceptionEvent(error.getCause()));

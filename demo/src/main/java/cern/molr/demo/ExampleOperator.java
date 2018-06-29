@@ -34,7 +34,7 @@ public class ExampleOperator {
     }
 
     /**
-     * A method which instantiate a mission and terminate it
+     * A method which instantiates a mission and terminates it
      *
      * @param execName         the name execution used when displaying results
      * @param missionClass     the mission class

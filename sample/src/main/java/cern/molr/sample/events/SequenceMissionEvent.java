@@ -31,4 +31,9 @@ public class SequenceMissionEvent implements MissionEvent {
         TASK_FINISHED,
         TASK_SKIPPED
     }
+
+    @Override
+    public String toString() {
+        return event.toString() + " " + taskNumber;
+    }
 }

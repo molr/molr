@@ -24,4 +24,9 @@ public class MissionControlEvent implements MissionEvent {
         SESSION_INSTANTIATED,
         SESSION_TERMINATED
     }
+
+    @Override
+    public String toString() {
+        return event.toString();
+    }
 }
