@@ -4,10 +4,10 @@
 
 package cern.molr.supervisor;
 
-import cern.molr.commons.api.web.MolrWebClient;
-import cern.molr.commons.impl.web.MolrWebClientImpl;
 import cern.molr.supervisor.api.address.AddressGetter;
+import cern.molr.supervisor.api.web.MolrSupervisorToServer;
 import cern.molr.supervisor.impl.address.ConfigurationAddressGetter;
+import cern.molr.supervisor.impl.web.MolrSupervisorToServerImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class RemoteSupervisorMain {
         this.config = config;
         this.applicationEventPublisher = applicationEventPublisher;
         addressGetter.addListener(address -> {
-            MolrWebClient client = new MolrWebClientImpl(config.getMolrHost(), config.getMolrPort());
+            MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
             try {
                 supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
                         .getAcceptedMissions()));
@@ -73,7 +73,7 @@ public class RemoteSupervisorMain {
 
     @PreDestroy
     public void close() {
-        MolrWebClient client = new MolrWebClientImpl(config.getMolrHost(), config.getMolrPort());
+        MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
 
         try {
             client.unregister(supervisorId);

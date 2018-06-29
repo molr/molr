@@ -7,8 +7,8 @@ import cern.molr.commons.api.response.InstantiationResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.*;
-import cern.molr.commons.impl.web.MolrWebClientImpl;
-import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
+import cern.molr.commons.web.WebFluxRestClient;
+import cern.molr.commons.web.WebFluxWebSocketClient;
 import cern.molr.commons.web.MolrConfig;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
@@ -36,8 +36,8 @@ public class ServerTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private MolrWebClientImpl client = new MolrWebClientImpl("http://localhost", 8000);
-    private MolrWebSocketClientImpl clientSocket = new MolrWebSocketClientImpl("http://localhost", 8000);
+    private WebFluxRestClient client = new WebFluxRestClient("http://localhost", 8000);
+    private WebFluxWebSocketClient clientSocket = new WebFluxWebSocketClient("http://localhost", 8000);
 
     @Before
     public void initServers() {
