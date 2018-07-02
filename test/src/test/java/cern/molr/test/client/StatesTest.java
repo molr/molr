@@ -213,7 +213,7 @@ public class StatesTest {
         finishSignal.await();
 
         ResponseTester.testInstantiateStartTerminate(events, commandResponses);
-        Assert.assertEquals(2, states.size());
+        Assert.assertEquals(3, states.size());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(0).getLevel());
         Assert.assertEquals("NOT YET STARTED", states.get(0).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command.TERMINATE),
@@ -224,6 +224,9 @@ public class StatesTest {
         Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(2).getLevel());
+        Assert.assertEquals("SESSION TERMINATED", states.get(2).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{}, states.get(2).getPossibleCommands().toArray());
     }
 
 }

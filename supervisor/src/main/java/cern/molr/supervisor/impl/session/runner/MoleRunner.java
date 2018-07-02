@@ -196,6 +196,7 @@ public class MoleRunner implements CommandListener {
             });
         } catch (Exception error) {
             sendEvent(new MissionExceptionEvent(error));
+            System.exit(-1);
         }
     }
 

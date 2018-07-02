@@ -12,6 +12,8 @@ import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.mission.SequenceMissionExample;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Objects;
 
@@ -27,32 +29,47 @@ public class GUIExample {
     private StringBuilder states = new StringBuilder();
     private StringBuilder commandResponses = new StringBuilder();
 
+    private DefaultListModel<String> eventsListModel = new DefaultListModel<>();
+    private DefaultListModel<String> statesListModel = new DefaultListModel<>();
+    private DefaultListModel<String> commandsResponsesListModel = new DefaultListModel<>();
+
+    private JList<String> eventsList;
+    private JList<String> statesList;
+    private JList<String> commandResponsesList;
+
     private MissionExecutionService service;
 
     public GUIExample(MissionExecutionService service) {
         Objects.requireNonNull(service);
         this.service = service;
 
-        JFrame frame = new JFrame("Alignment Example");
+        JFrame frame = new JFrame("Sequence Mole Example");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel eventsLabel = new JLabel("Events");
-        JLabel eventsArea = new JLabel();
-        JLabel statesLabel = new JLabel("States");
-        JLabel statesArea = new JLabel();
+        JLabel eventsLabel = new JLabel("<html><h3><strong><i>Events</i></strong></h3><hr></html>");
+        eventsList= new JList<>(eventsListModel);
+        eventsList.setBorder(new LineBorder(Color.BLACK));
+        JLabel statesLabel = new JLabel("<html><h3><strong><i>States</i></strong></h3><hr></html>");
+        statesList= new JList<>(statesListModel);
+        statesList.setBorder(new LineBorder(Color.BLACK));
         JButton instantiateButton = new JButton("INSTANTIATE");
-        JLabel moleRunnerCommandsLabel = new JLabel("MoleRunner commands");
+        JLabel moleRunnerCommandsLabel = new JLabel("<html><h3><strong><i>MoleRunner " +
+                "commands</i></strong></h3><hr></html>");
         startButton = new JButton("START");
         terminateButton = new JButton("TERMINATE");
-        JLabel moleCommandsLabel = new JLabel("Sequence Mole commands");
+        JLabel moleCommandsLabel = new JLabel("<html><h3><strong><i>Sequence Mole " +
+                "commands</i></strong></h3><hr></html>");
         stepButton = new JButton("STEP");
         skipButton = new JButton("SKIP");
         finishButton = new JButton("FINISH");
-        JLabel commandsResponsesLabel = new JLabel("Commands responses");
-        JLabel commandsResponsesArea = new JLabel();
+        JLabel commandsResponsesLabel = new JLabel("<html><h3><strong><i>Command " +
+                "responses</i></strong></h3><hr></html>");
+        commandResponsesList= new JList<>(commandsResponsesListModel);
+        commandResponsesList.setBorder(new LineBorder(Color.BLACK));
 
         startButton.setEnabled(false);
         terminateButton.setEnabled(false);
@@ -64,11 +81,11 @@ public class GUIExample {
         panel.add(Box.createRigidArea(new Dimension(0,5)));
         panel.add(eventsLabel);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
-        panel.add(eventsArea);
+        panel.add(eventsList);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
         panel.add(statesLabel);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
-        panel.add(statesArea);
+        panel.add(statesList);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
         panel.add(moleRunnerCommandsLabel);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -86,158 +103,154 @@ public class GUIExample {
         panel.add(Box.createRigidArea(new Dimension(0,5)));
         panel.add(commandsResponsesLabel);
         panel.add(Box.createRigidArea(new Dimension(0,5)));
-        panel.add(commandsResponsesArea);
+        panel.add(commandResponsesList);
 
-        instantiateButton.addActionListener(e -> service.instantiate(SequenceMissionExample.class.getName(), null)
-                .subscribe(new SimpleSubscriber<ClientMissionController>() {
-            @Override
-            public void consume(ClientMissionController controller) {
-                controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+        instantiateButton.addActionListener(e -> {
+            instantiateButton.setEnabled(false);
+            service.instantiate(SequenceMissionExample.class.getName(), null)
+                    .subscribe(new SimpleSubscriber<ClientMissionController>() {
+                        @Override
+                        public void consume(ClientMissionController controller) {
+                            controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
 
-                    @Override
-                    public void consume(MissionEvent event) {
-                        events.append(event).append("<br/>");
-                        eventsArea.setText("<html>" + events + "</html>");
-                    }
+                                @Override
+                                public void consume(MissionEvent event) {
+                                    eventsListModel.addElement(event.toString());
+                                }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                @Override
+                                public void onError(Throwable throwable) {
+                                    throwable.printStackTrace();
+                                }
 
-                    @Override
-                    public void onComplete() {
+                                @Override
+                                public void onComplete() {
 
-                    }
-                });
+                                }
+                            });
 
-                controller.getStatesStream().subscribe(new SimpleSubscriber<MissionState>() {
+                            controller.getStatesStream().subscribe(new SimpleSubscriber<MissionState>() {
 
-                    @Override
-                    public void consume(MissionState state) {
-                        states.append(state).append("<br/>");
-                        statesArea.setText("<html>" + states + "</html>");
-                        updateButtons(state);
-                    }
+                                @Override
+                                public void consume(MissionState state) {
+                                    statesListModel.addElement(state.toString());
+                                    updateButtons(state);
+                                }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                @Override
+                                public void onError(Throwable throwable) {
+                                    throwable.printStackTrace();
+                                }
 
-                    @Override
-                    public void onComplete() {
+                                @Override
+                                public void onComplete() {
 
-                    }
-                });
+                                }
+                            });
 
-                startButton.addActionListener(e1 -> controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        commandResponses.append(response).append("<br/>");
-                        commandsResponsesArea.setText("<html>" + commandResponses + "</html>");
-                    }
+                            startButton.addActionListener(e1 -> controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            commandsResponsesListModel.addElement(response.toString());
+                                        }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
 
-                    @Override
-                    public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                    }
-                }));
+                                        }
+                                    }));
 
-                terminateButton.addActionListener(e1 -> controller.instruct(new MissionControlCommand(MissionControlCommand.Command
-                        .TERMINATE))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                            @Override
-                            public void consume(CommandResponse response) {
-                                commandResponses.append(response).append("<br/>");
-                                commandsResponsesArea.setText("<html>" + commandResponses + "</html>");
-                            }
+                            terminateButton.addActionListener(e1 -> controller.instruct(new MissionControlCommand(MissionControlCommand.Command
+                                    .TERMINATE))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            commandsResponsesListModel.addElement(response.toString());
+                                        }
 
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                            }
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
 
-                            @Override
-                            public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                            }
-                        }));
+                                        }
+                                    }));
 
-                stepButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.STEP))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                            @Override
-                            public void consume(CommandResponse response) {
-                                commandResponses.append(response).append("<br/>");
-                                commandsResponsesArea.setText("<html>" + commandResponses + "</html>");
-                            }
+                            stepButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.STEP))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            commandsResponsesListModel.addElement(response.toString());
+                                        }
 
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                            }
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
 
-                            @Override
-                            public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                            }
-                        }));
+                                        }
+                                    }));
 
-                skipButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.SKIP))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                            @Override
-                            public void consume(CommandResponse response) {
-                                commandResponses.append(response).append("<br/>");
-                                commandsResponsesArea.setText("<html>" + commandResponses + "</html>");
-                            }
+                            skipButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.SKIP))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            commandsResponsesListModel.addElement(response.toString());
+                                        }
 
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                            }
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
 
-                            @Override
-                            public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                            }
-                        }));
+                                        }
+                                    }));
 
-                finishButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                            @Override
-                            public void consume(CommandResponse response) {
-                                commandResponses.append(response).append("<br/>");
-                                commandsResponsesArea.setText("<html>" + commandResponses + "</html>");
-                            }
+                            finishButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            commandsResponsesListModel.addElement(response.toString());
+                                        }
 
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                            }
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
 
-                            @Override
-                            public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                            }
-                        }));
-            }
+                                        }
+                                    }));
+                        }
 
-            @Override
-            public void onError(Throwable throwable) {
-                throwable.printStackTrace();
-            }
+                        @Override
+                        public void onError(Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
 
-            @Override
-            public void onComplete() {
+                        @Override
+                        public void onComplete() {
 
-            }
-        }));
+                        }
+                    });
+        });
 
 
 

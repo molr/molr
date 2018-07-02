@@ -286,7 +286,8 @@ public class MoleSpecificTest {
         ResponseTester.testCommandResponseSuccess(commandResponses.get(1));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(2));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(3));
-        Assert.assertEquals(10, states.size());
+
+        Assert.assertEquals(12, states.size());
 
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(0).getLevel());
         Assert.assertEquals("NOT YET STARTED", states.get(0).getStatus());
@@ -298,6 +299,12 @@ public class MoleSpecificTest {
         Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
+        Assert.assertEquals("MISSION FINISHED", states.get(10).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{}, states.get(10).getPossibleCommands().toArray());
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(11).getLevel());
+        Assert.assertEquals("SESSION TERMINATED", states.get(11).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{}, states.get(11).getPossibleCommands().toArray());
 
         testWaitingState(states.get(2), 0);
         testRunningState(states.get(3), 0);
