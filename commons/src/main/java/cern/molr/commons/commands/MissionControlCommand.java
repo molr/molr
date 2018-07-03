@@ -4,7 +4,7 @@ import cern.molr.commons.api.request.MissionCommand;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A command which is intrpreted by the MoleRunner
+ * A command which is interpreted by the MoleRunner
  *
  * @author yassine-kr
  */

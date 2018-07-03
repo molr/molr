@@ -39,16 +39,12 @@ public class ConfigurationAddressGetter implements AddressGetter {
     }
 
     private boolean isCorrect() {
-        return address.getHost() != null && address.getPort() >= 0;
+        return address.getHost() != null && address.getPort() != -1;
     }
 
     private void updateAddress(Address other) {
-        if (address.getHost() == null) {
-            address.setHost(other.getHost());
-        }
-        if (address.getPort() < 0) {
-            address.setPort(other.getPort());
-        }
+        address.setHost(other.getHost());
+        address.setPort(other.getPort());
     }
 
 }

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * Reads commands from a {@link BufferedReader} and proxies them to a given function in a regular interval. Unless
+ * Reads data from a {@link BufferedReader} and proxies it to a given function in a regular interval. Unless
  * specified, the interval defaults to 100 milliseconds. The reader runs a separate thread to continuously read input
  * from the stream without blocking.
  *
@@ -32,19 +32,19 @@ public abstract class RemoteReader implements AutoCloseable {
     private boolean started = false;
 
     /**
-     * Creates a reader which reads commands from the given reader and forwards them to the controller.
+     * Creates a reader which reads data from the given reader and forwards them to the controller.
      *
-     * @param reader The reader to read incoming commands from.
+     * @param reader The reader to read incoming data from.
      */
     public RemoteReader(BufferedReader reader) {
         this(reader, DEFAULT_READING_INTERVAL);
     }
 
     /**
-     * Creates a reader which reads commands from the given reader and forwards them to the controller.
+     * Creates a reader which reads data from the given reader and forwards them to the controller.
      *
-     * @param reader          The reader to read incoming commands from.
-     * @param readingInterval The interval with which to read commands. May not be negative.
+     * @param reader          The reader to read incoming data from.
+     * @param readingInterval The interval with which to read data. May not be negative.
      */
     public RemoteReader(BufferedReader reader, Duration readingInterval) {
         this(reader, readingInterval, readingInterval);
@@ -69,10 +69,10 @@ public abstract class RemoteReader implements AutoCloseable {
             try {
                 onReadingAttempt.ifPresent(Runnable::run);
                 if (reader.ready()) {
-                    readCommand(reader);
+                    readData(reader);
                 }
             } catch (Exception exception) {
-                LOGGER.warn("Exception trying to read command", exception);
+                LOGGER.warn("Exception trying to read data", exception);
             }
         };
         if (initialDelay != null) {
@@ -103,11 +103,11 @@ public abstract class RemoteReader implements AutoCloseable {
     }
 
     /**
-     * Reads a command from the given {@link BufferedReader}.
+     * Reads a data from the given {@link BufferedReader}.
      *
-     * @param reader The reader to read the next command from.
+     * @param reader The reader to read the next data from.
      */
-    protected abstract void readCommand(BufferedReader reader);
+    protected abstract void readData(BufferedReader reader);
 
     @Override
     public void close() {

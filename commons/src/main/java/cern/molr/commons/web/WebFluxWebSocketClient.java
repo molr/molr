@@ -59,12 +59,12 @@ public class WebFluxWebSocketClient {
                             try {
                                 return mapper.readValue(message.getPayloadAsText(), responseType);
                             } catch (IOException error) {
-                                LOGGER.error("error while deserializing a received data", error);
+                                LOGGER.error("unable to deserialize a received data [{}]", message.getPayloadAsText(), error);
                                 return null;
                             }
                         })).doOnComplete(processor::onComplete).doOnNext(processor::onNext).then();
             } catch (JsonProcessingException error) {
-                LOGGER.error("error while serializing the request", error);
+                LOGGER.error("unable to serialize a request [{}]", request, error);
                 return Mono.error(error);
             }
         }).doOnError(processor::onError).subscribe();

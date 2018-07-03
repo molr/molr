@@ -83,7 +83,7 @@ public class MoleRunner implements CommandListener {
             reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
 
         } catch (Exception error) {
-            LOGGER.error("error while initializing the session", error);
+            LOGGER.error("Error while initializing the session", error);
             System.exit(-1);
         }
     }
@@ -107,7 +107,7 @@ public class MoleRunner implements CommandListener {
         try {
             System.out.println(mapper.writeValueAsString(event));
         } catch (JsonProcessingException error) {
-            LOGGER.error("unable to serialize an event", error);
+            LOGGER.error("unable to serialize an event [{}]", event, error);
         }
     }
 
@@ -118,7 +118,7 @@ public class MoleRunner implements CommandListener {
         try {
             System.out.println(mapper.writeValueAsString(new MissionStateEvent(state)));
         } catch (JsonProcessingException error) {
-            LOGGER.error("unable to serialize a state event", error);
+            LOGGER.error("unable to serialize a state event [{}]", state, error);
         }
     }
 

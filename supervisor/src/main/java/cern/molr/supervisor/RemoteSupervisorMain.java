@@ -54,7 +54,8 @@ public class RemoteSupervisorMain {
                 supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
                         .getAcceptedMissions()));
             } catch (Exception error) {
-                LOGGER.error("error while attempting to register in the MolR server", error);
+                LOGGER.error("error while attempting to register in the MolR server [host: {}, port: {}]",
+                        config.getMolrHost(), config.getMolrPort(), error);
             }
         });
     }
@@ -78,7 +79,8 @@ public class RemoteSupervisorMain {
         try {
             client.unregister(supervisorId);
         } catch (Exception error) {
-            LOGGER.error("error while attempting to unregister from MolR server", error);
+            LOGGER.error("error while attempting to unregister from MolR server [host: {}, port: {}]",
+                    config.getMolrHost(), config.getMolrPort(), error);
         }
     }
 
@@ -108,7 +110,7 @@ public class RemoteSupervisorMain {
             config.setMolrHost(env.getProperty("molr.host", "http://localhost"));
             config.setMolrPort(env.getProperty("molr.port", Integer.class, 8000));
 
-            config.setSupervisorHost(env.getProperty("supervisor.host", String.class));
+            config.setSupervisorHost(env.getProperty("supervisor.host"));
             config.setSupervisorPort(env.getProperty("supervisor.port", Integer.class, -1));
 
             return config;

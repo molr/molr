@@ -33,23 +33,28 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
 
     private WebFluxRestClient restClient;
     private WebFluxWebSocketClient socketClient;
+    private String host;
+    private int port;
 
     public MolrServerToSupervisorImpl(String host, int port) {
+        this.host = host;
+        this.port = port;
         restClient = new WebFluxRestClient(host, port);
         socketClient = new WebFluxWebSocketClient(host, port);
     }
 
+    //TODO should log the supervisor host and port when there is an error in getting the state
     @Override
     public Optional<SupervisorState> getState() {
         try {
             return restClient.post(MolrConfig.GET_STATE_PATH, SupervisorStateRequest.class, new
                             SupervisorStateRequest(),
                     SupervisorStateResponse.class).block().match((throwable) -> {
-                LOGGER.error("unable to get the supervisor state", throwable);
+                LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", throwable);
                 return Optional.empty();
             }, Optional::<SupervisorState>ofNullable);
         } catch (Exception error) {
-            LOGGER.error("unable to get the supervisor state", error);
+            LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", error);
             return Optional.empty();
         }
     }

@@ -35,12 +35,17 @@ public class EventsReader extends RemoteReader {
     }
 
     @Override
-    protected void readCommand(BufferedReader reader) {
+    protected void readData(BufferedReader reader) {
         try {
             final String line = reader.readLine();
-            MissionEvent event = mapper.readValue(line, MissionEvent.class);
             LOGGER.info("Reading string event from MoleRunner: {}", line);
-            listener.onEvent(event);
+            try {
+                MissionEvent event = mapper.readValue(line, MissionEvent.class);
+                listener.onEvent(event);
+            } catch (IOException error) {
+                LOGGER.error("unable to deserialize a read event [{}]", line, error);
+            }
+
         } catch (IOException error) {
             LOGGER.error("Error while trying to read an event from the MoleRunner", error);
         }

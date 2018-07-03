@@ -90,6 +90,7 @@ public class DataProcessorBuilder<Input, Output> {
             try {
                 return new Success<>(mapper.readValue(data, inputType));
             } catch (IOException error) {
+                LOGGER.error("unable to deserialize the input data [{}]", data, error);
                 return new Failure<>(error);
             }
         };
@@ -102,7 +103,6 @@ public class DataProcessorBuilder<Input, Output> {
      */
     private Function<Throwable, Publisher<String>> getDeserializationErrorHandler() {
         return error -> {
-            LOGGER.error("unable to deserialize the input data", error);
             return Mono.empty();
         };
     }
@@ -140,13 +140,13 @@ public class DataProcessorBuilder<Input, Output> {
     private Function<Throwable, Publisher<String>> getGenerationErrorHandler() {
         return error -> {
             try {
-                LOGGER.error("exception in getting the result stream", error);
+                LOGGER.error("exception in generating the result stream", error);
                 if (generatorExceptionHandler == null) {
                     return Mono.empty();
                 }
                 return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.apply(error)));
             } catch (JsonProcessingException error1) {
-                LOGGER.error("unable to serialize an output data", error1);
+                LOGGER.error("unable to serialize an output data [{}]", generatorExceptionHandler.apply(error), error1);
                 return Mono.empty();
             }
         };
@@ -162,7 +162,7 @@ public class DataProcessorBuilder<Input, Output> {
             try {
                 return mapper.writeValueAsString(output);
             } catch (JsonProcessingException error) {
-                LOGGER.error("unable to serialize an output data", error);
+                LOGGER.error("unable to serialize an output data [{}]", output, error);
                 return null;
             }
         };

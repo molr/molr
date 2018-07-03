@@ -50,7 +50,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                     try {
                         session.getController().close();
                     } catch (IOException error) {
-                        LOGGER.error("error while trying to close a session", error);
+                        LOGGER.error("Error while trying to close a session [{}]", session, error);
                     }
                 }
             });
@@ -63,7 +63,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                 });
             });
         } catch (Exception error) {
-            LOGGER.error("error while trying to spawn the mission on the MoleRunner", error);
+            LOGGER.error("Error while trying to spawn the mission on the MoleRunner", error);
             return Flux.just(new MissionExceptionEvent(error));
         }
     }
