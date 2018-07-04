@@ -13,6 +13,7 @@ public class MolrConfig {
     public static final String STATES_STREAM_PATH = "/getStatesStream";
     public static final String INSTRUCT_PATH = "/instruct";
     public static final String GET_STATE_PATH = "/getState";
+    public static final String GET_HEARTBEAT_PATH = "/getHeartbeat";
     public static final String REGISTER_PATH = "/register";
     public static final String UNREGISTER_PATH = "/unregister";
 

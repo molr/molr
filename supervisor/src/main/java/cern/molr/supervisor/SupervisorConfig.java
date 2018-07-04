@@ -1,5 +1,7 @@
 package cern.molr.supervisor;
 
+import java.time.Duration;
+
 /**
  * A supervisor configuration which contains properties of the launched supervisor
  *
@@ -20,6 +22,16 @@ public class SupervisorConfig {
     private String supervisorHost;
 
     private int supervisorPort;
+
+    private Duration heartbeatInterval;
+
+    public Duration getHeartbeatInterval() {
+        return heartbeatInterval;
+    }
+
+    public void setHeartbeatInterval(Duration heartbeatInterval) {
+        this.heartbeatInterval = heartbeatInterval;
+    }
 
     public String getSupervisorHost() {
         return supervisorHost;

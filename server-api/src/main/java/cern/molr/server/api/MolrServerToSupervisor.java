@@ -33,4 +33,9 @@ public interface MolrServerToSupervisor {
      */
     Publisher<CommandResponse> instruct(String missionName, String missionId, MissionCommand command);
 
+    /**
+     * Should send a heartbeat request to the server and return a heartbeat stream
+     */
+    Publisher<SupervisorState> getSupervisorHeartbeat();
+
 }

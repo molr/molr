@@ -7,6 +7,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.SupervisorsManagerImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -80,6 +81,11 @@ public class SupervisorsManagerTest {
         @Override
         public Optional<SupervisorState> getSupervisorState() {
             return Optional.of(supervisorState);
+        }
+
+        @Override
+        public void addStateAvailabilityListener(TimeOutStateListener listener) {
+
         }
     }
 

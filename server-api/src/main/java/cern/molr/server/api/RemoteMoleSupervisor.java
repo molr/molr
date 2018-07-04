@@ -19,7 +19,7 @@ public interface RemoteMoleSupervisor {
     /**
      * A method which should send an instantiation request to the supervisor
      *
-     * @param serverRequest the request sent by the client to mMolR server
+     * @param serverRequest the request sent by the client to MolR server
      * @param missionId     the ID of the execution
      * @param <I>           the argument type
      *
@@ -43,5 +43,11 @@ public interface RemoteMoleSupervisor {
      * @return optional, empty if the method fails to get the state
      */
     Optional<SupervisorState> getSupervisorState();
+
+    /**
+     * Add a {@link TimeOutStateListener}
+     * @param listener the listener to add
+     */
+    void addStateAvailabilityListener(TimeOutStateListener listener);
 
 }

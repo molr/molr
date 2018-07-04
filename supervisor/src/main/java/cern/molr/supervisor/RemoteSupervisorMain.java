@@ -21,6 +21,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PreDestroy;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -109,6 +110,8 @@ public class RemoteSupervisorMain {
 
             config.setSupervisorHost(env.getProperty("supervisor.host"));
             config.setSupervisorPort(env.getProperty("supervisor.port", Integer.class, -1));
+
+            config.setHeartbeatInterval(Duration.ofSeconds(env.getProperty("heartbeat.interval", Long.class, 20L)));
 
             return config;
         }

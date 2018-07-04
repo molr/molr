@@ -7,6 +7,7 @@ package cern.molr.server.impl;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.server.InstantiationRequest;
+import cern.molr.commons.api.request.server.SupervisorHeartbeatRequest;
 import cern.molr.commons.api.request.server.SupervisorStateRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
@@ -50,11 +51,11 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
             return restClient.post(MolrConfig.GET_STATE_PATH, SupervisorStateRequest.class, new
                             SupervisorStateRequest(),
                     SupervisorStateResponse.class).block().match((throwable) -> {
-                LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", throwable);
+                LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", host, port, throwable);
                 return Optional.empty();
             }, Optional::<SupervisorState>ofNullable);
         } catch (Exception error) {
-            LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", error);
+            LOGGER.error("unable to get the supervisor state [host: {}, port: {}]", host, port, error);
             return Optional.empty();
         }
     }
@@ -75,6 +76,13 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
                 .doOnError((e) ->
                         LOGGER.error("error in command stream [mission execution Id: {}, mission name: {}, command: {}]",
                                 missionId, missionName, command, e));
+    }
+
+    @Override
+    public Publisher<SupervisorState> getSupervisorHeartbeat() {
+        return socketClient.receiveFlux(MolrConfig.GET_HEARTBEAT_PATH, SupervisorState.class, new SupervisorHeartbeatRequest())
+                .doOnError((error) ->
+                        LOGGER.error("error in supervisor heartbeat stream [host: {}, port: {}]", host, port, error));
     }
 
 }

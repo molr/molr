@@ -81,4 +81,9 @@ public class MoleSupervisorImpl implements MoleSupervisor {
     public SupervisorState getSupervisorState() {
         return null;
     }
+
+    @Override
+    public Publisher<SupervisorState> getHeartbeat() {
+        return null;
+    }
 }

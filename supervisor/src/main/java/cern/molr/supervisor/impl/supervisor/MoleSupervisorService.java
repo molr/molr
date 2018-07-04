@@ -26,6 +26,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     private SupervisorState supervisorState;
     private SupervisorConfig config;
+    private Publisher<SupervisorState> heartbeat;
 
     public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
@@ -43,6 +44,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
                         .getMaxMissions());
             }
         });
+        heartbeat = Flux.interval(config.getHeartbeatInterval()).map((t) -> getSupervisorState());
     }
 
     @Override
@@ -90,5 +92,10 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
             throw new ExecutionNotAcceptedException(
                     "Cannot accept execution of this mission: the supervisor cannot execute more missions");
         }
+    }
+
+    @Override
+    public Publisher<SupervisorState> getHeartbeat() {
+        return heartbeat;
     }
 }

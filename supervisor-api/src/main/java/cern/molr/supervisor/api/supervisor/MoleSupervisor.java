@@ -43,4 +43,10 @@ public interface MoleSupervisor {
      */
     SupervisorState getSupervisorState();
 
+    /**
+     * A method which should return the supervisor heartbeat
+     * @return the stream of supervisor states
+     */
+    Publisher<SupervisorState> getHeartbeat();
+
 }
