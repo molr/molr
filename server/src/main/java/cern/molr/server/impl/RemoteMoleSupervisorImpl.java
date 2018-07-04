@@ -38,15 +38,20 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     }
 
     /**
+     *
+     * TODO should add a method which cancels the timer and use when removing a supervisor
      * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the listeners
      *                        that the state is not available
+     *
      */
-    public RemoteMoleSupervisorImpl(String host, int port, Duration interval, Duration timeOutDuration ) {
+    public RemoteMoleSupervisorImpl(String host, int port, Duration interval, Duration timeOutDuration, int
+            maxTimeOuts) {
         this(host, port);
         client.getSupervisorHeartbeat((int) interval.getSeconds()).subscribe(new SimpleSubscriber<SupervisorState>() {
 
             private Timer timer = new Timer();
             private TimerTask task;
+            private int numTimeOuts = 0;
 
             @Override
             public void onSubscribe(Subscription subscription) {
@@ -58,6 +63,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
             public void consume(SupervisorState supervisorState) {
                 LOGGER.info("receiving new state from the supervisor [{}]", supervisorState);
                 state = supervisorState;
+                numTimeOuts = 0;
                 updateTimer();
             }
 
@@ -78,7 +84,12 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
                     @Override
                     public void run() {
                         LOGGER.warn("State time out reached [{}]", timeOutDuration);
-                        notifyListeners(timeOutDuration);
+                        numTimeOuts++;
+                        notifyTimeOutListeners(timeOutDuration);
+                        if (numTimeOuts == maxTimeOuts) {
+                           notifyMaxTimeOutsListeners(numTimeOuts);
+                           numTimeOuts = 0;
+                        }
                         updateTimer();
                     }
                 };
@@ -113,8 +124,12 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
         listeners.add(listener);
     }
 
-    private void notifyListeners(Duration timeOutDuration) {
-        listeners.forEach((listener) -> listener.onStateUnavailable(timeOutDuration));
+    private void notifyTimeOutListeners(Duration timeOutDuration) {
+        listeners.forEach((listener) -> listener.onTimeOut(timeOutDuration));
+    }
+
+    private void notifyMaxTimeOutsListeners(int numTimeOuts) {
+        listeners.forEach((listener) -> listener.onMaxTimeOuts(numTimeOuts));
     }
 
 }

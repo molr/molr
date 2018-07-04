@@ -12,5 +12,12 @@ public interface TimeOutStateListener {
      * Called when the Molr server does not receive a state from the supervisor after a fixed duration
      * @param timeOutDuration the duration between the last state receiving and calling this method
      */
-    void onStateUnavailable(Duration timeOutDuration);
+    void onTimeOut(Duration timeOutDuration);
+
+    /**
+     * Called when the max number of consecutive time outs is reached
+     * @param numTimeOut the number of consecutive time outs
+     */
+    void onMaxTimeOuts(int numTimeOut);
+
 }

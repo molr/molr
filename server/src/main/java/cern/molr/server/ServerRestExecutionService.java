@@ -16,6 +16,7 @@ import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Publisher;
@@ -105,7 +106,20 @@ public class ServerRestExecutionService {
 
     public String addSupervisor(String host, int port, List<String> missionsAccepted) {
         RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port,
-                Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()));
+                Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()),
+                config.getNumMaxTimeOut());
+        moleSupervisor.addStateAvailabilityListener(new TimeOutStateListener() {
+            @Override
+            public void onTimeOut(Duration timeOutDuration) {
+
+            }
+
+            @Override
+            public void onMaxTimeOuts(int numTimeOut) {
+                supervisorsManager.removeSupervisor(moleSupervisor);
+
+            }
+        });
         return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
     }
 
