@@ -22,6 +22,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,7 +102,7 @@ public class ServerRestExecutionService {
     }
 
     public String addSupervisor(String host, int port, List<String> missionsAccepted) {
-        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port);
+        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port, Duration.ofSeconds(20));
         return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
     }
 

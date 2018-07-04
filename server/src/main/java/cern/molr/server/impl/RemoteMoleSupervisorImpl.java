@@ -11,6 +11,8 @@ import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.TimeOutStateListener;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -24,6 +26,8 @@ import java.util.TimerTask;
  * @author yassine-kr
  */
 public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteMoleSupervisorImpl.class);
 
     private MolrServerToSupervisor client;
     private SupervisorState state = null;
@@ -50,6 +54,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
                 task = new TimerTask() {
                     @Override
                     public void run() {
+                        LOGGER.warn("State time out reached [{}]", timeOutDuration);
                         notifyListeners(timeOutDuration);
                     }
                 };
@@ -58,11 +63,13 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
 
             @Override
             public void consume(SupervisorState supervisorState) {
+                LOGGER.info("receiving new state from the supervisor [{}]", supervisorState);
                 state = supervisorState;
                 task.cancel();
                 task = new TimerTask() {
                     @Override
                     public void run() {
+                        LOGGER.warn("State time out reached [{}]", timeOutDuration);
                         notifyListeners(timeOutDuration);
                     }
                 };

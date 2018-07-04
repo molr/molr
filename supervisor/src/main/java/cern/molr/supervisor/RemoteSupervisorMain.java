@@ -14,12 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.Arrays;
@@ -46,16 +50,25 @@ public class RemoteSupervisorMain {
     public RemoteSupervisorMain(ConfigurationAddressGetter addressGetter, SupervisorConfig config) {
         this.addressGetter = addressGetter;
         this.config = config;
-        this.addressGetter.addListener(address -> {
-            MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
-            try {
-                supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
-                        .getAcceptedMissions()));
-            } catch (Exception error) {
-                LOGGER.error("error while attempting to register in the MolR server [host: {}, port: {}]",
-                        config.getMolrHost(), config.getMolrPort(), error);
-            }
-        });
+
+    }
+
+    @Component
+    private class RegistrationSender implements ApplicationListener<WebServerInitializedEvent> {
+
+        @Override
+        public void onApplicationEvent(WebServerInitializedEvent event) {
+            addressGetter.addListener(address -> {
+                MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
+                try {
+                    supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
+                            .getAcceptedMissions()));
+                } catch (Exception error) {
+                    LOGGER.error("error while attempting to register in the MolR server [host: {}, port: {}]",
+                            config.getMolrHost(), config.getMolrPort(), error);
+                }
+            });
+        }
     }
 
     /**
