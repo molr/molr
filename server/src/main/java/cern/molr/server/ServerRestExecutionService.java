@@ -102,7 +102,8 @@ public class ServerRestExecutionService {
     }
 
     public String addSupervisor(String host, int port, List<String> missionsAccepted) {
-        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port, Duration.ofSeconds(20));
+        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port, Duration.ofSeconds(5),
+                Duration.ofSeconds(20));
         return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
     }
 

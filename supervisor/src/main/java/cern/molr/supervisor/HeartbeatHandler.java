@@ -33,7 +33,7 @@ public class HeartbeatHandler implements WebSocketHandler {
         return session.send(new DataProcessorBuilder<SupervisorHeartbeatRequest, SupervisorState>(SupervisorHeartbeatRequest
                 .class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
-                .setGenerator((request) -> supervisor.getHeartbeat())
+                .setGenerator((request) -> supervisor.getHeartbeat(request.getInterval()))
                 .setGeneratorExceptionHandler(null)
                 .build().map(session::textMessage));
     }

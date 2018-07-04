@@ -79,8 +79,9 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
     }
 
     @Override
-    public Publisher<SupervisorState> getSupervisorHeartbeat() {
-        return socketClient.receiveFlux(MolrConfig.GET_HEARTBEAT_PATH, SupervisorState.class, new SupervisorHeartbeatRequest())
+    public Publisher<SupervisorState> getSupervisorHeartbeat(int interval) {
+        return socketClient.receiveFlux(MolrConfig.GET_HEARTBEAT_PATH, SupervisorState.class, new
+                SupervisorHeartbeatRequest(interval))
                 .doOnError((error) ->
                         LOGGER.error("error in supervisor heartbeat stream [host: {}, port: {}]", host, port, error));
     }

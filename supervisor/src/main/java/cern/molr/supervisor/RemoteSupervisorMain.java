@@ -124,8 +124,6 @@ public class RemoteSupervisorMain {
             config.setSupervisorHost(env.getProperty("supervisor.host"));
             config.setSupervisorPort(env.getProperty("supervisor.port", Integer.class, -1));
 
-            config.setHeartbeatInterval(Duration.ofSeconds(env.getProperty("heartbeat.interval", Long.class, 20L)));
-
             return config;
         }
 

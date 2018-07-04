@@ -45,8 +45,9 @@ public interface MoleSupervisor {
 
     /**
      * A method which should return the supervisor heartbeat
+     * @param interval the time interval between two states
      * @return the stream of supervisor states
      */
-    Publisher<SupervisorState> getHeartbeat();
+    Publisher<SupervisorState> getHeartbeat(int interval);
 
 }

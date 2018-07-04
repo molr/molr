@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 /**
@@ -26,7 +27,6 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
 
     private SupervisorState supervisorState;
     private SupervisorConfig config;
-    private Publisher<SupervisorState> heartbeat;
 
     public MoleSupervisorService(SupervisorConfig config) {
         this.config = config;
@@ -44,7 +44,6 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
                         .getMaxMissions());
             }
         });
-        heartbeat = Flux.interval(config.getHeartbeatInterval()).map((t) -> getSupervisorState());
     }
 
     @Override
@@ -95,7 +94,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
     }
 
     @Override
-    public Publisher<SupervisorState> getHeartbeat() {
-        return heartbeat;
+    public Publisher<SupervisorState> getHeartbeat(int interval) {
+        return Flux.interval(Duration.ofSeconds(interval)).map((t) -> getSupervisorState());
     }
 }

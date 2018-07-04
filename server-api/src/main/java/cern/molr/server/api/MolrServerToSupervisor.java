@@ -35,7 +35,8 @@ public interface MolrServerToSupervisor {
 
     /**
      * Should send a heartbeat request to the server and return a heartbeat stream
+     * @param interval the interval berween two sent data
      */
-    Publisher<SupervisorState> getSupervisorHeartbeat();
+    Publisher<SupervisorState> getSupervisorHeartbeat(int interval);
 
 }
