@@ -53,6 +53,9 @@ public class RemoteSupervisorMain {
 
     }
 
+    /**
+     * The registration request should be sent when the server is initialized
+     */
     @Component
     private class RegistrationSender implements ApplicationListener<WebServerInitializedEvent> {
 
@@ -122,7 +125,11 @@ public class RemoteSupervisorMain {
             config.setMolrPort(env.getProperty("molr.port", Integer.class, 8000));
 
             config.setSupervisorHost(env.getProperty("supervisor.host"));
-            config.setSupervisorPort(env.getProperty("supervisor.port", Integer.class, -1));
+            try {
+                config.setSupervisorPort(env.getProperty("supervisor.port", Integer.class, -1));
+            } catch (Exception error) {
+                config.setSupervisorPort(-1);
+            }
 
             return config;
         }

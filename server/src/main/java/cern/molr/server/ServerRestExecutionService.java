@@ -39,9 +39,11 @@ public class ServerRestExecutionService {
 
     private final ServerState registry = new ServerState();
     private final SupervisorsManager supervisorsManager;
+    private final ServerConfig config;
 
 
-    public ServerRestExecutionService(SupervisorsManager supervisorsManager) {
+    public ServerRestExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
+        this.config = config;
 
         //TODO remove this init code after implementing a deployment service
         registry.registerNewMission(RunnableHelloWriter.class.getName());
@@ -102,8 +104,8 @@ public class ServerRestExecutionService {
     }
 
     public String addSupervisor(String host, int port, List<String> missionsAccepted) {
-        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port, Duration.ofSeconds(5),
-                Duration.ofSeconds(20));
+        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port,
+                Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()));
         return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
     }
 

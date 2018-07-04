@@ -41,7 +41,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
      * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the listeners
      *                        that the state is not available
      */
-    public RemoteMoleSupervisorImpl(String host, int port, Duration timeOutDuration, Duration interval) {
+    public RemoteMoleSupervisorImpl(String host, int port, Duration interval, Duration timeOutDuration ) {
         this(host, port);
         client.getSupervisorHeartbeat((int) interval.getSeconds()).subscribe(new SimpleSubscriber<SupervisorState>() {
 
