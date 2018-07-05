@@ -36,7 +36,7 @@ public class RemoteSupervisorController {
 
         return Mono.create((emitter) -> {
             emitter.success(new
-                    SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState()));
+                    SupervisorStateResponse(moleSupervisorService.getSupervisorState()));
         });
 
     }

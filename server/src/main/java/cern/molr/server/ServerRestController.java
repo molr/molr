@@ -10,10 +10,6 @@ import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.request.supervisor.SupervisorRegisterRequest;
 import cern.molr.commons.api.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.api.response.*;
-import cern.molr.commons.api.response.InstantiationResponse.InstantiationResponseFailure;
-import cern.molr.commons.api.response.InstantiationResponse.InstantiationResponseSuccess;
-import cern.molr.commons.api.response.SupervisorRegisterResponse.SupervisorRegisterResponseSuccess;
-import cern.molr.commons.api.response.SupervisorUnregisterResponse.SupervisorUnregisterResponseSuccess;
 import cern.molr.commons.web.MolrConfig;
 import org.reactivestreams.Publisher;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,9 +47,9 @@ public class ServerRestController {
         return Mono.<InstantiationResponse>create((emitter) -> {
             try {
                 String missionId = service.instantiate(request);
-                emitter.success(new InstantiationResponseSuccess(new InstantiationResponseBean(missionId)));
+                emitter.success(new InstantiationResponse(new InstantiationResponseBean(missionId)));
             } catch (ExecutionNotAcceptedException | NoSupervisorFoundException e) {
-                emitter.success(new InstantiationResponseFailure(e));
+                emitter.success(new InstantiationResponse(e));
             }
         }).subscribeOn(Schedulers.fromExecutorService(executorService));
     }
@@ -62,7 +58,7 @@ public class ServerRestController {
     public Publisher<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         return Mono.create((emitter) -> {
             String supervisorId = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
-            emitter.success(new SupervisorRegisterResponseSuccess(new SupervisorRegisterResponseBean(supervisorId)));
+            emitter.success(new SupervisorRegisterResponse(new SupervisorRegisterResponseBean(supervisorId)));
         });
     }
 
@@ -72,7 +68,7 @@ public class ServerRestController {
 
         return Mono.create((emitter) -> {
             service.removeSupervisor(request.getSupervisorId());
-            emitter.success(new SupervisorUnregisterResponseSuccess(new Ack("Supervisor unregistered successfully")));
+            emitter.success(new SupervisorUnregisterResponse(new Ack("Supervisor unregistered successfully")));
         });
     }
 

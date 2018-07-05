@@ -107,17 +107,17 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
             if (commandStatus.isAccepted()) {
                 String message = commandStatus.getReason();
                 commandStatus = null;
-                return new CommandResponse.CommandResponseSuccess(new Ack(message));
+                return new CommandResponse(new Ack(message));
             } else {
                 CommandResponse response =
-                        new CommandResponse.CommandResponseFailure(commandStatus.getException());
+                        new CommandResponse(commandStatus.getException());
                 commandStatus = null;
                 return response;
             }
         } catch (JsonProcessingException error) {
             commandStatus = null;
             LOGGER.error("unable to serialize a command [{}]", command, error);
-            return new CommandResponse.CommandResponseFailure(error);
+            return new CommandResponse(error);
         }
     }
 

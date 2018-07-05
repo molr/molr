@@ -13,22 +13,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface InstantiationResponse extends Try<InstantiationResponseBean> {
+public final class InstantiationResponse extends Response<InstantiationResponseBean> {
 
-    class InstantiationResponseSuccess extends Success<InstantiationResponseBean>
-            implements InstantiationResponse {
 
-        public InstantiationResponseSuccess(@JsonProperty("success") InstantiationResponseBean responseBean) {
-            super(responseBean);
-        }
+    public InstantiationResponse(@JsonProperty("result") InstantiationResponseBean result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class InstantiationResponseFailure extends Failure<InstantiationResponseBean>
-            implements InstantiationResponse {
-
-        public InstantiationResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public InstantiationResponse(InstantiationResponseBean result) {
+        super(result);
     }
 
+    public InstantiationResponse(Throwable throwable) {
+        super(throwable);
+    }
 }

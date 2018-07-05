@@ -74,7 +74,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             CommandResponse response = session.getController().sendCommand(commandRequest.getCommand());
             LOGGER.info("Receiving command response from the session controller: {}", response);
             return response;
-        }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));
+        }).orElse(new CommandResponse(new UnknownMissionException("No such mission running"))));
     }
 
     @Override

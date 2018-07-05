@@ -8,23 +8,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface SupervisorRegisterResponse extends Try<SupervisorRegisterResponseBean> {
+public final class SupervisorRegisterResponse extends Response<SupervisorRegisterResponseBean> {
 
-
-    class SupervisorRegisterResponseSuccess extends Success<SupervisorRegisterResponseBean>
-            implements SupervisorRegisterResponse {
-
-        public SupervisorRegisterResponseSuccess(@JsonProperty("success") SupervisorRegisterResponseBean responseBean) {
-            super(responseBean);
-        }
+    public SupervisorRegisterResponse(@JsonProperty("result") SupervisorRegisterResponseBean result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class SupervisorRegisterResponseFailure extends Failure<SupervisorRegisterResponseBean>
-            implements SupervisorRegisterResponse {
+    public SupervisorRegisterResponse(SupervisorRegisterResponseBean result) {
+        super(result);
+    }
 
-        public SupervisorRegisterResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public SupervisorRegisterResponse(Throwable throwable) {
+        super(throwable);
     }
 
 }

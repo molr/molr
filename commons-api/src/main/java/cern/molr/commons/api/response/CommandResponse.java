@@ -9,30 +9,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface CommandResponse extends Try<Ack> {
+public final class CommandResponse extends Response<Ack> {
 
-    class CommandResponseSuccess extends Success<Ack> implements CommandResponse {
-
-        public CommandResponseSuccess(@JsonProperty("success") Ack ack) {
-            super(ack);
-        }
-
-        @Override
-        public String toString() {
-            return "Command Accepted";
-        }
+    public CommandResponse(@JsonProperty("result") Ack result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class CommandResponseFailure extends Failure<Ack> implements CommandResponse {
+    public CommandResponse(Ack result) {
+        super(result);
+    }
 
-        public CommandResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public CommandResponse(Throwable throwable) {
+        super(throwable);
+    }
 
-        @Override
-        public String toString() {
+    @Override
+    public String toString() {
+        if (isSuccess())
+            return "Command Accepted";
+        else
             return "Command Rejected";
-        }
     }
 
 }

@@ -1,8 +1,6 @@
 package cern.molr.commons.web;
 
-import cern.molr.commons.api.type.trye.Failure;
-import cern.molr.commons.api.type.trye.Success;
-import cern.molr.commons.api.type.trye.Try;
+import cern.molr.commons.api.response.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -85,13 +83,13 @@ public class DataProcessorBuilder<Input, Output> {
      *
      * @return the deserializer function
      */
-    private Function<String, Try<Input>> getDeserializer() {
+    private Function<String, Response<Input>> getDeserializer() {
         return data -> {
             try {
-                return new Success<>(mapper.readValue(data, inputType));
+                return new Response<>(mapper.readValue(data, inputType));
             } catch (IOException error) {
                 LOGGER.error("unable to deserialize the input data [{}]", data, error);
-                return new Failure<>(error);
+                return new Response<>(error);
             }
         };
     }
@@ -112,12 +110,12 @@ public class DataProcessorBuilder<Input, Output> {
      *
      * @return the function which returns the output publisher
      */
-    private Function<Input, Try<Flux<Output>>> getGenerator() {
+    private Function<Input, Response<Flux<Output>>> getGenerator() {
         return input -> {
             try {
-                return new Success<>(Flux.from(generator.apply(input)));
+                return new Response<>(Flux.from(generator.apply(input)));
             } catch (Exception error) {
-                return new Failure<>(error);
+                return new Response<>(error);
             }
         };
     }

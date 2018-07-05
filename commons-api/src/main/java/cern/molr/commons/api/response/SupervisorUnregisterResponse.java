@@ -8,23 +8,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface SupervisorUnregisterResponse extends Try<Ack> {
+public final class SupervisorUnregisterResponse extends Response<Ack> {
 
-
-    class SupervisorUnregisterResponseSuccess extends Success<Ack>
-            implements SupervisorUnregisterResponse {
-
-        public SupervisorUnregisterResponseSuccess(@JsonProperty("success") Ack ack) {
-            super(ack);
-        }
+    public SupervisorUnregisterResponse(@JsonProperty("result") Ack result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class SupervisorUnregisterResponseFailure extends Failure<Ack>
-            implements SupervisorUnregisterResponse {
-
-        public SupervisorUnregisterResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public SupervisorUnregisterResponse(Ack result) {
+        super(result);
     }
 
+    public SupervisorUnregisterResponse(Throwable throwable) {
+        super(throwable);
+    }
 }

@@ -70,7 +70,7 @@ public class ServerTest {
         InstantiationResponse response = client.post(MolrConfig.INSTANTIATE_PATH, ServerInstantiationRequest.class, request,
                 InstantiationResponse.class).block();
 
-        Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
+        Assert.assertTrue(response.isSuccess());
 
 
         clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionId())

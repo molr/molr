@@ -30,11 +30,11 @@ public abstract class ResponseTester {
     }
 
     public static void testCommandResponseSuccess(CommandResponse actual) {
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, actual.getClass());
+        Assert.assertTrue(actual.isSuccess());
     }
 
     public static void testCommandResponseFailure(CommandResponse actual) {
-        Assert.assertEquals(CommandResponse.CommandResponseFailure.class, actual.getClass());
+        Assert.assertTrue(!actual.isSuccess());
     }
 
     /**
