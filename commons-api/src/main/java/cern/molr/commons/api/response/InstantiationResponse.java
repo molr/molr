@@ -5,9 +5,7 @@
 package cern.molr.commons.api.response;
 
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
+import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -15,9 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface InstantiationResponse extends TryResponse<InstantiationResponseBean> {
+public interface InstantiationResponse extends Try<InstantiationResponseBean> {
 
-    class InstantiationResponseSuccess extends TryResponseSuccess<InstantiationResponseBean>
+    class InstantiationResponseSuccess extends Success<InstantiationResponseBean>
             implements InstantiationResponse {
 
         public InstantiationResponseSuccess(@JsonProperty("success") InstantiationResponseBean responseBean) {
@@ -25,7 +23,7 @@ public interface InstantiationResponse extends TryResponse<InstantiationResponse
         }
     }
 
-    class InstantiationResponseFailure extends TryResponseFailure<InstantiationResponseBean>
+    class InstantiationResponseFailure extends Failure<InstantiationResponseBean>
             implements InstantiationResponse {
 
         public InstantiationResponseFailure(@JsonProperty("throwable") Throwable throwable) {

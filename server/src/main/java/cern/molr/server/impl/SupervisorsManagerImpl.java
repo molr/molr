@@ -36,7 +36,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             possibleSupervisorsRegistry.putIfAbsent(missiomName, new Vector<RemoteMoleSupervisor>());
             possibleSupervisorsRegistry.get(missiomName).add(supervisor);
         });
-        LOGGER.info("A Supervisor Server registred to MolR server id {}", id);
+        LOGGER.info("A Supervisor Server registered to MolR server id {}", id);
         return id;
     }
 
@@ -47,7 +47,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             vec.remove(supervisor);
         });
         supervisor.close();
-        LOGGER.info("Supervisor Server {} unregistred from MolR server", id);
+        LOGGER.info("Supervisor Server {} unregistered from MolR server", id);
     }
 
     @Override

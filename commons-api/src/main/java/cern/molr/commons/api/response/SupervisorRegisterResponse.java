@@ -1,8 +1,6 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
+import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -10,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean> {
+public interface SupervisorRegisterResponse extends Try<SupervisorRegisterResponseBean> {
 
 
-    class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean>
+    class SupervisorRegisterResponseSuccess extends Success<SupervisorRegisterResponseBean>
             implements SupervisorRegisterResponse {
 
         public SupervisorRegisterResponseSuccess(@JsonProperty("success") SupervisorRegisterResponseBean responseBean) {
@@ -21,7 +19,7 @@ public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegist
         }
     }
 
-    class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean>
+    class SupervisorRegisterResponseFailure extends Failure<SupervisorRegisterResponseBean>
             implements SupervisorRegisterResponse {
 
         public SupervisorRegisterResponseFailure(@JsonProperty("throwable") Throwable throwable) {

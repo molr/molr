@@ -18,4 +18,8 @@ import cern.molr.commons.api.type.either.Either;
  * @author yassine-kr
  */
 public interface Try<T> extends Either<Throwable, T> {
+
+    Throwable getThrowable();
+
+    T getResult();
 }
