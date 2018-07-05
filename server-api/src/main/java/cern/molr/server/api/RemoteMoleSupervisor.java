@@ -48,6 +48,11 @@ public interface RemoteMoleSupervisor {
      * Add a {@link TimeOutStateListener}
      * @param listener the listener to add
      */
-    void addStateAvailabilityListener(TimeOutStateListener listener);
+    void addTimeOutStateListener(TimeOutStateListener listener);
+
+    /**
+     * Used to close the supervisor resources
+     */
+    void close();
 
 }

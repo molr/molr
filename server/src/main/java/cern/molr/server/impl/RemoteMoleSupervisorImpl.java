@@ -33,13 +33,16 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     private SupervisorState state = null;
     private HashSet<TimeOutStateListener> listeners = new HashSet<>();
 
+    private Timer timer = new Timer();
+    private Subscription subscription;
+
     public RemoteMoleSupervisorImpl(String host, int port) {
         this.client = new MolrServerToSupervisorImpl(host, port);
     }
 
     /**
      *
-     * TODO should add a method which cancels the timer and use when removing a supervisor
+     * TODO avoid an IllegalStateException when we try to schedule a task on the timer already cancelled
      * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the listeners
      *                        that the state is not available
      *
@@ -49,7 +52,6 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
         this(host, port);
         client.getSupervisorHeartbeat((int) interval.getSeconds()).subscribe(new SimpleSubscriber<SupervisorState>() {
 
-            private Timer timer = new Timer();
             private TimerTask task;
             private int numTimeOuts = 0;
 
@@ -57,6 +59,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
             public void onSubscribe(Subscription subscription) {
                 super.onSubscribe(subscription);
                 updateTimer();
+                RemoteMoleSupervisorImpl.this.subscription = subscription;
             }
 
             @Override
@@ -120,8 +123,16 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     }
 
     @Override
-    public void addStateAvailabilityListener(TimeOutStateListener listener) {
+    public void addTimeOutStateListener(TimeOutStateListener listener) {
         listeners.add(listener);
+    }
+
+    @Override
+    public void close() {
+        if (subscription != null) {
+            subscription.cancel();
+        }
+        timer.cancel();
     }
 
     private void notifyTimeOutListeners(Duration timeOutDuration) {

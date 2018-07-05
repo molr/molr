@@ -108,7 +108,7 @@ public class ServerRestExecutionService {
         RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port,
                 Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()),
                 config.getNumMaxTimeOut());
-        moleSupervisor.addStateAvailabilityListener(new TimeOutStateListener() {
+        moleSupervisor.addTimeOutStateListener(new TimeOutStateListener() {
             @Override
             public void onTimeOut(Duration timeOutDuration) {
 

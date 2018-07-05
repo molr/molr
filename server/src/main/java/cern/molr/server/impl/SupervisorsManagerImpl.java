@@ -46,6 +46,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         possibleSupervisorsRegistry.forEach((mis, vec) -> {
             vec.remove(supervisor);
         });
+        supervisor.close();
         LOGGER.info("Supervisor Server {} unregistred from MolR server", id);
     }
 

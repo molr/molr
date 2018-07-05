@@ -84,7 +84,12 @@ public class SupervisorsManagerTest {
         }
 
         @Override
-        public void addStateAvailabilityListener(TimeOutStateListener listener) {
+        public void addTimeOutStateListener(TimeOutStateListener listener) {
+
+        }
+
+        @Override
+        public void close() {
 
         }
     }
