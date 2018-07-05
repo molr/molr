@@ -33,8 +33,7 @@ public class EventsStreamHandler implements WebSocketHandler {
 
         LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
-        return session.send(new DataExchangeBuilder<>
-                (String.class, MissionEvent.class)
+        return session.send(new DataExchangeBuilder<String, MissionEvent>(String.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::getEventsStream)
                 .setGeneratorExceptionHandler(MissionExceptionEvent::new)

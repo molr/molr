@@ -57,7 +57,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
     }
 
     @Override
-    public Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {
+    public synchronized Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {
 
         Optional<Vector<RemoteMoleSupervisor>> optional = Optional
                 .ofNullable(possibleSupervisorsRegistry.get(missionName));

@@ -13,13 +13,18 @@ import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.MissionResolver;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.impl.mission.MissionServices;
+import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the
- * {@link Function<Integer,Integer>} interface.
+ * {@link Function<Integer, Integer>} interface.
  *
  * @author nachivpn
  * @author yassine-kr
@@ -31,7 +36,7 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
     public void verify(String missionName) throws IncompatibleMissionException {
         Class<?> classType = null;
         try {
-            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+            classType = MissionServices.getResolver().resolve(missionName);
         } catch (MissionResolvingException error) {
             throw new IncompatibleMissionException(error);
         }
@@ -57,12 +62,27 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
         try {
             @SuppressWarnings("unchecked")
             Class<Function<Integer, Integer>> missionClass =
-                    (Class<Function<Integer, Integer>>) MissionResolver.defaultMissionResolver.resolve(mission.getMissionName());
+                    (Class<Function<Integer, Integer>>) MissionServices.getResolver().resolve(mission.getMissionName());
             Function<Integer, Integer> missionInstance = missionClass.getConstructor().newInstance();
             return missionInstance.apply(missionArguments);
         } catch (Exception error) {
             throw new MissionExecutionException(error);
         }
+    }
+
+    @Override
+    public boolean sendCommand(MissionCommand command) {
+        return false;
+    }
+
+    @Override
+    public Publisher<MissionEvent> getEventsPublisher() {
+        return null;
+    }
+
+    @Override
+    public Publisher<MissionState> getStatesPublisher() {
+        return null;
     }
 
 }

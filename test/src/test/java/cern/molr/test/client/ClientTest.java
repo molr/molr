@@ -6,14 +6,12 @@ import cern.molr.client.impl.MissionExecutionServiceImpl;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
-import cern.molr.commons.events.SessionTerminated;
+import cern.molr.commons.commands.MissionControlCommand;
+import cern.molr.commons.events.MissionControlEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
+import cern.molr.test.ResponseTester;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,6 +23,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing client Api.
@@ -39,10 +40,11 @@ public class ClientTest {
 
     @Before
     public void initServers() {
-        serverContext = SpringApplication.run(ServerMain.class, new String[]{"--server.port=8000"});
+        serverContext = SpringApplication.run(ServerMain.class, "--server.port=8000");
 
         supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                new String[]{"--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000"});
+                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000",
+                "--supervisor.host=http://localhost", "--supervisor.port=8056");
     }
 
     @After
@@ -61,7 +63,6 @@ public class ClientTest {
      * @param commandResponses the command responses list which will be filled
      * @param finishSignal     the signal to be triggered when the all events and missions received
      *
-     * @throws Exception
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>
@@ -83,9 +84,10 @@ public class ClientTest {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof SessionInstantiated) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStarted) {
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
+                                .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
                     }
@@ -107,7 +109,8 @@ public class ClientTest {
                     error.printStackTrace();
                     Assert.fail();
                 }
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
+                                                                                            SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println(execName + " response to start: " + response);
@@ -133,7 +136,7 @@ public class ClientTest {
                     Assert.fail();
                 }
 
-                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println(execName + " response to terminate: " + response);
@@ -192,13 +195,7 @@ public class ClientTest {
         launchMission("exec", Fibonacci.class, events, commandResponses, finishSignal);
         finishSignal.await();
 
-        Assert.assertEquals(3, events.size());
-        Assert.assertEquals(SessionInstantiated.class, events.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events.get(1).getClass());
-        Assert.assertEquals(SessionTerminated.class, events.get(2).getClass());
-        Assert.assertEquals(2, commandResponses.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(0).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses.get(1).getClass());
+        ResponseTester.testInstantiateStartTerminate(events, commandResponses);
     }
 
     /**
@@ -242,9 +239,10 @@ public class ClientTest {
                         events2.add(event);
                         endSignal2.countDown();
 
-                        if (event instanceof SessionInstantiated) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal2.countDown();
-                        } else if (event instanceof MissionStarted) {
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
+                                .equals(MISSION_STARTED)) {
                             startSignal2.countDown();
                         }
                     }
@@ -267,7 +265,7 @@ public class ClientTest {
                     Assert.fail();
                 }
 
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("exec2 response to start: " + response);
@@ -286,7 +284,7 @@ public class ClientTest {
                     }
                 });
 
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("exec2 response to start 2: " + response);
@@ -312,7 +310,7 @@ public class ClientTest {
                     Assert.fail();
                 }
 
-                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("exec2 response to terminate: " + response);
@@ -353,23 +351,17 @@ public class ClientTest {
         launchMission("exec3", Fibonacci.class, events3, commandResponses3, finishSignal3);
         finishSignal3.await();
 
-        Assert.assertEquals(3, events1.size());
-        Assert.assertEquals(SessionInstantiated.class, events1.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events1.get(1).getClass());
-        Assert.assertEquals(SessionTerminated.class, events1.get(2).getClass());
-        Assert.assertEquals(2, commandResponses1.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses1.get(0).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses1.get(1).getClass());
+        ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);
 
 
         Assert.assertEquals(3, events2.size());
-        Assert.assertEquals(SessionInstantiated.class, events2.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events2.get(1).getClass());
-        Assert.assertEquals(SessionTerminated.class, events2.get(2).getClass());
+        ResponseTester.testInstantiationEvent(events2.get(0));
+        ResponseTester.testStartedEvent(events2.get(1));
+        ResponseTester.testTerminatedEvent(events2.get(2));
         Assert.assertEquals(3, commandResponses2.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses2.get(0).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseFailure.class, commandResponses2.get(1).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses2.get(2).getClass());
+        ResponseTester.testCommandResponseSuccess(commandResponses2.get(0));
+        ResponseTester.testCommandResponseFailure(commandResponses2.get(1));
+        ResponseTester.testCommandResponseSuccess(commandResponses2.get(2));
 
 
     }
@@ -395,22 +387,9 @@ public class ClientTest {
         finishSignal.await();
 
 
-        Assert.assertEquals(3, events1.size());
-        Assert.assertEquals(SessionInstantiated.class, events1.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events1.get(1).getClass());
-        Assert.assertEquals(SessionTerminated.class, events1.get(2).getClass());
-        Assert.assertEquals(2, commandResponses1.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses1.get(0).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses1.get(1).getClass());
+        ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);
 
-
-        Assert.assertEquals(3, events2.size());
-        Assert.assertEquals(SessionInstantiated.class, events2.get(0).getClass());
-        Assert.assertEquals(MissionStarted.class, events2.get(1).getClass());
-        Assert.assertEquals(SessionTerminated.class, events2.get(2).getClass());
-        Assert.assertEquals(2, commandResponses2.size());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses2.get(0).getClass());
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, commandResponses2.get(1).getClass());
+        ResponseTester.testInstantiateStartTerminate(events2, commandResponses2);
 
     }
 }

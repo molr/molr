@@ -43,7 +43,7 @@ public class AnnotatedMissionMaterializer implements MissionMaterializer {
 
         Class<?> classType = null;
         try {
-            classType = MissionResolver.defaultMissionResolver.resolve(missionName);
+            classType = MissionServices.getResolver().resolve(missionName);
         } catch (MissionResolvingException error) {
             throw new MissionMaterializationException(error);
         }

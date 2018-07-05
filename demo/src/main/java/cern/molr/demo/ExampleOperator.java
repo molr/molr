@@ -6,10 +6,8 @@ import cern.molr.client.api.MissionExecutionService;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
-import cern.molr.commons.events.MissionStarted;
-import cern.molr.commons.events.SessionInstantiated;
+import cern.molr.commons.commands.MissionControlCommand;
+import cern.molr.commons.events.MissionControlEvent;
 import cern.molr.sample.mission.Fibonacci;
 import org.reactivestreams.Publisher;
 
@@ -17,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+
+import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Operator example
@@ -63,9 +64,10 @@ public class ExampleOperator {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof SessionInstantiated) {
+                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionStarted) {
+                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
+                                .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
                     }
@@ -87,7 +89,8 @@ public class ExampleOperator {
                     error.printStackTrace();
                     System.exit(-1);
                 }
-                controller.instruct(new Start()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
+                                                                                            SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println(execName + " response to start: " + response);
@@ -112,7 +115,7 @@ public class ExampleOperator {
                     error.printStackTrace();
                     System.exit(-1);
                 }
-                controller.instruct(new Terminate()).subscribe(new SimpleSubscriber<CommandResponse>() {
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println(execName + " response to terminate: " + response);
@@ -163,9 +166,6 @@ public class ExampleOperator {
 
         List<MissionEvent> events2 = new ArrayList<>();
         List<CommandResponse> commandResponses2 = new ArrayList<>();
-
-        List<MissionEvent> events3 = new ArrayList<>();
-        List<CommandResponse> commandResponses3 = new ArrayList<>();
 
         launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal);
         launchMission("exec2", Fibonacci.class, events2, commandResponses2, finishSignal);

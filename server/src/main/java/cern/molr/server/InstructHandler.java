@@ -32,8 +32,7 @@ public class InstructHandler implements WebSocketHandler {
 
         LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
-        return session.send(new DataExchangeBuilder<>
-                (MissionCommandRequest.class, CommandResponse.class)
+        return session.send(new DataExchangeBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::instruct)
                 .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)

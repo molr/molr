@@ -10,8 +10,7 @@ import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.commands.Start;
-import cern.molr.commons.commands.Terminate;
+import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.*;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.supervisor.api.session.runner.CommandListener;
@@ -80,13 +79,12 @@ public class MoleRunner implements CommandListener {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        System.out.println(mapper.writeValueAsString(new SessionInstantiated()));
+        System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED)));
         new MoleRunner(args[0]);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            MissionEvent jvmDestroyedEvent = new SessionTerminated();
             try {
-                System.out.println(mapper.writeValueAsString(jvmDestroyedEvent));
+                System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED)));
             } catch (JsonProcessingException error) {
                 error.printStackTrace();
             }
@@ -114,18 +112,14 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            MissionEvent missionStartedEvent =
-                    new MissionStarted(
-                            mission.getMissionName(), missionInput, mission.getMoleClassName());
-            System.out.println(mapper.writeValueAsString(missionStartedEvent));
+            System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED)));
 
             moleRunnerState.changeState();
 
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {
                     MissionEvent missionFinishedEvent =
-                            new MissionFinished(mission.getMissionName(),
-                                    future.get(), mission.getMoleClassName());
+                            new MissionFinished(mission.getMissionName(), future.get());
                     System.out.println(mapper.writeValueAsString(missionFinishedEvent));
                     System.exit(0);
                     return null;
@@ -182,11 +176,18 @@ public class MoleRunner implements CommandListener {
                     "command accepted by the MoleRunner");
             System.out.println(mapper.writeValueAsString(commandStatus));
 
-            if (command instanceof Start) {
-                startMission();
-            } else if (command instanceof Terminate) {
-                terminate();
+            if (command instanceof MissionControlCommand) {
+                MissionControlCommand c = (MissionControlCommand) command;
+                switch (c.getCommand()) {
+                    case START:
+                        startMission();
+                        break;
+                    case TERMINATE:
+                        terminate();
+                        break;
+                }
             }
+
 
         } catch (JsonProcessingException error) {
             LOGGER.error("unable to serialize a command status", error);
