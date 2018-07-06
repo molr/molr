@@ -74,6 +74,7 @@ public class SequenceMoleStateManager implements StateManager {
                     state = State.RUNNING;
                     notifyListeners();
                     break;
+                case TASK_ERROR:
                 case TASK_FINISHED:
                 case TASK_SKIPPED:
                     if (e.getTaskNumber() == numTasks - 1) {

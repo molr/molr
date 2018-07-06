@@ -1,11 +1,10 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
- * It informs the client whether the command was accepted or not
+ * A command response sent back to the MolR server by a supervisor then to the client after sending a command request.
+ * It informs the client whether the command was accepted or not.
  *
  * @author yassine-kr
  */

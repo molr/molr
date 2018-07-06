@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting the states stream concerning a mission
- * execution, it uses WebFlux
+ * execution, it uses WebFlux.
  *
  * @author yassine-kr
  */

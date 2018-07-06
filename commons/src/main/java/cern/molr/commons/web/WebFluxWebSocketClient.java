@@ -34,15 +34,15 @@ public class WebFluxWebSocketClient {
     }
 
     /**
-     * Method which sends a request to sever ans receive a flux of data from it
+     * Method which sends a request to sever and receives a {@link Flux} of data from it
      *
      * @param path         the url path
-     * @param responseType the response class
+     * @param responseType the response {@link Class}
      * @param request      the request to send
      * @param <I>          the request type
      * @param <T>          the response type
      *
-     * @return The stream of data sent by the server
+     * @return a stream of data sent by the server
      */
     public <I, T> Flux<T> receiveFlux(String path, Class<T> responseType, I request) {
 
@@ -73,10 +73,10 @@ public class WebFluxWebSocketClient {
     }
 
     /**
-     * Method which sends a request to sever ans receive a single data from it
+     * Method which sends a request to sever and receive a single data from it
      *
      * @param path         the url path
-     * @param responseType the response class
+     * @param responseType the response {@link Class}
      * @param request      the request to send
      * @param <I>          the request type
      * @param <T>          the response type

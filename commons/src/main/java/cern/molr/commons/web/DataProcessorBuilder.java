@@ -14,8 +14,9 @@ import java.io.IOException;
 import java.util.function.Function;
 
 /**
- * A data processor builder between the client and the server. It builds a publisher of string messages which is
- * generated from one element received from a publisher of strings
+ * A data processor builder. It builds a {@link Flux} of {@link String} messages. This stream takes one element from an
+ * input {@link Flux}, it deserializes it, generates a {@link Publisher} from it, then each published element is
+ * serialized to a {@link String} object
  *
  * @author yassine-kr
  */
@@ -41,9 +42,9 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Set the received Flux of messages
+     * Set the preInput Flux of messages
      *
-     * @param preInput received flux of messages
+     * @param preInput preInput flux of messages
      *
      * @return this builder to chain other methods
      */
@@ -65,9 +66,9 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * builds the publisher
+     * Builds the stream
      *
-     * @return the publisher
+     * @return the built stream
      */
     public Flux<String> build() {
         return preInput.take(1)
@@ -79,7 +80,7 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Returns the function which try to deserialize the string input
+     * Returns the function which tries to deserialize the string input
      *
      * @return the deserializer function
      */
@@ -97,18 +98,16 @@ public class DataProcessorBuilder<Input, Output> {
     /**
      * Returns the handler which is called when there is a deserialization error
      *
-     * @return the function which returns a string publisher
+     * @return the function which returns a {@link String} publisher
      */
     private Function<Throwable, Publisher<String>> getDeserializationErrorHandler() {
-        return error -> {
-            return Mono.empty();
-        };
+        return error -> Mono.empty();
     }
 
     /**
-     * Returns the generator which generates the output publisher from the input
+     * Returns the generator which generates the output {@link Flux} from the input
      *
-     * @return the function which returns the output publisher
+     * @return the function which returns the output {@link Flux}
      */
     private Function<Input, Response<Flux<Output>>> getGenerator() {
         return input -> {
@@ -121,7 +120,7 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Set the generator which generates the output flux from the received input data
+     * Set the generator which generates the output {@link Publisher} from the received input data
      *
      * @return this builder to chain other methods
      */
@@ -131,7 +130,7 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Returns the handler called when there is a problem in output generation
+     * Returns the handler called when there is a problem in the output {@link Publisher} generation
      *
      * @return the function which handles the error
      */
@@ -151,9 +150,9 @@ public class DataProcessorBuilder<Input, Output> {
     }
 
     /**
-     * Returns the serialiser which transforms the output to a string
+     * Returns the serializer which transforms the output to a {@link String}
      *
-     * @return the function which serialize the output
+     * @return the function which serializes the output
      */
     private Function<Output, String> getSerializer() {
         return output -> {

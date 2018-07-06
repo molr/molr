@@ -45,7 +45,7 @@ public interface Mole<I, O> {
     O run(Mission mission, I missionArguments) throws MissionExecutionException;
 
     /**
-     * It should send a command to the mole; the MoleRunner uses it to forward commands which are not interpreted
+     * It should send a command to the mole; the MoleRunner uses it to forward commands that it is unable to interpret
      *
      * @throws CommandNotAcceptedException when the command is not accepted by the mole
      */

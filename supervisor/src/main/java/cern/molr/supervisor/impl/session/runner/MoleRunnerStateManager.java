@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * An implementation of the {@link StateManager} used by the MoleRunner
+ * An implementation of the {@link StateManager} used by the MoleRunner.
  * It has these states so far, MISSION STARTED, MISSION NOT YET STARTED, MISSION FINISHED, MISSION ERROR, SESSION
  * TERMINATED
  *

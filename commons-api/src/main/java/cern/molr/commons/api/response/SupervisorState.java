@@ -3,6 +3,10 @@ package cern.molr.commons.api.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A supervisor state
+ * @author yassine-kr
+ */
 public final class SupervisorState {
     private int numMissions;
     private int maxMissions;

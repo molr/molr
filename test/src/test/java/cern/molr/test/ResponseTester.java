@@ -39,10 +39,7 @@ public abstract class ResponseTester {
 
     /**
      * Test that events list contains SESSION_INSTANTIATED, MISSION_STARTED and SESSION_TERMINATED and command
-     * responses contain two success responses
-     *
-     * @param events
-     * @param commandResponses
+     * responses list contains two success responses
      */
     public static void testInstantiateStartTerminate(List<MissionEvent> events, List<CommandResponse>
             commandResponses) {

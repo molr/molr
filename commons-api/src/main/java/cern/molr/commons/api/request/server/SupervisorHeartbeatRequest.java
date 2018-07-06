@@ -7,7 +7,7 @@ package cern.molr.commons.api.request.server;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A request sent by MolR server to the supervisor to get its heartbeat
+ * A request sent by MolR server to a supervisor to get its heartbeat stream
  *
  * @author yassine-kr
  */

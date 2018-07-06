@@ -13,8 +13,7 @@ import reactor.core.publisher.Mono;
 ;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for getting the supervisor heartbeat. It returns a
- * flux as response. It uses WebFlux
+ * WebSocket Spring Handler which handles websoscket requests for getting the supervisor heartbeat. It uses WebFlux.
  *
  * @author yassine-kr
  */

@@ -10,11 +10,8 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
-;
-
 /**
- * WebSocket Spring Handler which handles websoscket requests for instructing the MoleRunner. It returns a mono, It
- * uses WebFlux
+ * WebSocket Spring Handler which handles websoscket requests for instructing the MoleRunner. It uses WebFlux.
  *
  * @author yassine-kr
  */

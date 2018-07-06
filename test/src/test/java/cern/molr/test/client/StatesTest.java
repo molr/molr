@@ -57,14 +57,14 @@ public class StatesTest {
     }
 
     /**
-     * A method which instantiate a mission and terminate it
+     * A method which instantiates a mission and terminates it
      *
-     * @param execName         the name execution used when displaying results
+     * @param execName         the execution name used when displaying results
      * @param missionClass     the mission class
      * @param events           the events list which will be filled
      * @param commandResponses the command responses list which will be filled
      * @param states           the states list which will be filled
-     * @param finishSignal     the signal to be triggered when the all events and missions received
+     * @param finishSignal     the signal to be triggered when all events and responses are received
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>

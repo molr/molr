@@ -6,7 +6,7 @@ import cern.molr.commons.api.response.CommandResponse;
 import java.io.Closeable;
 
 /**
- * Controller of an execution of a mole being executed in a MoleRunner
+ * Controller of mission execution
  *
  * @author yassine-kr
  */

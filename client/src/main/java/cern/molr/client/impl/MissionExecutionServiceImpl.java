@@ -20,7 +20,8 @@ import java.util.Properties;
 
 /**
  * Implementation used by the operator to interact with the server
- * The constructor only constructs the client, it does not perform any attempt to check the connection to the server.
+ * The constructor only constructs the {@link #client}, it does not perform any attempt to check the connection to the
+ * server.
  *
  * @author yassine-kr
  */

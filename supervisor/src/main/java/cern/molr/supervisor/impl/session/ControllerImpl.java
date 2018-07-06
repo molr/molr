@@ -20,8 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * A controller which controls running of a mission
- * It communicates with MoleRunner using output and input streams
+ * A controller which controls a mission execution
+ * It communicates with MoleRunner using its output and input streams
  *
  * @author yassine-kr
  */
@@ -89,11 +89,10 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
 
     /**
      * Need to be "synchronized" to avoid sending many commands at the same time
-     * The next command is executed after returning current command result
+     * The next command is executed after returning result of the last sent command
      *
-     * @param command
      *
-     * @return the command response; whether the command was accepted by the MoleRunner
+     * @return the command response; whether the command was accepted
      */
     @Override
     synchronized public CommandResponse sendCommand(MissionCommand command) {

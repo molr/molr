@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * It manages a set of mole supervisors identified by different ids. Has a method which chooses an appropriate
- * supervisor to execute a mission
+ * It manages a set of supervisors identified by different ids. Has a method which chooses an appropriate
+ * supervisor to execute a mission.
  *
  * @author yassine-kr
  */

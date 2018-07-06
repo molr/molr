@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * This request is sent by the client to MolR server to instantiate a mission
  *
- * @param <I> the arguments type
+ * @param <I> the mission arguments type
  *
  * @author yassine-kr
  */

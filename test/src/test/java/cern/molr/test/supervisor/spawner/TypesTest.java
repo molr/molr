@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * class for testing types returned by the MoleRunner
+ * class for testing object types returned by the MoleRunner
  *
  * @author yassine-kr
  */

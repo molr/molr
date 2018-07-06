@@ -31,8 +31,8 @@ import java.util.Optional;
 
 
 /**
- * Remote entry point for the Supervisor
- * When the server is ready, it sends a register request to MolR Server
+ * Remote entry point for the Supervisor.
+ * When the server is ready, it sends a registration request to MolR Server.
  *
  * @author nachivpn
  * @author yassine-kr

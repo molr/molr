@@ -32,8 +32,6 @@ public class SupervisorsManagerTest {
     @Test
     public void Test() {
 
-        /*
-
         RemoteMoleSupervisor s1 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s2 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s3 = new RemoteMoleSupervisorTest(false);
@@ -62,33 +60,6 @@ public class SupervisorsManagerTest {
         optional = manager.chooseSupervisor("P");
         Assert.assertFalse(optional.isPresent());
 
-        */
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-        SupervisorRegisterResponse r=new SupervisorRegisterResponse(new SupervisorRegisterResponseBean("okooo"));
-        SupervisorUnregisterResponse u=new SupervisorUnregisterResponse(new Ack("kokko"));
-        String m= null;
-        String m2= null;
-        try {
-            m = mapper.writeValueAsString(r);
-            m2= mapper.writeValueAsString(u);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        System.out.println(m);
-        System.out.println(m2);
-
-        try {
-            SupervisorRegisterResponse r2=mapper.readValue(m,SupervisorRegisterResponse.class);
-            SupervisorUnregisterResponse u2=mapper.readValue(m2,SupervisorUnregisterResponse.class);
-            System.out.println(r2);
-            System.out.println(u2);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 

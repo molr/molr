@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.util.Arrays;
 
 /**
- * Spring service representing a supervisor which manages its state and use it to decide whether it accepts a
+ * Spring service representing a supervisor which manages its state and uses it to decide whether it accepts a
  * mission or not
  *
  * @author yassine-kr
@@ -52,13 +52,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
     }
 
     /**
-     * synchronized method because it should use the supervisor supervisorState
-     * to determine whether the instantiation is accepted
-     *
-     * @param mission
-     * @param missionArguments
-     * @param missionId
-     * @param <I>
+     * synchronized method because it should use the supervisor state to determine whether the instantiation is accepted
      *
      * @return a stream of events triggered by the mission execution
      */
@@ -76,7 +70,7 @@ public class MoleSupervisorService extends MoleSupervisorImpl {
     }
 
     /**
-     * A method which verify whether a mission is accepted by the supervisor or not
+     * A method which verifies whether a mission is accepted by the supervisor or not
      *
      * @param mission the mission to verify
      *

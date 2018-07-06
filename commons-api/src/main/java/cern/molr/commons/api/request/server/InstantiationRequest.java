@@ -7,9 +7,9 @@ package cern.molr.commons.api.request.server;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A request sent by the MolR server to supervisor to instantiate a mission
+ * A request sent by the MolR server to a supervisor to instantiate a mission
  *
- * @param <I> the arguments type
+ * @param <I> the mission arguments type
  *
  * @author yassine-kr
  */

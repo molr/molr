@@ -10,18 +10,18 @@ import org.reactivestreams.Publisher;
 import java.util.Optional;
 
 /**
- * It represents a remote supervisor used by MolR server to communicate with a single supervisor
+ * It represents a remote supervisor used by MolR server to communicate with a single supervisor.
  *
  * @author yassine-kr
  */
 public interface RemoteMoleSupervisor {
 
     /**
-     * A method which should send an instantiation request to the supervisor
+     * A method which should send an instantiation request to the supervisor.
      *
      * @param serverRequest the request sent by the client to MolR server
-     * @param missionId     the ID of the execution
-     * @param <I>           the argument type
+     * @param missionId     the mission execution ID
+     * @param <I>           the mission argument type
      *
      * @return a publisher of events triggered by the mission execution
      */
@@ -29,16 +29,16 @@ public interface RemoteMoleSupervisor {
 
 
     /**
-     * A method which should send a command request to the impl
+     * A method which should send a command request to a supervisor.
      *
      * @param commandRequest The command request
      *
-     * @return a publisher of the command response, it contains one element
+     * @return a publisher of the command response, it contains one element.
      */
     Publisher<CommandResponse> instruct(MissionCommandRequest commandRequest);
 
     /**
-     * A method which should return the supervisor state
+     * A method which should return the supervisor state.
      *
      * @return optional, empty if the method fails to get the state
      */

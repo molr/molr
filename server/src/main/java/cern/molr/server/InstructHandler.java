@@ -12,7 +12,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution, it uses WebFlux
+ * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution, it uses WebFlux.
  *
  * @author yassine-kr
  */

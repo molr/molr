@@ -24,7 +24,7 @@ import java.io.IOException;
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_TERMINATED;
 
 /**
- * An Implementation of {@link MoleSupervisor} which manages mission executions which does not manage the state
+ * An Implementation of {@link MoleSupervisor}
  *
  * @author yassine-kr
  */

@@ -22,7 +22,7 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 /**
  * Operator example
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class ExampleOperator {
 

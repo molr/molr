@@ -14,8 +14,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instantiating the MoleRunner. It returns a flux as
- * response
+ * WebSocket Spring Handler which handles websoscket requests for instantiating the MoleRunner. It uses WebFlux.
  *
  * @author yassine-kr
  */

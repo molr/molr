@@ -43,8 +43,7 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
         restClient = new WebFluxRestClient(host, port);
         socketClient = new WebFluxWebSocketClient(host, port);
     }
-
-    //TODO should log the supervisor host and port when there is an error in getting the state
+    
     @Override
     public Optional<SupervisorState> getState() {
         try {

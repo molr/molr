@@ -1,10 +1,9 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Response to a state request sent back by the supervisor
+ * Response to a state request, sent back by the supervisor
  *
  * @author yassine-kr
  */

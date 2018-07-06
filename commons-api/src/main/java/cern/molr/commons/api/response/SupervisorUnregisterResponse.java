@@ -1,10 +1,9 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Response to an unregistration request sent back by the MolR server
+ * Response to an unregistration request, sent back by the MolR server to the supervisor
  *
  * @author yassine-kr
  */

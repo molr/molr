@@ -21,6 +21,11 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Objects;
 
+/**
+ * GUI example
+ *
+ * @author yassine-kr
+ */
 public class GUIExample {
 
     private JButton startButton;

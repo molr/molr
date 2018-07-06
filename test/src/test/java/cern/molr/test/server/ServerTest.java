@@ -30,8 +30,6 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 
 /**
  * Class for testing the server Api.
- * Each test can fail if the thread finishes before getting all results from impl,
- * in that case sleep duration should be increased.
  */
 public class ServerTest {
 

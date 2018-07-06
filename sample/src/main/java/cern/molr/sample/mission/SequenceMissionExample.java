@@ -43,6 +43,7 @@ public class SequenceMissionExample implements SequenceMission {
                 out.println("Task 3 begin");
                 Thread.sleep(2000);
                 out.println("Task 3 end");
+                throw new RuntimeException("Exception in task 3");
             } catch (FileNotFoundException | InterruptedException error) {
                 throw new RuntimeException(error);
             }

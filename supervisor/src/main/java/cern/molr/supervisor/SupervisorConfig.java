@@ -1,9 +1,7 @@
 package cern.molr.supervisor;
 
-import java.time.Duration;
-
 /**
- * A supervisor configuration which contains properties of the launched supervisor
+ * A supervisor configuration which contains properties for the launched supervisor
  *
  * @author yassine-kr
  */

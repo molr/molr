@@ -4,7 +4,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Event sent back by the supervisor when there is an exception
+ * Event sent back by the supervisor when there is an exception. It is sent using dynamic serialization.
  *
  * @author yassine-kr
  */

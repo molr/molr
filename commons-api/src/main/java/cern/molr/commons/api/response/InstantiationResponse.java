@@ -5,11 +5,10 @@
 package cern.molr.commons.api.response;
 
 
-import cern.molr.commons.api.type.trye.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A response sent back to the client by the MolR server after receiving an instantiation request
+ * A response sent back to the client by the MolR server after receiving an instantiation request.
  *
  * @author yassine-kr
  */

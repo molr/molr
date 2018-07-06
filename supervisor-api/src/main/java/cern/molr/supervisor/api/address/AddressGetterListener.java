@@ -1,7 +1,7 @@
 package cern.molr.supervisor.api.address;
 
 /**
- * Represents an address getter listener
+ * Represents an address getter listener.
  *
  * @author yassine-kr
  */

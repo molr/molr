@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A command which is interpreted by the MoleRunner. It is a DTO class sent using dynamic serialization.
- * Wrapping one enum field could seem weird, why do not use an enum instead of a class. It would cause the
- * deserialization failing because the class name would not be saved in the JSON data when using dynamic serialization.
+ * Wrapping one enum field could seem weird, why do not use an enum instead of a class. It would cause a
+ * deserialization failure because the class name would not be saved in the JSON data when using dynamic serialization.
  *
  * @author yassine-kr
  */

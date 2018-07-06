@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Configuration setting mapping between urls and websocket handlers
+ * Configuration setting mapping between urls and websocket handlers.
  *
  * @author yassine-kr
  */
