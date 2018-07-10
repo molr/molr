@@ -46,6 +46,7 @@ public class ServerRestExecutionService {
         //Just for testing, normally missions must be verified before deployment
         registry.registerNewMission(IncompatibleMission.class.getName());
         registry.registerNewMission(RunnableExceptionMission.class.getName());
+        registry.registerNewMission(SequenceMissionExample.class.getName());
 
         this.supervisorsManager = supervisorsManager;
     }

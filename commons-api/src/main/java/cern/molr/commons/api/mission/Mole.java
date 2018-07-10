@@ -5,6 +5,7 @@
 package cern.molr.commons.api.mission;
 
 
+import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.exception.IncompatibleMissionException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.request.MissionCommand;
@@ -45,9 +46,9 @@ public interface Mole<I, O> {
 
     /**
      * It should send a command to the mole; the MoleRunner use it to forward commands which are not interpreted
-     * @return whether the command was accepted by the mole or not
+     * @throws CommandNotAcceptedException when the command is not accepted by the mole
      */
-    boolean sendCommand(MissionCommand command);
+    void sendCommand(MissionCommand command) throws CommandNotAcceptedException;
 
     /**
      * It should return the stream of events triggered by the mole itself during the mission execution

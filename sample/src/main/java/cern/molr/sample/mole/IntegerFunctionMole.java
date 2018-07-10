@@ -7,6 +7,7 @@
 package cern.molr.sample.mole;
 
 
+import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.exception.IncompatibleMissionException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
@@ -71,8 +72,8 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
     }
 
     @Override
-    public boolean sendCommand(MissionCommand command) {
-        return false;
+    public void sendCommand(MissionCommand command) throws CommandNotAcceptedException {
+
     }
 
     @Override

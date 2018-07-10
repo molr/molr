@@ -45,6 +45,7 @@ public class MoleRunner implements CommandListener {
     private Class<?> missionInputClass;
     private CommandsReader reader;
     private MoleRunnerState moleRunnerState = new MoleRunnerStateImpl();
+    private Mole<Object, Object> mole;
 
     public MoleRunner(String argumentString) {
 
@@ -101,7 +102,7 @@ public class MoleRunner implements CommandListener {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try {
 
-            Mole<Object, Object> mole = createMoleInstance(mission.getMoleClassName());
+            mole = createMoleInstance(mission.getMoleClassName());
             mole.verify(mission.getMissionName());
 
             CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
@@ -146,13 +147,6 @@ public class MoleRunner implements CommandListener {
     }
 
     /**
-     * send command to the mission
-     */
-    private void sendComand() {
-
-    }
-
-    /**
      * kill JVM
      */
     private void terminate() {
@@ -170,13 +164,13 @@ public class MoleRunner implements CommandListener {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try {
-            moleRunnerState.acceptCommand(command);
-
-            CommandStatus commandStatus = new CommandStatus(true,
-                    "command accepted by the MoleRunner");
-            System.out.println(mapper.writeValueAsString(commandStatus));
-
             if (command instanceof MissionControlCommand) {
+                moleRunnerState.acceptCommand(command);
+
+                CommandStatus commandStatus = new CommandStatus(true,
+                        "command accepted by the MoleRunner");
+                System.out.println(mapper.writeValueAsString(commandStatus));
+
                 MissionControlCommand c = (MissionControlCommand) command;
                 switch (c.getCommand()) {
                     case START:
@@ -186,6 +180,12 @@ public class MoleRunner implements CommandListener {
                         terminate();
                         break;
                 }
+            } else {
+                mole.sendCommand(command);
+
+                CommandStatus commandStatus = new CommandStatus(true,
+                        "command accepted by the Mole");
+                System.out.println(mapper.writeValueAsString(commandStatus));
             }
 
 
