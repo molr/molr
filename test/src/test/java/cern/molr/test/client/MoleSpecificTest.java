@@ -10,6 +10,7 @@ import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionControlEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.sample.commands.SequenceCommand;
+import cern.molr.sample.events.SequenceMissionEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.sample.mission.SequenceMissionExample;
 import cern.molr.server.ServerMain;
@@ -72,7 +73,8 @@ public class MoleSpecificTest {
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
         CountDownLatch startSignal = new CountDownLatch(1);
-        CountDownLatch endSignal = new CountDownLatch(8);
+        CountDownLatch firstTaskSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(14);
 
         Publisher<ClientMissionController> futureController = service.instantiate(SequenceMissionExample.class.getName(),
         null);
@@ -92,7 +94,10 @@ public class MoleSpecificTest {
                         } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal.countDown();
-                        }
+                        } else if (event instanceof SequenceMissionEvent && ((SequenceMissionEvent) event).getEvent()
+                                .equals(SequenceMissionEvent.Event.TASK_FINISHED) && ((SequenceMissionEvent) event)
+                                .getTaskNumber() == 0)
+                            firstTaskSignal.countDown();
                     }
 
                     @Override
@@ -158,11 +163,14 @@ public class MoleSpecificTest {
 
                     }
                 });
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+               try {
+                    firstTaskSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                    Assert.fail();
                 }
+
 
                 controller.instruct(new SequenceCommand(SequenceCommand.Command.SKIP))
                         .subscribe(new SimpleSubscriber<CommandResponse>() {
@@ -171,6 +179,26 @@ public class MoleSpecificTest {
                                 System.out.println(execName + " response to skip: " + response);
                                 commandResponses.add(response);
                                 endSignal.countDown();
+
+                                controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                                        .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                            @Override
+                                            public void consume(CommandResponse response) {
+                                                System.out.println(execName + " response to finish: " + response);
+                                                commandResponses.add(response);
+                                                endSignal.countDown();
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable throwable) {
+                                                throwable.printStackTrace();
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+
+                                            }
+                                        });
                             }
 
                             @Override
@@ -184,25 +212,6 @@ public class MoleSpecificTest {
                             }
                         });
 
-                controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
-                        .subscribe(new SimpleSubscriber<CommandResponse>() {
-                            @Override
-                            public void consume(CommandResponse response) {
-                                System.out.println(execName + " response to finish: " + response);
-                                commandResponses.add(response);
-                                endSignal.countDown();
-                            }
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                            }
-
-                            @Override
-                            public void onComplete() {
-
-                            }
-                        });
             }
 
             @Override
@@ -239,16 +248,34 @@ public class MoleSpecificTest {
         launchSequenceMissionExample("exec", events, commandResponses, finishSignal);
         finishSignal.await();
 
-        Assert.assertEquals(4, events.size());
+        Assert.assertEquals(10, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
         ResponseTester.testStartedEvent(events.get(1));
-        Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
-        ResponseTester.testTerminatedEvent(events.get(3));
+        testTaskStarted(events.get(2), 0);
+        testTaskFinished(events.get(3), 0);
+        testTaskStarted(events.get(4), 2);
+        testTaskFinished(events.get(5), 2);
+        testTaskStarted(events.get(6), 3);
+        testTaskFinished(events.get(7), 3);
+        Assert.assertEquals(MissionFinished.class, events.get(8).getClass());
+        ResponseTester.testTerminatedEvent(events.get(9));
         Assert.assertEquals(4, commandResponses.size());
         ResponseTester.testCommandResponseSuccess(commandResponses.get(0));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(1));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(2));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(3));
+    }
+
+    private void testTaskStarted(MissionEvent event, int taskNumer) {
+        Assert.assertEquals(SequenceMissionEvent.class, event.getClass());
+        Assert.assertEquals(SequenceMissionEvent.Event.TASK_STARTED, ((SequenceMissionEvent)event).getEvent());
+        Assert.assertEquals(taskNumer, ((SequenceMissionEvent) event).getTaskNumber());
+    }
+
+    private void testTaskFinished(MissionEvent event, int taskNumer) {
+        Assert.assertEquals(SequenceMissionEvent.class, event.getClass());
+        Assert.assertEquals(SequenceMissionEvent.Event.TASK_FINISHED, ((SequenceMissionEvent)event).getEvent());
+        Assert.assertEquals(taskNumer, ((SequenceMissionEvent) event).getTaskNumber());
     }
 
 }
