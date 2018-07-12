@@ -22,11 +22,11 @@ import reactor.core.publisher.Mono;
  * @author yassine-kr
  */
 @RestController
-public class RemoteSupervisorController {
+public class SupervisorRestController {
 
     private final MoleSupervisorService moleSupervisorService;
 
-    public RemoteSupervisorController(MoleSupervisorService service) {
+    public SupervisorRestController(MoleSupervisorService service) {
         this.moleSupervisorService = service;
     }
 

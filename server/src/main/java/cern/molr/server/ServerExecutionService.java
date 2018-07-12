@@ -36,14 +36,14 @@ import java.util.concurrent.ConcurrentMap;
  * @author yassine-kr
  */
 @Service
-public class ServerRestExecutionService {
+public class ServerExecutionService {
 
     private final ServerState registry = new ServerState();
     private final SupervisorsManager supervisorsManager;
     private final ServerConfig config;
 
 
-    public ServerRestExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
+    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
         this.config = config;
 
         //TODO remove this init code after implementing a deployment service

@@ -15,7 +15,7 @@ import org.reactivestreams.Publisher;
 public interface MissionExecutionService {
 
     /**
-     * A method which instantiate a mission
+     * A method which instantiates a mission
      *
      * @param missionName      the name of the mission to be instantiated
      * @param missionArguments the mission arguments, can be null if the mission does not need any arguments

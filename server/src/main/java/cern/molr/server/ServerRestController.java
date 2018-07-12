@@ -32,9 +32,9 @@ public class ServerRestController {
 
     private final ExecutorService executorService;
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public ServerRestController(ExecutorService executorService, ServerRestExecutionService service) {
+    public ServerRestController(ExecutorService executorService, ServerExecutionService service) {
         this.executorService = executorService;
         this.service = service;
     }

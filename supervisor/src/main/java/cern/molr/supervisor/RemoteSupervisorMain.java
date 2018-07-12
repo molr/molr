@@ -80,7 +80,6 @@ public class RemoteSupervisorMain {
      * If no path specified, the path "supervisor.properties" is used
      * If the used path file does not exist, default configuration values are used
      *
-     * @param args
      */
     public static void main(String[] args) {
         SpringApplication.run(RemoteSupervisorMain.class, args);

@@ -15,7 +15,6 @@ import org.springframework.core.env.Environment;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

@@ -22,9 +22,9 @@ public class EventsStreamHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsStreamHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public EventsStreamHandler(ServerRestExecutionService service) {
+    public EventsStreamHandler(ServerExecutionService service) {
         this.service = service;
     }
 

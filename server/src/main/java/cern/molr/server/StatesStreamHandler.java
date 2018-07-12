@@ -21,9 +21,9 @@ public class StatesStreamHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatesStreamHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public StatesStreamHandler(ServerRestExecutionService service) {
+    public StatesStreamHandler(ServerExecutionService service) {
         this.service = service;
     }
 

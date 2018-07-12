@@ -21,9 +21,9 @@ public class InstructHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstructHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public InstructHandler(ServerRestExecutionService service) {
+    public InstructHandler(ServerExecutionService service) {
         this.service = service;
     }
 
