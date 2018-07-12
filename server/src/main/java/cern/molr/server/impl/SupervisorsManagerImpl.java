@@ -57,6 +57,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         });
     }
 
+    //TODO find the reason of a NoSupervisorFoundException thrown sometimes
     @Override
     public synchronized Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {
 
