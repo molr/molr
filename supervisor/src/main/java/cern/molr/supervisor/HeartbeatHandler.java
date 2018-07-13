@@ -4,6 +4,8 @@ import cern.molr.commons.api.request.server.SupervisorHeartbeatRequest;
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.commons.web.DataProcessorBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -20,6 +22,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class HeartbeatHandler implements WebSocketHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatHandler.class);
+
     private final MoleSupervisorService supervisor;
 
     public HeartbeatHandler(MoleSupervisorService supervisor) {
@@ -28,6 +32,8 @@ public class HeartbeatHandler implements WebSocketHandler {
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
+
+        LOGGER.info("session created for a request received from the server: {}", session.getHandshakeInfo().getUri());
 
         return session.send(new DataProcessorBuilder<SupervisorHeartbeatRequest, SupervisorState>(SupervisorHeartbeatRequest
                 .class)

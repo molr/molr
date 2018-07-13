@@ -12,10 +12,7 @@ import cern.molr.commons.api.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.api.response.*;
 import cern.molr.commons.web.MolrConfig;
 import org.reactivestreams.Publisher;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -40,6 +37,7 @@ public class ServerRestController {
     }
 
 
+    @CrossOrigin()
     @RequestMapping(path = MolrConfig.INSTANTIATE_PATH, method = RequestMethod.POST)
     public <I> Publisher<InstantiationResponse> instantiateMission(
             @RequestBody ServerInstantiationRequest<I> request) {

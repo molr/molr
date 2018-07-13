@@ -4,6 +4,8 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.web.DataProcessorBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -18,6 +20,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class InstructHandler implements WebSocketHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstructHandler.class);
+
     private final MoleSupervisorService supervisor;
 
     public InstructHandler(MoleSupervisorService supervisor) {
@@ -26,6 +30,8 @@ public class InstructHandler implements WebSocketHandler {
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
+
+        LOGGER.info("session created for a request received from the server: {}", session.getHandshakeInfo().getUri());
 
         return session.send(new DataProcessorBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
