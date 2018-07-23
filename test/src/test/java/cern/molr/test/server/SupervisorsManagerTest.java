@@ -4,6 +4,7 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.SupervisorsManagerImpl;
@@ -101,6 +102,11 @@ public class SupervisorsManagerTest {
         @Override
         public Optional<SupervisorState> getSupervisorState() {
             return Optional.of(supervisorState);
+        }
+
+        @Override
+        public void addStateListener(SupervisorStateListener listener) {
+
         }
 
         @Override

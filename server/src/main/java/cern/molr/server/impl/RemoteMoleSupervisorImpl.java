@@ -8,6 +8,7 @@ import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.server.api.MolrServerToSupervisor;
 import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.TimeOutStateListener;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -31,7 +32,8 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
 
     private MolrServerToSupervisor client;
     private SupervisorState state = null;
-    private HashSet<TimeOutStateListener> listeners = new HashSet<>();
+    private HashSet<SupervisorStateListener> statesListeners = new HashSet<>();
+    private HashSet<TimeOutStateListener> timeOutListeners = new HashSet<>();
 
     private Timer timer = new Timer();
     private Subscription subscription;
@@ -43,7 +45,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     /**
      *
      * TODO avoid an IllegalStateException when we try to schedule a task on the timer already cancelled
-     * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the listeners
+     * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the timeOutListeners
      *                        that the state is not available
      *
      */
@@ -65,7 +67,7 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
             @Override
             public void consume(SupervisorState supervisorState) {
                 LOGGER.info("receiving new state from the supervisor [{}]", supervisorState);
-                state = supervisorState;
+                setState(supervisorState);
                 numTimeOuts = 0;
                 updateTimer();
             }
@@ -116,15 +118,21 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
 
     @Override
     public Optional<SupervisorState> getSupervisorState() {
-        if (state == null)
-            return client.getState();
-        else
-            return Optional.of(state);
+        if (state == null) {
+            Optional<SupervisorState> optional = client.getState();
+            optional.ifPresent(this::setState);
+        }
+        return Optional.ofNullable(state);
+    }
+
+    @Override
+    public void addStateListener(SupervisorStateListener listener) {
+        statesListeners.add(listener);
     }
 
     @Override
     public void addTimeOutStateListener(TimeOutStateListener listener) {
-        listeners.add(listener);
+        timeOutListeners.add(listener);
     }
 
     @Override
@@ -136,11 +144,19 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     }
 
     private void notifyTimeOutListeners(Duration timeOutDuration) {
-        listeners.forEach((listener) -> listener.onTimeOut(timeOutDuration));
+        timeOutListeners.forEach((listener) -> listener.onTimeOut(timeOutDuration));
     }
 
     private void notifyMaxTimeOutsListeners(int numTimeOuts) {
-        listeners.forEach((listener) -> listener.onMaxTimeOuts(numTimeOuts));
+        timeOutListeners.forEach((listener) -> listener.onMaxTimeOuts(numTimeOuts));
     }
 
+    private void notifyNewState(SupervisorState state) {
+        statesListeners.forEach((listener) -> listener.onNewSupervisorState(state));
+    }
+
+    private void setState(SupervisorState state) {
+        this.state = state;
+        notifyNewState(this.state);
+    }
 }

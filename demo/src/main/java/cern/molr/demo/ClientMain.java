@@ -18,11 +18,11 @@ public class ClientMain {
 
 
 
-        ExampleOperator2 operator = new ExampleOperator2(new MissionExecutionServiceImpl());
-        operator.parallelExample();
+        //ExampleOperator2 operator = new ExampleOperator2(new MissionExecutionServiceImpl());
+        //operator.parallelExample();
 
 
-        //new GUIExample(new MissionExecutionServiceImpl());
+        new GUIExample(new MissionExecutionServiceImpl());
     }
 
 }
