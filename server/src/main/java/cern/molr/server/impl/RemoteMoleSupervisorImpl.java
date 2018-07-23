@@ -88,12 +88,13 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
                 task = new TimerTask() {
                     @Override
                     public void run() {
-                        LOGGER.warn("State time out reached [{}]", timeOutDuration);
                         numTimeOuts++;
-                        notifyTimeOutListeners(timeOutDuration);
-                        if (numTimeOuts == maxTimeOuts) {
-                           notifyMaxTimeOutsListeners(numTimeOuts);
-                           numTimeOuts = 0;
+                        if (numTimeOuts >= maxTimeOuts) {
+                            LOGGER.warn("Max consecutive time outs reached [{}]", numTimeOuts);
+                            notifyMaxTimeOutsListeners(numTimeOuts);
+                        } else {
+                            LOGGER.warn("State time out reached [{}]", timeOutDuration);
+                            notifyTimeOutListeners(timeOutDuration);
                         }
                         updateTimer();
                     }
