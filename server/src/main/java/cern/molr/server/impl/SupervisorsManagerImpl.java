@@ -2,15 +2,14 @@ package cern.molr.server.impl;
 
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.SupervisorsManagerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,6 +26,8 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
 
     private ConcurrentMap<String, RemoteMoleSupervisor> supervisorsRegistry = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Vector<RemoteMoleSupervisor>> possibleSupervisorsRegistry = new ConcurrentHashMap<>();
+
+    private HashSet<SupervisorsManagerListener> managerListeners = new HashSet<>();
 
     @Override
     public String addSupervisor(RemoteMoleSupervisor supervisor, List<String> missionsAccepted) {
@@ -46,6 +47,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         possibleSupervisorsRegistry.forEach((mis, vec) -> {
             vec.remove(supervisor);
         });
+        notifyRemovedSupervisor(id);
         supervisor.close();
         LOGGER.info("Supervisor Server {} unregistered from MolR server", id);
     }
@@ -79,6 +81,15 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             return Optional.empty();
         });
 
+    }
+
+    @Override
+    public void addListener(SupervisorsManagerListener listener) {
+        managerListeners.add(listener);
+    }
+
+    private void notifyRemovedSupervisor(String supervisorId) {
+        managerListeners.forEach((listener) -> listener.onSupervisorRemoved(supervisorId));
     }
 
     private String makeEId() {

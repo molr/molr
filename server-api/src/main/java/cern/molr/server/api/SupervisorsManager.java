@@ -17,4 +17,6 @@ public interface SupervisorsManager {
     void removeSupervisor(RemoteMoleSupervisor supervisor);
 
     Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName);
+
+    void addListener(SupervisorsManagerListener listener);
 }

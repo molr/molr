@@ -12,10 +12,7 @@ import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.*;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
-import cern.molr.server.api.RemoteMoleSupervisor;
-import cern.molr.server.api.SupervisorStateListener;
-import cern.molr.server.api.SupervisorsManager;
-import cern.molr.server.api.TimeOutStateListener;
+import cern.molr.server.api.*;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Processor;
@@ -60,6 +57,13 @@ public class ServerExecutionService {
         registry.registerNewMission(SequenceMissionExample.class.getName());
 
         this.supervisorsManager = supervisorsManager;
+
+        this.supervisorsManager.addListener(new SupervisorsManagerListener() {
+            @Override
+            public void onSupervisorRemoved(String supervisorId) {
+                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB));
+            }
+        });
     }
 
 
