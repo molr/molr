@@ -9,26 +9,29 @@ import cern.molr.commons.api.exception.NoSupervisorFoundException;
 import cern.molr.commons.api.exception.UnknownMissionException;
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
-import cern.molr.commons.api.response.CommandResponse;
-import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.api.response.*;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
+import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.DirectProcessor;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * Service used for communication between server and supervisors
@@ -41,6 +44,7 @@ public class ServerExecutionService {
     private final ServerState registry = new ServerState();
     private final SupervisorsManager supervisorsManager;
     private final ServerConfig config;
+    private final Processor<SupervisorInfo, SupervisorInfo> processor = DirectProcessor.create();
 
 
     public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
@@ -108,19 +112,29 @@ public class ServerExecutionService {
         RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port,
                 Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()),
                 config.getNumMaxTimeOut());
+
+        String id = supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
+
         moleSupervisor.addTimeOutStateListener(new TimeOutStateListener() {
             @Override
             public void onTimeOut(Duration timeOutDuration) {
-
+                processor.onNext(new SupervisorInfo(id, registry.getMissions(moleSupervisor), null, SupervisorInfo.Life
+                        .DYING));
             }
 
             @Override
             public void onMaxTimeOuts(int numTimeOut) {
+                processor.onNext(new SupervisorInfo(id, registry.getMissions(moleSupervisor), null, SupervisorInfo.Life
+                        .DEAD));
                 supervisorsManager.removeSupervisor(moleSupervisor);
 
             }
         });
-        return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
+        moleSupervisor
+                .addStateListener(state -> processor
+                        .onNext(new SupervisorInfo(id,
+                                registry.getMissions(moleSupervisor), state, SupervisorInfo.Life.ALIVE)));
+        return id;
     }
 
     public void removeSupervisor(String id) {
@@ -163,6 +177,10 @@ public class ServerExecutionService {
             missionExecutionRegistry.remove(missionId);
         }
 
+        private List<String> getMissions(RemoteMoleSupervisor supervisor) {
+            return moleSupervisorRegistry.entrySet().stream().filter((entry) -> entry.getValue() == supervisor)
+                    .map(Map.Entry::getKey).collect(Collectors.toList());
+        }
     }
 
 }
