@@ -1,5 +1,7 @@
 package cern.molr.commons.api.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -21,7 +23,8 @@ public final class SupervisorInfo {
 
     final private Life life;
 
-    public SupervisorInfo(String id, List<String> missions, SupervisorState state, Life life) {
+    public SupervisorInfo(@JsonProperty("id") String id,@JsonProperty("missions") List<String> missions, @JsonProperty
+            ("state") SupervisorState state,@JsonProperty("life") Life life) {
         this.id = id;
         this.missions = missions;
         this.state = state;

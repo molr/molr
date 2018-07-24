@@ -58,7 +58,7 @@ public class SupervisorsInfoTest {
     @Test
     public void instantiateTest() throws Exception {
 
-        CountDownLatch endSignal = new CountDownLatch(4);
+        CountDownLatch endSignal = new CountDownLatch(1);
 
         List<SupervisorInfo> infos = new ArrayList<>();
 
