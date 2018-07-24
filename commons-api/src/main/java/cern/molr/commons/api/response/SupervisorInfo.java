@@ -44,6 +44,11 @@ public final class SupervisorInfo {
         return life;
     }
 
+    @Override
+    public String toString() {
+        return id + " " + missions + " " + " " + state + " " + life;
+    }
+
     public enum Life {
         ALIVE, //No problem
         DYING, //Time out reached

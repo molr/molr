@@ -49,4 +49,9 @@ public final class SupervisorState {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "numMissions: " + numMissions + " maxMissions: " + maxMissions;
+    }
+
 }

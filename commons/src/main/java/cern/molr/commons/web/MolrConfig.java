@@ -16,6 +16,8 @@ public class MolrConfig {
     public static final String GET_HEARTBEAT_PATH = "/getHeartbeat";
     public static final String REGISTER_PATH = "/register";
     public static final String UNREGISTER_PATH = "/unregister";
+    public static final String SUPERVISORS_INFO_PATH = "/getSupervisorsInfo";
+
 
     private MolrConfig() {
     }

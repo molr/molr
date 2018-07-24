@@ -145,6 +145,10 @@ public class ServerExecutionService {
         supervisorsManager.removeSupervisor(id);
     }
 
+    public Publisher<SupervisorInfo> getSupervisorsInfoStream() {
+        return processor;
+    }
+
     public static class ServerState {
 
         /**
