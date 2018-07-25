@@ -10,6 +10,7 @@ import cern.molr.commons.api.exception.UnknownMissionException;
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.*;
+import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.*;
@@ -74,6 +75,22 @@ public class ServerExecutionService {
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
             Publisher<MissionEvent> executionEventStream = supervisor.instantiate(request, missionEId);
+            executionEventStream.subscribe(new SimpleSubscriber<MissionEvent>() {
+                @Override
+                public void consume(MissionEvent event) {
+
+                }
+
+                @Override
+                public void onError(Throwable t) {
+
+                }
+
+                @Override
+                public void onComplete() {
+                    registry.removeMissionExecution(missionEId);
+                }
+            });
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->
