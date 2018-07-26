@@ -19,6 +19,7 @@ import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,16 +38,11 @@ public class ServerRestExecutionService {
     private final SupervisorsManager supervisorsManager;
 
 
-    public ServerRestExecutionService(SupervisorsManager supervisorsManager) {
+    public ServerRestExecutionService(SupervisorsManager supervisorsManager, RegisteredMissions missions) {
 
         //TODO remove this init code after implementing a deployment service
-        registry.registerNewMission(RunnableHelloWriter.class.getName());
-        registry.registerNewMission(IntDoubler.class.getName());
-        registry.registerNewMission(Fibonacci.class.getName());
         //Just for testing, normally missions must be verified before deployment
-        registry.registerNewMission(IncompatibleMission.class.getName());
-        registry.registerNewMission(RunnableExceptionMission.class.getName());
-        registry.registerNewMission(SequenceMissionExample.class.getName());
+        missions.getMissions().forEach(registry::registerNewMission);
 
         this.supervisorsManager = supervisorsManager;
     }
