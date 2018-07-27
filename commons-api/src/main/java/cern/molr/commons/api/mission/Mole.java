@@ -45,19 +45,22 @@ public interface Mole<I, O> {
     O run(Mission mission, I missionArguments) throws MissionExecutionException;
 
     /**
-     * It should send a command to the mole; the MoleRunner use it to forward commands which are not interpreted
+     * It should send a command to the mole; the MoleRunner uses it to forward commands which are not interpreted
+     *
      * @throws CommandNotAcceptedException when the command is not accepted by the mole
      */
     void sendCommand(MissionCommand command) throws CommandNotAcceptedException;
 
     /**
      * It should return the stream of events triggered by the mole itself during the mission execution
+     *
      * @return the events stream
      */
     Publisher<MissionEvent> getEventsPublisher();
 
     /**
-     * It should return the stream of states triggered by the mole itself during the mission execution
+     * It should return the stream of states in which the mole is during the mission execution
+     *
      * @return the states stream
      */
     Publisher<MissionState> getStatesPublisher();

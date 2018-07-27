@@ -63,7 +63,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
                 .ofNullable(possibleSupervisorsRegistry.get(missionName));
 
         return optional.flatMap((vec) -> {
-            for (int i=0; i<vec.size(); i++) {
+            for (int i = 0; i < vec.size(); i++) {
                 Optional<SupervisorState> state = vec.get(i).getSupervisorState();
                 if (state.isPresent()) {
                     if (state.get().isAvailable()) {

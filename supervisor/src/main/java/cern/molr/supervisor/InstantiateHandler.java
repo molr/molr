@@ -1,13 +1,11 @@
 package cern.molr.supervisor;
 
 import cern.molr.commons.api.mission.Mission;
-import cern.molr.commons.api.mission.MissionMaterializer;
 import cern.molr.commons.api.request.server.InstantiationRequest;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
 import cern.molr.commons.impl.mission.MissionServices;
-import cern.molr.commons.web.DataExchangeBuilder;
+import cern.molr.commons.web.DataProcessorBuilder;
 import cern.molr.supervisor.impl.supervisor.MoleSupervisorService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -33,7 +31,7 @@ public class InstantiateHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
 
-        return session.send(new DataExchangeBuilder<InstantiationRequest, MissionEvent>(InstantiationRequest.class)
+        return session.send(new DataProcessorBuilder<InstantiationRequest, MissionEvent>(InstantiationRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator((request) -> {
                     Mission mission = MissionServices.getMaterializer().materialize(request.getMissionName());

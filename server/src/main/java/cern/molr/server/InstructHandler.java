@@ -2,7 +2,7 @@ package cern.molr.server;
 
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.response.CommandResponse;
-import cern.molr.commons.web.DataExchangeBuilder;
+import cern.molr.commons.web.DataProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class InstructHandler implements WebSocketHandler {
 
         LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
-        return session.send(new DataExchangeBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
+        return session.send(new DataProcessorBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::instruct)
                 .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)

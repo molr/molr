@@ -48,7 +48,6 @@ public class TypesTest {
 
         });
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
-        controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.TERMINATE));
 
         signal.await();
 

@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * A sequence mission example.
+ *
  * @author yassine-kr
  */
 @RunWithMole(SequenceMole.class)

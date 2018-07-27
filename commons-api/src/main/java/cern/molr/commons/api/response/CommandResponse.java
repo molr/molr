@@ -18,6 +18,11 @@ public interface CommandResponse extends TryResponse<Ack> {
         public CommandResponseSuccess(@JsonProperty("success") Ack ack) {
             super(ack);
         }
+
+        @Override
+        public String toString() {
+            return "Command Accepted";
+        }
     }
 
     class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse {
@@ -26,6 +31,10 @@ public interface CommandResponse extends TryResponse<Ack> {
             super(throwable);
         }
 
+        @Override
+        public String toString() {
+            return "Command Rejected";
+        }
     }
 
 }

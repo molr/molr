@@ -60,7 +60,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
                     logLine(errorReader);
                 }
             } catch (IOException error) {
-                LOGGER.error("error while trying to read the MoleRunner error stream", error);
+                LOGGER.error("Error while trying to read the MoleRunner error stream", error);
             } catch (InterruptedException ignored) {
 
             }
@@ -116,7 +116,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
             }
         } catch (JsonProcessingException error) {
             commandStatus = null;
-            LOGGER.error("error while serializing a command {}", command, error);
+            LOGGER.error("unable to serialize a command [{}]", command, error);
             return new CommandResponse.CommandResponseFailure(error);
         }
     }

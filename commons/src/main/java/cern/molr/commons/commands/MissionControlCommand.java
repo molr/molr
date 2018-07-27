@@ -4,7 +4,8 @@ import cern.molr.commons.api.request.MissionCommand;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A command which is intrpreted by the MoleRunner
+ * A command which is interpreted by the MoleRunner
+ *
  * @author yassine-kr
  */
 public class MissionControlCommand implements MissionCommand {
@@ -19,11 +20,6 @@ public class MissionControlCommand implements MissionCommand {
         return command;
     }
 
-    public enum Command {
-        START,
-        TERMINATE
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -35,5 +31,15 @@ public class MissionControlCommand implements MissionCommand {
         MissionControlCommand other = (MissionControlCommand) o;
         return !(command != null ? !command.equals(other.command) : other.command != null);
 
+    }
+
+    @Override
+    public String toString() {
+        return command.toString();
+    }
+
+    public enum Command {
+        START,
+        TERMINATE
     }
 }

@@ -6,8 +6,8 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.SupervisorState;
-import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
 import cern.molr.supervisor.api.supervisor.SupervisorSessionsManager;
@@ -50,7 +50,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                     try {
                         session.getController().close();
                     } catch (IOException error) {
-                        LOGGER.error("error while trying to close a session", error);
+                        LOGGER.error("Error while trying to close a session [{}]", session, error);
                     }
                 }
             });
@@ -63,7 +63,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                 });
             });
         } catch (Exception error) {
-            LOGGER.error("error while trying to spawn the mission on the MoleRunner", error);
+            LOGGER.error("Error while trying to spawn the mission on the MoleRunner", error);
             return Flux.just(new MissionExceptionEvent(error));
         }
     }

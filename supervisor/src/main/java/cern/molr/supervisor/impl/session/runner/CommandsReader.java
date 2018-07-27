@@ -5,6 +5,8 @@ import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.impl.session.RemoteReader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.time.Duration;
  * @author yassine-kr
  */
 public class CommandsReader extends RemoteReader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandsReader.class);
 
     private ObjectMapper mapper = new ObjectMapper();
     private CommandListener listener;
@@ -35,13 +39,17 @@ public class CommandsReader extends RemoteReader {
     }
 
     @Override
-    protected void readCommand(BufferedReader reader) {
+    protected void readData(BufferedReader reader) {
         try {
             final String line = reader.readLine();
-            MissionCommand command = mapper.readValue(line, MissionCommand.class);
-            listener.onCommand(command);
+            try {
+                MissionCommand command = mapper.readValue(line, MissionCommand.class);
+                listener.onCommand(command);
+            } catch (IOException error) {
+                LOGGER.error("unable to deserialize a read command [{}]", line, error);
+            }
         } catch (IOException error) {
-            error.printStackTrace();
+            LOGGER.error("Error while trying to read a command from the Supervisor", error);
         }
     }
 

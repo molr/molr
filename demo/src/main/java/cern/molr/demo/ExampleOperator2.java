@@ -1,67 +1,52 @@
-package cern.molr.test.client;
+package cern.molr.demo;
+
 
 import cern.molr.client.api.ClientMissionController;
 import cern.molr.client.api.MissionExecutionService;
-import cern.molr.client.impl.MissionExecutionServiceImpl;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.sample.commands.SequenceCommand;
+import cern.molr.sample.events.SequenceMissionEvent;
 import cern.molr.sample.mission.Fibonacci;
-import cern.molr.server.ServerMain;
-import cern.molr.supervisor.RemoteSupervisorMain;
-import cern.molr.test.ResponseTester;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import cern.molr.sample.mission.SequenceMissionExample;
 import org.reactivestreams.Publisher;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
- * Class for testing client Api.
+ * Operator example
  *
- * @author yassine-kr
+ * @author yassine
  */
-public class ClientTest {
+public class ExampleOperator2 {
 
-    private ConfigurableApplicationContext serverContext;
-    private ConfigurableApplicationContext supervisorContext;
-    private MissionExecutionService service = new MissionExecutionServiceImpl("http://localhost", 8000);
+    private MissionExecutionService service;
 
-    @Before
-    public void initServers() {
-        serverContext = SpringApplication.run(ServerMain.class, "--server.port=8000");
-
-        supervisorContext = SpringApplication.run(RemoteSupervisorMain.class,
-                "--server.port=8056", "--molr.host=http://localhost", "--molr.port=8000",
-                "--supervisor.host=http://localhost", "--supervisor.port=8056");
-    }
-
-    @After
-    public void exitServers() {
-        SpringApplication.exit(supervisorContext);
-        SpringApplication.exit(serverContext);
-
+    public ExampleOperator2(MissionExecutionService service) {
+        Objects.requireNonNull(service);
+        this.service = service;
     }
 
     /**
-     * A method which instantiate a mission and terminate it
+     * A method which instantiates a mission and terminates it
      *
      * @param execName         the name execution used when displaying results
      * @param missionClass     the mission class
      * @param events           the events list which will be filled
      * @param commandResponses the command responses list which will be filled
      * @param finishSignal     the signal to be triggered when the all events and missions received
+     *
+     * @throws Exception
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>
@@ -80,7 +65,7 @@ public class ClientTest {
 
                     @Override
                     public void consume(MissionEvent event) {
-                        System.out.println(execName + " event: " + event);
+                        System.out.println("************" + execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
                         if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
@@ -106,7 +91,7 @@ public class ClientTest {
                     instantiateSignal.await();
                 } catch (InterruptedException error) {
                     error.printStackTrace();
-                    Assert.fail();
+                    System.exit(-1);
                 }
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
                                                                                                                       SimpleSubscriber<CommandResponse>() {
@@ -132,9 +117,8 @@ public class ClientTest {
                     startSignal.await();
                 } catch (InterruptedException error) {
                     error.printStackTrace();
-                    Assert.fail();
+                    System.exit(-1);
                 }
-
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
@@ -165,67 +149,41 @@ public class ClientTest {
 
             }
         });
+
         new Thread(() -> {
             try {
                 endSignal.await();
                 finishSignal.countDown();
             } catch (InterruptedException error) {
                 error.printStackTrace();
-                Assert.fail();
+                System.exit(-1);
             }
 
         }).start();
-
     }
 
     /**
-     * The mission execution should be long enough to terminate the session before the mission is finished
+     * A method which instantiate the {@link SequenceMissionExample} mission, and send three specific commands; STEP,
+     * SKIP and FINISH
      *
-     * @throws Exception
+     * @param execName         the name execution used when displaying results
+     * @param events           the events list which will be filled
+     * @param commandResponses the command responses list which will be filled
+     * @param states           the states list which will be filled
+     * @param finishSignal     the signal to be triggered when the all events and missions received
      */
-    @Test
-    public void missionTest() throws Exception {
+    private void launchSequenceMissionExample(String execName, List<MissionEvent> events,
+                                              List<CommandResponse> commandResponses, List<MissionState> states,
+                                              CountDownLatch finishSignal) {
 
-        List<MissionEvent> events = new ArrayList<>();
-        List<CommandResponse> commandResponses = new ArrayList<>();
-        CountDownLatch finishSignal = new CountDownLatch(1);
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch firstTaskSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(14);
 
-        launchMission("exec", Fibonacci.class, events, commandResponses, finishSignal);
-        finishSignal.await();
-
-        ResponseTester.testInstantiateStartTerminate(events, commandResponses);
-    }
-
-    /**
-     * The mission execution should be long enough to terminate the JVM before the mission is finished
-     * Testing a sequential mission execution
-     *
-     * @throws Exception
-     */
-    @Test
-    public void missionsTest() throws Exception {
-
-        CountDownLatch finishSignal1 = new CountDownLatch(1);
-
-        List<MissionEvent> events1 = new ArrayList<>();
-        List<CommandResponse> commandResponses1 = new ArrayList<>();
-
-        launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal1);
-        finishSignal1.await();
-
-        List<MissionEvent> events2 = new ArrayList<>();
-        List<CommandResponse> commandResponses2 = new ArrayList<>();
-
-        CountDownLatch instantiateSignal2 = new CountDownLatch(1);
-        CountDownLatch startSignal2 = new CountDownLatch(1);
-        CountDownLatch endSignal2 = new CountDownLatch(6);
-
-
-        Publisher<ClientMissionController> futureController2 =
-                service.instantiate(Fibonacci.class.getCanonicalName(), 100);
-
-
-        futureController2.subscribe(new SimpleSubscriber<ClientMissionController>() {
+        Publisher<ClientMissionController> futureController = service.instantiate(SequenceMissionExample.class.getName(),
+                null);
+        futureController.subscribe(new SimpleSubscriber<ClientMissionController>() {
 
             @Override
             public void consume(ClientMissionController controller) {
@@ -233,16 +191,37 @@ public class ClientTest {
 
                     @Override
                     public void consume(MissionEvent event) {
-                        System.out.println("exec2 event: " + event);
-                        events2.add(event);
-                        endSignal2.countDown();
-
+                        System.out.println("************" + execName + " event: " + event);
+                        events.add(event);
+                        endSignal.countDown();
                         if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
-                            instantiateSignal2.countDown();
+                            instantiateSignal.countDown();
                         } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
-                            startSignal2.countDown();
-                        }
+                            startSignal.countDown();
+                        } else if (event instanceof SequenceMissionEvent && ((SequenceMissionEvent) event).getEvent()
+                                .equals(SequenceMissionEvent.Event.TASK_FINISHED) && ((SequenceMissionEvent) event)
+                                .getTaskNumber() == 0)
+                            firstTaskSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+                controller.getStatesStream().subscribe(new SimpleSubscriber<MissionState>() {
+
+                    @Override
+                    public void consume(MissionState state) {
+                        System.out.println("---------------------------------------" + execName + " state: " + state);
+                        states.add(state);
                     }
 
                     @Override
@@ -257,75 +236,103 @@ public class ClientTest {
                 });
 
                 try {
-                    instantiateSignal2.await();
+                    instantiateSignal.await();
                 } catch (InterruptedException error) {
                     error.printStackTrace();
-                    Assert.fail();
                 }
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START))
+                        .subscribe(new SimpleSubscriber<CommandResponse>() {
+                            @Override
+                            public void consume(CommandResponse response) {
+                                System.out.println(execName + " response to start: " + response);
+                                commandResponses.add(response);
+                                endSignal.countDown();
+                            }
 
-                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println("exec2 response to start: " + response);
-                        commandResponses2.add(response);
-                        endSignal2.countDown();
-                    }
+                            @Override
+                            public void onError(Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                            @Override
+                            public void onComplete() {
 
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println("exec2 response to start 2: " + response);
-                        commandResponses2.add(response);
-                        endSignal2.countDown();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+                            }
+                        });
 
                 try {
-                    startSignal2.await();
+                    startSignal.await();
                 } catch (InterruptedException error) {
                     error.printStackTrace();
-                    Assert.fail();
                 }
 
-                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE)).subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println("exec2 response to terminate: " + response);
-                        commandResponses2.add(response);
-                        endSignal2.countDown();
-                    }
+                controller.instruct(new SequenceCommand(SequenceCommand.Command.STEP))
+                        .subscribe(new SimpleSubscriber<CommandResponse>() {
+                            @Override
+                            public void consume(CommandResponse response) {
+                                System.out.println(execName + " response to step: " + response);
+                                commandResponses.add(response);
+                                endSignal.countDown();
+                            }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                            @Override
+                            public void onError(Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
 
-                    @Override
-                    public void onComplete() {
+                            @Override
+                            public void onComplete() {
 
-                    }
-                });
+                            }
+                        });
+
+                try {
+                    firstTaskSignal.await();
+                } catch (InterruptedException error) {
+                    error.printStackTrace();
+                }
+
+
+                controller.instruct(new SequenceCommand(SequenceCommand.Command.SKIP))
+                        .subscribe(new SimpleSubscriber<CommandResponse>() {
+                            @Override
+                            public void consume(CommandResponse response) {
+                                System.out.println(execName + " response to skip: " + response);
+                                commandResponses.add(response);
+                                endSignal.countDown();
+
+                                controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                                        .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                            @Override
+                                            public void consume(CommandResponse response) {
+                                                System.out.println(execName + " response to finish: " + response);
+                                                commandResponses.add(response);
+                                                endSignal.countDown();
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable throwable) {
+                                                throwable.printStackTrace();
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+
             }
 
             @Override
@@ -338,40 +345,19 @@ public class ClientTest {
 
             }
         });
+        new Thread(() -> {
+            try {
+                endSignal.await();
+                finishSignal.countDown();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
+            }
 
-        endSignal2.await();
-
-        CountDownLatch finishSignal3 = new CountDownLatch(1);
-        List<MissionEvent> events3 = new ArrayList<>();
-        List<CommandResponse> commandResponses3 = new ArrayList<>();
-
-
-        launchMission("exec3", Fibonacci.class, events3, commandResponses3, finishSignal3);
-        finishSignal3.await();
-
-        ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);
-
-
-        Assert.assertEquals(3, events2.size());
-        ResponseTester.testInstantiationEvent(events2.get(0));
-        ResponseTester.testStartedEvent(events2.get(1));
-        ResponseTester.testTerminatedEvent(events2.get(2));
-        Assert.assertEquals(3, commandResponses2.size());
-        ResponseTester.testCommandResponseSuccess(commandResponses2.get(0));
-        ResponseTester.testCommandResponseFailure(commandResponses2.get(1));
-        ResponseTester.testCommandResponseSuccess(commandResponses2.get(2));
-
+        }).start();
 
     }
 
-    /**
-     * The mission execution should be long enough to terminate the JVM before the mission is finished
-     *
-     * @throws Exception
-     */
-    @Test
-    public void parallelMissionsTest() throws Exception {
-
+    public void parallelExample() throws InterruptedException {
         CountDownLatch finishSignal = new CountDownLatch(2);
 
         List<MissionEvent> events1 = new ArrayList<>();
@@ -379,15 +365,12 @@ public class ClientTest {
 
         List<MissionEvent> events2 = new ArrayList<>();
         List<CommandResponse> commandResponses2 = new ArrayList<>();
+        List<MissionState> states = new ArrayList<>();
 
         launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal);
-        launchMission("exec2", Fibonacci.class, events2, commandResponses2, finishSignal);
+        launchSequenceMissionExample("exec2", events2, commandResponses2, states, finishSignal);
+
         finishSignal.await();
-
-
-        ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);
-
-        ResponseTester.testInstantiateStartTerminate(events2, commandResponses2);
 
     }
 }

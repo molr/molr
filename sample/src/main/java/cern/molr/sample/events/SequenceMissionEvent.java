@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * An event triggered by the {@link SequenceMole}
+ *
  * @author yassine-kr
  */
 public class SequenceMissionEvent implements MissionEvent {
@@ -26,8 +27,14 @@ public class SequenceMissionEvent implements MissionEvent {
         return event;
     }
 
+    @Override
+    public String toString() {
+        return event.toString() + " " + taskNumber;
+    }
+
     public enum Event {
         TASK_STARTED,
-        TASK_FINISHED
+        TASK_FINISHED,
+        TASK_SKIPPED
     }
 }

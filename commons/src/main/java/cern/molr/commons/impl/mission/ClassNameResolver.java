@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.MissionResolver;
 
 /**
  * A simple implementation which uses the current class loader
+ *
  * @author yassine-kr
  */
 public class ClassNameResolver implements MissionResolver {

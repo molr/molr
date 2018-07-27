@@ -25,12 +25,12 @@ public class SupervisorConfig {
         return supervisorHost;
     }
 
-    public int getSupervisorPort() {
-        return supervisorPort;
-    }
-
     public void setSupervisorHost(String supervisorHost) {
         this.supervisorHost = supervisorHost;
+    }
+
+    public int getSupervisorPort() {
+        return supervisorPort;
     }
 
     public void setSupervisorPort(int supervisorPort) {
