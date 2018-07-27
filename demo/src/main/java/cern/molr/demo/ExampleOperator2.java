@@ -26,7 +26,7 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 /**
  * Operator example
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class ExampleOperator2 {
 
@@ -163,7 +163,7 @@ public class ExampleOperator2 {
     }
 
     /**
-     * A method which instantiate the {@link SequenceMissionExample} mission, and send three specific commands; STEP,
+     * A method which instantiates the {@link SequenceMissionExample} mission, and send three specific commands; STEP,
      * SKIP and FINISH
      *
      * @param execName         the name execution used when displaying results

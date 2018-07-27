@@ -4,7 +4,8 @@ import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.MissionResolver;
 
 /**
- * A simple implementation which uses the current class loader
+ * A simple implementation which uses the current class loader to deduce the {@link Class} corresponding to a mission
+ * name. The mission name is the class name.
  *
  * @author yassine-kr
  */

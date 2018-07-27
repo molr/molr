@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting the events stream concerning a mission
- * execution, it uses WebFlux
+ * execution, it uses WebFlux.
  *
  * @author yassine-kr
  */
@@ -22,9 +22,9 @@ public class EventsStreamHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsStreamHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public EventsStreamHandler(ServerRestExecutionService service) {
+    public EventsStreamHandler(ServerExecutionService service) {
         this.service = service;
     }
 

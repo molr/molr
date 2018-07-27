@@ -3,7 +3,7 @@ package cern.molr.supervisor.api.web;
 import java.util.List;
 
 /**
- * A client service which allows to perform some defined requests to a the MolR server
+ * A service which allows to perform some defined requests to a the MolR server
  *
  * @author yassine-kr
  */

@@ -21,6 +21,11 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Objects;
 
+/**
+ * GUI example
+ *
+ * @author yassine-kr
+ */
 public class GUIExample {
 
     private JButton startButton;
@@ -309,6 +314,11 @@ public class GUIExample {
                             .equals(MissionControlCommand.Command.TERMINATE)) {
                         terminateButton.setEnabled(true);
                     }
+                }
+                if (!state.getStatus().equals("MISSION STARTED")) {
+                    stepButton.setEnabled(false);
+                    skipButton.setEnabled(false);
+                    finishButton.setEnabled(false);
                 }
                 break;
             case MOLE:

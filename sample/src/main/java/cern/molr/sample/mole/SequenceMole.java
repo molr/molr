@@ -29,9 +29,9 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link SequenceMission}
- * interface
- * <p>
- * It runs the tasks of the mission consecutively
+ * interface.
+ *
+ * It runs the mission tasks consecutively
  *
  * @author yassine-kr
  * @see Mole
@@ -101,7 +101,7 @@ public class SequenceMole implements Mole<Void, Void> {
                 new Thread(this::runTask).start();
                 break;
             case SKIP:
-                stateManager.changeState(new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_SKIPPED));
+                stateManager.changeState(new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_SKIPPED, ""));
                 nextTask();
                 break;
             case FINISH:
@@ -122,11 +122,15 @@ public class SequenceMole implements Mole<Void, Void> {
     }
 
     private void runTask() {
-        MissionEvent event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_STARTED);
+        MissionEvent event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_STARTED, "");
         eventsProcessor.onNext(event);
         stateManager.changeState(event);
-        tasks.get(currentTask).run();
-        event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_FINISHED);
+        try {
+            tasks.get(currentTask).run();
+            event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_FINISHED, "");
+        } catch (Exception error) {
+            event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_ERROR, error.getMessage());
+        }
         eventsProcessor.onNext(event);
         stateManager.changeState(event);
         nextTask();

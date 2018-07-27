@@ -12,16 +12,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Configuration setting mapping between urls and websocket handlers
+ * Configuration setting mapping between urls and websocket handlers.
  *
  * @author yassine-kr
  */
 @Configuration
 public class WebSocketServerConfiguration {
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public WebSocketServerConfiguration(ServerRestExecutionService service) {
+    public WebSocketServerConfiguration(ServerExecutionService service) {
         this.service = service;
     }
 
@@ -31,6 +31,7 @@ public class WebSocketServerConfiguration {
         map.put(MolrConfig.EVENTS_STREAM_PATH, new EventsStreamHandler(service));
         map.put(MolrConfig.STATES_STREAM_PATH, new StatesStreamHandler(service));
         map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(service));
+        map.put(MolrConfig.SUPERVISORS_INFO_PATH, new SupervisorsInfoHandler(service));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setOrder(1);

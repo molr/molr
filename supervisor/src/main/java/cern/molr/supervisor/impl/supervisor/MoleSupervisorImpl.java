@@ -24,7 +24,7 @@ import java.io.IOException;
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_TERMINATED;
 
 /**
- * An Implementation of {@link MoleSupervisor} which manages mission executions which does not manage the state
+ * An Implementation of {@link MoleSupervisor}
  *
  * @author yassine-kr
  */
@@ -74,11 +74,16 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             CommandResponse response = session.getController().sendCommand(commandRequest.getCommand());
             LOGGER.info("Receiving command response from the session controller: {}", response);
             return response;
-        }).orElse(new CommandResponse.CommandResponseFailure(new UnknownMissionException("No such mission running"))));
+        }).orElse(new CommandResponse(new UnknownMissionException("No such mission running"))));
     }
 
     @Override
     public SupervisorState getSupervisorState() {
+        return null;
+    }
+
+    @Override
+    public Publisher<SupervisorState> getHeartbeat(int interval) {
         return null;
     }
 }

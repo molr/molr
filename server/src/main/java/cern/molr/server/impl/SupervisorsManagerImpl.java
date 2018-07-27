@@ -2,20 +2,19 @@ package cern.molr.server.impl;
 
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.SupervisorsManagerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implementation of a {@link SupervisorsManager} which choose the first found idle appropriate
+ * Implementation of a {@link SupervisorsManager} which chooses the first found idle appropriate
  * supervisor to execute a mission
  *
  * @author yassine-kr
@@ -28,6 +27,8 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
     private ConcurrentMap<String, RemoteMoleSupervisor> supervisorsRegistry = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Vector<RemoteMoleSupervisor>> possibleSupervisorsRegistry = new ConcurrentHashMap<>();
 
+    private HashSet<SupervisorsManagerListener> managerListeners = new HashSet<>();
+
     @Override
     public String addSupervisor(RemoteMoleSupervisor supervisor, List<String> missionsAccepted) {
         String id = makeEId();
@@ -36,7 +37,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             possibleSupervisorsRegistry.putIfAbsent(missiomName, new Vector<RemoteMoleSupervisor>());
             possibleSupervisorsRegistry.get(missiomName).add(supervisor);
         });
-        LOGGER.info("A Supervisor Server registred to MolR server id {}", id);
+        LOGGER.info("A Supervisor Server registered to MolR server id {}", id);
         return id;
     }
 
@@ -46,7 +47,9 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         possibleSupervisorsRegistry.forEach((mis, vec) -> {
             vec.remove(supervisor);
         });
-        LOGGER.info("Supervisor Server {} unregistred from MolR server", id);
+        notifyRemovedSupervisor(id);
+        supervisor.close();
+        LOGGER.info("Supervisor Server {} unregistered from MolR server", id);
     }
 
     @Override
@@ -56,6 +59,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         });
     }
 
+    //TODO find the reason of a NoSupervisorFoundException thrown sometimes
     @Override
     public synchronized Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {
 
@@ -77,6 +81,15 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
             return Optional.empty();
         });
 
+    }
+
+    @Override
+    public void addListener(SupervisorsManagerListener listener) {
+        managerListeners.add(listener);
+    }
+
+    private void notifyRemovedSupervisor(String supervisorId) {
+        managerListeners.forEach((listener) -> listener.onSupervisorRemoved(supervisorId));
     }
 
     private String makeEId() {

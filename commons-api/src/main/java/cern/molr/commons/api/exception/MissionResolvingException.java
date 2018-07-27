@@ -1,7 +1,7 @@
 package cern.molr.commons.api.exception;
 
 /**
- * Thrown when there an error while attempting to resolve a mission class from a mission name
+ * Thrown when there is an error while attempting to resolve a mission class from a mission name
  *
  * @author yassine-kr
  */

@@ -1,32 +1,25 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Response to a register request sent back by the MolR server
+ * Response to a registration request, sent back by the MolR server to the supervisor
  *
  * @author yassine-kr
  */
-public interface SupervisorRegisterResponse extends TryResponse<SupervisorRegisterResponseBean> {
+public final class SupervisorRegisterResponse extends Response<SupervisorRegisterResponseBean> {
 
-
-    class SupervisorRegisterResponseSuccess extends TryResponseSuccess<SupervisorRegisterResponseBean>
-            implements SupervisorRegisterResponse {
-
-        public SupervisorRegisterResponseSuccess(@JsonProperty("success") SupervisorRegisterResponseBean responseBean) {
-            super(responseBean);
-        }
+    public SupervisorRegisterResponse(@JsonProperty("result") SupervisorRegisterResponseBean result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class SupervisorRegisterResponseFailure extends TryResponseFailure<SupervisorRegisterResponseBean>
-            implements SupervisorRegisterResponse {
+    public SupervisorRegisterResponse(SupervisorRegisterResponseBean result) {
+        super(result);
+    }
 
-        public SupervisorRegisterResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public SupervisorRegisterResponse(Throwable throwable) {
+        super(throwable);
     }
 
 }

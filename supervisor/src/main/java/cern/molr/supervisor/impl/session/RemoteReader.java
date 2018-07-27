@@ -51,7 +51,7 @@ public abstract class RemoteReader implements AutoCloseable {
     }
 
     /**
-     * A constructor which define a delay before launching the periodic reader
+     * A constructor which defines a delay before launching the periodic reader
      *
      * @param reader
      * @param readingInterval

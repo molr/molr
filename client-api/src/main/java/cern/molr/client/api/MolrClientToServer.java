@@ -22,9 +22,9 @@ public interface MolrClientToServer {
      * @param missionArguments the mission arguments
      * @param mapper           the function to apply on the mission id received from the server
      * @param <I>              the argument type
-     * @param <C>              the published element type (it is generally a controller)
+     * @param <C>              the published element type
      *
-     * @return a stream of one element
+     * @return a stream of one element (it is generally a mission controller)
      */
     <I, C> Publisher<C> instantiate(String missionName, I missionArguments, Function<String, C> mapper);
 

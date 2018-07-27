@@ -15,14 +15,14 @@ import java.io.Serializable;
 public interface Mission extends Serializable {
 
     /**
-     * The class name of the mole which has the responsibility to run the mission
+     * The {@link Class} name of the mole which has the responsibility to run the mission
      *
      * @return the mole class name
      */
     String getMoleClassName();
 
     /**
-     * The mission name, it is the reference to the mission code managed by the infrastructure layer
+     * The mission name, it is the reference to a mission code managed by the infrastructure layer
      *
      * @return the mission name
      */

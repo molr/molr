@@ -4,7 +4,7 @@ import cern.molr.commons.api.mission.RunWithMole;
 import cern.molr.sample.mole.RunnableMole;
 
 /**
- * A testing mission which is not accepted by the impl
+ * A testing mission which is not accepted by the MolR server
  *
  * @author yassine-kr
  */

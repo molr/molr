@@ -2,7 +2,7 @@ package cern.molr.supervisor.api.address;
 
 
 /**
- * It gets IP address and port of the supervisor in order to send it to MolR serve
+ * It gets IP address and port of the supervisor in order to send them to MolR server
  *
  * @author yassine-kr
  */

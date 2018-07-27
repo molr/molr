@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 /**
- * Implementation using Spring WebFlux
+ * Implementation using Spring WebFlux.
  *
  * @author yassine-kr
  */

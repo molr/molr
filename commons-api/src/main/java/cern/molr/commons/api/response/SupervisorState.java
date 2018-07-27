@@ -1,8 +1,13 @@
 package cern.molr.commons.api.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+
+/**
+ * A supervisor state
+ * @author yassine-kr
+ */
 public final class SupervisorState {
     private int numMissions;
     private int maxMissions;
@@ -12,7 +17,7 @@ public final class SupervisorState {
         this.maxMissions = maxMissions;
     }
 
-    @JsonIgnore
+    @JsonProperty(access=READ_ONLY)
     public boolean isAvailable() {
         return numMissions < maxMissions;
     }
@@ -43,6 +48,11 @@ public final class SupervisorState {
         int result = numMissions;
         result = 31 * result + maxMissions;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "numMissions: " + numMissions + " maxMissions: " + maxMissions;
     }
 
 }

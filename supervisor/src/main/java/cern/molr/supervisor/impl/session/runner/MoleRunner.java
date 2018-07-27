@@ -35,8 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * The entry point to execute a mission in a spawned JVM. It has a reader which reads commands from STDIN and writes
- * events
- * in STDOUT
+ * events in STDOUT
  *
  * @author nachivpn
  * @author yassine-kr
@@ -61,10 +60,10 @@ public class MoleRunner implements CommandListener {
 
             MoleRunnerArgument argument = mapper.readValue(argumentString, MoleRunnerArgument.class);
 
-            /*de-serialize mission*/
+            /*deserialize mission*/
             mission = mapper.readValue(argument.getMissionObjString(), MissionImpl.class);
 
-            /*de-serialize mission arg*/
+            /*deserialize mission arg*/
             missionInputClass = Class.forName(argument.getMissionInputClassName());
             missionInput = mapper.readValue(argument.getMissionInputObjString(), missionInputClass);
 
@@ -112,7 +111,7 @@ public class MoleRunner implements CommandListener {
     }
 
     /**
-     * Method which writes a state wrapped in an event
+     * Method which writes a state wrapped in an event to the output stream
      */
     private void sendStateEvent(MissionState state) {
         try {
@@ -123,7 +122,7 @@ public class MoleRunner implements CommandListener {
     }
 
     /**
-     * Start execution of the mission
+     * Start the mission execution
      */
     private void startMission() {
 
@@ -201,7 +200,7 @@ public class MoleRunner implements CommandListener {
     }
 
     /**
-     * kill JVM
+     * kill the JVM
      */
     private void terminate() {
         System.exit(0);

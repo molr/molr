@@ -33,7 +33,7 @@ import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
- * Class for testing client Api using mole specific commands, events and states
+ * Class for testing the client Api using mole specific commands, events and states.
  *
  * @author yassine-kr
  */
@@ -60,14 +60,14 @@ public class MoleSpecificTest {
     }
 
     /**
-     * A method which instantiate the {@link SequenceMissionExample} mission, and send three specific commands; STEP,
+     * A method which instantiates the {@link SequenceMissionExample} mission, and sends three specific commands; STEP,
      * SKIP and FINISH
      *
-     * @param execName         the name execution used when displaying results
+     * @param execName         the execution name used when displaying results
      * @param events           the events list which will be filled
      * @param commandResponses the command responses list which will be filled
      * @param states           the states list which will be filled
-     * @param finishSignal     the signal to be triggered when the all events and missions received
+     * @param finishSignal     the signal to be triggered when all events and responses are received
      */
     private void launchSequenceMissionExample(String execName, List<MissionEvent> events,
                                               List<CommandResponse> commandResponses, List<MissionState> states,
@@ -276,7 +276,7 @@ public class MoleSpecificTest {
         testTaskStarted(events.get(2), 0);
         testTaskFinished(events.get(3), 0);
         testTaskStarted(events.get(4), 2);
-        testTaskFinished(events.get(5), 2);
+        testTaskError(events.get(5), 2);
         testTaskStarted(events.get(6), 3);
         testTaskFinished(events.get(7), 3);
         Assert.assertEquals(MissionFinished.class, events.get(8).getClass());
@@ -325,6 +325,12 @@ public class MoleSpecificTest {
     private void testTaskFinished(MissionEvent event, int taskNumer) {
         Assert.assertEquals(SequenceMissionEvent.class, event.getClass());
         Assert.assertEquals(SequenceMissionEvent.Event.TASK_FINISHED, ((SequenceMissionEvent) event).getEvent());
+        Assert.assertEquals(taskNumer, ((SequenceMissionEvent) event).getTaskNumber());
+    }
+
+    private void testTaskError(MissionEvent event, int taskNumer) {
+        Assert.assertEquals(SequenceMissionEvent.class, event.getClass());
+        Assert.assertEquals(SequenceMissionEvent.Event.TASK_ERROR, ((SequenceMissionEvent) event).getEvent());
         Assert.assertEquals(taskNumer, ((SequenceMissionEvent) event).getTaskNumber());
     }
 

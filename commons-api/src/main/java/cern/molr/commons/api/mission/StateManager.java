@@ -7,7 +7,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import java.util.List;
 
 /**
- * It is used by the MoleRunner to manage its own states. It can also be used by a Mole to manage its state.
+ * It is used by the MoleRunner to manage its own states. It can also be used by a Mole to manage its states.
  *
  * @author yassine-kr
  */
@@ -26,14 +26,14 @@ public interface StateManager {
     /**
      * Method which verifies whether a command is accepted by the current state
      *
-     * @param command the command to accept
+     * @param command the command to verify
      *
      * @throws CommandNotAcceptedException if the command is not accepted
      */
     void acceptCommand(MissionCommand command) throws CommandNotAcceptedException;
 
     /**
-     * Change the current state according to an event
+     * Changes the current state according to an event
      *
      * @param event the triggered event
      */

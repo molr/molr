@@ -12,7 +12,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 /**
- * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution, it uses WebFlux
+ * WebSocket Spring Handler which handles websoscket requests for instructing a mission execution, it uses WebFlux.
  *
  * @author yassine-kr
  */
@@ -21,9 +21,9 @@ public class InstructHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstructHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public InstructHandler(ServerRestExecutionService service) {
+    public InstructHandler(ServerExecutionService service) {
         this.service = service;
     }
 
@@ -35,7 +35,7 @@ public class InstructHandler implements WebSocketHandler {
         return session.send(new DataProcessorBuilder<MissionCommandRequest, CommandResponse>(MissionCommandRequest.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::instruct)
-                .setGeneratorExceptionHandler(CommandResponse.CommandResponseFailure::new)
+                .setGeneratorExceptionHandler(CommandResponse::new)
                 .build().map(session::textMessage));
     }
 }

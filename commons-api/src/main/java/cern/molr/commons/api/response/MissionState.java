@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * A class representing a mission state triggered during a mission execution and returned to the client
+ * A class representing a mission state generated during a mission execution and returned to the client.
  *
  * @author yassine-kr
  */

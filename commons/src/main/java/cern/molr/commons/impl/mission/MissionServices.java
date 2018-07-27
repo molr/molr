@@ -4,19 +4,19 @@ import cern.molr.commons.api.mission.MissionMaterializer;
 import cern.molr.commons.api.mission.MissionResolver;
 
 /**
- * Class wrapping the services used for managing missions
+ * Class wrapping the services used for managing missions.
  *
  * @author yassine-kr
  */
 public class MissionServices {
 
     /**
-     * The resolver used to deduce the class corresponding to a mission name
+     * The resolver used to deduce the class from a mission name
      */
     private static final MissionResolver resolver = new ClassNameResolver();
 
     /**
-     * The materializer used to deduce the mole class name corresponding to a mission name
+     * The materializer used to deduce the mole class name from a missin name
      */
     private static final MissionMaterializer materializer = new AnnotatedMissionMaterializer();
 

@@ -30,8 +30,6 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 
 /**
  * Class for testing the server Api.
- * Each test can fail if the thread finishes before getting all results from impl,
- * in that case sleep duration should be increased.
  */
 public class ServerTest {
 
@@ -70,7 +68,7 @@ public class ServerTest {
         InstantiationResponse response = client.post(MolrConfig.INSTANTIATE_PATH, ServerInstantiationRequest.class, request,
                 InstantiationResponse.class).block();
 
-        Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
+        Assert.assertTrue(response.isSuccess());
 
 
         clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionId())

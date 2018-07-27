@@ -30,19 +30,16 @@ public abstract class ResponseTester {
     }
 
     public static void testCommandResponseSuccess(CommandResponse actual) {
-        Assert.assertEquals(CommandResponse.CommandResponseSuccess.class, actual.getClass());
+        Assert.assertTrue(actual.isSuccess());
     }
 
     public static void testCommandResponseFailure(CommandResponse actual) {
-        Assert.assertEquals(CommandResponse.CommandResponseFailure.class, actual.getClass());
+        Assert.assertTrue(!actual.isSuccess());
     }
 
     /**
      * Test that events list contains SESSION_INSTANTIATED, MISSION_STARTED and SESSION_TERMINATED and command
-     * responses contain two success responses
-     *
-     * @param events
-     * @param commandResponses
+     * responses list contains two success responses
      */
     public static void testInstantiateStartTerminate(List<MissionEvent> events, List<CommandResponse>
             commandResponses) {
