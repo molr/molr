@@ -137,6 +137,9 @@ public class DataExchangeBuilder<Input, Output> {
         return error -> {
             try {
                 LOGGER.error("exception in getting the result stream", error);
+                if (generatorExceptionHandler == null) {
+                    return Mono.empty();
+                }
                 return Mono.just(mapper.writeValueAsString(generatorExceptionHandler.apply(error)));
             } catch (JsonProcessingException error1) {
                 LOGGER.error("unable to serialize an output data", error1);

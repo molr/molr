@@ -9,6 +9,7 @@ import cern.molr.client.api.MissionExecutionService;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.MolrWebClient;
 import cern.molr.commons.api.web.MolrWebSocketClient;
 import cern.molr.commons.impl.web.MolrWebClientImpl;
@@ -85,6 +86,11 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             @Override
             public Publisher<MissionEvent> getEventsStream() {
                 return clientSocket.getEventsStream(missionName, missionId);
+            }
+
+            @Override
+            public Publisher<MissionState> getStatesStream() {
+                return clientSocket.getStatesStream(missionName, missionId);
             }
 
             @Override

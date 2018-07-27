@@ -3,6 +3,7 @@ package cern.molr.commons.api.web;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import org.reactivestreams.Publisher;
 
 /**
@@ -21,6 +22,11 @@ public interface MolrWebSocketClient {
      * Should return an events stream from the server
      */
     Publisher<MissionEvent> getEventsStream(String missionName, String missionId);
+
+    /**
+     * Should return a states stream from the server
+     */
+    Publisher<MissionState> getStatesStream(String missionName, String missionId);
 
     /**
      * Should send a command request to the server and return a stream of one element containing the command response

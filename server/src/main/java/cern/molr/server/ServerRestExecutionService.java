@@ -11,6 +11,8 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.sample.mission.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
@@ -18,6 +20,7 @@ import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +77,15 @@ public class ServerRestExecutionService {
 
     public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
-        return optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running"));
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> ! (event instanceof MissionStateEvent));
+    }
+
+    public Publisher<MissionState> getStatesStream(String mEId) throws UnknownMissionException {
+        Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> (event instanceof MissionStateEvent))
+                .map((event -> ((MissionStateEvent)event).getState()));
     }
 
     private String makeEId() {
