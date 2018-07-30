@@ -42,7 +42,6 @@ public class TypesTest {
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
     private MissionExecutionService service = new MissionExecutionServiceImpl("http://localhost", 8000);
-    ;
 
 
     @Before
