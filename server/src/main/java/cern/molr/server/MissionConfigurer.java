@@ -12,7 +12,7 @@ import java.util.Optional;
 
 
 @Configuration
-@PropertySource(value = "classpath:${mission.fileConfig:mission.properties}",
+@PropertySource(value = "${mission.fileConfig:'classpath:mission.properties'}",
         ignoreResourceNotFound = true)
 public class MissionConfigurer {
 
@@ -23,7 +23,7 @@ public class MissionConfigurer {
     }
 
     @Bean
-    public RegisteredMissions getSupervisorConfig() {
+    public RegisteredMissions registeredMisions() {
         List<String> missions = Optional.ofNullable(env.getProperty("missions"))
                 .map((s) -> s.split(",")).map(Arrays::asList).orElse(Collections.emptyList());
         return new RegisteredMissions(missions);
