@@ -38,8 +38,9 @@ public class SequenceCommand implements MissionCommand {
     }
 
     public enum Command {
-        STEP,//run the current task
+        STEP,//run one task
         SKIP,//skip the current task
-        FINISH//finish all the remaining tasks
+        RESUME,//execute tasks automatically
+        PAUSE//stop the automatic execution of tasks
     }
 }

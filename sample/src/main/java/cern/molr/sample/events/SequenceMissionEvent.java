@@ -40,9 +40,11 @@ public class SequenceMissionEvent implements MissionEvent {
     }
 
     public enum Event {
-        TASK_STARTED,
-        TASK_FINISHED,
-        TASK_SKIPPED,
-        TASK_ERROR
+        TASK_STARTED,//When a tsak is started
+        TASK_FINISHED,//When a task is finished
+        TASK_SKIPPED,//When a task is skipped
+        TASK_ERROR,
+        RESUMED,
+        PAUSED
     }
 }
