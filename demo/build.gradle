@@ -1,3 +1,4 @@
 dependencies {
     compile project(":client")
+    compile project(":sample")
 }

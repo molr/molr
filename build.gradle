@@ -31,7 +31,15 @@ allprojects {
             csv.enabled false
         }
     }
+
 }
+
+subprojects {
+    jar {
+    }
+}
+
+
 
 
 

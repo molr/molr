@@ -9,11 +9,15 @@ import cern.molr.commons.api.exception.NoSupervisorFoundException;
 import cern.molr.commons.api.exception.UnknownMissionException;
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
-import cern.molr.commons.api.response.*;
-import cern.molr.commons.api.web.SimpleSubscriber;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.api.response.SupervisorInfo;
 import cern.molr.commons.events.MissionStateEvent;
-import cern.molr.sample.mission.*;
-import cern.molr.server.api.*;
+import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.SupervisorsManagerListener;
+import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Processor;
@@ -49,13 +53,13 @@ public class ServerExecutionService {
         this.config = config;
 
         //TODO remove this init code after implementing a deployment service
-        registry.registerNewMission(RunnableHelloWriter.class.getName());
-        registry.registerNewMission(IntDoubler.class.getName());
-        registry.registerNewMission(Fibonacci.class.getName());
+        registry.registerNewMission("cern.molr.sample.mission.RunnableHelloWriter");
+        registry.registerNewMission("cern.molr.sample.mission.IntDoubler");
+        registry.registerNewMission("cern.molr.sample.mission.Fibonacci");
         //Just for testing, normally missions must be verified before deployment
-        registry.registerNewMission(IncompatibleMission.class.getName());
-        registry.registerNewMission(RunnableExceptionMission.class.getName());
-        registry.registerNewMission(SequenceMissionExample.class.getName());
+        registry.registerNewMission("cern.molr.sample.mission.IncompatibleMission");
+        registry.registerNewMission("cern.molr.sample.mission.RunnableExceptionMission");
+        registry.registerNewMission("cern.molr.sample.mission.SequenceMissionExample");
 
         this.supervisorsManager = supervisorsManager;
 
