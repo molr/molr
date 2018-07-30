@@ -24,6 +24,7 @@ public class SequenceMoleStateManager implements StateManager {
     private HashSet<StateManagerListener> listeners = new HashSet<>();
     private int currentTask = 0;
     private State state = State.WAITING;
+    private boolean automatic = false;
 
     public SequenceMoleStateManager(int numTasks) {
         this.numTasks = numTasks;
@@ -38,6 +39,8 @@ public class SequenceMoleStateManager implements StateManager {
                 return "WAITING NEXT TASK " + currentTask;
             case FINISHED:
                 return "ALL TASKS FINISHED";
+            case RUNNING_AUTOMATIC:
+                return "RUNNING TASK AUTOMATIC " + currentTask;
         }
         return "UNKNOWN STATE";
     }
@@ -48,7 +51,9 @@ public class SequenceMoleStateManager implements StateManager {
         if (state.equals(State.WAITING)) {
             possibles.add(new SequenceCommand(SequenceCommand.Command.STEP));
             possibles.add(new SequenceCommand(SequenceCommand.Command.SKIP));
-            possibles.add(new SequenceCommand(SequenceCommand.Command.FINISH));
+            possibles.add(new SequenceCommand(SequenceCommand.Command.RESUME));
+        } else if (state.equals(State.RUNNING_AUTOMATIC)) {
+            possibles.add(new SequenceCommand(SequenceCommand.Command.PAUSE));
         }
         return possibles;
     }
@@ -61,7 +66,15 @@ public class SequenceMoleStateManager implements StateManager {
         }
         if (state.equals(State.RUNNING) || state.equals(State.FINISHED)) {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
-                    "finished");
+                    "finished, no possibles commands");
+        } else if (state.equals(State.RUNNING_AUTOMATIC)) {
+            if (!((SequenceCommand) command).getCommand().equals(SequenceCommand.Command.PAUSE)) {
+                throw new CommandNotAcceptedException("Command not accepted by the Mole; the only possible command when " +
+                        "the mission is running automatically is PAUSE");
+            }
+        } else if (((SequenceCommand) command).getCommand().equals(SequenceCommand.Command.PAUSE)) {
+            throw new CommandNotAcceptedException("Command not accepted by the Mole; PAUSE command is not accepted " +
+                    "when the mission is waiting");
         }
     }
 
@@ -70,8 +83,22 @@ public class SequenceMoleStateManager implements StateManager {
         if (event instanceof SequenceMissionEvent) {
             SequenceMissionEvent e = (SequenceMissionEvent) event;
             switch (e.getEvent()) {
+                case RESUMED:
+                    automatic = true;
+                    break;
+                case PAUSED:
+                    automatic = false;
+                    if (e.getTaskNumber() < numTasks) {
+                        state = State.WAITING;
+                        notifyListeners();
+                    }
+                    break;
                 case TASK_STARTED:
-                    state = State.RUNNING;
+                    if (automatic) {
+                        state = State.RUNNING_AUTOMATIC;
+                    } else {
+                        state = State.RUNNING;
+                    }
                     notifyListeners();
                     break;
                 case TASK_ERROR:
@@ -79,11 +106,14 @@ public class SequenceMoleStateManager implements StateManager {
                 case TASK_SKIPPED:
                     if (e.getTaskNumber() == numTasks - 1) {
                         state = State.FINISHED;
+                        notifyListeners();
                     } else {
-                        state = State.WAITING;
                         currentTask = e.getTaskNumber() + 1;
+                        if (!automatic) {
+                            state = State.WAITING;
+                            notifyListeners();
+                        }
                     }
-                    notifyListeners();
                     break;
             }
         }
@@ -107,6 +137,7 @@ public class SequenceMoleStateManager implements StateManager {
     private enum State {
         WAITING,
         RUNNING,
-        FINISHED
+        FINISHED,
+        RUNNING_AUTOMATIC
     }
 }

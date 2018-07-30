@@ -32,7 +32,8 @@ public class GUIExample {
     private JButton terminateButton;
     private JButton stepButton;
     private JButton skipButton;
-    private JButton finishButton;
+    private JButton resumeButton;
+    private JButton pauseButton;
 
     private DefaultListModel<String> eventsListModel = new DefaultListModel<>();
     private DefaultListModel<String> statesListModel = new DefaultListModel<>();
@@ -66,7 +67,8 @@ public class GUIExample {
                 "commands</i></strong></h3><hr></html>");
         stepButton = new JButton("STEP");
         skipButton = new JButton("SKIP");
-        finishButton = new JButton("FINISH");
+        resumeButton = new JButton("RESUME");
+        pauseButton = new JButton("PAUSE");
         JLabel commandsResponsesLabel = new JLabel("<html><h3><strong><i>Command " +
                 "responses</i></strong></h3><hr></html>");
         commandResponsesList= new JList<>(commandsResponsesListModel);
@@ -89,7 +91,8 @@ public class GUIExample {
         terminateButton.setEnabled(false);
         stepButton.setEnabled(false);
         skipButton.setEnabled(false);
-        finishButton.setEnabled(false);
+        resumeButton.setEnabled(false);
+        pauseButton.setEnabled(false);
 
         commandsPanel.add(instantiateButton);
         commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -105,7 +108,9 @@ public class GUIExample {
         commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
         commandsPanel.add(skipButton);
         commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
-        commandsPanel.add(finishButton);
+        commandsPanel.add(resumeButton);
+        commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
+        commandsPanel.add(pauseButton);
         commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
         commandsPanel.add(commandsResponsesLabel);
         commandsPanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -261,12 +266,32 @@ public class GUIExample {
                                         }
                                     }));
 
-                            finishButton.addActionListener(e1 -> controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                            resumeButton.addActionListener(e1 -> controller.instruct(new SequenceCommand
+                                    (SequenceCommand.Command.RESUME))
                                     .subscribe(new SimpleSubscriber<CommandResponse>() {
                                         @Override
                                         public void consume(CommandResponse response) {
                                             displayCommandResponse(new SequenceCommand(SequenceCommand.Command
-                                                    .FINISH), response);
+                                                    .RESUME), response);
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable throwable) {
+                                            throwable.printStackTrace();
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+
+                                        }
+                                    }));
+                            pauseButton.addActionListener(e1 -> controller.instruct(new SequenceCommand
+                                    (SequenceCommand.Command.PAUSE))
+                                    .subscribe(new SimpleSubscriber<CommandResponse>() {
+                                        @Override
+                                        public void consume(CommandResponse response) {
+                                            displayCommandResponse(new SequenceCommand(SequenceCommand.Command
+                                                    .PAUSE), response);
                                         }
 
                                         @Override
@@ -318,13 +343,14 @@ public class GUIExample {
                 if (!state.getStatus().equals("MISSION STARTED")) {
                     stepButton.setEnabled(false);
                     skipButton.setEnabled(false);
-                    finishButton.setEnabled(false);
+                    resumeButton.setEnabled(false);
                 }
                 break;
             case MOLE:
                 stepButton.setEnabled(false);
                 skipButton.setEnabled(false);
-                finishButton.setEnabled(false);
+                resumeButton.setEnabled(false);
+                pauseButton.setEnabled(false);
                 for (MissionCommand command : state.getPossibleCommands()) {
                     if (command instanceof SequenceCommand && ((SequenceCommand) command).getCommand()
                             .equals(SequenceCommand.Command.STEP)) {
@@ -333,8 +359,11 @@ public class GUIExample {
                             .equals(SequenceCommand.Command.SKIP)) {
                         skipButton.setEnabled(true);
                     } else if (command instanceof SequenceCommand && ((SequenceCommand) command).getCommand()
-                            .equals(SequenceCommand.Command.FINISH)) {
-                        finishButton.setEnabled(true);
+                            .equals(SequenceCommand.Command.RESUME)) {
+                        resumeButton.setEnabled(true);
+                    } else if (command instanceof SequenceCommand && ((SequenceCommand) command).getCommand()
+                            .equals(SequenceCommand.Command.PAUSE)) {
+                        pauseButton.setEnabled(true);
                     }
                 }
                 break;

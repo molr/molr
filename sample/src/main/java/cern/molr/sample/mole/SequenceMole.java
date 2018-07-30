@@ -44,6 +44,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
     private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
     private StateManager stateManager;
+    private boolean pause;
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -104,12 +105,12 @@ public class SequenceMole implements Mole<Void, Void> {
                 stateManager.changeState(new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_SKIPPED, ""));
                 nextTask();
                 break;
-            case FINISH:
-                new Thread(() -> {
-                    for (; currentTask < tasks.size(); ) {
-                        runTask();
-                    }
-                }).start();
+            case RESUME:
+                pause = false;
+                new Thread(this::runTasks).start();
+                break;
+            case PAUSE:
+                pause = true;
                 break;
         }
     }
@@ -134,6 +135,16 @@ public class SequenceMole implements Mole<Void, Void> {
         eventsProcessor.onNext(event);
         stateManager.changeState(event);
         nextTask();
+    }
+
+    private void runTasks() {
+        MissionEvent event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.RESUMED, "");
+        stateManager.changeState(event);
+        do {
+            runTask();
+        } while (!pause && currentTask < tasks.size());
+        event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.PAUSED, "");
+        stateManager.changeState(event);
     }
 
     @Override
