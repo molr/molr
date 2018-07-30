@@ -8,14 +8,18 @@ import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.*;
+import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionExceptionEvent;
+import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.supervisor.api.session.runner.CommandListener;
-import cern.molr.supervisor.api.session.runner.MoleRunnerState;
 import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * The entry point to execute a mission in a spawned JVM. It has a reader which reads commands from STDIN and writes
- * events
- * in STDOUT
+ * events in STDOUT
  *
  * @author nachivpn
  * @author yassine-kr
@@ -45,57 +48,81 @@ public class MoleRunner implements CommandListener {
     private Object missionInput;
     private Class<?> missionInputClass;
     private CommandsReader reader;
-    private MoleRunnerState moleRunnerState = new MoleRunnerStateImpl();
+    private StateManager stateManager = new MoleRunnerStateManager();
     private Mole<Object, Object> mole;
+    private ObjectMapper mapper;
 
     public MoleRunner(String argumentString) {
 
-        ObjectMapper mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
 
         try {
 
             MoleRunnerArgument argument = mapper.readValue(argumentString, MoleRunnerArgument.class);
 
-            /*de-serialize mission*/
+            /*deserialize mission*/
             mission = mapper.readValue(argument.getMissionObjString(), MissionImpl.class);
 
-            /*de-serialize mission arg*/
+            /*deserialize mission arg*/
             missionInputClass = Class.forName(argument.getMissionInputClassName());
             missionInput = mapper.readValue(argument.getMissionInputObjString(), missionInputClass);
+
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+            mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+            stateManager.addListener(() -> sendStateEvent(new MissionState(MissionState.Level.MOLE_RUNNER, stateManager.getStatus(),
+                    stateManager.getPossibleCommands())));
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED));
+            }));
+
+            sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED));
 
             reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
 
         } catch (Exception error) {
-            error.printStackTrace();
+            LOGGER.error("Error while initializing the session", error);
             System.exit(-1);
         }
     }
 
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length < 1) {
             throw new IllegalArgumentException("The MoleRunner#main must receive at least 2 arguments, being them" +
                     " the fully qualified domain name of the Mole to be used and the fully qualified domain name of " +
                     "the Mission to be executed");
         }
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED)));
         new MoleRunner(args[0]);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED)));
-            } catch (JsonProcessingException error) {
-                error.printStackTrace();
-            }
-        }));
         while (true) ;
     }
 
     /**
-     * Start execution of the mission
+     * Method which writes an event to the output stream
+     */
+    private void sendEvent(MissionEvent event) {
+        stateManager.changeState(event);
+        try {
+            System.out.println(mapper.writeValueAsString(event));
+        } catch (JsonProcessingException error) {
+            LOGGER.error("unable to serialize an event [{}]", event, error);
+        }
+    }
+
+    /**
+     * Method which writes a state wrapped in an event to the output stream
+     */
+    private void sendStateEvent(MissionState state) {
+        try {
+            System.out.println(mapper.writeValueAsString(new MissionStateEvent(state)));
+        } catch (JsonProcessingException error) {
+            LOGGER.error("unable to serialize a state event [{}]", state, error);
+        }
+    }
+
+    /**
+     * Start the mission execution
      */
     private void startMission() {
 
@@ -110,11 +137,26 @@ public class MoleRunner implements CommandListener {
                 mole.getEventsPublisher().subscribe(new SimpleSubscriber<MissionEvent>() {
                     @Override
                     public void consume(MissionEvent event) {
-                        try {
-                            System.out.println(mapper.writeValueAsString(event));
-                        } catch (JsonProcessingException error) {
-                            LOGGER.error("unable to serialize a mole event", error);
-                        }
+                        sendEvent(event);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+
+            if (mole.getStatesPublisher() != null) {
+                mole.getStatesPublisher().subscribe(new SimpleSubscriber<MissionState>() {
+                    @Override
+                    public void consume(MissionState state) {
+                        sendStateEvent(state);
                     }
 
                     @Override
@@ -138,40 +180,27 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            System.out.println(mapper.writeValueAsString(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED)));
-
-            moleRunnerState.changeState();
+            sendEvent(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED));
 
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {
                     MissionEvent missionFinishedEvent =
-                            new MissionFinished(mission.getMissionName(), future.get());
-                    System.out.println(mapper.writeValueAsString(missionFinishedEvent));
-                } catch (JsonProcessingException error) {
-                    LOGGER.error("unable to serialize an event", error);
+                            new MissionFinished(future.get());
+                    sendEvent(missionFinishedEvent);
                 } catch (ExecutionException | InterruptedException error) {
-                    try {
-                        System.out.println(mapper.writeValueAsString(new MissionExceptionEvent(error.getCause())));
-                    } catch (JsonProcessingException error1) {
-                        LOGGER.error("unable to serialize an event", error1);
-                    }
+                    sendEvent(new MissionExceptionEvent(error.getCause()));
                 }
                 System.exit(0);
                 return null;
             });
-        } catch (JsonProcessingException error) {
-            LOGGER.error("unable to serialize an event", error);
         } catch (Exception error) {
-            try {
-                System.out.println(mapper.writeValueAsString(new MissionExceptionEvent(error)));
-            } catch (JsonProcessingException error1) {
-                LOGGER.error("unable to serialize an event", error1);
-            }
+            sendEvent(new MissionExceptionEvent(error));
+            System.exit(-1);
         }
     }
 
     /**
-     * kill JVM
+     * kill the JVM
      */
     private void terminate() {
         System.exit(0);
@@ -189,11 +218,11 @@ public class MoleRunner implements CommandListener {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try {
             if (command instanceof MissionControlCommand) {
-                moleRunnerState.acceptCommand(command);
+                stateManager.acceptCommand(command);
 
                 CommandStatus commandStatus = new CommandStatus(true,
                         "command accepted by the MoleRunner");
-                System.out.println(mapper.writeValueAsString(commandStatus));
+                sendEvent(commandStatus);
 
                 MissionControlCommand c = (MissionControlCommand) command;
                 switch (c.getCommand()) {
@@ -209,19 +238,13 @@ public class MoleRunner implements CommandListener {
 
                 CommandStatus commandStatus = new CommandStatus(true,
                         "command accepted by the Mole");
-                System.out.println(mapper.writeValueAsString(commandStatus));
+                sendEvent(commandStatus);
             }
 
 
-        } catch (JsonProcessingException error) {
-            LOGGER.error("unable to serialize a command status", error);
         } catch (CommandNotAcceptedException error) {
-            try {
-                CommandStatus commandStatus = new CommandStatus(error);
-                System.out.println(mapper.writeValueAsString(commandStatus));
-            } catch (JsonProcessingException error1) {
-                LOGGER.error("unable to serialize a command status", error1);
-            }
+            CommandStatus commandStatus = new CommandStatus(error);
+            sendEvent(commandStatus);
         }
     }
 }

@@ -2,7 +2,7 @@ package cern.molr.commons.api.exception;
 
 
 /**
- * Thrown when the supervisor reject the execution of a command because of the current session state
+ * Thrown when the supervisor rejects the execution of a command because of the current session state
  *
  * @author yassine-kr
  */

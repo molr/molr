@@ -2,7 +2,7 @@ package cern.molr.server;
 
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.commons.web.DataExchangeBuilder;
+import cern.molr.commons.web.DataProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting the events stream concerning a mission
- * execution, it uses WebFlux
+ * execution, it uses WebFlux.
  *
  * @author yassine-kr
  */
@@ -22,9 +22,9 @@ public class EventsStreamHandler implements WebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsStreamHandler.class);
 
-    private final ServerRestExecutionService service;
+    private final ServerExecutionService service;
 
-    public EventsStreamHandler(ServerRestExecutionService service) {
+    public EventsStreamHandler(ServerExecutionService service) {
         this.service = service;
     }
 
@@ -33,7 +33,7 @@ public class EventsStreamHandler implements WebSocketHandler {
 
         LOGGER.info("session created for a request received from the client: {}", session.getHandshakeInfo().getUri());
 
-        return session.send(new DataExchangeBuilder<String, MissionEvent>(String.class)
+        return session.send(new DataProcessorBuilder<String, MissionEvent>(String.class)
                 .setPreInput(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .setGenerator(service::getEventsStream)
                 .setGeneratorExceptionHandler(MissionExceptionEvent::new)

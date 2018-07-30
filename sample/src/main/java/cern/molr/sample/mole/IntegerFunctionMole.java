@@ -12,7 +12,6 @@ import cern.molr.commons.api.exception.IncompatibleMissionException;
 import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
-import cern.molr.commons.api.mission.MissionResolver;
 import cern.molr.commons.api.mission.Mole;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;

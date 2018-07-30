@@ -22,11 +22,11 @@ import reactor.core.publisher.Mono;
  * @author yassine-kr
  */
 @RestController
-public class RemoteSupervisorController {
+public class SupervisorRestController {
 
     private final MoleSupervisorService moleSupervisorService;
 
-    public RemoteSupervisorController(MoleSupervisorService service) {
+    public SupervisorRestController(MoleSupervisorService service) {
         this.moleSupervisorService = service;
     }
 
@@ -36,7 +36,7 @@ public class RemoteSupervisorController {
 
         return Mono.create((emitter) -> {
             emitter.success(new
-                    SupervisorStateResponse.SupervisorStateResponseSuccess(moleSupervisorService.getSupervisorState()));
+                    SupervisorStateResponse(moleSupervisorService.getSupervisorState()));
         });
 
     }

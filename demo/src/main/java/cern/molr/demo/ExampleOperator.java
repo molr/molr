@@ -22,7 +22,7 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 /**
  * Operator example
  *
- * @author yassine
+ * @author yassine-kr
  */
 public class ExampleOperator {
 
@@ -34,7 +34,7 @@ public class ExampleOperator {
     }
 
     /**
-     * A method which instantiate a mission and terminate it
+     * A method which instantiates a mission and terminates it
      *
      * @param execName         the name execution used when displaying results
      * @param missionClass     the mission class
@@ -90,24 +90,24 @@ public class ExampleOperator {
                     System.exit(-1);
                 }
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
-                                                                                            SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println(execName + " response to start: " + response);
-                        commandResponses.add(response);
-                        endSignal.countDown();
-                    }
+                                                                                                                      SimpleSubscriber<CommandResponse>() {
+                                                                                                                          @Override
+                                                                                                                          public void consume(CommandResponse response) {
+                                                                                                                              System.out.println(execName + " response to start: " + response);
+                                                                                                                              commandResponses.add(response);
+                                                                                                                              endSignal.countDown();
+                                                                                                                          }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                                                                                                          @Override
+                                                                                                                          public void onError(Throwable throwable) {
+                                                                                                                              throwable.printStackTrace();
+                                                                                                                          }
 
-                    @Override
-                    public void onComplete() {
+                                                                                                                          @Override
+                                                                                                                          public void onComplete() {
 
-                    }
-                });
+                                                                                                                          }
+                                                                                                                      });
 
                 try {
                     startSignal.await();

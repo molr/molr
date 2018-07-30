@@ -5,7 +5,7 @@ import cern.molr.supervisor.api.session.MissionSession;
 import java.util.Optional;
 
 /**
- * It manages a set of {@link MissionSession}s, each session is identified by the id of the mission running on it
+ * It manages a set of {@link MissionSession}s, each session is identified by the id of the mission running on it.
  *
  * @author yassine-kr
  */

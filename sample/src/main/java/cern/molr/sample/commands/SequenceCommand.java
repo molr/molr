@@ -19,6 +19,24 @@ public class SequenceCommand implements MissionCommand {
         return command;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SequenceCommand other = (SequenceCommand) o;
+        return !(command != null ? !command.equals(other.command) : other.command != null);
+
+    }
+
+    @Override
+    public String toString() {
+        return command.toString();
+    }
+
     public enum Command {
         STEP,//run the current task
         SKIP,//skip the current task

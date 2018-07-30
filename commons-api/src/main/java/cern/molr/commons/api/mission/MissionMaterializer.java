@@ -18,10 +18,7 @@ public interface MissionMaterializer {
     /**
      * Converts the mission name to a mission object
      *
-     * @param missionName
-     *
-     * @return the mission object containing the mole class name
-     * @throws MissionMaterializationException
+     * @return the mission object containing the mole {@link Class} name
      */
     Mission materialize(String missionName) throws MissionMaterializationException;
 

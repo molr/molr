@@ -5,7 +5,7 @@
 package cern.molr.supervisor.impl.session.runner;
 
 /**
- * Input argument type for {@link MoleRunner}
+ * Input argument for the {@link MoleRunner}
  * Should be serialized and passed as arg[0]
  *
  * @author nachivpn

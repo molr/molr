@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Implementation of a supervisor sessions manager
+ * Implementation of a supervisor sessions manager.
  *
  * @author yassine-kr
  */

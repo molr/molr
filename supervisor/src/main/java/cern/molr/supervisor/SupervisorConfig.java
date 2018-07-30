@@ -1,7 +1,7 @@
 package cern.molr.supervisor;
 
 /**
- * A supervisor configuration which contains properties of the launched supervisor
+ * A supervisor configuration which contains properties for the launched supervisor
  *
  * @author yassine-kr
  */
@@ -25,12 +25,12 @@ public class SupervisorConfig {
         return supervisorHost;
     }
 
-    public int getSupervisorPort() {
-        return supervisorPort;
-    }
-
     public void setSupervisorHost(String supervisorHost) {
         this.supervisorHost = supervisorHost;
+    }
+
+    public int getSupervisorPort() {
+        return supervisorPort;
     }
 
     public void setSupervisorPort(int supervisorPort) {

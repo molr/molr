@@ -3,7 +3,7 @@ package cern.molr.commons.api.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A request sent to MolR server the forwarded to the supervisor to execute a command
+ * A request sent by the client to MolR server then forwarded to a supervisor to execute a command
  *
  * @author yassine-kr
  */

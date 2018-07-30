@@ -1,31 +1,34 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A command response sent back to the MolR server by the supervisor then to the client after sending a command request
- * It informs the client whether the command was accepted or not
+ * A command response sent back to the MolR server by a supervisor then to the client after sending a command request.
+ * It informs the client whether the command was accepted or not.
  *
  * @author yassine-kr
  */
-public interface CommandResponse extends TryResponse<Ack> {
+public final class CommandResponse extends Response<Ack> {
 
-    class CommandResponseSuccess extends TryResponseSuccess<Ack> implements CommandResponse {
-
-        public CommandResponseSuccess(@JsonProperty("success") Ack ack) {
-            super(ack);
-        }
+    public CommandResponse(@JsonProperty("result") Ack result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class CommandResponseFailure extends TryResponseFailure<Ack> implements CommandResponse {
+    public CommandResponse(Ack result) {
+        super(result);
+    }
 
-        public CommandResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public CommandResponse(Throwable throwable) {
+        super(throwable);
+    }
 
+    @Override
+    public String toString() {
+        if (isSuccess())
+            return "Command Accepted";
+        else
+            return "Command Rejected";
     }
 
 }

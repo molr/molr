@@ -24,7 +24,7 @@ public class MissionImpl implements Mission {
     private String moleClassName;
 
     /**
-     * Class used by the exposed {@link Mission}
+     * The mission name
      */
     private String missionName;
 

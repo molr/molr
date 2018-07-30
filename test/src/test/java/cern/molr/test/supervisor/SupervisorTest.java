@@ -8,10 +8,12 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.*;
+import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.AnnotatedMissionMaterializer;
-import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
 import cern.molr.commons.web.MolrConfig;
+import cern.molr.commons.web.WebFluxWebSocketClient;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.supervisor.RemoteSupervisorMain;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
@@ -50,6 +52,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -83,6 +88,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -109,9 +117,7 @@ public class SupervisorTest {
     }
 
     /**
-     * The mission execution should be long enough to terminate the JVM before the mission is finished
-     *
-     * @throws Exception
+     * The mission execution should be long enough to terminate the session before the mission is finished
      */
     @Test
     public void terminateTest() throws Exception {
@@ -126,6 +132,9 @@ public class SupervisorTest {
 
             @Override
             public void consume(MissionEvent event) {
+                if (event instanceof MissionStateEvent) {
+                    return;
+                }
                 events.add(event);
                 signal.countDown();
             }
@@ -162,11 +171,14 @@ public class SupervisorTest {
 
         InstantiationRequest<Integer> request =
                 new InstantiationRequest<>("1", Fibonacci.class.getName(), 42);
-        MolrWebSocketClientImpl client = new MolrWebSocketClientImpl("http://localhost", 8080);
+        WebFluxWebSocketClient client = new WebFluxWebSocketClient("http://localhost", 8080);
 
         client.receiveFlux(MolrConfig.INSTANTIATE_PATH, MissionEvent.class, request)
                 .doOnError(Throwable::printStackTrace)
                 .subscribe((event) -> {
+                    if (event instanceof MissionStateEvent) {
+                        return;
+                    }
                     System.out.println("event: " + event);
                     events.add(event);
                     endSignal.countDown();

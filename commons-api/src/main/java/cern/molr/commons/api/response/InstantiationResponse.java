@@ -5,32 +5,26 @@
 package cern.molr.commons.api.response;
 
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A response sent back to the client by the MolR server after receiving an instantiation request
+ * A response sent back to the client by the MolR server after receiving an instantiation request.
  *
  * @author yassine-kr
  */
-public interface InstantiationResponse extends TryResponse<InstantiationResponseBean> {
+public final class InstantiationResponse extends Response<InstantiationResponseBean> {
 
-    class InstantiationResponseSuccess extends TryResponseSuccess<InstantiationResponseBean>
-            implements InstantiationResponse {
 
-        public InstantiationResponseSuccess(@JsonProperty("success") InstantiationResponseBean responseBean) {
-            super(responseBean);
-        }
+    public InstantiationResponse(@JsonProperty("result") InstantiationResponseBean result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class InstantiationResponseFailure extends TryResponseFailure<InstantiationResponseBean>
-            implements InstantiationResponse {
-
-        public InstantiationResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public InstantiationResponse(InstantiationResponseBean result) {
+        super(result);
     }
 
+    public InstantiationResponse(Throwable throwable) {
+        super(throwable);
+    }
 }

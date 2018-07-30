@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * Provides information about which classes shall be exposed as {@link Mission}s and which {@link Mole}
- * implementation must be used to execute the verification and running
+ * implementation must be used to execute it
  *
  * @author tiagomr
  * @author jepeders

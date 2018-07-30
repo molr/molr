@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Configuration setting mapping between urls and websocket handlers
+ * Configuration setting mapping between urls and websocket handlers.
  *
  * @author yassine-kr
  */
@@ -31,6 +31,7 @@ public class WebSocketSupervisorConfiguration {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put(MolrConfig.INSTANTIATE_PATH, new InstantiateHandler(supervisor));
         map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(supervisor));
+        map.put(MolrConfig.GET_HEARTBEAT_PATH, new HeartbeatHandler(supervisor));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setOrder(1);

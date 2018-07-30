@@ -18,19 +18,12 @@ public interface MoleSupervisor {
     /**
      * Create the MoleRunner which should execute the mission
      *
-     * @param mission
-     * @param missionArguments
-     * @param missionId
-     * @param <I>
-     *
-     * @return an events stream sent by the session controller
+     * @return an events stream sent by the session controller. This stream contains mission events and mission states.
      */
     <I> Publisher<MissionEvent> instantiate(Mission mission, I missionArguments, String missionId);
 
     /**
      * Send commands to the MoleRunner
-     *
-     * @param commandRequest
      *
      * @return a stream of one element containing the command response
      */
@@ -42,5 +35,12 @@ public interface MoleSupervisor {
      * @return the supervisor state
      */
     SupervisorState getSupervisorState();
+
+    /**
+     * A method which should return the supervisor heartbeat
+     * @param interval the time interval between two states
+     * @return the stream of supervisor states
+     */
+    Publisher<SupervisorState> getHeartbeat(int interval);
 
 }

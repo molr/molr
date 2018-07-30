@@ -16,8 +16,13 @@ public class ClientMain {
 
     public static void main(String[] args) throws Exception {
 
-        ExampleOperator operator = new ExampleOperator(new MissionExecutionServiceImpl());
-        operator.parallelExample();
+
+
+        //ExampleOperator2 operator = new ExampleOperator2(new MissionExecutionServiceImpl());
+        //operator.parallelExample();
+
+
+        new GUIExample(new MissionExecutionServiceImpl());
     }
 
 }

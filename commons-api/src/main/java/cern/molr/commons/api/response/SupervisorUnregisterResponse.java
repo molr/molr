@@ -1,32 +1,24 @@
 package cern.molr.commons.api.response;
 
-import cern.molr.commons.api.type.trye.TryResponse;
-import cern.molr.commons.api.type.trye.TryResponseFailure;
-import cern.molr.commons.api.type.trye.TryResponseSuccess;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Response to an unregistration request sent back by the MolR server
+ * Response to an unregistration request, sent back by the MolR server to the supervisor
  *
  * @author yassine-kr
  */
-public interface SupervisorUnregisterResponse extends TryResponse<Ack> {
+public final class SupervisorUnregisterResponse extends Response<Ack> {
 
-
-    class SupervisorUnregisterResponseSuccess extends TryResponseSuccess<Ack>
-            implements SupervisorUnregisterResponse {
-
-        public SupervisorUnregisterResponseSuccess(@JsonProperty("success") Ack ack) {
-            super(ack);
-        }
+    public SupervisorUnregisterResponse(@JsonProperty("result") Ack result, @JsonProperty("throwable") Throwable
+            throwable, @JsonProperty("success") boolean success) {
+        super(result, throwable, success);
     }
 
-    class SupervisorUnregisterResponseFailure extends TryResponseFailure<Ack>
-            implements SupervisorUnregisterResponse {
-
-        public SupervisorUnregisterResponseFailure(@JsonProperty("throwable") Throwable throwable) {
-            super(throwable);
-        }
+    public SupervisorUnregisterResponse(Ack result) {
+        super(result);
     }
 
+    public SupervisorUnregisterResponse(Throwable throwable) {
+        super(throwable);
+    }
 }

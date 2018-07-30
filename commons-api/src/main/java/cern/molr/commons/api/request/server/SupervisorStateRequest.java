@@ -5,7 +5,7 @@
 package cern.molr.commons.api.request.server;
 
 /**
- * A request sent by MolR server to the supervisor to get its state
+ * A request sent by MolR server to a supervisor to get its state
  *
  * @author yassine-kr
  */

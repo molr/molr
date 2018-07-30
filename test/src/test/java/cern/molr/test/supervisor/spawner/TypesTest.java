@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionExceptionEvent;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.sample.mole.RunnableMole;
 import cern.molr.supervisor.api.session.MissionSession;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * class for testing types returned by the MoleRunner
+ * class for testing object types returned by the MoleRunner
  *
  * @author yassine-kr
  */
@@ -38,13 +39,15 @@ public class TypesTest {
         List<MissionEvent> events = new ArrayList<>();
 
         controller.addMoleExecutionListener(event -> {
+            if (event instanceof MissionStateEvent) {
+                return;
+            }
             System.out.println(event);
             events.add(event);
             signal.countDown();
 
         });
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
-        controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.TERMINATE));
 
         signal.await();
 

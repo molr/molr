@@ -6,10 +6,11 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.InstantiationResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.*;
-import cern.molr.commons.impl.web.MolrWebClientImpl;
-import cern.molr.commons.impl.web.MolrWebSocketClientImpl;
+import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.web.MolrConfig;
+import cern.molr.commons.web.WebFluxRestClient;
+import cern.molr.commons.web.WebFluxWebSocketClient;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -29,15 +30,13 @@ import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANT
 
 /**
  * Class for testing the server Api.
- * Each test can fail if the thread finishes before getting all results from impl,
- * in that case sleep duration should be increased.
  */
 public class ServerTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private MolrWebClientImpl client = new MolrWebClientImpl("http://localhost", 8000);
-    private MolrWebSocketClientImpl clientSocket = new MolrWebSocketClientImpl("http://localhost", 8000);
+    private WebFluxRestClient client = new WebFluxRestClient("http://localhost", 8000);
+    private WebFluxWebSocketClient clientSocket = new WebFluxWebSocketClient("http://localhost", 8000);
 
     @Before
     public void initServers() {
@@ -69,7 +68,7 @@ public class ServerTest {
         InstantiationResponse response = client.post(MolrConfig.INSTANTIATE_PATH, ServerInstantiationRequest.class, request,
                 InstantiationResponse.class).block();
 
-        Assert.assertEquals(InstantiationResponse.InstantiationResponseSuccess.class, response.getClass());
+        Assert.assertTrue(response.isSuccess());
 
 
         clientSocket.receiveFlux(MolrConfig.EVENTS_STREAM_PATH, MissionEvent.class, response.getResult().getMissionId())

@@ -28,7 +28,7 @@ import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
- * Class for testing client Api.
+ * Class for testing the client Api.
  *
  * @author yassine-kr
  */
@@ -55,14 +55,13 @@ public class ClientTest {
     }
 
     /**
-     * A method which instantiate a mission and terminate it
+     * A method which instantiates a mission and terminates it
      *
-     * @param execName         the name execution used when displaying results
+     * @param execName         the execution name used when displaying results
      * @param missionClass     the mission class
      * @param events           the events list which will be filled
      * @param commandResponses the command responses list which will be filled
-     * @param finishSignal     the signal to be triggered when the all events and missions received
-     *
+     * @param finishSignal     the signal to be triggered when all events and responses are received
      */
     private void launchMission(String execName, Class<?> missionClass, List<MissionEvent> events,
                                List<CommandResponse>
@@ -110,24 +109,24 @@ public class ClientTest {
                     Assert.fail();
                 }
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new
-                                                                                            SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println(execName + " response to start: " + response);
-                        commandResponses.add(response);
-                        endSignal.countDown();
-                    }
+                                                                                                                      SimpleSubscriber<CommandResponse>() {
+                                                                                                                          @Override
+                                                                                                                          public void consume(CommandResponse response) {
+                                                                                                                              System.out.println(execName + " response to start: " + response);
+                                                                                                                              commandResponses.add(response);
+                                                                                                                              endSignal.countDown();
+                                                                                                                          }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                                                                                                                          @Override
+                                                                                                                          public void onError(Throwable throwable) {
+                                                                                                                              throwable.printStackTrace();
+                                                                                                                          }
 
-                    @Override
-                    public void onComplete() {
+                                                                                                                          @Override
+                                                                                                                          public void onComplete() {
 
-                    }
-                });
+                                                                                                                          }
+                                                                                                                      });
 
                 try {
                     startSignal.await();
@@ -177,13 +176,11 @@ public class ClientTest {
 
         }).start();
 
-
     }
 
     /**
      * The mission execution should be long enough to terminate the session before the mission is finished
      *
-     * @throws Exception
      */
     @Test
     public void missionTest() throws Exception {
@@ -199,10 +196,8 @@ public class ClientTest {
     }
 
     /**
-     * The mission execution should be long enough to terminate the JVM before the mission is finished
-     * Testing a sequential mission execution
-     *
-     * @throws Exception
+     * The mission execution should be long enough to terminate the session before the mission is finished
+     * Testing a sequential missions execution
      */
     @Test
     public void missionsTest() throws Exception {
@@ -367,9 +362,7 @@ public class ClientTest {
     }
 
     /**
-     * The mission execution should be long enough to terminate the JVM before the mission is finished
-     *
-     * @throws Exception
+     * The mission execution should be long enough to terminate the session before the mission is finished
      */
     @Test
     public void parallelMissionsTest() throws Exception {
