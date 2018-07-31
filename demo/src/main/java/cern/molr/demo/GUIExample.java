@@ -340,11 +340,6 @@ public class GUIExample {
                         terminateButton.setEnabled(true);
                     }
                 }
-                if (!state.getStatus().equals("MISSION STARTED")) {
-                    stepButton.setEnabled(false);
-                    skipButton.setEnabled(false);
-                    resumeButton.setEnabled(false);
-                }
                 break;
             case MOLE:
                 stepButton.setEnabled(false);
