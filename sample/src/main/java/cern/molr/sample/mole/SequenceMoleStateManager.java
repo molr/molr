@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * An implementation of the {@link StateManager} used by the {@link SequenceMole} to manage its state
- * It has three states; WAITING for a task, RUNNING a task, FINISHED all tasks
+ * It has four states; WAITING for a task, RUNNING a task, RUNNING_AUTOMATIC a task, FINISHED all tasks
  *
  * @author yassine-kr
  */
@@ -88,6 +88,7 @@ public class SequenceMoleStateManager implements StateManager {
                     break;
                 case PAUSED:
                     automatic = false;
+                    //The task number is the next task number, we test whether there are more tasks to execute
                     if (e.getTaskNumber() < numTasks) {
                         state = State.WAITING;
                         notifyListeners();
