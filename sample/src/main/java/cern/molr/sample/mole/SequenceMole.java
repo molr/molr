@@ -44,7 +44,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
     private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
     private StateManager stateManager;
-    private boolean pause;
+    private boolean pause;//Whether the mole has received a PAUSE command
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
