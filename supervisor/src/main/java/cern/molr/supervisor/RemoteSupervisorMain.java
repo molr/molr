@@ -98,7 +98,7 @@ public class RemoteSupervisorMain {
     }
 
     @Configuration
-    @PropertySource(value = "${supervisor.fileConfig:'classpath:supervisor.properties'}",
+    @PropertySource(value = "${supervisor.fileConfig:classpath:supervisor.properties}",
             ignoreResourceNotFound = true)
     public static class SupervisorConfigurer {
 
