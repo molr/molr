@@ -68,6 +68,8 @@ public class TypesTest {
         CountDownLatch startSignal = new CountDownLatch(1);
         CountDownLatch endSignal = new CountDownLatch(6);
 
+        CountDownLatch startCommandSignal = new CountDownLatch(1);
+
         List<CommandResponse> commandResponses = new ArrayList<>();
 
         Publisher<ClientMissionController> futureController = service.instantiate(Fibonacci.class.getName(), 100);
@@ -115,6 +117,7 @@ public class TypesTest {
                         System.out.println("response to start: " + response);
                         commandResponses.add(response);
                         endSignal.countDown();
+                        startCommandSignal.countDown();
                     }
 
                     @Override
@@ -127,6 +130,15 @@ public class TypesTest {
 
                     }
                 });
+
+                try {
+                    startCommandSignal.await(1, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+
+
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
