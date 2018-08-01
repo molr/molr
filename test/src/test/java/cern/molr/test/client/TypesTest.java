@@ -65,7 +65,7 @@ public class TypesTest {
     public void commandResponseTest() throws Exception {
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
-        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(2);
         CountDownLatch endSignal = new CountDownLatch(6);
 
         CountDownLatch startCommandSignal = new CountDownLatch(1);
@@ -145,6 +145,7 @@ public class TypesTest {
                         System.out.println("response to start 2: " + response);
                         commandResponses.add(response);
                         endSignal.countDown();
+                        startSignal.countDown();
                     }
 
                     @Override
