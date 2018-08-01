@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
@@ -133,7 +134,7 @@ public class MoleSpecificTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -159,7 +160,7 @@ public class MoleSpecificTest {
                                                                                                                       });
 
                 try {
-                    startSignal.await();
+                    startSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -186,7 +187,7 @@ public class MoleSpecificTest {
                         });
 
                 try {
-                    firstTaskSignal.await();
+                    firstTaskSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -247,7 +248,7 @@ public class MoleSpecificTest {
         });
         new Thread(() -> {
             try {
-                endSignal.await();
+                endSignal.await(1, TimeUnit.MINUTES);
                 finishSignal.countDown();
             } catch (InterruptedException error) {
                 error.printStackTrace();
@@ -268,7 +269,7 @@ public class MoleSpecificTest {
         CountDownLatch finishSignal = new CountDownLatch(1);
 
         launchSequenceMissionExample("exec", events, commandResponses, states, finishSignal);
-        finishSignal.await();
+        finishSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(10, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
