@@ -33,14 +33,26 @@ allprojects {
     }
 
 }
-
 subprojects {
     jar {
+
     }
 }
 
+subprojects.each { subproject -> evaluationDependsOn( subproject.path ) }
+task projectJar(type: Jar, dependsOn: subprojects.jar) {
+
+    subprojects.each { subproject ->
+        from subproject.configurations.runtime.allArtifacts.files.collect({zipTree(it)})
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 
-
-
-
+task zip(type: Zip, dependsOn: projectJar) {
+    from configurations.runtime.allArtifacts.files
+    subprojects.each { subproject ->
+        from subproject.configurations.runtime.filter { !it.path.contains("molr") }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
