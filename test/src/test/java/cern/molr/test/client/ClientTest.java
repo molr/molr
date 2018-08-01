@@ -218,6 +218,8 @@ public class ClientTest {
         CountDownLatch startSignal2 = new CountDownLatch(1);
         CountDownLatch endSignal2 = new CountDownLatch(6);
 
+        CountDownLatch startCommandSignal = new CountDownLatch(1);
+
 
         Publisher<ClientMissionController> futureController2 =
                 service.instantiate(Fibonacci.class.getCanonicalName(), 100);
@@ -267,6 +269,7 @@ public class ClientTest {
                         System.out.println("exec2 response to start: " + response);
                         commandResponses2.add(response);
                         endSignal2.countDown();
+                        startCommandSignal.countDown();
                     }
 
                     @Override
@@ -279,6 +282,13 @@ public class ClientTest {
 
                     }
                 });
+
+                try {
+                    startCommandSignal.await(1, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
 
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
