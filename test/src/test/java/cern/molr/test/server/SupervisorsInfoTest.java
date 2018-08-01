@@ -27,6 +27,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
@@ -74,7 +75,7 @@ public class SupervisorsInfoTest {
                 });
 
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(1, infos.size());
 
