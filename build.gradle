@@ -23,16 +23,47 @@ allprojects {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
 
+}
+
+subprojects {
     jacocoTestReport {
+
+        additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+        sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+        classDirectories =  files(sourceSets.main.output)
         reports {
-            xml.enabled true
-            xml.destination new File("${buildDir}/reports/jacoco/report.xml")
-            html.enabled false
-            csv.enabled false
+            html.enabled = false
+            xml.enabled = true
+            csv.enabled = false
         }
     }
-
 }
+
+
+jacocoTestReport {
+
+    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(subprojects.sourceSets.main.output)
+
+    executionData = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        xml.enabled true
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+        html.enabled false
+        csv.enabled false
+    }
+    onlyIf = {
+        true
+    }
+    doFirst {
+        executionData = files(executionData.findAll {
+            it.exists()
+        })
+    }
+}
+
+
 subprojects {
     jar {
 
