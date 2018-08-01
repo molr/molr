@@ -215,7 +215,7 @@ public class ClientTest {
         List<CommandResponse> commandResponses2 = new ArrayList<>();
 
         CountDownLatch instantiateSignal2 = new CountDownLatch(1);
-        CountDownLatch startSignal2 = new CountDownLatch(1);
+        CountDownLatch startSignal2 = new CountDownLatch(2);
         CountDownLatch endSignal2 = new CountDownLatch(6);
 
         CountDownLatch startCommandSignal = new CountDownLatch(1);
@@ -296,6 +296,7 @@ public class ClientTest {
                         System.out.println("exec2 response to start 2: " + response);
                         commandResponses2.add(response);
                         endSignal2.countDown();
+                        startSignal2.countDown();
                     }
 
                     @Override
