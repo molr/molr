@@ -12,7 +12,7 @@ import java.util.Optional;
 
 
 @Configuration
-@PropertySource(value = "${mission.fileConfig:'classpath:mission.properties'}",
+@PropertySource(value = "${mission.fileConfig:classpath:mission.properties}",
         ignoreResourceNotFound = true)
 public class MissionConfigurer {
 
