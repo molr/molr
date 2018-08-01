@@ -19,6 +19,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * class for testing {@link ControllerImpl}
@@ -49,7 +50,7 @@ public class JVMSpawnerTest {
             events.add(event);
             signal.countDown();
         });
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(1, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
     }
@@ -68,7 +69,7 @@ public class JVMSpawnerTest {
             signal.countDown();
         });
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(4, events.size());
         ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
@@ -97,7 +98,7 @@ public class JVMSpawnerTest {
         });
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.TERMINATE));
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(3, events.size());
         ResponseTester.testTerminatedEvent(events.get(2));
     }

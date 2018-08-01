@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
@@ -70,7 +71,7 @@ public class SupervisorTest {
             }
         });
 
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(1, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
     }
@@ -108,7 +109,7 @@ public class SupervisorTest {
 
         supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)));
 
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(4, events.size());
         ResponseTester.testStartedEvent(events.get(1));
         Assert.assertEquals(MissionFinished.class, events.get(2).getClass());
@@ -152,7 +153,7 @@ public class SupervisorTest {
         supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)));
         supervisor.instruct(new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.TERMINATE)));
 
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
         Assert.assertEquals(3, events.size());
     }
 
@@ -188,7 +189,7 @@ public class SupervisorTest {
                     }
                 });
 
-        instantiateSignal.await();
+        instantiateSignal.await(1, TimeUnit.MINUTES);
 
         client.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest("1", new MissionControlCommand(MissionControlCommand.Command.START)))
                 .doOnError(Throwable::printStackTrace)
@@ -197,7 +198,7 @@ public class SupervisorTest {
                     responses.add(result);
                 });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(4, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));

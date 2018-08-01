@@ -25,6 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
@@ -85,7 +86,7 @@ public class ServerTest {
                 });
 
 
-        instantiateSignal.await();
+        instantiateSignal.await(1, TimeUnit.MINUTES);
         System.out.println("sending start command");
 
         clientSocket.receiveMono(MolrConfig.INSTRUCT_PATH, CommandResponse.class, new MissionCommandRequest(response
@@ -95,7 +96,7 @@ public class ServerTest {
             commandResponses.add(result);
         });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(4, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
