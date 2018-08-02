@@ -300,7 +300,7 @@ public class MoleSpecificTest {
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
-        Assert.assertEquals("MISSION FINISHED", states.get(10).getStatus());
+        Assert.assertEquals("MISSION TASK_FINISHED", states.get(10).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, states.get(10).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(11).getLevel());
         Assert.assertEquals("SESSION TERMINATED", states.get(11).getStatus());
@@ -345,13 +345,13 @@ public class MoleSpecificTest {
 
     private void testRunningState(MissionState state, int taskNumber) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("RUNNING TASK " + taskNumber, state.getStatus());
+        Assert.assertEquals("TASK_RUNNING TASK " + taskNumber, state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 
     private void testFinishedState(MissionState state) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("ALL TASKS FINISHED", state.getStatus());
+        Assert.assertEquals("ALL TASKS TASK_FINISHED", state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 
