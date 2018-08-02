@@ -6,7 +6,7 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.SupervisorState;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.supervisor.api.session.MissionSession;
 import cern.molr.supervisor.api.supervisor.MoleSupervisor;
@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
-import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_TERMINATED;
+import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_TERMINATED;
 
 /**
  * An Implementation of {@link MoleSupervisor}
@@ -45,7 +45,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
             session = spawner.spawnMoleRunner(mission, missionArguments);
             sessionsManager.addSession(missionId, session);
             session.getController().addMoleExecutionListener((event) -> {
-                if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_TERMINATED)) {
+                if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_TERMINATED)) {
                     sessionsManager.removeSession(session);
                     try {
                         session.getController().close();
@@ -58,7 +58,7 @@ public class MoleSupervisorImpl implements MoleSupervisor {
                 session.getController().addMoleExecutionListener((event) -> {
                     emitter.next(event);
                     LOGGER.info("Event Notification from session controller: {}", event);
-                    if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_TERMINATED))
+                    if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_TERMINATED))
                         emitter.complete();
                 });
             });

@@ -1,22 +1,12 @@
 package cern.molr.test.server;
 
-import cern.molr.commons.api.request.MissionCommandRequest;
-import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.request.server.SupervisorsInfoRequest;
-import cern.molr.commons.api.response.CommandResponse;
-import cern.molr.commons.api.response.InstantiationResponse;
-import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.SupervisorInfo;
-import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
-import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.web.MolrConfig;
 import cern.molr.commons.web.WebFluxRestClient;
 import cern.molr.commons.web.WebFluxWebSocketClient;
-import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
-import cern.molr.test.ResponseTester;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing getting the supervisors info stream from the MolR server.
