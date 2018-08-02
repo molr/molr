@@ -48,7 +48,7 @@ public class MoleRunner implements CommandListener {
     private Object missionInput;
     private Class<?> missionInputClass;
     private CommandsReader reader;
-    private StateManager stateManager = new MoleRunnerStateManager();
+    private MoleRunnerStateManager stateManager = new MoleRunnerStateManager();
     private Mole<Object, Object> mole;
     private ObjectMapper mapper;
 
@@ -70,8 +70,7 @@ public class MoleRunner implements CommandListener {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
             mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
-            stateManager.addListener(() -> sendStateEvent(new MissionState(MissionState.Level.MOLE_RUNNER, stateManager.getStatus(),
-                    stateManager.getPossibleCommands())));
+            stateManager.addListener(() -> sendStateEvent(stateManager.getMoleRunnerState()));
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.SESSION_TERMINATED));
