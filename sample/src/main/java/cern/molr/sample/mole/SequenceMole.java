@@ -20,6 +20,7 @@ import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.impl.mission.MissionServices;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
+import cern.molr.sample.states.SequenceMissionState;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.DirectProcessor;
@@ -43,7 +44,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private CountDownLatch endSignal = new CountDownLatch(1);
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
     private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
-    private StateManager stateManager;
+    private SequenceMoleStateManager stateManager;
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -82,8 +83,10 @@ public class SequenceMole implements Mole<Void, Void> {
             }
             stateManager = new SequenceMoleStateManager(tasks.size());
             stateManager.addListener(() -> {
-                statesProcessor.onNext(new MissionState(MissionState.Level.MOLE, stateManager.getStatus(),
-                        stateManager.getPossibleCommands()));
+                int taskNumber = stateManager.getState() != SequenceMissionState.State.FINISHED ? stateManager
+                        .getCurrentTask() : -1;
+                statesProcessor.onNext(new SequenceMissionState(stateManager.getStatus(),
+                        stateManager.getPossibleCommands(), taskNumber, stateManager.getState()));
             });
             endSignal.await();
         } catch (Exception error) {

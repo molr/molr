@@ -7,6 +7,7 @@ import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
+import cern.molr.sample.states.SequenceMissionState;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,10 +24,18 @@ public class SequenceMoleStateManager implements StateManager {
     private final int numTasks;
     private HashSet<StateManagerListener> listeners = new HashSet<>();
     private int currentTask = 0;
-    private State state = State.WAITING;
+    private SequenceMissionState.State state = SequenceMissionState.State.WAITING;
 
     public SequenceMoleStateManager(int numTasks) {
         this.numTasks = numTasks;
+    }
+
+    public int getCurrentTask() {
+        return currentTask;
+    }
+
+    public SequenceMissionState.State getState() {
+        return state;
     }
 
     @Override
@@ -45,7 +54,7 @@ public class SequenceMoleStateManager implements StateManager {
     @Override
     public List<MissionCommand> getPossibleCommands() {
         List<MissionCommand> possibles = new ArrayList<>();
-        if (state.equals(State.WAITING)) {
+        if (state.equals(SequenceMissionState.State.WAITING)) {
             possibles.add(new SequenceCommand(SequenceCommand.Command.STEP));
             possibles.add(new SequenceCommand(SequenceCommand.Command.SKIP));
             possibles.add(new SequenceCommand(SequenceCommand.Command.FINISH));
@@ -59,7 +68,7 @@ public class SequenceMoleStateManager implements StateManager {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; it is not a known a command by " +
                     "the sequence mole");
         }
-        if (state.equals(State.RUNNING) || state.equals(State.FINISHED)) {
+        if (state.equals(SequenceMissionState.State.RUNNING) || state.equals(SequenceMissionState.State.FINISHED)) {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
                     "finished");
         }
@@ -71,16 +80,16 @@ public class SequenceMoleStateManager implements StateManager {
             SequenceMissionEvent e = (SequenceMissionEvent) event;
             switch (e.getEvent()) {
                 case TASK_STARTED:
-                    state = State.RUNNING;
+                    state = SequenceMissionState.State.RUNNING;
                     notifyListeners();
                     break;
                 case TASK_ERROR:
                 case TASK_FINISHED:
                 case TASK_SKIPPED:
                     if (e.getTaskNumber() == numTasks - 1) {
-                        state = State.FINISHED;
+                        state = SequenceMissionState.State.FINISHED;
                     } else {
-                        state = State.WAITING;
+                        state = SequenceMissionState.State.WAITING;
                         currentTask = e.getTaskNumber() + 1;
                     }
                     notifyListeners();
@@ -104,9 +113,4 @@ public class SequenceMoleStateManager implements StateManager {
         listeners.forEach(StateManagerListener::onStateChanged);
     }
 
-    private enum State {
-        WAITING,
-        RUNNING,
-        FINISHED
-    }
 }
