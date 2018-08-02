@@ -9,7 +9,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.sample.mission.Fibonacci;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
-import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing client API allowing to get the mission states stream
@@ -86,9 +86,9 @@ public class StatesTest {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                        if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
+                        } else if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         }
