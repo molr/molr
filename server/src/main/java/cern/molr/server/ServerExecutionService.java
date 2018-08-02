@@ -12,7 +12,6 @@ import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.*;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.events.MissionStateEvent;
-import cern.molr.sample.mission.*;
 import cern.molr.server.api.*;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
@@ -45,17 +44,12 @@ public class ServerExecutionService {
     private final Processor<SupervisorInfo, SupervisorInfo> processor = DirectProcessor.create();
 
 
-    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
+    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config, RegisteredMissions missions) {
         this.config = config;
 
         //TODO remove this init code after implementing a deployment service
-        registry.registerNewMission(RunnableHelloWriter.class.getName());
-        registry.registerNewMission(IntDoubler.class.getName());
-        registry.registerNewMission(Fibonacci.class.getName());
         //Just for testing, normally missions must be verified before deployment
-        registry.registerNewMission(IncompatibleMission.class.getName());
-        registry.registerNewMission(RunnableExceptionMission.class.getName());
-        registry.registerNewMission(SequenceMissionExample.class.getName());
+        missions.getMissions().forEach(registry::registerNewMission);
 
         this.supervisorsManager = supervisorsManager;
 
