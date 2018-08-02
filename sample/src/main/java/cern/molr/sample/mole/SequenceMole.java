@@ -13,14 +13,12 @@ import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
-import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.impl.mission.MissionServices;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
-import cern.molr.sample.states.SequenceMissionState;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.DirectProcessor;
@@ -83,10 +81,7 @@ public class SequenceMole implements Mole<Void, Void> {
             }
             stateManager = new SequenceMoleStateManager(tasks.size());
             stateManager.addListener(() -> {
-                int taskNumber = stateManager.getState() != SequenceMissionState.State.FINISHED ? stateManager
-                        .getCurrentTask() : -1;
-                statesProcessor.onNext(new SequenceMissionState(stateManager.getStatus(),
-                        stateManager.getPossibleCommands(), taskNumber, stateManager.getState()));
+                statesProcessor.onNext(stateManager.getSequenceMoleState());
             });
             endSignal.await();
         } catch (Exception error) {

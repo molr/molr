@@ -30,12 +30,9 @@ public class SequenceMoleStateManager implements StateManager {
         this.numTasks = numTasks;
     }
 
-    public int getCurrentTask() {
-        return currentTask;
-    }
-
-    public SequenceMissionState.State getState() {
-        return state;
+    public SequenceMissionState getSequenceMoleState() {
+        int taskNumber = state == SequenceMissionState.State.FINISHED ? currentTask : -1;
+        return new SequenceMissionState(getStatus(), getPossibleCommands(), taskNumber, state);
     }
 
     @Override
