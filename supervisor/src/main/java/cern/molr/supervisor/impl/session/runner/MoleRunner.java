@@ -14,7 +14,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionStateEvent;
@@ -74,10 +74,10 @@ public class MoleRunner implements CommandListener {
                     stateManager.getPossibleCommands())));
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED));
+                sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.SESSION_TERMINATED));
             }));
 
-            sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED));
+            sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.SESSION_INSTANTIATED));
 
             reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
 
@@ -180,7 +180,7 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            sendEvent(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED));
+            sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.MISSION_STARTED));
 
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {

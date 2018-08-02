@@ -6,7 +6,7 @@ import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 
@@ -76,8 +76,8 @@ public class MoleRunnerStateManager implements StateManager {
 
     @Override
     public void changeState(MissionEvent event) {
-        if (event instanceof MissionControlEvent) {
-            MissionControlEvent e = (MissionControlEvent) event;
+        if (event instanceof MissionRunnerEvent) {
+            MissionRunnerEvent e = (MissionRunnerEvent) event;
             switch (e.getEvent()) {
                 case MISSION_STARTED:
                     state = State.MISSION_STARTED;
