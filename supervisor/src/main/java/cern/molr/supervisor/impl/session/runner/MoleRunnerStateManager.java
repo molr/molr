@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * An implementation of the {@link StateManager} used by the MoleRunner.
- * It has these states so far, MISSION STARTED, MISSION NOT YET STARTED, MISSION FINISHED, MISSION ERROR, SESSION
+ * It has these states so far, MISSION STARTED, MISSION NOT YET STARTED, MISSION TASK_FINISHED, MISSION ERROR, SESSION
  * TERMINATED
  *
  * @author yassine-kr
@@ -39,7 +39,7 @@ public class MoleRunnerStateManager implements StateManager {
             case MISSION_STARTED:
                 return "MISSION STARTED";
             case MISSION_FINISHED:
-                return "MISSION FINISHED";
+                return "MISSION TASK_FINISHED";
             case MISSION_ERROR:
                 return "MISSION ERROR";
             case SESSION_TERMINATED:
