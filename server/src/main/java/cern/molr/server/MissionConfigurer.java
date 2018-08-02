@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 
+/**
+ * Server {@link Configuration} for missions.
+ *
+ * @author asvec, astanisz
+ */
 @Configuration
 @PropertySource(value = "${mission.fileConfig:classpath:mission.properties}",
         ignoreResourceNotFound = true)
