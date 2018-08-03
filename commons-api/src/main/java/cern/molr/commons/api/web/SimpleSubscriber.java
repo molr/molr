@@ -27,5 +27,9 @@ public abstract class SimpleSubscriber<T> implements Subscriber<T> {
         subscription.request(1);
     }
 
+    public void cancel() {
+        subscription.cancel();
+    }
+
     public abstract void consume(T t);
 }

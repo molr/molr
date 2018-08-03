@@ -15,7 +15,7 @@ import org.reactivestreams.Publisher;
 public interface MissionExecutionService {
 
     /**
-     * A method which instantiates a mission
+     * A method which instantiates a mission. This method is asynchronous
      *
      * @param missionName      the name of the mission to be instantiated
      * @param missionArguments the mission arguments, can be null if the mission does not need any arguments
@@ -25,4 +25,9 @@ public interface MissionExecutionService {
      */
     <I> Publisher<ClientMissionController> instantiate(String missionName, I missionArguments);
 
+
+    /**
+     * A synchronous version of the {@link MissionExecutionService#instantiate(String, Object)} method
+     */
+    <I> ClientMissionController instantiateSync(String missionName, I missionArguments) throws MissionExecutionServiceException;
 }
