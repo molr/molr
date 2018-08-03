@@ -9,10 +9,11 @@ import cern.molr.commons.api.exception.NoSupervisorFoundException;
 import cern.molr.commons.api.exception.UnknownMissionException;
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
-import cern.molr.commons.api.response.*;
-import cern.molr.commons.api.web.SimpleSubscriber;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.api.response.SupervisorInfo;
 import cern.molr.commons.events.MissionStateEvent;
-import cern.molr.server.api.*;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.SupervisorsManagerListener;
@@ -57,12 +58,8 @@ public class ServerExecutionService {
 
         this.supervisorsManager = supervisorsManager;
 
-        this.supervisorsManager.addListener(new SupervisorsManagerListener() {
-            @Override
-            public void onSupervisorRemoved(String supervisorId) {
-                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB));
-            }
-        });
+        this.supervisorsManager.addListener(supervisorId ->
+                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB)));
     }
 
 
