@@ -45,6 +45,6 @@ public class SequenceMissionState extends MissionState {
     public enum State {
         WAITING,
         TASK_RUNNING,
-        TASK_FINISHED
+        TASKS_FINISHED
     }
 }

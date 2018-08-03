@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * An implementation of the {@link StateManager} used by the {@link SequenceMole} to manage its state
- * It has three states; WAITING for a task, TASK_RUNNING a task, TASK_FINISHED all tasks
+ * It has three states; WAITING for a task, TASK_RUNNING a task, TASKS_FINISHED all tasks
  *
  * @author yassine-kr
  */
@@ -31,7 +31,7 @@ public class SequenceMoleStateManager implements StateManager {
     }
 
     public SequenceMissionState getSequenceMoleState() {
-        int taskNumber = state == SequenceMissionState.State.TASK_FINISHED ? currentTask : -1;
+        int taskNumber = state == SequenceMissionState.State.TASKS_FINISHED ? currentTask : -1;
         return new SequenceMissionState(getStatus(), getPossibleCommands(), taskNumber, state);
     }
 
@@ -42,8 +42,8 @@ public class SequenceMoleStateManager implements StateManager {
                 return "TASK_RUNNING TASK " + currentTask;
             case WAITING:
                 return "WAITING NEXT TASK " + currentTask;
-            case TASK_FINISHED:
-                return "ALL TASKS TASK_FINISHED";
+            case TASKS_FINISHED:
+                return "ALL TASKS TASKS_FINISHED";
         }
         return "UNKNOWN STATE";
     }
@@ -65,7 +65,7 @@ public class SequenceMoleStateManager implements StateManager {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; it is not a known a command by " +
                     "the sequence mole");
         }
-        if (state.equals(SequenceMissionState.State.TASK_RUNNING) || state.equals(SequenceMissionState.State.TASK_FINISHED)) {
+        if (state.equals(SequenceMissionState.State.TASK_RUNNING) || state.equals(SequenceMissionState.State.TASKS_FINISHED)) {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
                     "finished");
         }
@@ -84,7 +84,7 @@ public class SequenceMoleStateManager implements StateManager {
                 case TASK_FINISHED:
                 case TASK_SKIPPED:
                     if (e.getTaskNumber() == numTasks - 1) {
-                        state = SequenceMissionState.State.TASK_FINISHED;
+                        state = SequenceMissionState.State.TASKS_FINISHED;
                     } else {
                         state = SequenceMissionState.State.WAITING;
                         currentTask = e.getTaskNumber() + 1;
