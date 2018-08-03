@@ -1,7 +1,7 @@
 # molr-remote
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0158f5fd2de44a3db54f387096a4476a)](https://app.codacy.com/app/yassine-kr/molr-remote?utm_source=github.com&utm_medium=referral&utm_content=molr/molr-remote&utm_campaign=badger)
-![Travis Badge](https://travis-ci.org/molr/molr-remote.svg?branch=master)
+[![Travis Badge](https://travis-ci.org/molr/molr-remote.svg?branch=master)](https://travis-ci.org/molr/molr-remote)
 [![Codecov Badge](https://codecov.io/gh/molr/molr-remote/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr-remote/branch/master)
 
 
