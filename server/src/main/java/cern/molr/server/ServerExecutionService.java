@@ -63,12 +63,8 @@ public class ServerExecutionService {
 
         this.supervisorsManager = supervisorsManager;
 
-        this.supervisorsManager.addListener(new SupervisorsManagerListener() {
-            @Override
-            public void onSupervisorRemoved(String supervisorId) {
-                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB));
-            }
-        });
+        this.supervisorsManager.addListener(supervisorId ->
+                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB)));
     }
 
 

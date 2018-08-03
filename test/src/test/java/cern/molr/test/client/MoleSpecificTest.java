@@ -301,7 +301,7 @@ public class MoleSpecificTest {
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(9).getLevel());
-        Assert.assertEquals("MISSION FINISHED", states.get(9).getStatus());
+        Assert.assertEquals("MISSION TASKS_FINISHED", states.get(9).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, states.get(9).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
         Assert.assertEquals("SESSION TERMINATED", states.get(10).getStatus());
