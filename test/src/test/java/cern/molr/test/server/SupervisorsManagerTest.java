@@ -2,20 +2,18 @@ package cern.molr.test.server;
 
 import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
-import cern.molr.commons.api.response.*;
+import cern.molr.commons.api.response.CommandResponse;
+import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.SupervisorsManagerImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Assert;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -60,7 +58,8 @@ public class SupervisorsManagerTest {
 
         optional = manager.chooseSupervisor("P");
         Assert.assertFalse(optional.isPresent());
- 
+
+
     }
 
     public class RemoteMoleSupervisorTest implements RemoteMoleSupervisor {

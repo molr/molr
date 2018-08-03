@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * class for testing object types returned by the MoleRunner
@@ -49,7 +50,7 @@ public class TypesTest {
         });
         controller.sendCommand(new MissionControlCommand(MissionControlCommand.Command.START));
 
-        signal.await();
+        signal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(MissionExceptionEvent.class, events.get(1).getClass());
         Assert.assertEquals(IncompatibleMissionException.class,

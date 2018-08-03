@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
@@ -42,7 +43,6 @@ public class TypesTest {
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
     private MissionExecutionService service = new MissionExecutionServiceImpl("http://localhost", 8000);
-    ;
 
 
     @Before
@@ -65,8 +65,10 @@ public class TypesTest {
     public void commandResponseTest() throws Exception {
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
-        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(2);
         CountDownLatch endSignal = new CountDownLatch(6);
+
+        CountDownLatch startCommandSignal = new CountDownLatch(1);
 
         List<CommandResponse> commandResponses = new ArrayList<>();
 
@@ -104,7 +106,7 @@ public class TypesTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -115,6 +117,7 @@ public class TypesTest {
                         System.out.println("response to start: " + response);
                         commandResponses.add(response);
                         endSignal.countDown();
+                        startCommandSignal.countDown();
                     }
 
                     @Override
@@ -127,12 +130,22 @@ public class TypesTest {
 
                     }
                 });
+
+                try {
+                    startCommandSignal.await(1, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+
+
                 controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
                     @Override
                     public void consume(CommandResponse response) {
                         System.out.println("response to start 2: " + response);
                         commandResponses.add(response);
                         endSignal.countDown();
+                        startSignal.countDown();
                     }
 
                     @Override
@@ -146,7 +159,7 @@ public class TypesTest {
                     }
                 });
                 try {
-                    startSignal.await();
+                    startSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -182,7 +195,7 @@ public class TypesTest {
             }
         });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(3, commandResponses.size());
         ResponseTester.testCommandResponseSuccess(commandResponses.get(0));
@@ -240,7 +253,7 @@ public class TypesTest {
             }
         });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(MissionExceptionEvent.class, events.get(0).getClass());
         Assert.assertEquals(MissionMaterializationException.class,
@@ -291,7 +304,7 @@ public class TypesTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -326,7 +339,7 @@ public class TypesTest {
             }
         });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(MissionExceptionEvent.class, events.get(2).getClass());
         Assert.assertEquals(MissionExecutionException.class,
@@ -364,7 +377,7 @@ public class TypesTest {
             }
         });
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(ExecutionNotAcceptedException.class, exception[0].getClass());
         Assert.assertEquals("Mission not defined in MolR registry", exception[0].getMessage());

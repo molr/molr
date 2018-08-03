@@ -39,10 +39,15 @@ public class SequenceMissionEvent implements MissionEvent {
         return event.toString() + " " + taskNumber + " " + message;
     }
 
+    /**
+     * The events that are not sent back to the client are used only for changing the mole state
+     */
     public enum Event {
-        TASK_STARTED,
-        TASK_FINISHED,
-        TASK_SKIPPED,
-        TASK_ERROR
+        TASK_STARTED,//When a task is started
+        TASK_FINISHED,//When a task is finished
+        TASK_SKIPPED,//When a task is skipped, this event is not sent back to the client
+        TASK_ERROR,//When an error is thrown by a task
+        RESUMED,//When the automatic execution is started, it is not sent back to the client
+        PAUSED//When the automatic execution is stopped, it is not sent back to the client
     }
 }

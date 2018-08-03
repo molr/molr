@@ -23,6 +23,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
@@ -103,7 +104,7 @@ public class ClientTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -129,7 +130,7 @@ public class ClientTest {
                                                                                                                       });
 
                 try {
-                    startSignal.await();
+                    startSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -167,7 +168,7 @@ public class ClientTest {
         });
         new Thread(() -> {
             try {
-                endSignal.await();
+                endSignal.await(1, TimeUnit.MINUTES);
                 finishSignal.countDown();
             } catch (InterruptedException error) {
                 error.printStackTrace();
@@ -190,7 +191,7 @@ public class ClientTest {
         CountDownLatch finishSignal = new CountDownLatch(1);
 
         launchMission("exec", Fibonacci.class, events, commandResponses, finishSignal);
-        finishSignal.await();
+        finishSignal.await(1, TimeUnit.MINUTES);
 
         ResponseTester.testInstantiateStartTerminate(events, commandResponses);
     }
@@ -208,14 +209,16 @@ public class ClientTest {
         List<CommandResponse> commandResponses1 = new ArrayList<>();
 
         launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal1);
-        finishSignal1.await();
+        finishSignal1.await(1, TimeUnit.MINUTES);
 
         List<MissionEvent> events2 = new ArrayList<>();
         List<CommandResponse> commandResponses2 = new ArrayList<>();
 
         CountDownLatch instantiateSignal2 = new CountDownLatch(1);
-        CountDownLatch startSignal2 = new CountDownLatch(1);
+        CountDownLatch startSignal2 = new CountDownLatch(2);
         CountDownLatch endSignal2 = new CountDownLatch(6);
+
+        CountDownLatch startCommandSignal = new CountDownLatch(1);
 
 
         Publisher<ClientMissionController> futureController2 =
@@ -254,7 +257,7 @@ public class ClientTest {
                 });
 
                 try {
-                    instantiateSignal2.await();
+                    instantiateSignal2.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -266,25 +269,7 @@ public class ClientTest {
                         System.out.println("exec2 response to start: " + response);
                         commandResponses2.add(response);
                         endSignal2.countDown();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
-                    @Override
-                    public void consume(CommandResponse response) {
-                        System.out.println("exec2 response to start 2: " + response);
-                        commandResponses2.add(response);
-                        endSignal2.countDown();
+                        startCommandSignal.countDown();
                     }
 
                     @Override
@@ -299,7 +284,34 @@ public class ClientTest {
                 });
 
                 try {
-                    startSignal2.await();
+                    startCommandSignal.await(1, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+
+                controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println("exec2 response to start 2: " + response);
+                        commandResponses2.add(response);
+                        endSignal2.countDown();
+                        startSignal2.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+                try {
+                    startSignal2.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -336,7 +348,7 @@ public class ClientTest {
             }
         });
 
-        endSignal2.await();
+        endSignal2.await(1, TimeUnit.MINUTES);
 
         CountDownLatch finishSignal3 = new CountDownLatch(1);
         List<MissionEvent> events3 = new ArrayList<>();
@@ -344,7 +356,7 @@ public class ClientTest {
 
 
         launchMission("exec3", Fibonacci.class, events3, commandResponses3, finishSignal3);
-        finishSignal3.await();
+        finishSignal3.await(1, TimeUnit.MINUTES);
 
         ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);
 
@@ -377,7 +389,7 @@ public class ClientTest {
 
         launchMission("exec1", Fibonacci.class, events1, commandResponses1, finishSignal);
         launchMission("exec2", Fibonacci.class, events2, commandResponses2, finishSignal);
-        finishSignal.await();
+        finishSignal.await(1, TimeUnit.MINUTES);
 
 
         ResponseTester.testInstantiateStartTerminate(events1, commandResponses1);

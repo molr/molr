@@ -23,16 +23,67 @@ allprojects {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
 
+}
+
+subprojects {
     jacocoTestReport {
+
+        additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+        sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+        classDirectories =  files(sourceSets.main.output)
         reports {
-            xml.enabled true
-            xml.destination new File("${buildDir}/reports/jacoco/report.xml")
-            html.enabled false
-            csv.enabled false
+            html.enabled = false
+            xml.enabled = true
+            csv.enabled = false
         }
     }
 }
 
 
+jacocoTestReport {
+
+    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(subprojects.sourceSets.main.output)
+
+    executionData = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        xml.enabled true
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+        html.enabled false
+        csv.enabled false
+    }
+    onlyIf = {
+        true
+    }
+    doFirst {
+        executionData = files(executionData.findAll {
+            it.exists()
+        })
+    }
+}
 
 
+subprojects {
+    jar {
+
+    }
+}
+
+subprojects.each { subproject -> evaluationDependsOn( subproject.path ) }
+task projectJar(type: Jar, dependsOn: subprojects.jar) {
+
+    subprojects.each { subproject ->
+        from subproject.configurations.runtime.allArtifacts.files.collect({zipTree(it)})
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+task zip(type: Zip, dependsOn: projectJar) {
+    from configurations.runtime.allArtifacts.files
+    subprojects.each { subproject ->
+        from subproject.configurations.runtime.filter { !it.path.contains("molr") }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

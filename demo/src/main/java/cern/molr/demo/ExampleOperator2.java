@@ -301,11 +301,11 @@ public class ExampleOperator2 {
                                 commandResponses.add(response);
                                 endSignal.countDown();
 
-                                controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                                controller.instruct(new SequenceCommand(SequenceCommand.Command.RESUME))
                                         .subscribe(new SimpleSubscriber<CommandResponse>() {
                                             @Override
                                             public void consume(CommandResponse response) {
-                                                System.out.println(execName + " response to finish: " + response);
+                                                System.out.println(execName + " response to resume: " + response);
                                                 commandResponses.add(response);
                                                 endSignal.countDown();
                                             }

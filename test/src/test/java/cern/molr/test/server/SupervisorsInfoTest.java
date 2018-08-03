@@ -17,6 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class for testing getting the supervisors info stream from the MolR server.
@@ -62,7 +63,7 @@ public class SupervisorsInfoTest {
                 });
 
 
-        endSignal.await();
+        endSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(1, infos.size());
 

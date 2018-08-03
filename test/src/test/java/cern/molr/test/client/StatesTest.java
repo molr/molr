@@ -25,6 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
@@ -125,7 +126,7 @@ public class StatesTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -151,7 +152,7 @@ public class StatesTest {
                         });
 
                 try {
-                    startSignal.await();
+                    startSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -189,7 +190,7 @@ public class StatesTest {
         });
         new Thread(() -> {
             try {
-                endSignal.await();
+                endSignal.await(1, TimeUnit.MINUTES);
                 finishSignal.countDown();
             } catch (InterruptedException error) {
                 error.printStackTrace();
@@ -210,7 +211,7 @@ public class StatesTest {
         CountDownLatch finishSignal = new CountDownLatch(1);
 
         launchMission("exec", Fibonacci.class, events, commandResponses, states, finishSignal);
-        finishSignal.await();
+        finishSignal.await(1, TimeUnit.MINUTES);
 
         ResponseTester.testInstantiateStartTerminate(events, commandResponses);
         Assert.assertEquals(3, states.size());

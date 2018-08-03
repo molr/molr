@@ -13,6 +13,10 @@ import cern.molr.commons.api.response.*;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.server.api.*;
+import cern.molr.server.api.RemoteMoleSupervisor;
+import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.SupervisorsManagerListener;
+import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
 import org.reactivestreams.Processor;
@@ -69,22 +73,6 @@ public class ServerExecutionService {
         Optional<RemoteMoleSupervisor> optional = supervisorsManager.chooseSupervisor(request.getMissionName());
         return optional.map((supervisor) -> {
             Publisher<MissionEvent> executionEventStream = supervisor.instantiate(request, missionEId);
-            executionEventStream.subscribe(new SimpleSubscriber<MissionEvent>() {
-                @Override
-                public void consume(MissionEvent event) {
-
-                }
-
-                @Override
-                public void onError(Throwable t) {
-
-                }
-
-                @Override
-                public void onComplete() {
-                    registry.removeMissionExecution(missionEId);
-                }
-            });
             registry.registerNewMissionExecution(missionEId, supervisor, executionEventStream);
             return missionEId;
         }).orElseThrow(() ->
@@ -101,7 +89,7 @@ public class ServerExecutionService {
     public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
         return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
-                .filter(event -> !(event instanceof MissionStateEvent));
+                .filter(event -> !(event instanceof MissionStateEvent)).doOnComplete(() -> registry.removeMissionExecution(mEId));
     }
 
     public Publisher<MissionState> getStatesStream(String mEId) throws UnknownMissionException {

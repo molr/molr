@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
 import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
@@ -133,7 +134,7 @@ public class MoleSpecificTest {
                 });
 
                 try {
-                    instantiateSignal.await();
+                    instantiateSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -159,7 +160,7 @@ public class MoleSpecificTest {
                                                                                                                       });
 
                 try {
-                    startSignal.await();
+                    startSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -186,7 +187,7 @@ public class MoleSpecificTest {
                         });
 
                 try {
-                    firstTaskSignal.await();
+                    firstTaskSignal.await(1, TimeUnit.MINUTES);
                 } catch (InterruptedException error) {
                     error.printStackTrace();
                     Assert.fail();
@@ -201,11 +202,11 @@ public class MoleSpecificTest {
                                 commandResponses.add(response);
                                 endSignal.countDown();
 
-                                controller.instruct(new SequenceCommand(SequenceCommand.Command.FINISH))
+                                controller.instruct(new SequenceCommand(SequenceCommand.Command.RESUME))
                                         .subscribe(new SimpleSubscriber<CommandResponse>() {
                                             @Override
                                             public void consume(CommandResponse response) {
-                                                System.out.println(execName + " response to finish: " + response);
+                                                System.out.println(execName + " response to resume: " + response);
                                                 commandResponses.add(response);
                                                 endSignal.countDown();
                                             }
@@ -247,7 +248,7 @@ public class MoleSpecificTest {
         });
         new Thread(() -> {
             try {
-                endSignal.await();
+                endSignal.await(1, TimeUnit.MINUTES);
                 finishSignal.countDown();
             } catch (InterruptedException error) {
                 error.printStackTrace();
@@ -268,7 +269,7 @@ public class MoleSpecificTest {
         CountDownLatch finishSignal = new CountDownLatch(1);
 
         launchSequenceMissionExample("exec", events, commandResponses, states, finishSignal);
-        finishSignal.await();
+        finishSignal.await(1, TimeUnit.MINUTES);
 
         Assert.assertEquals(10, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
@@ -287,7 +288,7 @@ public class MoleSpecificTest {
         ResponseTester.testCommandResponseSuccess(commandResponses.get(2));
         ResponseTester.testCommandResponseSuccess(commandResponses.get(3));
 
-        Assert.assertEquals(12, states.size());
+        Assert.assertEquals(11, states.size());
 
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(0).getLevel());
         Assert.assertEquals("NOT YET STARTED", states.get(0).getStatus());
@@ -299,21 +300,21 @@ public class MoleSpecificTest {
         Assert.assertArrayEquals(new MissionCommand[]{new MissionControlCommand(MissionControlCommand.Command
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
+        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(9).getLevel());
+        Assert.assertEquals("MISSION FINISHED", states.get(9).getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{}, states.get(9).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
         Assert.assertEquals("MISSION TASKS_FINISHED", states.get(10).getStatus());
+        Assert.assertEquals("SESSION TERMINATED", states.get(10).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, states.get(10).getPossibleCommands().toArray());
-        Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(11).getLevel());
-        Assert.assertEquals("SESSION TERMINATED", states.get(11).getStatus());
-        Assert.assertArrayEquals(new MissionCommand[]{}, states.get(11).getPossibleCommands().toArray());
 
         testWaitingState(states.get(2), 0);
         testRunningState(states.get(3), 0);
         testWaitingState(states.get(4), 1);
         testWaitingState(states.get(5), 2);
-        testRunningState(states.get(6), 2);
-        testWaitingState(states.get(7), 3);
-        testRunningState(states.get(8), 3);
-        testFinishedState(states.get(9));
+        testRunningStateAutomatic(states.get(6), 2);
+        testRunningStateAutomatic(states.get(7), 3);
+        testFinishedState(states.get(8));
     }
 
     private void testTaskStarted(MissionEvent event, int taskNumer) {
@@ -339,7 +340,7 @@ public class MoleSpecificTest {
         Assert.assertEquals("WAITING NEXT TASK " + taskNumber, state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{new SequenceCommand(SequenceCommand.Command.STEP),
                         new SequenceCommand(SequenceCommand.Command.SKIP),
-                        new SequenceCommand(SequenceCommand.Command.FINISH)},
+                        new SequenceCommand(SequenceCommand.Command.RESUME)},
                 state.getPossibleCommands().toArray());
     }
 
@@ -347,6 +348,13 @@ public class MoleSpecificTest {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
         Assert.assertEquals("TASK_RUNNING TASK " + taskNumber, state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
+    }
+
+    private void testRunningStateAutomatic(MissionState state, int taskNumber) {
+        Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
+        Assert.assertEquals("RUNNING TASK AUTOMATIC " + taskNumber, state.getStatus());
+        Assert.assertArrayEquals(new MissionCommand[]{new SequenceCommand(SequenceCommand.Command.PAUSE)}, state
+                .getPossibleCommands().toArray());
     }
 
     private void testFinishedState(MissionState state) {
