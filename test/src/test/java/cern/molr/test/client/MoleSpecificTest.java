@@ -9,7 +9,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static cern.molr.commons.events.MissionControlEvent.Event.MISSION_STARTED;
-import static cern.molr.commons.events.MissionControlEvent.Event.SESSION_INSTANTIATED;
+import static cern.molr.commons.events.MissionRunnerEvent.Event.MISSION_STARTED;
+import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTIATED;
 
 /**
  * Class for testing the client Api using mole specific commands, events and states.
@@ -91,9 +91,9 @@ public class MoleSpecificTest {
                         System.out.println(execName + " event: " + event);
                         events.add(event);
                         endSignal.countDown();
-                        if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                        if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
                             instantiateSignal.countDown();
-                        } else if (event instanceof MissionControlEvent && ((MissionControlEvent) event).getEvent()
+                        } else if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent()
                                 .equals(MISSION_STARTED)) {
                             startSignal.countDown();
                         } else if (event instanceof SequenceMissionEvent && ((SequenceMissionEvent) event).getEvent()
@@ -300,7 +300,7 @@ public class MoleSpecificTest {
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
-        Assert.assertEquals("MISSION FINISHED", states.get(10).getStatus());
+        Assert.assertEquals("MISSION TASKS_FINISHED", states.get(10).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, states.get(10).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(11).getLevel());
         Assert.assertEquals("SESSION TERMINATED", states.get(11).getStatus());
@@ -345,13 +345,13 @@ public class MoleSpecificTest {
 
     private void testRunningState(MissionState state, int taskNumber) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("RUNNING TASK " + taskNumber, state.getStatus());
+        Assert.assertEquals("TASK_RUNNING TASK " + taskNumber, state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 
     private void testFinishedState(MissionState state) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("ALL TASKS FINISHED", state.getStatus());
+        Assert.assertEquals("ALL TASKS TASKS_FINISHED", state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 

@@ -7,6 +7,7 @@ import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
+import cern.molr.sample.states.SequenceMissionState;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.List;
 
 /**
  * An implementation of the {@link StateManager} used by the {@link SequenceMole} to manage its state
- * It has three states; WAITING for a task, RUNNING a task, FINISHED all tasks
+ * It has three states; WAITING for a task, TASK_RUNNING a task, TASKS_FINISHED all tasks
  *
  * @author yassine-kr
  */
@@ -23,21 +24,26 @@ public class SequenceMoleStateManager implements StateManager {
     private final int numTasks;
     private HashSet<StateManagerListener> listeners = new HashSet<>();
     private int currentTask = 0;
-    private State state = State.WAITING;
+    private SequenceMissionState.State state = SequenceMissionState.State.WAITING;
 
     public SequenceMoleStateManager(int numTasks) {
         this.numTasks = numTasks;
     }
 
+    public SequenceMissionState getSequenceMoleState() {
+        int taskNumber = state == SequenceMissionState.State.TASKS_FINISHED ? currentTask : -1;
+        return new SequenceMissionState(getStatus(), getPossibleCommands(), taskNumber, state);
+    }
+
     @Override
     public String getStatus() {
         switch (state) {
-            case RUNNING:
-                return "RUNNING TASK " + currentTask;
+            case TASK_RUNNING:
+                return "TASK_RUNNING TASK " + currentTask;
             case WAITING:
                 return "WAITING NEXT TASK " + currentTask;
-            case FINISHED:
-                return "ALL TASKS FINISHED";
+            case TASKS_FINISHED:
+                return "ALL TASKS TASKS_FINISHED";
         }
         return "UNKNOWN STATE";
     }
@@ -45,7 +51,7 @@ public class SequenceMoleStateManager implements StateManager {
     @Override
     public List<MissionCommand> getPossibleCommands() {
         List<MissionCommand> possibles = new ArrayList<>();
-        if (state.equals(State.WAITING)) {
+        if (state.equals(SequenceMissionState.State.WAITING)) {
             possibles.add(new SequenceCommand(SequenceCommand.Command.STEP));
             possibles.add(new SequenceCommand(SequenceCommand.Command.SKIP));
             possibles.add(new SequenceCommand(SequenceCommand.Command.FINISH));
@@ -59,7 +65,7 @@ public class SequenceMoleStateManager implements StateManager {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; it is not a known a command by " +
                     "the sequence mole");
         }
-        if (state.equals(State.RUNNING) || state.equals(State.FINISHED)) {
+        if (state.equals(SequenceMissionState.State.TASK_RUNNING) || state.equals(SequenceMissionState.State.TASKS_FINISHED)) {
             throw new CommandNotAcceptedException("Command not accepted by the Mole; the mission is running or " +
                     "finished");
         }
@@ -71,16 +77,16 @@ public class SequenceMoleStateManager implements StateManager {
             SequenceMissionEvent e = (SequenceMissionEvent) event;
             switch (e.getEvent()) {
                 case TASK_STARTED:
-                    state = State.RUNNING;
+                    state = SequenceMissionState.State.TASK_RUNNING;
                     notifyListeners();
                     break;
                 case TASK_ERROR:
                 case TASK_FINISHED:
                 case TASK_SKIPPED:
                     if (e.getTaskNumber() == numTasks - 1) {
-                        state = State.FINISHED;
+                        state = SequenceMissionState.State.TASKS_FINISHED;
                     } else {
-                        state = State.WAITING;
+                        state = SequenceMissionState.State.WAITING;
                         currentTask = e.getTaskNumber() + 1;
                     }
                     notifyListeners();
@@ -104,9 +110,4 @@ public class SequenceMoleStateManager implements StateManager {
         listeners.forEach(StateManagerListener::onStateChanged);
     }
 
-    private enum State {
-        WAITING,
-        RUNNING,
-        FINISHED
-    }
 }

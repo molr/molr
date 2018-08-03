@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionControlEvent implements MissionEvent {
+public class MissionRunnerEvent implements MissionEvent {
 
     private final Event event;
 
-    public MissionControlEvent(@JsonProperty("event") Event event) {
+    public MissionRunnerEvent(@JsonProperty("event") Event event) {
         this.event = event;
     }
 

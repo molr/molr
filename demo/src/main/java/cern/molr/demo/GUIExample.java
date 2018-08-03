@@ -8,7 +8,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.sample.commands.SequenceCommand;
@@ -133,7 +133,7 @@ public class GUIExample {
 
                                 @Override
                                 public void consume(MissionEvent event) {
-                                    if (event instanceof MissionControlEvent || event instanceof MissionFinished ||
+                                    if (event instanceof MissionRunnerEvent || event instanceof MissionFinished ||
                                             event instanceof MissionExceptionEvent) {
                                         eventsListModel.addElement("<html><font color='green'>" + event + "</font>"+
                                                 "</html>");

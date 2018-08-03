@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author yassine-kr
  */
-public final class MissionState {
+public class MissionState {
 
     private final Level level;
     private final String status;

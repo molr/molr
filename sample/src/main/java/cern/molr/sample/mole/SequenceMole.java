@@ -13,7 +13,6 @@ import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
-import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
@@ -43,7 +42,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private CountDownLatch endSignal = new CountDownLatch(1);
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
     private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
-    private StateManager stateManager;
+    private SequenceMoleStateManager stateManager;
 
     @Override
     public void verify(String missionName) throws IncompatibleMissionException {
@@ -82,8 +81,7 @@ public class SequenceMole implements Mole<Void, Void> {
             }
             stateManager = new SequenceMoleStateManager(tasks.size());
             stateManager.addListener(() -> {
-                statesProcessor.onNext(new MissionState(MissionState.Level.MOLE, stateManager.getStatus(),
-                        stateManager.getPossibleCommands()));
+                statesProcessor.onNext(stateManager.getSequenceMoleState());
             });
             endSignal.await();
         } catch (Exception error) {
@@ -123,16 +121,18 @@ public class SequenceMole implements Mole<Void, Void> {
 
     private void runTask() {
         MissionEvent event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_STARTED, "");
-        eventsProcessor.onNext(event);
         stateManager.changeState(event);
+        eventsProcessor.onNext(event);
+
         try {
             tasks.get(currentTask).run();
             event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_FINISHED, "");
         } catch (Exception error) {
             event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_ERROR, error.getMessage());
         }
-        eventsProcessor.onNext(event);
         stateManager.changeState(event);
+        eventsProcessor.onNext(event);
+
         nextTask();
     }
 

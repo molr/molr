@@ -14,7 +14,7 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionControlEvent;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionStateEvent;
@@ -48,7 +48,7 @@ public class MoleRunner implements CommandListener {
     private Object missionInput;
     private Class<?> missionInputClass;
     private CommandsReader reader;
-    private StateManager stateManager = new MoleRunnerStateManager();
+    private MoleRunnerStateManager stateManager = new MoleRunnerStateManager();
     private Mole<Object, Object> mole;
     private ObjectMapper mapper;
 
@@ -70,14 +70,13 @@ public class MoleRunner implements CommandListener {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
             mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
-            stateManager.addListener(() -> sendStateEvent(new MissionState(MissionState.Level.MOLE_RUNNER, stateManager.getStatus(),
-                    stateManager.getPossibleCommands())));
+            stateManager.addListener(() -> sendStateEvent(stateManager.getMoleRunnerState()));
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_TERMINATED));
+                sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.SESSION_TERMINATED));
             }));
 
-            sendEvent(new MissionControlEvent(MissionControlEvent.Event.SESSION_INSTANTIATED));
+            sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.SESSION_INSTANTIATED));
 
             reader = new CommandsReader(new BufferedReader(new InputStreamReader(System.in)), this);
 
@@ -180,7 +179,7 @@ public class MoleRunner implements CommandListener {
                 }
             });
 
-            sendEvent(new MissionControlEvent(MissionControlEvent.Event.MISSION_STARTED));
+            sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.MISSION_STARTED));
 
             CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
                 try {
