@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Abstract class that encapsulates the behaviour for spawning a new JVM using the {@link ProcessBuilder}
@@ -38,11 +41,19 @@ public final class JvmSpawnHelper {
         command.add(classpath);
         command.add(mainClass);
         if (arguments != null) {
-            command.addAll(Arrays.asList(arguments));
+            command.addAll(rectifyArgs(arguments));
         }
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         LOGGER.info("Starting JVM with parameters: [{}]", command.toString());
         return processBuilder;
+    }
+
+    private static List<String> rectifyArgs(String[] arguments) {
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            return Arrays.stream(arguments).map(JvmSpawnHelper::asWindowsArgument).collect(toList());
+        } else {
+            return Arrays.asList(arguments);
+        }
     }
 
     public static final String appendToolsJarToClasspath(String classpath) {
@@ -53,5 +64,15 @@ public final class JvmSpawnHelper {
             return classpath;
         }
         return String.format("%s:%s", classpath, TOOLS_PATH);
+    }
+
+    /**
+     * Replaces all required characters so that a string can be passed as an argument to the process builder.
+     *
+     * @param aString a string that shall be rectified to be used an argument for passing as an argument to a process builer
+     * @return the string as a valid argument for a process builder
+     */
+    public static final String asWindowsArgument(String aString) {
+        return aString.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }
