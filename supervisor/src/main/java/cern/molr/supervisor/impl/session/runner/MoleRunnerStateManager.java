@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
@@ -27,7 +28,8 @@ public class MoleRunnerStateManager implements StateManager {
     private HashSet<StateManagerListener> listeners = new HashSet<>();
     private MissionRunnerState.State state = MissionRunnerState.State.NOT_YET_STARTED;
 
-    public MissionRunnerState getMoleRunnerState() {
+    @Override
+    public MissionState getState() {
         return new MissionRunnerState(getStatus(), getPossibleCommands(), state);
     }
 
