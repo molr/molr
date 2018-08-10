@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Configuration setting mapping between urls and websocket handlers.
+ * Configuration setting molrServerMapping between urls and websocket handlers.
  *
  * @author yassine-kr
  */
@@ -26,11 +26,11 @@ public class WebSocketServerConfiguration {
     }
 
     @Bean
-    public HandlerMapping mapping() {
+    public HandlerMapping molrServerMapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put(MolrConfig.EVENTS_STREAM_PATH, new EventsStreamHandler(service));
         map.put(MolrConfig.STATES_STREAM_PATH, new StatesStreamHandler(service));
-        map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(service));
+        map.put(MolrConfig.INSTRUCT_PATH, new MolrServerInstructHandler(service));
         map.put(MolrConfig.SUPERVISORS_INFO_PATH, new SupervisorsInfoHandler(service));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
@@ -41,7 +41,7 @@ public class WebSocketServerConfiguration {
     }
 
     @Bean
-    public WebSocketHandlerAdapter handlerAdapter() {
+    public WebSocketHandlerAdapter molrServerHandlerAdapter() {
         return new WebSocketHandlerAdapter();
     }
 }
