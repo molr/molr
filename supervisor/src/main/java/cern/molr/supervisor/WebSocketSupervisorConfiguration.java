@@ -30,7 +30,7 @@ public class WebSocketSupervisorConfiguration {
     public HandlerMapping mapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put(MolrConfig.INSTANTIATE_PATH, new InstantiateHandler(supervisor));
-        map.put(MolrConfig.INSTRUCT_PATH, new InstructHandler(supervisor));
+        map.put(MolrConfig.INSTRUCT_PATH, new SupervisorInstructHandler(supervisor));
         map.put(MolrConfig.GET_HEARTBEAT_PATH, new HeartbeatHandler(supervisor));
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
