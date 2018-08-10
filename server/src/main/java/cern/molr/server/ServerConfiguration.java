@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -18,11 +19,19 @@ import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@SpringBootApplication
-public class ServerMain {
+@Configuration
+@ComponentScan
+public class ServerConfiguration {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ServerMain.class, args);
+    private final ExecutorService executorService;
+
+    public ServerConfiguration(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
+    @PreDestroy
+    public void close() {
+        executorService.shutdown();
     }
 
 }
