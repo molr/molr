@@ -1,4 +1,6 @@
 dependencies {
+
+    compile group: 'com.google.guava', name: 'guava', version: guavaVersion
     compile group: 'org.reactivestreams', name: 'reactive-streams', version: reactiveStreamsVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: fasterXmlJacksonVersion
 }
