@@ -49,17 +49,12 @@ public class ServerExecutionService {
     private final Processor<SupervisorInfo, SupervisorInfo> processor = DirectProcessor.create();
 
 
-    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config) {
+    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config, RegisteredMissions missions) {
         this.config = config;
 
         //TODO remove this init code after implementing a deployment service
-        registry.registerNewMission("cern.molr.sample.mission.RunnableHelloWriter");
-        registry.registerNewMission("cern.molr.sample.mission.IntDoubler");
-        registry.registerNewMission("cern.molr.sample.mission.Fibonacci");
         //Just for testing, normally missions must be verified before deployment
-        registry.registerNewMission("cern.molr.sample.mission.IncompatibleMission");
-        registry.registerNewMission("cern.molr.sample.mission.RunnableExceptionMission");
-        registry.registerNewMission("cern.molr.sample.mission.SequenceMissionExample");
+        missions.getMissions().forEach(registry::registerNewMission);
 
         this.supervisorsManager = supervisorsManager;
 
