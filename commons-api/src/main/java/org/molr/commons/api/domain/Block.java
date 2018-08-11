@@ -67,7 +67,7 @@ public class Block {
         }
     }
 
-    public static final Block ofText(long id, String text) {
+    public static final Block idAndText(long id, String text) {
         return builder(id, text).build();
     }
 
