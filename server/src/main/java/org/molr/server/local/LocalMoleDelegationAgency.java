@@ -29,7 +29,7 @@ import reactor.core.scheduler.Schedulers;
  *
  * @author kfuchsbe
  */
-public class LocalDelegationAgency implements Agency {
+public class LocalMoleDelegationAgency implements Agency {
 
     private final Map<Mission, Mole> missionMoles;
     private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
@@ -39,7 +39,7 @@ public class LocalDelegationAgency implements Agency {
 
     private final Scheduler scheduler = Schedulers.elastic();
 
-    public LocalDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Mole> moles) {
+    public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Mole> moles) {
         this.missionHandleFactory = requireNonNull(missionHandleFactory, "missionHandleFactory must not be null");
         requireNonNull(moles, "moles must not be null");
         this.missionMoles = scanMoles(moles);
