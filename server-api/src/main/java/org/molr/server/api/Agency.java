@@ -16,7 +16,7 @@ public interface Agency {
 
     Flux<Mission> executableMissions();
 
-    Mono<MissionDescription> representationOf(Mission mission);
+    Mono<MissionRepresentation> representationOf(Mission mission);
 
     Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params);
 

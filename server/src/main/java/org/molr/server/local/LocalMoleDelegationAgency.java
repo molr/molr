@@ -57,7 +57,7 @@ public class LocalMoleDelegationAgency implements Agency {
     }
 
     @Override
-    public Mono<MissionDescription> representationOf(Mission mission) {
+    public Mono<MissionRepresentation> representationOf(Mission mission) {
         return missionMoles.get(mission).representationOf(mission);
     }
 

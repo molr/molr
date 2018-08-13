@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.molr.commons.api.domain.Mission;
 import org.molr.commons.api.domain.MissionCommand;
-import org.molr.commons.api.domain.MissionDescription;
+import org.molr.commons.api.domain.MissionRepresentation;
 import org.molr.commons.api.domain.MissionHandle;
 import org.molr.commons.api.domain.MissionState;
 import reactor.core.publisher.Flux;
@@ -19,7 +19,7 @@ public interface Mole {
 
     Set<Mission> availableMissions();
 
-    Mono<MissionDescription> representationOf(Mission mission);
+    Mono<MissionRepresentation> representationOf(Mission mission);
 
     void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params);
 

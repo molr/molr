@@ -4,7 +4,7 @@
 
 package org.molr.commons.api.domain;
 
-public interface MissionDescription {
+public interface MissionRepresentation {
 
     Mission mission();
 
