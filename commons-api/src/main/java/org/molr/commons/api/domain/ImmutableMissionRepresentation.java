@@ -2,12 +2,12 @@ package org.molr.commons.api.domain;
 
 import java.util.Objects;
 
-public class ImmutableMissionDescription implements MissionDescription {
+public class ImmutableMissionRepresentation implements MissionRepresentation {
 
     private final Mission mission;
     private final Block root;
 
-    public ImmutableMissionDescription(Mission mission, Block root) {
+    public ImmutableMissionRepresentation(Mission mission, Block root) {
         this.mission = mission;
         this.root = root;
     }
@@ -26,7 +26,7 @@ public class ImmutableMissionDescription implements MissionDescription {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ImmutableMissionDescription that = (ImmutableMissionDescription) o;
+        ImmutableMissionRepresentation that = (ImmutableMissionRepresentation) o;
         return Objects.equals(mission, that.mission) &&
                 Objects.equals(root, that.root);
     }
