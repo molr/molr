@@ -10,23 +10,10 @@ import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.SupervisorsManagerImpl;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.databind.type.ArrayType;
-import com.fasterxml.jackson.databind.type.SimpleType;
+import org.junit.Assert;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -43,8 +30,6 @@ public class SupervisorsManagerTest {
 
     @Test
     public void Test() {
-
-        /*
 
         RemoteMoleSupervisor s1 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s2 = new RemoteMoleSupervisorTest(true);
@@ -73,99 +58,8 @@ public class SupervisorsManagerTest {
 
         optional = manager.chooseSupervisor("P");
         Assert.assertFalse(optional.isPresent());
-        */
 
 
-        InvocationTargetException invocationTargetException = new InvocationTargetException(new Exception(), "jjj");
-        Throwable runtimeException = new RuntimeException(new Exception());
-        Throwable throwable = new Throwable(new Exception());
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(InvocationTargetException.class, new ThrowableDes());
-        //module.addSerializer(Throwable.class, new ThrowableSerializer());
-        mapper.registerModule(module);
-
-        try {
-            String jsonInvocation = mapper.writeValueAsString(invocationTargetException);
-            String jsonThrowable= mapper.writeValueAsString(throwable);
-            String jsonRuntime = mapper.writeValueAsString(runtimeException);
-            System.out.println(jsonInvocation);
-            System.out.println(jsonThrowable);
-            System.out.println(jsonRuntime);
-            throwable = mapper.readValue(jsonInvocation, Throwable.class);
-            //runtimeException = mapper.readValue(jsonRuntime, Throwable.class);
-            //System.out.println(throwable.getClass());
-            //System.out.println(runtimeException.getClass());
-            //invocationTargetException = mapper.readValue(jsonThrowable, InvocationTargetException.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public class ThrowableDes extends StdDeserializer<InvocationTargetException> {
-
-        public ThrowableDes() {
-            this(null);
-        }
-
-        public ThrowableDes(Class<?> vc) {
-            super(vc);
-        }
-
-        @Override
-        public InvocationTargetException deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
-
-            Throwable cause = null;
-            StackTraceElement[] stackTraceElements = null;
-            String message = null;
-
-            for (jp.nextToken() ; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
-                jp.nextToken();
-
-                switch (jp.getCurrentName()) {
-                    case "cause":
-                        try {
-                            cause = (Throwable) ctxt.findRootValueDeserializer(SimpleType.constructUnsafe(Throwable
-                                    .class)).deserialize(jp, ctxt);
-                        } catch (Exception error) {
-                            error.printStackTrace();
-                        }
-                        break;
-                    case "stackTrace":
-                        try {
-                            stackTraceElements = (StackTraceElement[]) ctxt.findRootValueDeserializer(ArrayType.construct
-                                    (SimpleType.constructUnsafe(StackTraceElement.class), null)).deserialize(jp, ctxt);
-                        } catch (Exception error) {
-                            error.printStackTrace();
-                        }
-                        break;
-                    case "message":
-                        try {
-                            message = (String) ctxt.findRootValueDeserializer(SimpleType.constructUnsafe(String.class))
-                                    .deserialize(jp, ctxt);
-                        } catch (Exception error) {
-                            error.printStackTrace();
-                        }
-                        default:
-                            ctxt.findRootValueDeserializer(SimpleType.constructUnsafe(Object.class)).deserialize
-                                    (jp, ctxt);
-                }
-
-            }
-
-            System.out.println(cause);
-            System.out.println(Arrays.toString(stackTraceElements));
-            System.out.println(message);
-            return new InvocationTargetException(new Exception());
-        }
     }
 
 
