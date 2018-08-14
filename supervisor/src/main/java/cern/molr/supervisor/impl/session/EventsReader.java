@@ -1,6 +1,7 @@
 package cern.molr.supervisor.impl.session;
 
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.web.SerializationUtils;
 import cern.molr.supervisor.api.session.EventsListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class EventsReader extends RemoteReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsReader.class);
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper;
     private EventsListener listener;
 
 
@@ -29,7 +30,7 @@ public class EventsReader extends RemoteReader {
 
     public EventsReader(BufferedReader reader, Duration readInterval, EventsListener listener) {
         super(reader, readInterval, null);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper = SerializationUtils.getMapper();
         this.listener = listener;
         start();
     }

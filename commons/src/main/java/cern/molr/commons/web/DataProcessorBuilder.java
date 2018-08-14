@@ -36,9 +36,7 @@ public class DataProcessorBuilder<Input, Output> {
     public DataProcessorBuilder(Class<Input> inputType) {
         this.inputType = inputType;
 
-        mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper = SerializationUtils.getMapper();
     }
 
     /**

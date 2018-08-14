@@ -19,6 +19,7 @@ import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
+import cern.molr.commons.web.SerializationUtils;
 import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -67,8 +68,7 @@ public class MoleRunner implements CommandListener {
             missionInputClass = Class.forName(argument.getMissionInputClassName());
             missionInput = mapper.readValue(argument.getMissionInputObjString(), missionInputClass);
 
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-            mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+            mapper = SerializationUtils.getMapper();
 
             stateManager.addListener(() -> sendStateEvent(stateManager.getState()));
 
@@ -125,8 +125,6 @@ public class MoleRunner implements CommandListener {
      */
     private void startMission() {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try {
 
             mole = createMoleInstance(mission.getMoleClassName());
@@ -213,8 +211,7 @@ public class MoleRunner implements CommandListener {
 
     @Override
     public void onCommand(MissionCommand command) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+
         try {
             if (command instanceof MissionControlCommand) {
                 stateManager.acceptCommand(command);

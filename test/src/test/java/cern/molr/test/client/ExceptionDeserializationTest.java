@@ -18,9 +18,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
- * Class for testing the deserialization of some types of exceptions
+ * Class for testing the deserialization of some exceptions
  */
-public class DeserializationExceptionTest {
+public class ExceptionDeserializationTest {
 
     @Test
     public void invocationExceptionTypeTest() {

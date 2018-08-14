@@ -4,6 +4,7 @@
 
 package cern.molr.supervisor;
 
+import cern.molr.commons.web.SerializationUtils;
 import cern.molr.supervisor.api.address.AddressGetter;
 import cern.molr.supervisor.api.web.MolrSupervisorToServer;
 import cern.molr.supervisor.impl.address.ConfigurationAddressGetter;
@@ -97,6 +98,11 @@ public class RemoteSupervisorMain {
         }
     }
 
+    @Bean
+    public ObjectMapper getMapper() {
+        return SerializationUtils.getMapper();
+    }
+
     @Configuration
     @PropertySource(value = "${supervisor.fileConfig:classpath:supervisor.properties}",
             ignoreResourceNotFound = true)
@@ -133,13 +139,6 @@ public class RemoteSupervisorMain {
             return config;
         }
 
-        @Bean
-        public ObjectMapper getMapper() {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-            mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-            return mapper;
-        }
     }
 
 }

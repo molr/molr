@@ -453,6 +453,8 @@ public class TypesTest {
                 ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getClass());
         Assert.assertEquals(InvocationTargetException.class,
                 ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getClass());
+        Assert.assertEquals("invocation target exception",
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getMessage());
 
     }
 
