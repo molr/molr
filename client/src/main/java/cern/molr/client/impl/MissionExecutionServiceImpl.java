@@ -81,22 +81,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Publisher<ClientMissionController> instantiate(String missionName, I missionArguments) {
 
-        return client.instantiate(missionName, missionArguments, missionId -> new ClientMissionController() {
-            @Override
-            public Publisher<MissionEvent> getEventsStream() {
-                return client.getEventsStream(missionName, missionId);
-            }
-
-            @Override
-            public Publisher<MissionState> getStatesStream() {
-                return client.getStatesStream(missionName, missionId);
-            }
-
-            @Override
-            public Publisher<CommandResponse> instruct(MissionCommand command) {
-                return client.instruct(missionName, missionId, command);
-            }
-        });
+        return client.instantiate(missionName, missionArguments, missionId -> new StandardController(client,
+                missionName, missionId));
     }
 
     @Override

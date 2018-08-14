@@ -11,6 +11,10 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
  */
 public interface MissionEvent {
 
+    /**
+     * Used for the Web Gui
+     * @return the string to be displayed by the web gui
+     */
     @JsonProperty(access=READ_ONLY)
     default String getString() {return toString();}
 
