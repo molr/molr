@@ -4,10 +4,14 @@
 
 package org.molr.commons.api.domain;
 
+import java.util.List;
+
 public interface MissionRepresentation {
 
     Mission mission();
 
     Block rootBlock();
+
+    List<Block> childrenOf(Block block);
 
 }

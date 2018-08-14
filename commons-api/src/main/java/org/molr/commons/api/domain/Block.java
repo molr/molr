@@ -8,32 +8,37 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
 public class Block {
 
+    private final String id;
     private final String text;
-    private final List<Block> children;
+    private final List<String> childrenBlockIds;
     private final boolean navigable;
 
     public Block(Builder builder) {
+        this.id = builder.id;
         this.text = builder.text;
         this.navigable = builder.navigable;
-        this.children = ImmutableList.copyOf(builder.children);
+        this.childrenBlockIds = ImmutableList.copyOf(builder.children);
     }
 
-    public static final Builder builder(long id, String text) {
+    public static final Builder builder(String id, String text) {
         return new Builder(id, text);
+    }
+
+    public String id() {
+        return this.id;
     }
 
     public String text() {
         return this.text;
     }
 
-    public List<Block> children() {
-        return this.children;
+    public List<String> childrenBlockIds() {
+        return this.childrenBlockIds;
     }
 
     public boolean isNavigable() {
@@ -41,25 +46,41 @@ public class Block {
     }
 
     public static class Builder {
-        private final long id;
+        private final String id;
         private final String text;
-        private List<Block> children = new ArrayList<>();
+        private List<String> children = new ArrayList<>();
         private boolean navigable = false;
 
-        Builder(long id, String text) {
-            this.id = id;
+        Builder(String id, String text) {
+            this.id = requireNonNull(id, "id must not be null");
             this.text = requireNonNull(text, "text must not be null");
         }
 
         public Builder child(Block block) {
             requireNonNull(block, "child block must not be null");
-            this.children.add(block);
+            this.children.add(block.id);
+            return this;
+        }
+
+        public Builder childrenIds(List<String> ids) {
+            requireNonNull(ids, "ids  must not be null");
+            this.children.addAll(ids);
+            return this;
+        }
+
+        public Builder childId(String childBlockId) {
+            requireNonNull(childBlockId, "child block id must not be null");
+            this.children.add(childBlockId);
+            return this;
+        }
+
+        public Builder navigable(boolean navigable) {
+            this.navigable = navigable;
             return this;
         }
 
         public Builder navigable() {
-            this.navigable = true;
-            return this;
+            return navigable(true);
         }
 
         public Block build() {
@@ -67,7 +88,7 @@ public class Block {
         }
     }
 
-    public static final Block idAndText(long id, String text) {
+    public static final Block idAndText(String id, String text) {
         return builder(id, text).build();
     }
 

@@ -20,6 +20,7 @@ import org.molr.commons.api.domain.*;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -35,7 +36,7 @@ public class LocalMoleDelegationAgency implements Agency {
     private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
     private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
     private final MissionHandleFactory missionHandleFactory;
-    private final EmitterProcessor<AgencyState> states = EmitterProcessor.create(1);
+    private final ReplayProcessor<AgencyState> states = ReplayProcessor.create(1);
 
     private final Scheduler scheduler = Schedulers.elastic();
 
@@ -48,7 +49,7 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Flux<AgencyState> states() {
-        return states;
+        return states.doOnSubscribe((v) -> System.out.println("subscribed: " + v));
     }
 
     @Override
