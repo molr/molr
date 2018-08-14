@@ -135,7 +135,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             LOGGER.error("error while waiting a response from the MolR server", error);
         }
 
-        if (streamError[0] !=null) {
+        if (streamError[0] != null) {
             throw new MissionExecutionServiceException("Error in the connection with the server", streamError[0]);
         }
 
