@@ -38,4 +38,10 @@ public interface MissionExecutionService {
      */
     <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName, I
             missionArguments, Function<ClientControllerData, C> controllerConstructor);
+
+    /**
+     * A synchronous version of the {@link MissionExecutionService#instantiateCustomController(String, Object, Function)}
+     */
+    <I, C extends ClientMissionController> C instantiateCustomControllerSync(String missionName, I
+            missionArguments, Function<ClientControllerData, C> controllerConstructor) throws MissionExecutionServiceException;
 }

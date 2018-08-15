@@ -81,13 +81,37 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
     @Override
     public <I> ClientMissionController instantiateSync(String missionName, I missionArguments) throws MissionExecutionServiceException {
-        final ClientMissionController[] clientMissionController = new ClientMissionController[1];
+
+        Publisher<ClientMissionController> publisher = instantiate(missionName, missionArguments);
+        return waitForController(publisher);
+    }
+
+    @Override
+    public <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName,
+                                                                                           I missionArguments,
+                                                                                           Function<ClientControllerData, C> controllerConstructor) {
+        return client.instantiate(missionName, missionArguments, missionId -> controllerConstructor.apply(new ClientControllerData(client,
+                missionName, missionId)));
+    }
+
+    @Override
+    public <I, C extends ClientMissionController> C instantiateCustomControllerSync(String missionName, I missionArguments,
+                                                                                    Function<ClientControllerData, C> controllerConstructor) throws MissionExecutionServiceException {
+        Publisher<C> publisher = instantiateCustomController(missionName, missionArguments, controllerConstructor);
+        return waitForController(publisher);
+    }
+
+
+    private <C> C waitForController(Publisher<C> publisher) throws MissionExecutionServiceException {
+
+        final Object[] controler = new Object[1];
         final Throwable[] streamError = new Throwable[1];
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        SimpleSubscriber<ClientMissionController> subscriber = new SimpleSubscriber<ClientMissionController>() {
+        SimpleSubscriber<C> subscriber = new SimpleSubscriber<C>() {
+
             @Override
-            public void consume(ClientMissionController controller) {
-                clientMissionController[0] = controller;
+            public void consume(C controller) {
+                controler[0] = controller;
                 countDownLatch.countDown();
             }
 
@@ -103,7 +127,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             }
         };
 
-        instantiate(missionName, missionArguments).subscribe(subscriber);
+        publisher.subscribe(subscriber);
 
         try {
             if (!countDownLatch.await(30, TimeUnit.SECONDS)) {
@@ -119,19 +143,10 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             throw new MissionExecutionServiceException("Error in the connection with the server", streamError[0]);
         }
 
-        if (clientMissionController[0] == null) {
+        if (controler[0] == null) {
             throw new MissionExecutionServiceException("The server response is empty");
         }
 
-        return clientMissionController[0];
-
-    }
-
-    @Override
-    public <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName,
-                                                                                           I missionArguments,
-                                                                                           Function<ClientControllerData, C> controllerConstructor) {
-        return client.instantiate(missionName, missionArguments, missionId -> controllerConstructor.apply(new ClientControllerData(client,
-                missionName, missionId)));
+        return (C) controler[0];
     }
 }
