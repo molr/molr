@@ -19,18 +19,20 @@ public class DemoMole implements Mole {
 
     private final Set<Mission> dummyMissions = ImmutableSet.of(new Mission("Find Dr No."), new Mission("Conquer Rome"));
 
-    private final Map<Mission, Block> missions =
+    private final Map<Mission, MissionRepresentation> missions =
             ImmutableMap.of(new Mission("Find Dr No."), dummyTree("Find Dr No."),
                     new Mission("Conquer Rome"), dummyTree("Conquer Rome"),
                     new Mission("Linear Mission"), linear("Linear Mission"));
 
-    private Block linear(String missionName) {
-        Block.Builder rootNodeBuilder = Block.builder(id(), missionName);
+    private MissionRepresentation linear(String missionName) {
+        Block rootNode = Block.builder(id(), missionName).build();
+
+        ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(rootNode);
         for (int i = 0; i < 10; i++) {
             Block child = Block.idAndText(id(), "Block no " + i + "");
-            rootNodeBuilder.child(child);
+            builder.parentToChild(rootNode, child);
         }
-        return rootNodeBuilder.build();
+        return builder.build();
     }
 
 
@@ -41,7 +43,7 @@ public class DemoMole implements Mole {
 
     @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return Mono.just(new ImmutableMissionRepresentation(mission, missions.get(mission)));
+        return Mono.just(missions.get(mission));
     }
 
     @Override
@@ -60,13 +62,22 @@ public class DemoMole implements Mole {
     }
 
 
-    private Block dummyTree(String rootName) {
-        Block l1a = Block.idAndText(id(), "Leaf 1A");
-        Block l1b = Block.idAndText(id(), "Leaf 1B");
-        Block ss1 = Block.builder(id(), "subSeq 1").child(l1a).child(l1b).build();
-        Block ss2 = Block.builder(id(), "subSeq 2").child(Block.idAndText(id(), "Leaf 2A")).child(Block.idAndText(id(), "Leaf 2B"))
-                .build();
-        return Block.builder(id(), rootName).child(ss1).child(ss2).build();
+    private MissionRepresentation dummyTree(String rootName) {
+        Block root = Block.builder(id(), rootName).build();
+        ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(root);
+
+        Block ss1 = Block.idAndText(id(), "subSeq 1");
+        builder.parentToChild(root, ss1);
+
+        builder.parentToChild(ss1, Block.idAndText(id(), "Leaf 1A"));
+        builder.parentToChild(ss1, Block.idAndText(id(), "Leaf 1B"));
+
+        Block ss2 = Block.idAndText(id(), "subSeq 2");
+        builder.parentToChild(root, ss2);
+        builder.parentToChild(ss2, Block.idAndText(id(), "Leaf 2A"));
+        builder.parentToChild(ss2, Block.idAndText(id(), "Leaf 2B"));
+
+        return builder.build();
     }
 
     private String id() {

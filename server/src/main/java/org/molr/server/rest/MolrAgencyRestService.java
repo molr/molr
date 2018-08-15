@@ -2,10 +2,7 @@ package org.molr.server.rest;
 
 
 import org.molr.commons.api.domain.*;
-import org.molr.commons.api.domain.dto.AgencyStateDto;
-import org.molr.commons.api.domain.dto.MissionDto;
-import org.molr.commons.api.domain.dto.MissionHandleDto;
-import org.molr.commons.api.domain.dto.TestValueDto;
+import org.molr.commons.api.domain.dto.*;
 import org.molr.server.api.Agency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +38,9 @@ public class MolrAgencyRestService {
         return agency.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
     }
 
-    public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return agency.representationOf(mission);
+    @GetMapping(path = "/{missionName}/representation")
+    public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
+        return agency.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
 
     @GetMapping(path = "/states")

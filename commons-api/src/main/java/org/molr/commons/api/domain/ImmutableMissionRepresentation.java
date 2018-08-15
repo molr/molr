@@ -1,22 +1,23 @@
 package org.molr.commons.api.domain;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 public class ImmutableMissionRepresentation implements MissionRepresentation {
 
-    private final Mission mission;
     private final Block root;
+    private final ListMultimap<Block, Block> children;
 
-    public ImmutableMissionRepresentation(Mission mission, Block root) {
-        this.mission = mission;
-        this.root = root;
-    }
-
-    @Override
-    public Mission mission() {
-        return this.mission;
+    public ImmutableMissionRepresentation(Builder builder) {
+        this.root = builder.rootBlock;
+        this.children = builder.treeBuilder.build();
     }
 
     @Override
@@ -26,41 +27,56 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
 
     @Override
     public List<Block> childrenOf(Block block) {
-        return null;
+        return children.get(block);
     }
 
+    @Override
+    public Set<Block> allBlocks() {
+        HashSet<Block> blocks = new HashSet<>();
+        for (Block block : children.keys()) {
+            blocks.add(block);
+            blocks.addAll(children.get(block));
+        }
+        return blocks;
+    }
+
+    public static Builder builder(Block rootBlock) {
+        return new Builder(rootBlock);
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImmutableMissionRepresentation that = (ImmutableMissionRepresentation) o;
-        return Objects.equals(mission, that.mission) &&
-                Objects.equals(root, that.root);
+        return Objects.equals(root, that.root) &&
+                Objects.equals(children, that.children);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mission, root);
-    }
 
+        return Objects.hash(root, children);
+    }
 
     public static class Builder {
 
-        private final AtomicLong idSeq = new AtomicLong(0);
+        private final Block rootBlock;
+        private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
 
-        private BlockId newId() {
-            return new BlockId("" + idSeq.getAndIncrement());
+        private Builder(Block rootBlock) {
+            this.rootBlock = requireNonNull(rootBlock, "rootBlock must not be null");
         }
 
+        public Builder parentToChild(Block parentId, Block childId) {
+            treeBuilder.put(parentId, childId);
+            return this;
+        }
+
+        public MissionRepresentation build() {
+            return new ImmutableMissionRepresentation(this);
+        }
     }
 
 
-    public static class BlockId {
-        private final String id;
-
-        private BlockId(String id) {
-            this.id = id;
-        }
-    }
 }
