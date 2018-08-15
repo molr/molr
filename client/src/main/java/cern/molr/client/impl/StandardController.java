@@ -1,11 +1,13 @@
 package cern.molr.client.impl;
 
+import cern.molr.client.api.ClientControllerData;
 import cern.molr.client.api.ClientMissionController;
 import cern.molr.client.api.MolrClientToServer;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.commands.MissionControlCommand;
 import org.reactivestreams.Publisher;
 
 import java.util.Objects;
@@ -24,10 +26,10 @@ public class StandardController implements ClientMissionController {
     private String missionName;
     private String missionId;
 
-    public StandardController(MolrClientToServer client, String missionName, String missionId) {
-        this.client = client;
-        this.missionName = missionName;
-        this.missionId = missionId;
+    public StandardController(ClientControllerData clientControllerData) {
+        this.client = clientControllerData.getClient();
+        this.missionName = clientControllerData.getMissionName();
+        this.missionId = clientControllerData.getMissionId();
 
         Objects.requireNonNull(client);
         Objects.requireNonNull(missionName);
@@ -49,4 +51,13 @@ public class StandardController implements ClientMissionController {
     public Publisher<CommandResponse> instruct(MissionCommand command) {
         return client.instruct(missionName, missionId, command);
     }
+
+    public Publisher<CommandResponse> start() {
+        return instruct(new MissionControlCommand(MissionControlCommand.Command.START));
+    }
+
+    public Publisher<CommandResponse> terminate() {
+        return instruct(new MissionControlCommand(MissionControlCommand.Command.TERMINATE));
+    }
+
 }

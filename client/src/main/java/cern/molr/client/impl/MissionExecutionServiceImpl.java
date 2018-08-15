@@ -4,14 +4,7 @@
 
 package cern.molr.client.impl;
 
-import cern.molr.client.api.ClientMissionController;
-import cern.molr.client.api.MissionExecutionService;
-import cern.molr.client.api.MissionExecutionServiceException;
-import cern.molr.client.api.MolrClientToServer;
-import cern.molr.commons.api.request.MissionCommand;
-import cern.molr.commons.api.response.CommandResponse;
-import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.api.response.MissionState;
+import cern.molr.client.api.*;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -21,6 +14,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Implementation used by the operator to interact with the server
@@ -81,8 +75,8 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Publisher<ClientMissionController> instantiate(String missionName, I missionArguments) {
 
-        return client.instantiate(missionName, missionArguments, missionId -> new StandardController(client,
-                missionName, missionId));
+        return client.instantiate(missionName, missionArguments, missionId -> new StandardController(new ClientControllerData(client,
+                missionName, missionId)));
     }
 
     @Override
@@ -131,5 +125,13 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
         return clientMissionController[0];
 
+    }
+
+    @Override
+    public <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName,
+                                                                                           I missionArguments,
+                                                                                           Function<ClientControllerData, C> controllerConstructor) {
+        return client.instantiate(missionName, missionArguments, missionId -> controllerConstructor.apply(new ClientControllerData(client,
+                missionName, missionId)));
     }
 }
