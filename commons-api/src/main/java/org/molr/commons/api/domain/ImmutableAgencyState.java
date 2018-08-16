@@ -9,15 +9,23 @@ import static java.util.Objects.requireNonNull;
 
 public class ImmutableAgencyState implements AgencyState {
 
+    private final Set<Mission> executableMissions;
     private final Set<MissionInstance> activeMissions;
 
-    private ImmutableAgencyState(Iterable<MissionInstance> activeMissions) {
-        requireNonNull(activeMissions, "acttiveMissions must not be null");
+    private ImmutableAgencyState(Set<Mission> executableMissions, Iterable<MissionInstance> activeMissions) {
+        requireNonNull(executableMissions, "executableMissions must not be null");
+        requireNonNull(activeMissions, "activeMissions must not be null");
+        this.executableMissions = ImmutableSet.copyOf(executableMissions);
         this.activeMissions = ImmutableSet.copyOf(activeMissions);
     }
 
-    public static ImmutableAgencyState of(Iterable<MissionInstance> activeMissions) {
-        return new ImmutableAgencyState(activeMissions);
+    public static ImmutableAgencyState of(Set<Mission> executableMissions, Iterable<MissionInstance> activeMissions) {
+        return new ImmutableAgencyState(executableMissions, activeMissions);
+    }
+
+    @Override
+    public Set<Mission> executableMissions() {
+        return this.executableMissions;
     }
 
     @Override
@@ -30,11 +38,20 @@ public class ImmutableAgencyState implements AgencyState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImmutableAgencyState that = (ImmutableAgencyState) o;
-        return Objects.equals(activeMissions, that.activeMissions);
+        return Objects.equals(executableMissions, that.executableMissions) &&
+                Objects.equals(activeMissions, that.activeMissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(activeMissions);
+        return Objects.hash(executableMissions, activeMissions);
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableAgencyState{" +
+                "executableMissions=" + executableMissions +
+                ", activeMissions=" + activeMissions +
+                '}';
     }
 }

@@ -2,9 +2,10 @@
  * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package org.molr.server.api;
+package org.molr.commons.api.service;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.molr.commons.api.domain.*;
 import reactor.core.publisher.Flux;
@@ -13,8 +14,6 @@ import reactor.core.publisher.Mono;
 public interface Agency {
 
     Flux<AgencyState> states();
-
-    Flux<Mission> executableMissions();
 
     Mono<MissionRepresentation> representationOf(Mission mission);
 
