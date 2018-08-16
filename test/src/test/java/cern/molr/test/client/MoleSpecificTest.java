@@ -345,7 +345,7 @@ public class MoleSpecificTest {
 
     private void testRunningState(MissionState state, int taskNumber) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("RUNNING TASK " + taskNumber, state.getStatus());
+        Assert.assertEquals("TASK_RUNNING TASK " + taskNumber, state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 
@@ -358,7 +358,7 @@ public class MoleSpecificTest {
 
     private void testFinishedState(MissionState state) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("ALL TASKS FINISHED", state.getStatus());
+        Assert.assertEquals("ALL TASKS TASKS_FINISHED", state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 

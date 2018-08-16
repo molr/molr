@@ -11,18 +11,29 @@ import cern.molr.commons.api.request.MissionCommandRequest;
 import cern.molr.commons.api.request.client.ServerInstantiationRequest;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
+import cern.molr.commons.api.response.SupervisorInfo;
+import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
+import cern.molr.server.api.SupervisorsManagerListener;
+import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
+import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * Service used for communication between server and supervisors
@@ -30,24 +41,25 @@ import java.util.concurrent.ConcurrentMap;
  * @author yassine-kr
  */
 @Service
-public class ServerRestExecutionService {
+public class ServerExecutionService {
 
     private final ServerState registry = new ServerState();
     private final SupervisorsManager supervisorsManager;
+    private final ServerConfig config;
+    private final Processor<SupervisorInfo, SupervisorInfo> processor = DirectProcessor.create();
 
 
-    public ServerRestExecutionService(SupervisorsManager supervisorsManager) {
+    public ServerExecutionService(SupervisorsManager supervisorsManager, ServerConfig config, RegisteredMissions missions) {
+        this.config = config;
 
         //TODO remove this init code after implementing a deployment service
-        registry.registerNewMission(RunnableHelloWriter.class.getName());
-        registry.registerNewMission(IntDoubler.class.getName());
-        registry.registerNewMission(Fibonacci.class.getName());
         //Just for testing, normally missions must be verified before deployment
-        registry.registerNewMission(IncompatibleMission.class.getName());
-        registry.registerNewMission(RunnableExceptionMission.class.getName());
-        registry.registerNewMission(SequenceMissionExample.class.getName());
+        missions.getMissions().forEach(registry::registerNewMission);
 
         this.supervisorsManager = supervisorsManager;
+
+        this.supervisorsManager.addListener(supervisorId ->
+                processor.onNext(new SupervisorInfo(supervisorId, null, null, SupervisorInfo.Life.TOMB)));
     }
 
 
@@ -73,7 +85,15 @@ public class ServerRestExecutionService {
 
     public Publisher<MissionEvent> getEventsStream(String mEId) throws UnknownMissionException {
         Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
-        return optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running"));
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> !(event instanceof MissionStateEvent)).doOnComplete(() -> registry.removeMissionExecution(mEId));
+    }
+
+    public Publisher<MissionState> getStatesStream(String mEId) throws UnknownMissionException {
+        Optional<Publisher<MissionEvent>> optionalStream = registry.getMissionExecutionStream(mEId);
+        return Flux.from(optionalStream.orElseThrow(() -> new UnknownMissionException("No such mission running")))
+                .filter(event -> (event instanceof MissionStateEvent))
+                .map((event -> ((MissionStateEvent) event).getState()));
     }
 
     private String makeEId() {
@@ -89,12 +109,40 @@ public class ServerRestExecutionService {
     }
 
     public String addSupervisor(String host, int port, List<String> missionsAccepted) {
-        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port);
-        return supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
+        RemoteMoleSupervisor moleSupervisor = new RemoteMoleSupervisorImpl(host, port,
+                Duration.ofSeconds(config.getHeartbeatInterval()), Duration.ofSeconds(config.getHeartbeatTimeOut()),
+                config.getNumMaxTimeOut());
+
+        String id = supervisorsManager.addSupervisor(moleSupervisor, missionsAccepted);
+
+        moleSupervisor.addTimeOutStateListener(new TimeOutStateListener() {
+            @Override
+            public void onTimeOut(Duration timeOutDuration) {
+                processor.onNext(new SupervisorInfo(id, registry.getMissions(moleSupervisor), null, SupervisorInfo.Life
+                        .DYING));
+            }
+
+            @Override
+            public void onMaxTimeOuts(int numTimeOut) {
+                processor.onNext(new SupervisorInfo(id, registry.getMissions(moleSupervisor), null, SupervisorInfo.Life
+                        .DEAD));
+                supervisorsManager.removeSupervisor(moleSupervisor);
+
+            }
+        });
+        moleSupervisor
+                .addStateListener(state -> processor
+                        .onNext(new SupervisorInfo(id,
+                                registry.getMissions(moleSupervisor), state, SupervisorInfo.Life.ALIVE)));
+        return id;
     }
 
     public void removeSupervisor(String id) {
         supervisorsManager.removeSupervisor(id);
+    }
+
+    public Publisher<SupervisorInfo> getSupervisorsInfoStream() {
+        return processor;
     }
 
     public static class ServerState {
@@ -133,6 +181,10 @@ public class ServerRestExecutionService {
             missionExecutionRegistry.remove(missionId);
         }
 
+        private List<String> getMissions(RemoteMoleSupervisor supervisor) {
+            return moleSupervisorRegistry.entrySet().stream().filter((entry) -> entry.getValue() == supervisor)
+                    .map(Map.Entry::getKey).collect(Collectors.toList());
+        }
     }
 
 }
