@@ -4,6 +4,8 @@
 
 package org.molr.commons.api.domain;
 
+import java.util.Objects;
+
 public class MissionHandle {
 
 
@@ -26,4 +28,16 @@ public class MissionHandle {
         return "MissionHandle [id=" + id + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MissionHandle that = (MissionHandle) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

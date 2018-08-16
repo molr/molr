@@ -4,6 +4,10 @@
 
 package org.molr.commons.api.domain;
 
-public interface MissionCommand {
+import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
+public enum MissionCommand {
+    PAUSE, STEP_OVER, STEP_INTO, RESUME;
 }

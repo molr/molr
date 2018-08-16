@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
-import org.molr.server.api.Agency;
+import com.google.common.collect.ImmutableSet;
+import org.molr.commons.api.service.Agency;
 import org.molr.mole.api.Mole;
 import org.molr.commons.api.domain.*;
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
@@ -37,6 +37,7 @@ public class LocalMoleDelegationAgency implements Agency {
     private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
     private final MissionHandleFactory missionHandleFactory;
     private final ReplayProcessor<AgencyState> states = ReplayProcessor.create(1);
+    private final ReplayProcessor<Set<Mission>> missions = ReplayProcessor.create(1);
 
     private final Scheduler scheduler = Schedulers.elastic();
 
@@ -49,12 +50,7 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Flux<AgencyState> states() {
-        return states.doOnSubscribe((v) -> System.out.println("subscribed: " + v));
-    }
-
-    @Override
-    public Flux<Mission> executableMissions() {
-        return Flux.fromIterable(missionMoles.keySet()).sort(comparing(Mission::name));
+        return states;
     }
 
     @Override
@@ -78,12 +74,17 @@ public class LocalMoleDelegationAgency implements Agency {
     }
 
     private final void publishState() {
-        states.onNext(ImmutableAgencyState.of(missionInstances.values()));
+        states.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(missionMoles.keySet()), missionInstances.values()));
     }
+
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
-        return activeMoles.get(handle).statesFor(handle);
+        Mole activeMole = activeMoles.get(handle);
+        if (activeMole == null) {
+            return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
+        }
+        return activeMole.statesFor(handle);
     }
 
     @Override

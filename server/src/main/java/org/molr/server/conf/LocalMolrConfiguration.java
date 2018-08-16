@@ -2,7 +2,7 @@ package org.molr.server.conf;
 
 import org.molr.commons.api.domain.AtomicIncrementMissionHandleFactory;
 import org.molr.commons.api.domain.MissionHandleFactory;
-import org.molr.server.api.Agency;
+import org.molr.commons.api.service.Agency;
 import org.molr.mole.api.Mole;
 import org.molr.server.local.LocalMoleDelegationAgency;
 import org.springframework.beans.factory.annotation.Autowired;

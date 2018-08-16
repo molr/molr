@@ -3,7 +3,7 @@ package org.molr.server.rest;
 
 import org.molr.commons.api.domain.*;
 import org.molr.commons.api.domain.dto.*;
-import org.molr.server.api.Agency;
+import org.molr.commons.api.service.Agency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -13,8 +13,9 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
-import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 
 @RestController
@@ -26,19 +27,14 @@ public class MolrAgencyRestService {
     @Autowired
     private Agency agency;
 
-    @GetMapping(path = "/executable-missions")
-    public Flux<MissionDto> executableMissions() {
-        return agency.executableMissions().map(MissionDto::from);
-    }
-
-    @GetMapping(path = "/{missionName}/instantiate")
+    @GetMapping(path = "/mission/{missionName}/instantiate")
     public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName) {
         /* TODO: Implement real parameters */
         Map<String, Object> params = Collections.emptyMap();
         return agency.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
     }
 
-    @GetMapping(path = "/{missionName}/representation")
+    @GetMapping(path = "/mission/{missionName}/representation")
     public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
         return agency.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
@@ -48,12 +44,14 @@ public class MolrAgencyRestService {
         return agency.states().map(AgencyStateDto::from);
     }
 
-    public Flux<MissionState> statesFor(MissionHandle handle) {
-        return agency.statesFor(handle);
+    @GetMapping(path = "/instance/{missionHandle}/states")
+    public Flux<MissionStateDto> statesFor(@PathVariable("missionHandle") String missionHandle) {
+        return agency.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
-    public void instruct(MissionHandle handle, MissionCommand command) {
-        agency.instruct(handle, command);
+    @GetMapping(path = "/instance/{missionHandle}/instruct/{commandName}")
+    public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
+        agency.instruct(MissionHandle.ofId(missionHandle), MissionCommand.valueOf(commandName));
     }
 
     @GetMapping(path = "/test-stream/{count}")

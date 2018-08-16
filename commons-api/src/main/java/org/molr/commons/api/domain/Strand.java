@@ -18,41 +18,43 @@ import static java.util.Objects.requireNonNull;
  */
 public class Strand {
 
-    private final long id;
-    private final String name;
+    private final String id;
 
-    private final Strand parent;
+    private final String parent;
 
-    private Strand(long id, String name) {
-        this.id = id;
-        this.name = requireNonNull(name, "name must not be null");
+    private Strand(String id) {
+        this.id = requireNonNull(id, "id must not be null");
         this.parent = null;
     }
 
-    private Strand(long id, String name, Strand parent) {
-        this.id = id;
-        this.name = requireNonNull(name, "name must not be null");
-        this.parent = requireNonNull(parent, "parent must not be null");
+    private Strand(String id, String parentId) {
+        this.id = requireNonNull(id, "id must not be null");
+        this.parent = requireNonNull(parentId, "parent must not be null");
     }
 
-    public static Strand ofIdName(long id, String name) {
-        return new Strand(id, name);
+    public static Strand ofId(String id) {
+        return new Strand(id);
     }
 
-    public static Strand ofIdNameParent(long id, String name, Strand parent) {
-        return new Strand(id, name, parent);
+    public static Strand ofIdAndParentId(String id, String parent) {
+        return new Strand(id, parent);
     }
 
-    public String name() {
-        return name;
-    }
-
-    public long id() {
+    public String id() {
         return id;
     }
 
-    public Optional<Strand> parent() {
+    public Optional<String> parentId() {
         return Optional.ofNullable(this.parent);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Strand{" +
+                "id='" + id + '\'' +
+                ", parent='" + parent + '\'' +
+                '}';
     }
 
     @Override
@@ -60,22 +62,12 @@ public class Strand {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Strand strand = (Strand) o;
-        return id == strand.id &&
-                Objects.equals(name, strand.name) &&
+        return Objects.equals(id, strand.id) &&
                 Objects.equals(parent, strand.parent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, parent);
-    }
-
-    @Override
-    public String toString() {
-        return "Strand{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", parent=" + parent +
-                '}';
+        return Objects.hash(id, parent);
     }
 }
