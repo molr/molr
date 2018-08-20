@@ -130,7 +130,7 @@ public class SequenceMole implements Mole<Void, Void> {
             tasks.get(currentTask).run();
             event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_FINISHED, "");
         } catch (Exception error) {
-            event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_ERROR, error.getMessage());
+            event = new SequenceMissionEvent(currentTask, error, error.getMessage());
         }
         stateManager.changeState(event);
         eventsProcessor.onNext(event);

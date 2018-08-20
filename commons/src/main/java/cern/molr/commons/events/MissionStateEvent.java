@@ -10,10 +10,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionStateEvent implements MissionEvent {
+public class MissionStateEvent extends MissionEvent {
     private final MissionState state;
 
-    public MissionStateEvent(@JsonProperty("state") MissionState state) {
+    public MissionStateEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
+                              @JsonProperty("state") MissionState state) {
+        super(success, throwable);
+        this.state = state;
+    }
+
+    public MissionStateEvent(MissionState state) {
+        super(true, null);
         this.state = state;
     }
 

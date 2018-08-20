@@ -46,7 +46,7 @@ public class SequenceMoleStateManager implements StateManager {
             case WAITING:
                 return "WAITING NEXT TASK " + currentTask;
             case TASKS_FINISHED:
-                return "ALL TASKS TASKS_FINISHED";
+                return "ALL TASKS FINISHED";
             case RUNNING_AUTOMATIC:
                 return "RUNNING TASK AUTOMATIC " + currentTask;
         }

@@ -59,7 +59,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         });
     }
 
-    //TODO find the reason of a NoSupervisorFoundException thrown sometimes
+    //TODO find the reason of a NoSupervisorFoundException thrown sometimes (maybe the config files are not loaded)
     //I think it is caused by the supervisor being not able to load the names of missions that can execute.
     @Override
     public synchronized Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {

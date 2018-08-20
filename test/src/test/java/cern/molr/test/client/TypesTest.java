@@ -339,11 +339,11 @@ public class TypesTest {
 
         endSignal.await(1, TimeUnit.MINUTES);
 
-        Assert.assertEquals(MissionExceptionEvent.class, events.get(2).getClass());
-        Assert.assertEquals(MissionExecutionException.class,
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getClass());
-        Assert.assertEquals(RuntimeException.class,
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getClass());
+        Assert.assertEquals(MissionRunnerEvent.class, events.get(2).getClass());
+        Assert.assertFalse(events.get(2).isSuccess());
+        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent)events.get(2)).getEvent());
+        Assert.assertEquals(MissionExecutionException.class, events.get(2).getThrowable().getClass());
+        Assert.assertEquals(RuntimeException.class, events.get(2).getThrowable().getCause().getClass());
 
     }
 
@@ -446,15 +446,15 @@ public class TypesTest {
 
         endSignal.await(1, TimeUnit.MINUTES);
 
-        Assert.assertEquals(MissionExceptionEvent.class, events.get(2).getClass());
-        Assert.assertEquals(MissionExecutionException.class,
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getClass());
-        Assert.assertEquals(RuntimeException.class,
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getClass());
-        Assert.assertEquals(InvocationTargetException.class,
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getClass());
-        Assert.assertEquals("invocation target exception",
-                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getMessage());
+        Assert.assertEquals(MissionRunnerEvent.class, events.get(2).getClass());
+        Assert.assertFalse(events.get(2).isSuccess());
+        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent)events.get(2)).getEvent());
+        Assert.assertEquals(MissionExecutionException.class, events.get(2).getThrowable().getClass());
+        Assert.assertEquals(RuntimeException.class, events.get(2).getThrowable().getCause().getClass());
+        Assert.assertEquals(InvocationTargetException.class, events.get(2).getThrowable().getCause().getCause()
+                .getClass());
+        Assert.assertEquals("invocation target exception", events.get(2).getThrowable().getCause().getCause()
+                .getMessage());
 
     }
 

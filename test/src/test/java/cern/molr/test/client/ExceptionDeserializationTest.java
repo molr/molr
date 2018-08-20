@@ -54,6 +54,7 @@ public class ExceptionDeserializationTest {
 
     }
 
+
     @Test
     public void invocationExceptionTypelessTest() {
         InvocationTargetException invocationTargetException = new InvocationTargetException(new Exception

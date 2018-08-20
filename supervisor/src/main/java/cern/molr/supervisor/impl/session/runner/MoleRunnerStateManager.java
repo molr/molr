@@ -41,7 +41,7 @@ public class MoleRunnerStateManager implements StateManager {
             case MISSION_STARTED:
                 return "MISSION STARTED";
             case MISSION_FINISHED:
-                return "MISSION TASKS_FINISHED";
+                return "MISSION FINISHED";
             case MISSION_ERROR:
                 return "MISSION ERROR";
             case SESSION_TERMINATED:
@@ -94,12 +94,13 @@ public class MoleRunnerStateManager implements StateManager {
                     state = MissionRunnerState.State.SESSION_TERMINATED;
                     notifyListeners();
                     break;
+                case MISSION_ERROR:
+                    state = MissionRunnerState.State.MISSION_ERROR;
+                    notifyListeners();
+                    break;
             }
         } else if (event instanceof MissionFinished) {
             state = MissionRunnerState.State.MISSION_FINISHED;
-            notifyListeners();
-        } else if (event instanceof MissionExceptionEvent) {
-            state = MissionRunnerState.State.MISSION_ERROR;
             notifyListeners();
         }
 

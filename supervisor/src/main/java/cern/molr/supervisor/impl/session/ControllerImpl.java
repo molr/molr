@@ -103,13 +103,13 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
 
             while (commandStatus == null) {
             }
-            if (commandStatus.isAccepted()) {
+            if (commandStatus.isSuccess()) {
                 String message = commandStatus.getReason();
                 commandStatus = null;
                 return new CommandResponse(new Ack(message));
             } else {
                 CommandResponse response =
-                        new CommandResponse(commandStatus.getException());
+                        new CommandResponse(commandStatus.getThrowable());
                 commandStatus = null;
                 return response;
             }
