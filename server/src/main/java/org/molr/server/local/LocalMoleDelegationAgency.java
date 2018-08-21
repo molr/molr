@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.api.service.Agency;
-import org.molr.mole.api.Mole;
+import org.molr.mole.api.Supervisor;
 import org.molr.commons.api.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,8 +32,8 @@ import reactor.core.scheduler.Schedulers;
  */
 public class LocalMoleDelegationAgency implements Agency {
 
-    private final Map<Mission, Mole> missionMoles;
-    private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
+    private final Map<Mission, Supervisor> missionMoles;
+    private final ConcurrentMap<MissionHandle, Supervisor> activeMoles = new ConcurrentHashMap<>();
     private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
     private final MissionHandleFactory missionHandleFactory;
     private final ReplayProcessor<AgencyState> states = ReplayProcessor.create(1);
@@ -41,7 +41,7 @@ public class LocalMoleDelegationAgency implements Agency {
 
     private final Scheduler scheduler = Schedulers.elastic();
 
-    public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Mole> moles) {
+    public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Supervisor> moles) {
         this.missionHandleFactory = requireNonNull(missionHandleFactory, "missionHandleFactory must not be null");
         requireNonNull(moles, "moles must not be null");
         this.missionMoles = scanMoles(moles);
@@ -62,9 +62,9 @@ public class LocalMoleDelegationAgency implements Agency {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         Mono<MissionHandle> mono = Mono.fromSupplier(() -> {
             MissionHandle handle = missionHandleFactory.next();
-            Mole mole = missionMoles.get(mission);
-            mole.instantiate(handle, mission, params);
-            activeMoles.put(handle, mole);
+            Supervisor supervisor = missionMoles.get(mission);
+            supervisor.instantiate(handle, mission, params);
+            activeMoles.put(handle, supervisor);
             MissionInstance instance = new MissionInstance(handle, mission);
             missionInstances.put(handle, instance);
             return handle;
@@ -80,11 +80,11 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
-        Mole activeMole = activeMoles.get(handle);
-        if (activeMole == null) {
+        Supervisor activeSupervisor = activeMoles.get(handle);
+        if (activeSupervisor == null) {
             return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
         }
-        return activeMole.statesFor(handle);
+        return activeSupervisor.statesFor(handle);
     }
 
     @Override
@@ -92,11 +92,11 @@ public class LocalMoleDelegationAgency implements Agency {
         activeMoles.get(handle).instruct(handle, command);
     }
 
-    private static final Map<Mission, Mole> scanMoles(Iterable<Mole> moles) {
-        Builder<Mission, Mole> builder = ImmutableMap.builder();
-        for (Mole mole : moles) {
-            for (Mission mission : mole.availableMissions()) {
-                builder.put(mission, mole);
+    private static final Map<Mission, Supervisor> scanMoles(Iterable<Supervisor> moles) {
+        Builder<Mission, Supervisor> builder = ImmutableMap.builder();
+        for (Supervisor supervisor : moles) {
+            for (Mission mission : supervisor.availableMissions()) {
+                builder.put(mission, supervisor);
             }
         }
         return builder.build();

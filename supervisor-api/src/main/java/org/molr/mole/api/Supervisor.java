@@ -15,7 +15,7 @@ import org.molr.commons.api.domain.MissionState;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface Mole {
+public interface Supervisor {
 
     Set<Mission> availableMissions();
 

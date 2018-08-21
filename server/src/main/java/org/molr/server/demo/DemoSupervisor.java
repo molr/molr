@@ -2,7 +2,7 @@ package org.molr.server.demo;
 
 //import cern.lhc.app.seq.scheduler.domain.execution.demo.SleepBlock;
 
-import org.molr.mole.api.Mole;
+import org.molr.mole.api.Supervisor;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.api.domain.*;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DemoMole implements Mole {
+public class DemoSupervisor implements Supervisor {
 
     private final AtomicLong ids = new AtomicLong(0);
 
