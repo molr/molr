@@ -43,11 +43,10 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
     }
 
     /**
-     *
      * TODO avoid an IllegalStateException when we try to schedule a task on the timer already cancelled
+     *
      * @param timeOutDuration The maximum duration to wait for receiving the next state, otherwise notify the timeOutListeners
      *                        that the state is not available
-     *
      */
     public RemoteMoleSupervisorImpl(String host, int port, Duration interval, Duration timeOutDuration, int
             maxTimeOuts) {
@@ -103,7 +102,6 @@ public class RemoteMoleSupervisorImpl implements RemoteMoleSupervisor {
             }
         });
     }
-
 
 
     @Override

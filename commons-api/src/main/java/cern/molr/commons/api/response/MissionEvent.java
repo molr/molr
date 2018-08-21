@@ -29,9 +29,12 @@ public class MissionEvent {
 
     /**
      * Used for the Web Gui
+     *
      * @return the string to be displayed by the web gui
      */
-    @JsonProperty(access=READ_ONLY)
-    public String getString() {return toString();}
+    @JsonProperty(access = READ_ONLY)
+    public String getString() {
+        return toString();
+    }
 
 }

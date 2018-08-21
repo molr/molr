@@ -34,7 +34,7 @@ public class CommandStatus extends MissionEvent {
 
     public String toString() {
         return isSuccess() ? "command accepted: " + reason : "command not accepted: " + reason + " " +
-                "throwable:" + getThrowable().getClass().getName() + ": "  + getThrowable().getMessage();
+                "throwable:" + getThrowable().getClass().getName() + ": " + getThrowable().getMessage();
     }
 
 }

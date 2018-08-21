@@ -46,12 +46,14 @@ public interface RemoteMoleSupervisor {
 
     /**
      * Add a {@link SupervisorStateListener}
+     *
      * @param listener the listener to add
      */
     void addStateListener(SupervisorStateListener listener);
 
     /**
      * Add a {@link TimeOutStateListener}
+     *
      * @param listener the listener to add
      */
     void addTimeOutStateListener(TimeOutStateListener listener);

@@ -260,9 +260,9 @@ public class MoleSpecificTest {
 
     }
 
-    private void launchSequenceMissionExampleCustomController(String execName, List<MissionEvent> events,
-                                                              List<CommandResponse> commandResponses, List<MissionState> states,
-                                                              CountDownLatch finishSignal) throws Exception {
+    private void launchSequenceMissionCustomController(String execName, List<MissionEvent> events,
+                                                       List<CommandResponse> commandResponses, List<MissionState> states,
+                                                       CountDownLatch finishSignal) throws Exception {
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
         CountDownLatch startSignal = new CountDownLatch(1);
@@ -455,7 +455,7 @@ public class MoleSpecificTest {
         List<MissionState> states = new ArrayList<>();
         CountDownLatch finishSignal = new CountDownLatch(1);
 
-        launchSequenceMissionExampleCustomController("exec", events, commandResponses, states, finishSignal);
+        launchSequenceMissionCustomController("exec", events, commandResponses, states, finishSignal);
         finishSignal.await(1, TimeUnit.MINUTES);
 
         testAll(events, commandResponses, states);

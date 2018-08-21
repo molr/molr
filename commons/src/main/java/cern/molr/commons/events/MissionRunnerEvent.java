@@ -15,7 +15,7 @@ public class MissionRunnerEvent extends MissionEvent {
     private final Event event;
 
     public MissionRunnerEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
-                           @JsonProperty("event") Event event) {
+                              @JsonProperty("event") Event event) {
         super(success, throwable);
         this.event = event;
     }

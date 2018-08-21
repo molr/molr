@@ -16,7 +16,6 @@ import cern.molr.commons.api.response.SupervisorInfo;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.server.api.RemoteMoleSupervisor;
 import cern.molr.server.api.SupervisorsManager;
-import cern.molr.server.api.SupervisorsManagerListener;
 import cern.molr.server.api.TimeOutStateListener;
 import cern.molr.server.impl.RemoteMoleSupervisorImpl;
 import io.netty.util.internal.ConcurrentSet;
@@ -141,6 +140,7 @@ public class ServerExecutionService {
         supervisorsManager.removeSupervisor(id);
     }
 
+    //TODO send back the last state of each supervisor to the client when he requests the stream
     public Publisher<SupervisorInfo> getSupervisorsInfoStream() {
         return processor;
     }

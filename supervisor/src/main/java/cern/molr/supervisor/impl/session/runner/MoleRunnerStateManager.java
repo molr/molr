@@ -7,7 +7,6 @@ import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.states.MissionRunnerState;

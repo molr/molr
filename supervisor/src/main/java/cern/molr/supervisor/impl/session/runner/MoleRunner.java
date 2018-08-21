@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * The entry point to execute a mission in a spawned JVM. It has a reader which reads commands from STDIN and writes
  * events in STDOUT
- *
+ * <p>
  * TODO if the logger writes to the output stream it leads to issues, because the supervisor attempts to deserialize
  *
  * @author nachivpn
@@ -179,7 +179,7 @@ public class MoleRunner implements CommandListener {
 
             sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.MISSION_STARTED));
 
-            CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture.supplyAsync(() -> {
                 try {
                     MissionEvent missionFinishedEvent = new MissionFinished<>(future.get());
                     sendEvent(missionFinishedEvent);

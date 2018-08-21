@@ -4,7 +4,6 @@ import cern.molr.commons.api.exception.IncompatibleMissionException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
@@ -30,7 +29,7 @@ public class TypesTest {
 
 
     @Test
-    public void IncompatibleMissionTest() throws Exception {
+    public void incompatibleMissionTest() throws Exception {
         CountDownLatch signal = new CountDownLatch(3);
 
         JVMSpawner<Integer> spawner = new JVMSpawner<>();
@@ -55,7 +54,7 @@ public class TypesTest {
 
         Assert.assertEquals(MissionRunnerEvent.class, events.get(1).getClass());
         Assert.assertFalse(events.get(1).isSuccess());
-        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent)events.get(1)).getEvent());
+        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent) events.get(1)).getEvent());
         Assert.assertEquals(IncompatibleMissionException.class, events.get(1).getThrowable().getClass());
         Assert.assertEquals("Mission must implement Runnable interface", events.get(1).getThrowable().getMessage());
     }

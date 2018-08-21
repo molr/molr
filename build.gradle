@@ -30,7 +30,7 @@ subprojects {
 
         additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
         sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-        classDirectories =  files(sourceSets.main.output)
+        classDirectories = files(sourceSets.main.output)
         reports {
             html.enabled = false
             xml.enabled = true
@@ -44,7 +44,7 @@ jacocoTestReport {
 
     additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories =  files(subprojects.sourceSets.main.output)
+    classDirectories = files(subprojects.sourceSets.main.output)
 
     executionData = files(subprojects.jacocoTestReport.executionData)
     reports {
@@ -70,11 +70,11 @@ subprojects {
     }
 }
 
-subprojects.each { subproject -> evaluationDependsOn( subproject.path ) }
+subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
 task projectJar(type: Jar, dependsOn: subprojects.jar) {
 
     subprojects.each { subproject ->
-        from subproject.configurations.runtime.allArtifacts.files.collect({zipTree(it)})
+        from subproject.configurations.runtime.allArtifacts.files.collect({ zipTree(it) })
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

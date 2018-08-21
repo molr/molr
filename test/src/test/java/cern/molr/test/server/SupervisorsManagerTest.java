@@ -29,7 +29,7 @@ public class SupervisorsManagerTest {
     private SupervisorsManager manager = new SupervisorsManagerImpl();
 
     @Test
-    public void Test() {
+    public void test() {
 
         RemoteMoleSupervisor s1 = new RemoteMoleSupervisorTest(true);
         RemoteMoleSupervisor s2 = new RemoteMoleSupervisorTest(true);
@@ -61,7 +61,6 @@ public class SupervisorsManagerTest {
 
 
     }
-
 
 
     public class RemoteMoleSupervisorTest implements RemoteMoleSupervisor {

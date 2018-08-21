@@ -10,13 +10,11 @@ import cern.molr.supervisor.api.web.MolrSupervisorToServer;
 import cern.molr.supervisor.impl.address.ConfigurationAddressGetter;
 import cern.molr.supervisor.impl.web.MolrSupervisorToServerImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +22,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -55,32 +51,10 @@ public class RemoteSupervisorMain {
     }
 
     /**
-     * The registration request should be sent when the server is initialized
-     */
-    @Component
-    private class RegistrationSender implements ApplicationListener<WebServerInitializedEvent> {
-
-        @Override
-        public void onApplicationEvent(WebServerInitializedEvent event) {
-            addressGetter.addListener(address -> {
-                MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
-                try {
-                    supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
-                            .getAcceptedMissions()));
-                } catch (Exception error) {
-                    LOGGER.error("error while attempting to register in the MolR server [host: {}, port: {}]",
-                            config.getMolrHost(), config.getMolrPort(), error);
-                }
-            });
-        }
-    }
-
-    /**
      * In order to specify a supervisor file configuration,
      * the args parameter should contain the element "--supervisor.fileConfig=file_name.properties"
      * If no path specified, the path "supervisor.properties" is used
      * If the used path file does not exist, default configuration values are used
-     *
      */
     public static void main(String[] args) {
         SpringApplication.run(RemoteSupervisorMain.class, args);
@@ -139,6 +113,27 @@ public class RemoteSupervisorMain {
             return config;
         }
 
+    }
+
+    /**
+     * The registration request should be sent when the server is initialized
+     */
+    @Component
+    private class RegistrationSender implements ApplicationListener<WebServerInitializedEvent> {
+
+        @Override
+        public void onApplicationEvent(WebServerInitializedEvent event) {
+            addressGetter.addListener(address -> {
+                MolrSupervisorToServer client = new MolrSupervisorToServerImpl(config.getMolrHost(), config.getMolrPort());
+                try {
+                    supervisorId = client.register(address.getHost(), address.getPort(), Arrays.asList(config
+                            .getAcceptedMissions()));
+                } catch (Exception error) {
+                    LOGGER.error("error while attempting to register in the MolR server [host: {}, port: {}]",
+                            config.getMolrHost(), config.getMolrPort(), error);
+                }
+            });
+        }
     }
 
 }

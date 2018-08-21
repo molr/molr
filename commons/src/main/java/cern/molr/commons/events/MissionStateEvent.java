@@ -14,7 +14,7 @@ public class MissionStateEvent extends MissionEvent {
     private final MissionState state;
 
     public MissionStateEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
-                              @JsonProperty("state") MissionState state) {
+                             @JsonProperty("state") MissionState state) {
         super(success, throwable);
         this.state = state;
     }

@@ -341,7 +341,7 @@ public class TypesTest {
 
         Assert.assertEquals(MissionRunnerEvent.class, events.get(2).getClass());
         Assert.assertFalse(events.get(2).isSuccess());
-        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent)events.get(2)).getEvent());
+        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent) events.get(2)).getEvent());
         Assert.assertEquals(MissionExecutionException.class, events.get(2).getThrowable().getClass());
         Assert.assertEquals(RuntimeException.class, events.get(2).getThrowable().getCause().getClass());
 
@@ -448,7 +448,7 @@ public class TypesTest {
 
         Assert.assertEquals(MissionRunnerEvent.class, events.get(2).getClass());
         Assert.assertFalse(events.get(2).isSuccess());
-        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent)events.get(2)).getEvent());
+        Assert.assertEquals(MissionRunnerEvent.Event.MISSION_ERROR, ((MissionRunnerEvent) events.get(2)).getEvent());
         Assert.assertEquals(MissionExecutionException.class, events.get(2).getThrowable().getClass());
         Assert.assertEquals(RuntimeException.class, events.get(2).getThrowable().getCause().getClass());
         Assert.assertEquals(InvocationTargetException.class, events.get(2).getThrowable().getCause().getCause()

@@ -2,6 +2,7 @@ package cern.molr.server;
 
 /**
  * The server configuration parameters
+ *
  * @author yassine-kr
  */
 public class ServerConfig {

@@ -23,8 +23,8 @@ public final class SupervisorInfo {
 
     final private Life life;
 
-    public SupervisorInfo(@JsonProperty("id") String id,@JsonProperty("missions") List<String> missions, @JsonProperty
-            ("state") SupervisorState state,@JsonProperty("life") Life life) {
+    public SupervisorInfo(@JsonProperty("id") String id, @JsonProperty("missions") List<String> missions, @JsonProperty
+            ("state") SupervisorState state, @JsonProperty("life") Life life) {
         this.id = id;
         this.missions = missions;
         this.state = state;

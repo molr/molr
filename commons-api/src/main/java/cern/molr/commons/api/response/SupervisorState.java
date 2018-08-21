@@ -6,6 +6,7 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 
 /**
  * A supervisor state
+ *
  * @author yassine-kr
  */
 public final class SupervisorState {
@@ -17,7 +18,7 @@ public final class SupervisorState {
         this.maxMissions = maxMissions;
     }
 
-    @JsonProperty(access=READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     public boolean isAvailable() {
         return numMissions < maxMissions;
     }

@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link SequenceMission}
  * interface.
- *
+ * <p>
  * It runs the mission tasks consecutively
  *
  * @author yassine-kr

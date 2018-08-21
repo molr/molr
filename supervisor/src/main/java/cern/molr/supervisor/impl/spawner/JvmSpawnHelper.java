@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -70,6 +69,7 @@ public final class JvmSpawnHelper {
      * Replaces all required characters so that a string can be passed as an argument to the process builder.
      *
      * @param aString a string that shall be rectified to be used an argument for passing as an argument to a process builer
+     *
      * @return the string as a valid argument for a process builder
      */
     public static final String asWindowsArgument(String aString) {

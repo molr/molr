@@ -2,7 +2,6 @@ package cern.molr.server.impl;
 
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
-import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.SupervisorsManagerListener;
 import org.slf4j.Logger;

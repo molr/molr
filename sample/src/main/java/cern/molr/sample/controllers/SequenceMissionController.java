@@ -8,6 +8,7 @@ import org.reactivestreams.Publisher;
 
 /**
  * A custom controller for missions run by the SequenceMole
+ *
  * @author yassine-kr
  */
 public class SequenceMissionController extends StandardController {

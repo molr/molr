@@ -36,7 +36,7 @@ public class InvocationExceptionDeserializer extends StdDeserializer<InvocationT
         StackTraceElement[] stackTraceElements = null;
         String message = null;
 
-        for (jp.nextToken() ; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        for (jp.nextToken(); jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             jp.nextToken();
 
             switch (jp.getCurrentName()) {
@@ -63,6 +63,7 @@ public class InvocationExceptionDeserializer extends StdDeserializer<InvocationT
                     } catch (Exception error) {
                         LOGGER.warn("error while trying to deserialize the message field, null will be used", error);
                     }
+                    break;
                 default:
                     ctxt.findRootValueDeserializer(SimpleType.constructUnsafe(Object.class)).deserialize
                             (jp, ctxt);
