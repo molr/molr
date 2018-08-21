@@ -8,12 +8,9 @@ import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionExceptionEvent;
-import cern.molr.sample.mission.Fibonacci;
-import cern.molr.sample.mission.IncompatibleMission;
-import cern.molr.sample.mission.NotAcceptedMission;
-import cern.molr.sample.mission.RunnableExceptionMission;
+import cern.molr.commons.events.MissionRunnerEvent;
+import cern.molr.sample.mission.*;
 import cern.molr.server.ServerMain;
 import cern.molr.supervisor.RemoteSupervisorMain;
 import cern.molr.test.ResponseTester;
@@ -25,6 +22,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -272,7 +270,7 @@ public class TypesTest {
         List<MissionEvent> events = new ArrayList<>();
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
-        CountDownLatch endSignal = new CountDownLatch(4);
+        CountDownLatch endSignal = new CountDownLatch(5);
 
         Publisher<ClientMissionController> futureController = service.instantiate(RunnableExceptionMission.class
                 .getCanonicalName(), null);
@@ -382,6 +380,81 @@ public class TypesTest {
         Assert.assertEquals(ExecutionNotAcceptedException.class, exception[0].getClass());
         Assert.assertEquals("Mission not defined in MolR registry", exception[0].getMessage());
 
+
+    }
+
+    @Test
+    public void executionInvocationTargetExceptionTest() throws Exception {
+
+        List<MissionEvent> events = new ArrayList<>();
+
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(5);
+
+        ClientMissionController controller = service.instantiateSync(InvocationTargetExceptionMission.class
+                .getName(), null);
+
+
+        controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+
+            @Override
+            public void consume(MissionEvent event) {
+                System.out.println("event: " + event);
+                events.add(event);
+                endSignal.countDown();
+                if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                    instantiateSignal.countDown();
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        try {
+            instantiateSignal.await(1, TimeUnit.MINUTES);
+        } catch (InterruptedException error) {
+            error.printStackTrace();
+            Assert.fail();
+        }
+
+        controller.instruct(new MissionControlCommand(MissionControlCommand.Command.START)).subscribe(new SimpleSubscriber<CommandResponse>() {
+            @Override
+            public void consume(CommandResponse response) {
+                System.out.println("response to start: " + response);
+                endSignal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
+        endSignal.await(1, TimeUnit.MINUTES);
+
+        Assert.assertEquals(MissionExceptionEvent.class, events.get(2).getClass());
+        Assert.assertEquals(MissionExecutionException.class,
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getClass());
+        Assert.assertEquals(RuntimeException.class,
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getClass());
+        Assert.assertEquals(InvocationTargetException.class,
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getClass());
+        Assert.assertEquals("invocation target exception",
+                ((MissionExceptionEvent) events.get(2)).getThrowable().getCause().getCause().getMessage());
 
     }
 

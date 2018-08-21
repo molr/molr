@@ -62,6 +62,8 @@ public class SupervisorsManagerTest {
 
     }
 
+
+
     public class RemoteMoleSupervisorTest implements RemoteMoleSupervisor {
         private SupervisorState supervisorState;
 

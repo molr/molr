@@ -29,17 +29,15 @@ public class WebFluxRestClient {
      * It creates the client which uses a specific {@link ObjectMapper} for serializing and deserializing
      */
     public WebFluxRestClient(String host, int port) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         ExchangeStrategies strategies = ExchangeStrategies
                 .builder()
                 .codecs(clientDefaultCodecsConfigurer -> {
                     clientDefaultCodecsConfigurer.defaultCodecs()
-                            .jackson2JsonEncoder(new Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON));
+                            .jackson2JsonEncoder(new Jackson2JsonEncoder(SerializationUtils.getMapper(), MediaType
+                                    .APPLICATION_JSON));
                     clientDefaultCodecsConfigurer.defaultCodecs()
-                            .jackson2JsonDecoder(new Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON));
+                            .jackson2JsonDecoder(new Jackson2JsonDecoder(SerializationUtils.getMapper(), MediaType.APPLICATION_JSON));
                 }).build();
         this.client = WebClient.builder().baseUrl(host + ":" + port).exchangeStrategies(strategies)
                 .build();

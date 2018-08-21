@@ -1,3 +1,4 @@
 dependencies {
     compile project(":commons")
+    compile project(":client")
 }

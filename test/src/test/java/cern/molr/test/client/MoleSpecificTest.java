@@ -9,9 +9,10 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.sample.commands.SequenceCommand;
+import cern.molr.sample.controllers.SequenceMissionController;
 import cern.molr.sample.events.SequenceMissionEvent;
 import cern.molr.sample.mission.SequenceMissionExample;
 import cern.molr.server.ServerMain;
@@ -61,8 +62,7 @@ public class MoleSpecificTest {
     }
 
     /**
-     * A method which instantiates the {@link SequenceMissionExample} mission, and sends three specific commands; STEP,
-     * SKIP and FINISH
+     * A method which instantiates the {@link SequenceMissionExample} mission, and sends specific commands
      *
      * @param execName         the execution name used when displaying results
      * @param events           the events list which will be filled
@@ -260,6 +260,179 @@ public class MoleSpecificTest {
 
     }
 
+    private void launchSequenceMissionExampleCustomController(String execName, List<MissionEvent> events,
+                                                              List<CommandResponse> commandResponses, List<MissionState> states,
+                                                              CountDownLatch finishSignal) throws Exception {
+
+        CountDownLatch instantiateSignal = new CountDownLatch(1);
+        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch firstTaskSignal = new CountDownLatch(1);
+        CountDownLatch endSignal = new CountDownLatch(14);
+
+        SequenceMissionController controller = service.instantiateCustomControllerSync(SequenceMissionExample.class
+                .getName(), null, (clientControllerData -> new SequenceMissionController(clientControllerData)));
+
+
+        controller.getEventsStream().subscribe(new SimpleSubscriber<MissionEvent>() {
+
+            @Override
+            public void consume(MissionEvent event) {
+                System.out.println(execName + " event: " + event);
+                events.add(event);
+                endSignal.countDown();
+                if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent().equals(SESSION_INSTANTIATED)) {
+                    instantiateSignal.countDown();
+                } else if (event instanceof MissionRunnerEvent && ((MissionRunnerEvent) event).getEvent()
+                        .equals(MISSION_STARTED)) {
+                    startSignal.countDown();
+                } else if (event instanceof SequenceMissionEvent && ((SequenceMissionEvent) event).getEvent()
+                        .equals(SequenceMissionEvent.Event.TASK_FINISHED) && ((SequenceMissionEvent) event)
+                        .getTaskNumber() == 0)
+                    firstTaskSignal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        controller.getStatesStream().subscribe(new SimpleSubscriber<MissionState>() {
+
+            @Override
+            public void consume(MissionState state) {
+                System.out.println(execName + " state: " + state);
+                states.add(state);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        try {
+            instantiateSignal.await(1, TimeUnit.MINUTES);
+        } catch (InterruptedException error) {
+            error.printStackTrace();
+            Assert.fail();
+        }
+        controller.start().subscribe(new SimpleSubscriber<CommandResponse>() {
+            @Override
+            public void consume(CommandResponse response) {
+                System.out.println(execName + " response to start: " + response);
+                commandResponses.add(response);
+                endSignal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        try {
+            startSignal.await(1, TimeUnit.MINUTES);
+        } catch (InterruptedException error) {
+            error.printStackTrace();
+            Assert.fail();
+        }
+
+        controller.step().subscribe(new SimpleSubscriber<CommandResponse>() {
+            @Override
+            public void consume(CommandResponse response) {
+                System.out.println(execName + " response to step: " + response);
+                commandResponses.add(response);
+                endSignal.countDown();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        try {
+            firstTaskSignal.await(1, TimeUnit.MINUTES);
+        } catch (InterruptedException error) {
+            error.printStackTrace();
+            Assert.fail();
+        }
+
+
+        controller.skip().subscribe(new SimpleSubscriber<CommandResponse>() {
+            @Override
+            public void consume(CommandResponse response) {
+                System.out.println(execName + " response to skip: " + response);
+                commandResponses.add(response);
+                endSignal.countDown();
+
+                controller.resume().subscribe(new SimpleSubscriber<CommandResponse>() {
+                    @Override
+                    public void consume(CommandResponse response) {
+                        System.out.println(execName + " response to resume: " + response);
+                        commandResponses.add(response);
+                        endSignal.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
+        new Thread(() -> {
+            try {
+                endSignal.await(1, TimeUnit.MINUTES);
+                finishSignal.countDown();
+            } catch (InterruptedException error) {
+                error.printStackTrace();
+                Assert.fail();
+            }
+
+        }).start();
+
+
+    }
+
     @Test
     public void missionTest() throws Exception {
 
@@ -271,6 +444,25 @@ public class MoleSpecificTest {
         launchSequenceMissionExample("exec", events, commandResponses, states, finishSignal);
         finishSignal.await(1, TimeUnit.MINUTES);
 
+        testAll(events, commandResponses, states);
+    }
+
+    @Test
+    public void missionTestCustomController() throws Exception {
+
+        List<MissionEvent> events = new ArrayList<>();
+        List<CommandResponse> commandResponses = new ArrayList<>();
+        List<MissionState> states = new ArrayList<>();
+        CountDownLatch finishSignal = new CountDownLatch(1);
+
+        launchSequenceMissionExampleCustomController("exec", events, commandResponses, states, finishSignal);
+        finishSignal.await(1, TimeUnit.MINUTES);
+
+        testAll(events, commandResponses, states);
+    }
+
+    private void testAll(List<MissionEvent> events, List<CommandResponse> commandResponses, List<MissionState>
+            states) {
         Assert.assertEquals(10, events.size());
         ResponseTester.testInstantiationEvent(events.get(0));
         ResponseTester.testStartedEvent(events.get(1));

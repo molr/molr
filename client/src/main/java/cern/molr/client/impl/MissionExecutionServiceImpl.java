@@ -4,14 +4,7 @@
 
 package cern.molr.client.impl;
 
-import cern.molr.client.api.ClientMissionController;
-import cern.molr.client.api.MissionExecutionService;
-import cern.molr.client.api.MissionExecutionServiceException;
-import cern.molr.client.api.MolrClientToServer;
-import cern.molr.commons.api.request.MissionCommand;
-import cern.molr.commons.api.response.CommandResponse;
-import cern.molr.commons.api.response.MissionEvent;
-import cern.molr.commons.api.response.MissionState;
+import cern.molr.client.api.*;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -21,6 +14,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Implementation used by the operator to interact with the server
@@ -81,33 +75,43 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
     @Override
     public <I> Publisher<ClientMissionController> instantiate(String missionName, I missionArguments) {
 
-        return client.instantiate(missionName, missionArguments, missionId -> new ClientMissionController() {
-            @Override
-            public Publisher<MissionEvent> getEventsStream() {
-                return client.getEventsStream(missionName, missionId);
-            }
-
-            @Override
-            public Publisher<MissionState> getStatesStream() {
-                return client.getStatesStream(missionName, missionId);
-            }
-
-            @Override
-            public Publisher<CommandResponse> instruct(MissionCommand command) {
-                return client.instruct(missionName, missionId, command);
-            }
-        });
+        return client.instantiate(missionName, missionArguments, missionId -> new StandardController(new ClientControllerData(client,
+                missionName, missionId)));
     }
 
     @Override
     public <I> ClientMissionController instantiateSync(String missionName, I missionArguments) throws MissionExecutionServiceException {
-        final ClientMissionController[] clientMissionController = new ClientMissionController[1];
+
+        Publisher<ClientMissionController> publisher = instantiate(missionName, missionArguments);
+        return waitForController(publisher);
+    }
+
+    @Override
+    public <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName,
+                                                                                           I missionArguments,
+                                                                                           Function<ClientControllerData, C> controllerConstructor) {
+        return client.instantiate(missionName, missionArguments, missionId -> controllerConstructor.apply(new ClientControllerData(client,
+                missionName, missionId)));
+    }
+
+    @Override
+    public <I, C extends ClientMissionController> C instantiateCustomControllerSync(String missionName, I missionArguments,
+                                                                                    Function<ClientControllerData, C> controllerConstructor) throws MissionExecutionServiceException {
+        Publisher<C> publisher = instantiateCustomController(missionName, missionArguments, controllerConstructor);
+        return waitForController(publisher);
+    }
+
+
+    private <C> C waitForController(Publisher<C> publisher) throws MissionExecutionServiceException {
+
+        final Object[] controler = new Object[1];
         final Throwable[] streamError = new Throwable[1];
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        SimpleSubscriber<ClientMissionController> subscriber = new SimpleSubscriber<ClientMissionController>() {
+        SimpleSubscriber<C> subscriber = new SimpleSubscriber<C>() {
+
             @Override
-            public void consume(ClientMissionController controller) {
-                clientMissionController[0] = controller;
+            public void consume(C controller) {
+                controler[0] = controller;
                 countDownLatch.countDown();
             }
 
@@ -123,7 +127,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             }
         };
 
-        instantiate(missionName, missionArguments).subscribe(subscriber);
+        publisher.subscribe(subscriber);
 
         try {
             if (!countDownLatch.await(30, TimeUnit.SECONDS)) {
@@ -135,15 +139,14 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
             LOGGER.error("error while waiting a response from the MolR server", error);
         }
 
-        if (streamError[0] !=null) {
+        if (streamError[0] != null) {
             throw new MissionExecutionServiceException("Error in the connection with the server", streamError[0]);
         }
 
-        if (clientMissionController[0] == null) {
+        if (controler[0] == null) {
             throw new MissionExecutionServiceException("The server response is empty");
         }
 
-        return clientMissionController[0];
-
+        return (C) controler[0];
     }
 }
