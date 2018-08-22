@@ -39,7 +39,7 @@ public class SynchInstantiationTest {
     @Test
     public void syncInstantiationError() {
         try {
-            ClientMissionController controller = service.instantiateSync(Fibonacci.class.getCanonicalName(), 100);
+            service.instantiateSync(Fibonacci.class.getCanonicalName(), 100);
             Assert.fail();
         } catch (MissionExecutionServiceException error) {
             Assert.assertEquals(error.getMessage(), "Error in the connection with the server");

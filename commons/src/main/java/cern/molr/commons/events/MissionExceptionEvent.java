@@ -8,20 +8,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionExceptionEvent implements MissionEvent {
-    private final Throwable throwable;
+public class MissionExceptionEvent extends MissionEvent {
 
-    public MissionExceptionEvent(@JsonProperty("throwable") Throwable throwable) {
-        this.throwable = throwable;
+    public MissionExceptionEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable
+            throwable) {
+        super(success, throwable);
     }
 
-    public Throwable getThrowable() {
-        return throwable;
+    public MissionExceptionEvent(Throwable throwable) {
+        super(false, throwable);
     }
 
     @Override
     public String toString() {
-        return throwable.getClass().getName() + ": " + throwable.getMessage();
+        return getThrowable().getClass().getName() + ": " + getThrowable().getMessage();
     }
 
 }

@@ -12,8 +12,6 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
-;
-
 /**
  * WebSocket Spring Handler which handles websoscket requests for getting the supervisor heartbeat. It uses WebFlux.
  *

@@ -5,6 +5,7 @@ import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.mission.StateManagerListener;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
 import cern.molr.sample.states.SequenceMissionState;
@@ -31,7 +32,8 @@ public class SequenceMoleStateManager implements StateManager {
         this.numTasks = numTasks;
     }
 
-    public SequenceMissionState getSequenceMoleState() {
+    @Override
+    public MissionState getState() {
         int taskNumber = state == SequenceMissionState.State.TASKS_FINISHED ? currentTask : -1;
         return new SequenceMissionState(getStatus(), getPossibleCommands(), taskNumber, state);
     }
@@ -44,7 +46,7 @@ public class SequenceMoleStateManager implements StateManager {
             case WAITING:
                 return "WAITING NEXT TASK " + currentTask;
             case TASKS_FINISHED:
-                return "ALL TASKS TASKS_FINISHED";
+                return "ALL TASKS FINISHED";
             case RUNNING_AUTOMATIC:
                 return "RUNNING TASK AUTOMATIC " + currentTask;
         }

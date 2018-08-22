@@ -2,7 +2,6 @@ package cern.molr.server.impl;
 
 import cern.molr.commons.api.response.SupervisorState;
 import cern.molr.server.api.RemoteMoleSupervisor;
-import cern.molr.server.api.SupervisorStateListener;
 import cern.molr.server.api.SupervisorsManager;
 import cern.molr.server.api.SupervisorsManagerListener;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public class SupervisorsManagerImpl implements SupervisorsManager {
         });
     }
 
-    //TODO find the reason of a NoSupervisorFoundException thrown sometimes
+    //TODO find the reason of a NoSupervisorFoundException thrown sometimes (maybe the config files are not loaded)
     //I think it is caused by the supervisor being not able to load the names of missions that can execute.
     @Override
     public synchronized Optional<RemoteMoleSupervisor> chooseSupervisor(String missionName) {

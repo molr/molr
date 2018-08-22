@@ -3,6 +3,7 @@ package cern.molr.commons.api.mission;
 import cern.molr.commons.api.exception.CommandNotAcceptedException;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.api.response.MissionState;
 
 import java.util.List;
 
@@ -12,6 +13,11 @@ import java.util.List;
  * @author yassine-kr
  */
 public interface StateManager {
+
+    /**
+     * @return the current state
+     */
+    MissionState getState();
 
     /**
      * @return a string representing the state status

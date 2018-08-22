@@ -2,7 +2,6 @@ package cern.molr.commons.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
@@ -46,9 +45,7 @@ public class WebFluxWebSocketClient {
      */
     public <I, T> Flux<T> receiveFlux(String path, Class<T> responseType, I request) {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        ObjectMapper mapper = SerializationUtils.getMapper();
 
         FluxProcessor<T, T> processor = TopicProcessor.create();
 

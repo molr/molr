@@ -11,6 +11,8 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
  */
 public interface MissionCommand {
 
-    @JsonProperty(access=READ_ONLY)
-    default String getString() {return toString();}
+    @JsonProperty(access = READ_ONLY)
+    default String getString() {
+        return toString();
+    }
 }

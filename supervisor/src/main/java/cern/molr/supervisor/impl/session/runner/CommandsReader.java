@@ -1,10 +1,10 @@
 package cern.molr.supervisor.impl.session.runner;
 
 import cern.molr.commons.api.request.MissionCommand;
+import cern.molr.commons.web.SerializationUtils;
 import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.impl.session.RemoteReader;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class CommandsReader extends RemoteReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandsReader.class);
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper;
     private CommandListener listener;
 
 
@@ -32,8 +32,7 @@ public class CommandsReader extends RemoteReader {
 
     public CommandsReader(BufferedReader reader, Duration readInterval, CommandListener listener) {
         super(reader, readInterval, null);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper = SerializationUtils.getMapper();
         this.listener = listener;
         start();
     }

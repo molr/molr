@@ -4,11 +4,11 @@ import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.Ack;
 import cern.molr.commons.api.response.CommandResponse;
 import cern.molr.commons.api.response.MissionEvent;
+import cern.molr.commons.web.SerializationUtils;
 import cern.molr.supervisor.api.session.EventsListener;
 import cern.molr.supervisor.api.session.MoleController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Future<?> loggerTask;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper;
 
     /**
      * Event sent by the MoleRunner when it verifies the command.
@@ -46,8 +46,7 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
     private volatile CommandStatus commandStatus = null;
 
     public ControllerImpl(Process process) {
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper = SerializationUtils.getMapper();
 
         printWriter = new PrintWriter(process.getOutputStream());
         reader = new EventsReader(new BufferedReader(new InputStreamReader(process.getInputStream())), this);
@@ -91,7 +90,6 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
      * Need to be "synchronized" to avoid sending many commands at the same time
      * The next command is executed after returning result of the last sent command
      *
-     *
      * @return the command response; whether the command was accepted
      */
     @Override
@@ -103,13 +101,13 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
 
             while (commandStatus == null) {
             }
-            if (commandStatus.isAccepted()) {
+            if (commandStatus.isSuccess()) {
                 String message = commandStatus.getReason();
                 commandStatus = null;
                 return new CommandResponse(new Ack(message));
             } else {
                 CommandResponse response =
-                        new CommandResponse(commandStatus.getException());
+                        new CommandResponse(commandStatus.getThrowable());
                 commandStatus = null;
                 return response;
             }

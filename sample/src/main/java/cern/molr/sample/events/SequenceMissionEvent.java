@@ -9,16 +9,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class SequenceMissionEvent implements MissionEvent {
+public class SequenceMissionEvent extends MissionEvent {
 
     private final int taskNumber;
     private final Event event;
     private final String message;
 
-    public SequenceMissionEvent(@JsonProperty("taskNumber") int taskNumber, @JsonProperty("event") Event event,
+    public SequenceMissionEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
+                                @JsonProperty("taskNumber") int taskNumber, @JsonProperty("event") Event event,
                                 @JsonProperty("message") String message) {
+        super(success, throwable);
         this.taskNumber = taskNumber;
         this.event = event;
+        this.message = message;
+    }
+
+    public SequenceMissionEvent(int taskNumber, Event event, String message) {
+        super(true, null);
+        this.taskNumber = taskNumber;
+        this.event = event;
+        this.message = message;
+    }
+
+    public SequenceMissionEvent(int taskNumber, Throwable throwable, String message) {
+        super(false, throwable);
+        this.taskNumber = taskNumber;
+        this.event = Event.TASK_ERROR;
         this.message = message;
     }
 

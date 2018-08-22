@@ -8,10 +8,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionFinished<O> implements MissionEvent {
+public class MissionFinished<O> extends MissionEvent {
     private O result;
 
-    public MissionFinished(@JsonProperty("result") O result) {
+    public MissionFinished(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
+                           @JsonProperty("result") O result) {
+        super(success, throwable);
+        this.result = result;
+    }
+
+    public MissionFinished(O result) {
+        super(true, null);
         this.result = result;
     }
 

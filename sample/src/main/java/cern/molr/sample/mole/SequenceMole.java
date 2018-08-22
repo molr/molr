@@ -13,6 +13,7 @@ import cern.molr.commons.api.exception.MissionExecutionException;
 import cern.molr.commons.api.exception.MissionResolvingException;
 import cern.molr.commons.api.mission.Mission;
 import cern.molr.commons.api.mission.Mole;
+import cern.molr.commons.api.mission.StateManager;
 import cern.molr.commons.api.request.MissionCommand;
 import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
@@ -29,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link SequenceMission}
  * interface.
- *
+ * <p>
  * It runs the mission tasks consecutively
  *
  * @author yassine-kr
@@ -42,7 +43,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private CountDownLatch endSignal = new CountDownLatch(1);
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
     private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
-    private SequenceMoleStateManager stateManager;
+    private StateManager stateManager;
     private boolean pause;//Whether the mole has received a PAUSE command
 
     @Override
@@ -82,7 +83,7 @@ public class SequenceMole implements Mole<Void, Void> {
             }
             stateManager = new SequenceMoleStateManager(tasks.size());
             stateManager.addListener(() -> {
-                statesProcessor.onNext(stateManager.getSequenceMoleState());
+                statesProcessor.onNext(stateManager.getState());
             });
             endSignal.await();
         } catch (Exception error) {
@@ -129,7 +130,7 @@ public class SequenceMole implements Mole<Void, Void> {
             tasks.get(currentTask).run();
             event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_FINISHED, "");
         } catch (Exception error) {
-            event = new SequenceMissionEvent(currentTask, SequenceMissionEvent.Event.TASK_ERROR, error.getMessage());
+            event = new SequenceMissionEvent(currentTask, error, error.getMessage());
         }
         stateManager.changeState(event);
         eventsProcessor.onNext(event);

@@ -6,6 +6,8 @@ package cern.molr.client.api;
 
 import org.reactivestreams.Publisher;
 
+import java.util.function.Function;
+
 
 /**
  * A service used by the client to launch and control a mission execution
@@ -30,4 +32,16 @@ public interface MissionExecutionService {
      * A synchronous version of the {@link MissionExecutionService#instantiate(String, Object)} method
      */
     <I> ClientMissionController instantiateSync(String missionName, I missionArguments) throws MissionExecutionServiceException;
+
+    /**
+     * A method which can be used to use a custom controller
+     */
+    <I, C extends ClientMissionController> Publisher<C> instantiateCustomController(String missionName, I
+            missionArguments, Function<ClientControllerData, C> controllerConstructor);
+
+    /**
+     * A synchronous version of the {@link MissionExecutionService#instantiateCustomController(String, Object, Function)}
+     */
+    <I, C extends ClientMissionController> C instantiateCustomControllerSync(String missionName, I
+            missionArguments, Function<ClientControllerData, C> controllerConstructor) throws MissionExecutionServiceException;
 }

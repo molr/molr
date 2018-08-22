@@ -3,7 +3,6 @@ package cern.molr.commons.web;
 import cern.molr.commons.api.response.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +35,7 @@ public class DataProcessorBuilder<Input, Output> {
     public DataProcessorBuilder(Class<Input> inputType) {
         this.inputType = inputType;
 
-        mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper = SerializationUtils.getMapper();
     }
 
     /**

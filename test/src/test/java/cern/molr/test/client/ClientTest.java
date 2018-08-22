@@ -30,6 +30,8 @@ import static cern.molr.commons.events.MissionRunnerEvent.Event.SESSION_INSTANTI
 
 /**
  * Class for testing the client Api.
+ * TODO find a working way to launch many supervisors on the same execution, exiting an app context disallows any
+ * TODO further connections
  *
  * @author yassine-kr
  */
@@ -181,7 +183,6 @@ public class ClientTest {
 
     /**
      * The mission execution should be long enough to terminate the session before the mission is finished
-     *
      */
     @Test
     public void missionTest() throws Exception {
