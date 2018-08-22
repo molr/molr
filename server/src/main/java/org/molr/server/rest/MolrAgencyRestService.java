@@ -29,6 +29,7 @@ public class MolrAgencyRestService {
 
     @GetMapping(path = "/mission/{missionName}/instantiate")
     public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName) {
+        System.out.println("Rest service called");
         /* TODO: Implement real parameters */
         Map<String, Object> params = Collections.emptyMap();
         return agency.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);

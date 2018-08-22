@@ -33,7 +33,7 @@ public class MissionStateDto {
     public static final MissionStateDto from(MissionState missionState) {
         Set<Strand> activeStrands = missionState.activeStrands();
         Set<StrandDto> strandDtos = activeStrands.stream().map(StrandDto::from).collect(toSet());
-        Map<String, BlockDto> strandCursors = activeStrands.stream().collect(toMap(s -> s.id(), s -> BlockDto.from(missionState.cursorPositionIn(s))));
+        Map<String, BlockDto> strandCursors = activeStrands.stream().filter(s -> missionState.cursorPositionIn(s).isPresent()).collect(toMap(s -> s.id(), s -> missionState.cursorPositionIn(s).map(BlockDto::from).get()));
         Map<String, String> runStates = activeStrands.stream().collect(toMap(s -> s.id(), s -> missionState.runStateOf(s).name()));
         Map<String, Set<String>> allowedCommands = new HashMap<>();
         for (Strand strand : activeStrands) {
@@ -49,7 +49,7 @@ public class MissionStateDto {
         MissionState.Builder builder = MissionState.builder();
         for (StrandDto strandDto : activeStrands) {
             Strand strand = strandDto.toStrand();
-            Block cursor = strandCursorPositions.get(strandDto.id).toBlock();
+            Block cursor = Optional.ofNullable(strandCursorPositions.get(strandDto.id)).map(BlockDto::toBlock).orElse(null);
             RunState runState = RunState.valueOf(strandRunStates.get(strandDto.id));
 
             Set<String> commandNames = Optional.ofNullable(strandAllowedCommands.get(strandDto.id)).orElse(emptySet());

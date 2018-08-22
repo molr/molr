@@ -34,7 +34,7 @@ public class SequenceMoleStateManager implements StateManager {
 
     @Override
     public MissionState getState() {
-        int taskNumber = state == SequenceMissionState.State.TASKS_FINISHED ? currentTask : -1;
+        int taskNumber = (state == SequenceMissionState.State.TASKS_FINISHED) ? -1 : currentTask;
         return new SequenceMissionState(getStatus(), getPossibleCommands(), taskNumber, state);
     }
 

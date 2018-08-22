@@ -39,8 +39,11 @@ public class RestRemoteAgency implements Agency {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         /* TODO treat parameters */
-        return mono("/mission/" + mission.name() + "/instantiate", MissionHandleDto.class)
-                .map(MissionHandleDto::toMissionHandle);
+        Mono<MissionHandle> cache = mono("/mission/" + mission.name() + "/instantiate", MissionHandleDto.class)
+                .map(MissionHandleDto::toMissionHandle).cache();
+        /* This has to be a hot source, in order that the instantiation is executed, even if nobody is subscribed*/
+        cache.subscribe();
+        return cache;
     }
 
     @Override
@@ -59,7 +62,10 @@ public class RestRemoteAgency implements Agency {
     }
 
     private <T> Mono<T> mono(String uri, Class<T> type) {
-        return exchange(uri).flatMap(res -> res.bodyToMono(type));
+        return exchange(uri).flatMap(res -> {
+            System.out.println("Response: " + res);
+            return res.bodyToMono(type);
+        });
     }
 
     private Mono<ClientResponse> exchange(String uri) {

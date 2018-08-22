@@ -23,6 +23,7 @@ import cern.molr.sample.events.SequenceMissionEvent;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.ReplayProcessor;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -42,7 +43,7 @@ public class SequenceMole implements Mole<Void, Void> {
     private int currentTask = 0;
     private CountDownLatch endSignal = new CountDownLatch(1);
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();
-    private Processor<MissionState, MissionState> statesProcessor = DirectProcessor.create();
+    private Processor<MissionState, MissionState> statesProcessor = ReplayProcessor.cacheLast();
     private StateManager stateManager;
     private boolean pause;//Whether the mole has received a PAUSE command
 
@@ -85,6 +86,8 @@ public class SequenceMole implements Mole<Void, Void> {
             stateManager.addListener(() -> {
                 statesProcessor.onNext(stateManager.getState());
             });
+
+            statesProcessor.onNext(stateManager.getState());
             endSignal.await();
         } catch (Exception error) {
             throw new MissionExecutionException(error);

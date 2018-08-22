@@ -6,7 +6,7 @@ package cern.molr.commons.api.exception;
  *
  * @author yassine-kr
  */
-public class CommandNotAcceptedException extends Exception {
+public class CommandNotAcceptedException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

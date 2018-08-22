@@ -11,7 +11,7 @@ package cern.molr.commons.api.exception;
  *
  * @author timartin
  */
-public class MissionExecutionException extends Exception {
+public class MissionExecutionException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

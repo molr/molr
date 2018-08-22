@@ -8,8 +8,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -39,6 +38,9 @@ public class LocalMoleDelegationAgency implements Agency {
     private final ReplayProcessor<AgencyState> states = ReplayProcessor.create(1);
     private final ReplayProcessor<Set<Mission>> missions = ReplayProcessor.create(1);
 
+
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+
     private final Scheduler scheduler = Schedulers.elastic();
 
     public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Supervisor> moles) {
@@ -60,7 +62,7 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
-        Mono<MissionHandle> mono = Mono.fromSupplier(() -> {
+        CompletableFuture<MissionHandle> future = CompletableFuture.supplyAsync(() -> {
             MissionHandle handle = missionHandleFactory.next();
             Supervisor supervisor = missionMoles.get(mission);
             supervisor.instantiate(handle, mission, params);
@@ -68,9 +70,9 @@ public class LocalMoleDelegationAgency implements Agency {
             MissionInstance instance = new MissionInstance(handle, mission);
             missionInstances.put(handle, instance);
             return handle;
-        }).doOnNext(mh -> this.publishState()).cache();
-        mono.subscribeOn(scheduler).subscribe();
-        return mono;
+        }, executorService);
+
+        return Mono.fromFuture(future).doOnNext(mh -> this.publishState()).cache();
     }
 
     private final void publishState() {
@@ -84,6 +86,7 @@ public class LocalMoleDelegationAgency implements Agency {
         if (activeSupervisor == null) {
             return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
         }
+        System.out.println("Publishing states from supervisor " + activeSupervisor);
         return activeSupervisor.statesFor(handle);
     }
 

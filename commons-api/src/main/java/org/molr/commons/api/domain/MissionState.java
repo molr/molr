@@ -11,6 +11,7 @@ import com.google.common.collect.SetMultimap;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
@@ -32,8 +33,8 @@ public class MissionState {
         return this.strandAllowedCommands.get(strand);
     }
 
-    public Block cursorPositionIn(Strand strand) {
-        return this.strandCursorPositions.get(strand);
+    public Optional<Block> cursorPositionIn(Strand strand) {
+        return Optional.ofNullable(this.strandCursorPositions.get(strand));
     }
 
     public RunState runStateOf(Strand strand) {
@@ -87,10 +88,13 @@ public class MissionState {
         public Builder add(Strand strand, RunState runState, Block cursor, Set<MissionCommand> allowedCommands) {
             requireNonNull(strand, "strand must not be null");
             requireNonNull(runState, "runState must not be null");
-            requireNonNull(cursor, "cursor must not be null");
+            /* cursor might be null! */
+            // requireNonNull(cursor, "cursor must not be null");
 
             activeStrandsBuilder.add(strand);
-            strandCursorPositionsBuilder.put(strand, cursor);
+            if (cursor != null) {
+                strandCursorPositionsBuilder.put(strand, cursor);
+            }
             strandRunStatesBuilder.put(strand, runState);
             strandAllowedCommandsBuilder.putAll(strand, allowedCommands);
             return this;
