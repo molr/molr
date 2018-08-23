@@ -182,7 +182,7 @@ public class SequenceSupervisorAdapter implements Supervisor {
     }
 
     private static String nameOf(SequenceMission m) {
-        return Objects.toString(m);
+        return m.getClass().getSimpleName();
     }
 
     private final String id() {
@@ -192,8 +192,8 @@ public class SequenceSupervisorAdapter implements Supervisor {
     private MissionRepresentation representationFrom(SequenceMission sequence) {
         Block rootBlock = Block.idAndText(id(), nameOf(sequence));
         ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(rootBlock);
-        for (Runnable task : sequence.getTasks()) {
-            builder.parentToChild(rootBlock, Block.idAndText(id(), Objects.toString(task)));
+        for (SequenceMission.Task task : sequence.getTasks()) {
+            builder.parentToChild(rootBlock, Block.idAndText(id(), task.name()));
         }
         return builder.build();
     }

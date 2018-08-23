@@ -39,7 +39,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class SequenceMole implements Mole<Void, Void> {
 
-    private List<Runnable> tasks;
+    private List<SequenceMission.Task> tasks;
     private int currentTask = 0;
     private CountDownLatch endSignal = new CountDownLatch(1);
     private Processor<MissionEvent, MissionEvent> eventsProcessor = DirectProcessor.create();

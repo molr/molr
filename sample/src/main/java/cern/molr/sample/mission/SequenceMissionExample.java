@@ -17,19 +17,21 @@ import java.util.List;
  */
 @RunWithMole(SequenceMole.class)
 public class SequenceMissionExample implements SequenceMission {
+
+
     @Override
-    public List<Runnable> getTasks() {
-        List<Runnable> tasks = new ArrayList<>();
-        tasks.add(() -> {
-            try (PrintWriter out = new PrintWriter(new FileOutputStream("sequence-mission-example.txt"))) {
-                out.println("Task 1 begin");
+    public List<Task> getTasks() {
+        List<Task> tasks = new ArrayList<>();
+        tasks.add(Task.of(() -> {
+            try (PrintWriter out1 = new PrintWriter(new FileOutputStream("sequence-mission-example.txt"))) {
+                out1.println("Task 1 begin");
                 Thread.sleep(2000);
-                out.println("Task 1 end");
-            } catch (FileNotFoundException | InterruptedException error) {
-                throw new RuntimeException(error);
+                out1.println("Task 1 end");
+            } catch (FileNotFoundException | InterruptedException error1) {
+                throw new RuntimeException(error1);
             }
-        });
-        tasks.add(() -> {
+        }, "task 1"));
+        tasks.add(Task.of(() -> {
             try (PrintWriter out = new PrintWriter(new FileOutputStream("sequence-mission-example.txt", true))) {
                 out.println("Task 2 begin");
                 Thread.sleep(2000);
@@ -37,8 +39,8 @@ public class SequenceMissionExample implements SequenceMission {
             } catch (FileNotFoundException | InterruptedException error) {
                 throw new RuntimeException(error);
             }
-        });
-        tasks.add(() -> {
+        }, "task 2"));
+        tasks.add(Task.of(() -> {
             try (PrintWriter out = new PrintWriter(new FileOutputStream("sequence-mission-example.txt", true))) {
                 out.println("Task 3 begin");
                 Thread.sleep(2000);
@@ -47,8 +49,8 @@ public class SequenceMissionExample implements SequenceMission {
             } catch (FileNotFoundException | InterruptedException error) {
                 throw new RuntimeException(error);
             }
-        });
-        tasks.add(() -> {
+        }, "task 3"));
+        tasks.add(Task.of(() -> {
             try (PrintWriter out = new PrintWriter(new FileOutputStream("sequence-mission-example.txt", true))) {
                 out.println("Task 4 begin");
                 Thread.sleep(2000);
@@ -56,7 +58,8 @@ public class SequenceMissionExample implements SequenceMission {
             } catch (FileNotFoundException | InterruptedException error) {
                 throw new RuntimeException(error);
             }
-        });
+        }, "task 4") );
         return tasks;
     }
+
 }
