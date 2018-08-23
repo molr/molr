@@ -54,7 +54,10 @@ public class RestRemoteAgency implements Agency {
 
     @Override
     public void instruct(MissionHandle handle, MissionCommand command) {
-        /* TODO */
+        //""/instance/{missionHandle}/instruct/{commandName}""
+        client.get()
+                .uri("/instance/" + handle.id() + "/instruct/" + command.name())
+                .exchange().subscribe();
     }
 
     private <T> Flux<T> flux(String uri, Class<T> type) {

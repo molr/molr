@@ -22,6 +22,8 @@ import cern.molr.sample.commands.SequenceCommand;
 import cern.molr.sample.events.SequenceMissionEvent;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.DirectProcessor;
 import reactor.core.publisher.ReplayProcessor;
 
@@ -31,13 +33,15 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the {@link SequenceMission}
  * interface.
- *
+ * <p>
  * It runs the mission tasks consecutively
  *
  * @author yassine-kr
  * @see Mole
  */
 public class SequenceMole implements Mole<Void, Void> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceMole.class);
 
     private List<SequenceMission.Task> tasks;
     private int currentTask = 0;
@@ -97,6 +101,7 @@ public class SequenceMole implements Mole<Void, Void> {
 
     @Override
     public void sendCommand(MissionCommand command) throws CommandNotAcceptedException {
+        LOGGER.info("Command {} arrived.", command);
         stateManager.acceptCommand(command);
 
         switch (((SequenceCommand) command).getCommand()) {
