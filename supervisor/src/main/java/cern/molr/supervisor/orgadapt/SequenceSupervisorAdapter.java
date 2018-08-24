@@ -112,7 +112,7 @@ public class SequenceSupervisorAdapter implements Supervisor {
             if (taskNumber >= 0) {
                 cursor = rep.childrenOf(rep.rootBlock()).get(taskNumber);
             }
-            builder.add(MAIN_STRAND, runStateFrom(seqState), cursor, allowedCommands(seqState));
+            builder.add(MAIN_STRAND, runStateFrom(seqState), cursor, null, allowedCommands(seqState));
         } else {
             LOGGER.warn("Published state for handle '" + handle + "' is not a sequence state but of type '" + cernState.getClass() + "'. Cannot translate state.");
             return Optional.empty();

@@ -20,41 +20,18 @@ public class Strand {
 
     private final String id;
 
-    private final String parent;
 
     private Strand(String id) {
         this.id = requireNonNull(id, "id must not be null");
-        this.parent = null;
     }
 
-    private Strand(String id, String parentId) {
-        this.id = requireNonNull(id, "id must not be null");
-        this.parent = requireNonNull(parentId, "parent must not be null");
-    }
 
     public static Strand ofId(String id) {
         return new Strand(id);
     }
 
-    public static Strand ofIdAndParentId(String id, String parent) {
-        return new Strand(id, parent);
-    }
-
     public String id() {
         return id;
-    }
-
-    public Optional<String> parentId() {
-        return Optional.ofNullable(this.parent);
-    }
-
-
-    @Override
-    public String toString() {
-        return "Strand{" +
-                "id='" + id + '\'' +
-                ", parent='" + parent + '\'' +
-                '}';
     }
 
     @Override
@@ -62,12 +39,18 @@ public class Strand {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Strand strand = (Strand) o;
-        return Objects.equals(id, strand.id) &&
-                Objects.equals(parent, strand.parent);
+        return Objects.equals(id, strand.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, parent);
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Strand{" +
+                "id='" + id + '\'' +
+                '}';
     }
 }

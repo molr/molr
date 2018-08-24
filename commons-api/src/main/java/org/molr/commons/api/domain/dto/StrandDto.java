@@ -9,16 +9,13 @@ import static java.util.Objects.requireNonNull;
 public class StrandDto {
 
     public final String id;
-    public final String parentId;
 
-    public StrandDto(String id, String parentId) {
+    public StrandDto(String id) {
         this.id = requireNonNull(id, "id must not be null");
-        this.parentId = parentId;
     }
 
     public StrandDto() {
         this.id = null;
-        this.parentId = null;
     }
 
     @Override
@@ -29,14 +26,10 @@ public class StrandDto {
     }
 
     public static StrandDto from(Strand strand) {
-        return new StrandDto(strand.id(), strand.parentId().orElse(null));
+        return new StrandDto(strand.id());
     }
 
     public Strand toStrand() {
-        if (parentId == null) {
-            return Strand.ofId(id);
-        } else {
-            return Strand.ofIdAndParentId(id, parentId);
-        }
+        return Strand.ofId(id);
     }
 }
