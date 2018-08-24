@@ -91,8 +91,8 @@ public class LocalMoleDelegationAgency implements Agency {
     }
 
     @Override
-    public void instruct(MissionHandle handle, MissionCommand command) {
-        activeMoles.get(handle).instruct(handle, command);
+    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+        activeMoles.get(handle).instruct(handle, strand, command);
     }
 
     private static final Map<Mission, Supervisor> scanMoles(Iterable<Supervisor> moles) {

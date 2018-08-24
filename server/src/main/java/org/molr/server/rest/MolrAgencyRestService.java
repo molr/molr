@@ -29,7 +29,6 @@ public class MolrAgencyRestService {
 
     @GetMapping(path = "/mission/{missionName}/instantiate")
     public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName) {
-        System.out.println("Rest service called");
         /* TODO: Implement real parameters */
         Map<String, Object> params = Collections.emptyMap();
         return agency.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
@@ -50,9 +49,9 @@ public class MolrAgencyRestService {
         return agency.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/instruct/{commandName}")
-    public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
-        agency.instruct(MissionHandle.ofId(missionHandle), MissionCommand.valueOf(commandName));
+    @GetMapping(path = "/instance/{missionHandle}/{strandId}/instruct/{commandName}")
+    public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("strandId") String strandId, @PathVariable("commandName") String commandName) {
+        agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), MissionCommand.valueOf(commandName));
     }
 
     @GetMapping(path = "/test-stream/{count}")

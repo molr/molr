@@ -53,10 +53,9 @@ public class RestRemoteAgency implements Agency {
     }
 
     @Override
-    public void instruct(MissionHandle handle, MissionCommand command) {
-        //""/instance/{missionHandle}/instruct/{commandName}""
+    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
         client.get()
-                .uri("/instance/" + handle.id() + "/instruct/" + command.name())
+                .uri("/instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name())
                 .exchange().subscribe();
     }
 
@@ -66,7 +65,6 @@ public class RestRemoteAgency implements Agency {
 
     private <T> Mono<T> mono(String uri, Class<T> type) {
         return exchange(uri).flatMap(res -> {
-            System.out.println("Response: " + res);
             return res.bodyToMono(type);
         });
     }

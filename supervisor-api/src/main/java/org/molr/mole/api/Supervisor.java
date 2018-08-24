@@ -7,11 +7,7 @@ package org.molr.mole.api;
 import java.util.Map;
 import java.util.Set;
 
-import org.molr.commons.api.domain.Mission;
-import org.molr.commons.api.domain.MissionCommand;
-import org.molr.commons.api.domain.MissionRepresentation;
-import org.molr.commons.api.domain.MissionHandle;
-import org.molr.commons.api.domain.MissionState;
+import org.molr.commons.api.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +21,6 @@ public interface Supervisor {
 
     Flux<MissionState> statesFor(MissionHandle handle);
 
-    void instruct(MissionHandle handle, MissionCommand command);
+    void instruct(MissionHandle handle, Strand strand, MissionCommand command);
 
 }

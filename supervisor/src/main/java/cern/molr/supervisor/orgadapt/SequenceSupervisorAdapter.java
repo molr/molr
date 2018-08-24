@@ -77,8 +77,11 @@ public class SequenceSupervisorAdapter implements Supervisor {
     }
 
     @Override
-    public void instruct(MissionHandle handle, MissionCommand command) {
-        LOGGER.info("Command arrived: command={}; handle={}.", command, handle);
+    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+        if (!MAIN_STRAND.equals(strand)) {
+            throw new IllegalArgumentException("No strand " + strand + " available in this mission.");
+        }
+        LOGGER.info("Command arrived: handle={}; strand={}; command={}.", handle, strand, command);
         SequenceMole runner = missionRunners.get(handle);
         if (runner == null) {
             throw new IllegalStateException("No runner for handle '" + handle

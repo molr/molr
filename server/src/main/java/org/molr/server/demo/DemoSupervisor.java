@@ -57,7 +57,7 @@ public class DemoSupervisor implements Supervisor {
     }
 
     @Override
-    public void instruct(MissionHandle handle, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand,  MissionCommand command) {
         /* NOOP for the moment */
     }
 
