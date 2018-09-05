@@ -190,7 +190,7 @@ public class SequenceSupervisorAdapter implements Supervisor {
     }
 
     private final String id() {
-        return "" + idSeq.getAndIncrement();
+        return Long.toString(idSeq.getAndIncrement());
     }
 
     private MissionRepresentation representationFrom(SequenceMission sequence) {
