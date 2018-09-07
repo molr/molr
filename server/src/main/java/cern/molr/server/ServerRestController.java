@@ -38,7 +38,7 @@ public class ServerRestController {
 
 
     @CrossOrigin()
-    @RequestMapping(path = MolrConfig.INSTANTIATE_PATH, method = RequestMethod.POST)
+    @PostMapping(path = MolrConfig.INSTANTIATE_PATH)
     public <I> Publisher<InstantiationResponse> instantiateMission(
             @RequestBody ServerInstantiationRequest<I> request) {
 
@@ -52,7 +52,7 @@ public class ServerRestController {
         }).subscribeOn(Schedulers.fromExecutorService(executorService));
     }
 
-    @RequestMapping(path = MolrConfig.REGISTER_PATH, method = RequestMethod.POST)
+    @PostMapping(path = MolrConfig.REGISTER_PATH)
     public Publisher<SupervisorRegisterResponse> register(@RequestBody SupervisorRegisterRequest request) {
         return Mono.create((emitter) -> {
             String supervisorId = service.addSupervisor(request.getHost(), request.getPort(), request.getAcceptedMissions());
@@ -60,7 +60,7 @@ public class ServerRestController {
         });
     }
 
-    @RequestMapping(path = MolrConfig.UNREGISTER_PATH, method = RequestMethod.POST)
+    @PostMapping(path = MolrConfig.UNREGISTER_PATH)
     public Publisher<SupervisorUnregisterResponse> uNregister(
             @RequestBody SupervisorUnregisterRequest request) {
 
