@@ -37,56 +37,56 @@ public class ServerMain {
         executorService.shutdown();
     }
 
-    @Configuration
-    @PropertySource(value = "classpath:${server.fileConfig:server.properties}",
-            ignoreResourceNotFound = true)
-    public static class ServerConfigurer {
+//    @Configuration
+//    @PropertySource(value = "classpath:${server.fileConfig:server.properties}",
+//            ignoreResourceNotFound = true)
+//    public static class ServerConfigurer {
+//
+//        private final Environment env;
+//
+//        public ServerConfigurer(Environment env) {
+//            this.env = env;
+//        }
+//
+//        @Bean
+//        public ServerConfig getSupervisorConfig() {
+//            ServerConfig config = new ServerConfig();
+//            try {
+//                config.setHeartbeatInterval(env.getProperty("heartbeat.interval", Integer.class, 20));
+//            } catch (Exception error) {
+//                config.setHeartbeatInterval(20);
+//            }
+//            try {
+//                config.setHeartbeatTimeOut(env.getProperty("heartbeat.timeOut", Integer.class, 30));
+//            } catch (Exception error) {
+//                config.setHeartbeatTimeOut(30);
+//            }
+//            try {
+//                config.setNumMaxTimeOut(env.getProperty("heartbeat.numMaxTimeOut", Integer.class, 1));
+//            } catch (Exception error) {
+//                config.setNumMaxTimeOut(1);
+//            }
+//
+//            return config;
+//        }
+//
+//
+//        @Bean
+//        public ObjectMapper getMapper() {
+//            return SerializationUtils.getMapper();
+//        }
 
-        private final Environment env;
-
-        public ServerConfigurer(Environment env) {
-            this.env = env;
-        }
-
-        @Bean
-        public ServerConfig getSupervisorConfig() {
-            ServerConfig config = new ServerConfig();
-            try {
-                config.setHeartbeatInterval(env.getProperty("heartbeat.interval", Integer.class, 20));
-            } catch (Exception error) {
-                config.setHeartbeatInterval(20);
-            }
-            try {
-                config.setHeartbeatTimeOut(env.getProperty("heartbeat.timeOut", Integer.class, 30));
-            } catch (Exception error) {
-                config.setHeartbeatTimeOut(30);
-            }
-            try {
-                config.setNumMaxTimeOut(env.getProperty("heartbeat.numMaxTimeOut", Integer.class, 1));
-            } catch (Exception error) {
-                config.setNumMaxTimeOut(1);
-            }
-
-            return config;
-        }
-
-
-        @Bean
-        public ObjectMapper getMapper() {
-            return SerializationUtils.getMapper();
-        }
-
-        /**
-         * Executor service needed for running the response to an instantiate request in a thread able to wait using
-         * the blocking method of a {@link Mono}
-         *
-         * @return the executor service
-         */
-        @Bean
-        public ExecutorService getExecutorService() {
-            return Executors.newFixedThreadPool(10);
-        }
-
-    }
+//        /**
+//         * Executor service needed for running the response to an instantiate request in a thread able to wait using
+//         * the blocking method of a {@link Mono}
+//         *
+//         * @return the executor service
+//         */
+//        @Bean
+//        public ExecutorService getExecutorService() {
+//            return Executors.newFixedThreadPool(10);
+//        }
+//
+//    }
 
 }

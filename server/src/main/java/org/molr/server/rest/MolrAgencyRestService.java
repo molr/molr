@@ -1,11 +1,19 @@
 package org.molr.server.rest;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.molr.commons.api.domain.*;
 import org.molr.commons.api.domain.dto.*;
 import org.molr.commons.api.service.Agency;
+import org.molr.server.web.StreamWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 
 @RestController
@@ -54,10 +63,13 @@ public class MolrAgencyRestService {
         agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), MissionCommand.valueOf(commandName));
     }
 
-    @GetMapping(path = "/test-stream/{count}")
+    @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
                 .take(count)
                 .map(i -> new TestValueDto("Test output " + i));
     }
+
+
+
 }
