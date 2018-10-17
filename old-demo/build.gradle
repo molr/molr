@@ -1,4 +1,4 @@
 dependencies {
-    compile project(":molr-agency-remote")
+    compile project(":old-client")
     compile project(":old-sample")
 }

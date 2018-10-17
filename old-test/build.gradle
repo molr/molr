@@ -1,7 +1,7 @@
 dependencies {
     testCompile group: 'junit', name: 'junit', version: jUnitVersion
 
-    testCompile project(":molr-agency-remote")
-    testCompile project(":molr-agency-server")
-    testCompile project(":molr-mole-server")
+    testCompile project(":old-client-api")
+    testCompile project(":old-server")
+    testCompile project(":old-supervisor")
 }

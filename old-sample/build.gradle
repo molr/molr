@@ -1,4 +1,5 @@
 dependencies {
     compile project(":old-commons")
-    compile project(":molr-agency-remote")
+    compile project(":old-commons-api")
+    compile project(":old-client")
 }
