@@ -19,7 +19,7 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
 
-    compile project(":server-api")
-    compile project(":supervisor-api")
-    compile project(":sample")
+    compile project(":old-server-api")
+    compile project(":molr-mole-core")
+    compile project(":old-sample")
 }

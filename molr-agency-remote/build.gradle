@@ -5,6 +5,6 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
 
-    compile project(":client-api")
-    compile project(":commons")
+    compile project(":molr-agency-core")
+    compile project(":old-commons")
 }

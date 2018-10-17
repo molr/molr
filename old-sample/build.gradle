@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":old-commons")
+    compile project(":molr-agency-remote")
+}

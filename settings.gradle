@@ -1,7 +1,7 @@
-include "commons", "sample"
-include "client", "server", "supervisor"
-include "client-api", "server-api", "supervisor-api"
-include 'test'
-include 'demo'
-include 'commons-api'
+include 'molr-commons'
+include "molr-agency-remote", "molr-agency-server", "molr-agency-core"
+include "molr-mole-server",  "molr-mole-core"
+
+// Old
+include "old-server-api", 'old-test', 'old-demo', 'old-sample', "old-commons"
 
