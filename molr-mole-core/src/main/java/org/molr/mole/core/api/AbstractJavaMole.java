@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractJavaMole implements Supervisor {
+public abstract class AbstractJavaMole implements Mole {
 
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
 

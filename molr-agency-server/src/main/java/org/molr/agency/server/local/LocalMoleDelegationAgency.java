@@ -18,7 +18,7 @@ import org.molr.commons.domain.MissionInstance;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Strand;
-import org.molr.mole.core.api.Supervisor;
+import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
@@ -43,8 +43,8 @@ import static java.util.Objects.requireNonNull;
  */
 public class LocalMoleDelegationAgency implements Agency {
 
-    private final Map<Mission, Supervisor> missionMoles;
-    private final ConcurrentMap<MissionHandle, Supervisor> activeMoles = new ConcurrentHashMap<>();
+    private final Map<Mission, Mole> missionMoles;
+    private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
     private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
     private final MissionHandleFactory missionHandleFactory;
     private final ReplayProcessor<AgencyState> states = ReplayProcessor.create(1);
@@ -55,7 +55,7 @@ public class LocalMoleDelegationAgency implements Agency {
 
     private final Scheduler scheduler = Schedulers.elastic();
 
-    public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Supervisor> moles) {
+    public LocalMoleDelegationAgency(MissionHandleFactory missionHandleFactory, Iterable<Mole> moles) {
         this.missionHandleFactory = requireNonNull(missionHandleFactory, "missionHandleFactory must not be null");
         requireNonNull(moles, "moles must not be null");
         this.missionMoles = scanMoles(moles);
@@ -76,9 +76,9 @@ public class LocalMoleDelegationAgency implements Agency {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         CompletableFuture<MissionHandle> future = CompletableFuture.supplyAsync(() -> {
             MissionHandle handle = missionHandleFactory.next();
-            Supervisor supervisor = missionMoles.get(mission);
-            supervisor.instantiate(handle, mission, params);
-            activeMoles.put(handle, supervisor);
+            Mole mole = missionMoles.get(mission);
+            mole.instantiate(handle, mission, params);
+            activeMoles.put(handle, mole);
             MissionInstance instance = new MissionInstance(handle, mission);
             missionInstances.put(handle, instance);
             return handle;
@@ -94,12 +94,12 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
-        Supervisor activeSupervisor = activeMoles.get(handle);
-        if (activeSupervisor == null) {
+        Mole activeMole = activeMoles.get(handle);
+        if (activeMole == null) {
             return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
         }
-        System.out.println("Publishing states from supervisor " + activeSupervisor);
-        return activeSupervisor.statesFor(handle);
+        System.out.println("Publishing states from supervisor " + activeMole);
+        return activeMole.statesFor(handle);
     }
 
     @Override
@@ -107,11 +107,11 @@ public class LocalMoleDelegationAgency implements Agency {
         activeMoles.get(handle).instruct(handle, strand, command);
     }
 
-    private static final Map<Mission, Supervisor> scanMoles(Iterable<Supervisor> moles) {
-        Builder<Mission, Supervisor> builder = ImmutableMap.builder();
-        for (Supervisor supervisor : moles) {
-            for (Mission mission : supervisor.availableMissions()) {
-                builder.put(mission, supervisor);
+    private static final Map<Mission, Mole> scanMoles(Iterable<Mole> moles) {
+        Builder<Mission, Mole> builder = ImmutableMap.builder();
+        for (Mole mole : moles) {
+            for (Mission mission : mole.availableMissions()) {
+                builder.put(mission, mole);
             }
         }
         return builder.build();

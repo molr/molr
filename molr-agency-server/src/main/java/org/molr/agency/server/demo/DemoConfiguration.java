@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 public class DemoConfiguration {
 
     @Bean
-    public DemoSupervisor demoSupervisor() {
-        return new DemoSupervisor();
+    public DemoMole demoSupervisor() {
+        return new DemoMole();
     }
 
 

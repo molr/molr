@@ -4,7 +4,7 @@ import org.molr.agency.core.Agency;
 import org.molr.agency.server.local.LocalMoleDelegationAgency;
 import org.molr.commons.domain.AtomicIncrementMissionHandleFactory;
 import org.molr.commons.domain.MissionHandleFactory;
-import org.molr.mole.core.api.Supervisor;
+import org.molr.mole.core.api.Mole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class LocalMolrConfiguration {
 
     @Autowired
-    private Set<Supervisor> supervisors;
+    private Set<Mole> moles;
 
     @Bean
     public MissionHandleFactory missionHandleFactory() {
@@ -24,7 +24,7 @@ public class LocalMolrConfiguration {
 
     @Bean
     public Agency agency(MissionHandleFactory missionHandleFactory) {
-        return new LocalMoleDelegationAgency(missionHandleFactory, supervisors);
+        return new LocalMoleDelegationAgency(missionHandleFactory, moles);
     }
 
 }

@@ -10,7 +10,7 @@ import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Strand;
-import org.molr.mole.core.api.Supervisor;
+import org.molr.mole.core.api.Mole;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import reactor.core.publisher.Flux;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DemoSupervisor implements Supervisor {
+public class DemoMole implements Mole {
 
     private final AtomicLong ids = new AtomicLong(0);
 

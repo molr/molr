@@ -14,7 +14,7 @@ import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
-import org.molr.mole.core.api.Supervisor;
+import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
-public class SequenceSupervisorAdapter implements Supervisor {
+public class SequenceMoleAdapter implements Mole {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceSupervisorAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceMoleAdapter.class);
 
     /**
      * This can be the same for every mission, as it only has to be unique within an instance
@@ -48,7 +48,7 @@ public class SequenceSupervisorAdapter implements Supervisor {
     private final ConcurrentHashMap<MissionHandle, SequenceMole> missionRunners = new ConcurrentHashMap<>();
 
 
-    public SequenceSupervisorAdapter(Set<SequenceMission> missions) {
+    public SequenceMoleAdapter(Set<SequenceMission> missions) {
         this.missions = missions.stream().collect(toMap(m -> missionFrom(m), m -> m));
         this.representations = missions.stream().collect(toMap(m -> missionFrom(m), m -> representationFrom(m)));
     }
