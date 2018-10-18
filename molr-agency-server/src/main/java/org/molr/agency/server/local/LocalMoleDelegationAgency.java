@@ -11,7 +11,7 @@ import org.molr.agency.core.Agency;
 import org.molr.commons.domain.AgencyState;
 import org.molr.commons.domain.ImmutableAgencyState;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionHandleFactory;
 import org.molr.commons.domain.MissionInstance;
@@ -103,7 +103,7 @@ public class LocalMoleDelegationAgency implements Agency {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         activeMoles.get(handle).instruct(handle, strand, command);
     }
 

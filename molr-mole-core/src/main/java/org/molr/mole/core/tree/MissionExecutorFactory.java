@@ -1,4 +1,4 @@
-package org.molr.mole.core.api;
+package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Mission;
 

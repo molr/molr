@@ -1,10 +1,11 @@
-package org.molr.mole.core.api;
+package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Strand;
+import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 
 import java.util.Map;
@@ -28,7 +29,7 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         Optional.ofNullable(executors.get(handle))
                 .ifPresent(e -> e.instruct(strand, command));
     }

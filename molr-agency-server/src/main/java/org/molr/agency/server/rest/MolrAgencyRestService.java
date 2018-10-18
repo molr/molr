@@ -3,7 +3,7 @@ package org.molr.agency.server.rest;
 
 import org.molr.agency.core.Agency;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.dto.AgencyStateDto;
@@ -57,7 +57,7 @@ public class MolrAgencyRestService {
 
     @GetMapping(path = "/instance/{missionHandle}/{strandId}/instruct/{commandName}")
     public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("strandId") String strandId, @PathVariable("commandName") String commandName) {
-        agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), MissionCommand.valueOf(commandName));
+        agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
     }
 
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)

@@ -8,7 +8,7 @@ import cern.molr.sample.states.SequenceMissionState;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.ImmutableMissionRepresentation;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
@@ -85,7 +85,7 @@ public class SequenceMoleAdapter implements Mole {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         if (!MAIN_STRAND.equals(strand)) {
             throw new IllegalArgumentException("No strand " + strand + " available in this mission.");
         }
@@ -143,32 +143,32 @@ public class SequenceMoleAdapter implements Mole {
         return RunState.UNDEFINED;
     }
 
-    private final static Set<MissionCommand> allowedCommands(SequenceMissionState seqState) {
+    private final static Set<StrandCommand> allowedCommands(SequenceMissionState seqState) {
         return seqState.getPossibleCommands().stream().map(m -> orgCommandFrom(m)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
     }
 
-    private static Optional<MissionCommand> orgCommandFrom(cern.molr.commons.api.request.MissionCommand m) {
+    private static Optional<StrandCommand> orgCommandFrom(cern.molr.commons.api.request.MissionCommand m) {
         if (m instanceof SequenceCommand) {
             SequenceCommand seqCommand = (SequenceCommand) m;
             switch (seqCommand.getCommand()) {
                 case STEP:
-                    return Optional.of(MissionCommand.STEP_OVER);
+                    return Optional.of(StrandCommand.STEP_OVER);
                 case PAUSE:
-                    return Optional.of(MissionCommand.PAUSE);
+                    return Optional.of(StrandCommand.PAUSE);
                 case RESUME:
-                    return Optional.of(MissionCommand.RESUME);
+                    return Optional.of(StrandCommand.RESUME);
                 case SKIP:
-                    return Optional.of(MissionCommand.SKIP);
+                    return Optional.of(StrandCommand.SKIP);
             }
         }
         return Optional.empty();
     }
 
-    private static final Optional<cern.molr.commons.api.request.MissionCommand> cernCommandFrom(MissionCommand command) {
+    private static final Optional<cern.molr.commons.api.request.MissionCommand> cernCommandFrom(StrandCommand command) {
         return commandFrom(command).map(SequenceCommand::new);
     }
 
-    private static final Optional<SequenceCommand.Command> commandFrom(MissionCommand command) {
+    private static final Optional<SequenceCommand.Command> commandFrom(StrandCommand command) {
         switch (command) {
             case RESUME:
                 return Optional.of(SequenceCommand.Command.RESUME);

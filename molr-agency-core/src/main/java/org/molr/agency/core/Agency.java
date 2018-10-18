@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.molr.commons.domain.AgencyState;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
@@ -26,6 +26,6 @@ public interface Agency {
 
     Flux<MissionState> statesFor(MissionHandle handle);
 
-    void instruct(MissionHandle handle, Strand strand, MissionCommand command);
+    void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
 }

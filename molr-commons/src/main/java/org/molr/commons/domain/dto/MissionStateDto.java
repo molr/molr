@@ -2,7 +2,7 @@ package org.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Block;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
@@ -49,9 +49,9 @@ public class MissionStateDto {
         Map<String, List<String>> parentToChildrenStrands = new HashMap<>();
         Map<String, Set<String>> allowedCommands = new HashMap<>();
         for (Strand strand : activeStrands) {
-            Set<MissionCommand> commands = missionState.allowedCommandsFor(strand);
+            Set<StrandCommand> commands = missionState.allowedCommandsFor(strand);
             if (!commands.isEmpty()) {
-                allowedCommands.put(strand.id(), commands.stream().map(MissionCommand::name).collect(toSet()));
+                allowedCommands.put(strand.id(), commands.stream().map(StrandCommand::name).collect(toSet()));
             }
 
             List<Strand> children = missionState.childrenOf(strand);
@@ -74,7 +74,7 @@ public class MissionStateDto {
             RunState runState = RunState.valueOf(strandRunStates.get(strandDto.id));
 
             Set<String> commandNames = Optional.ofNullable(strandAllowedCommands.get(strandDto.id)).orElse(emptySet());
-            Set<MissionCommand> commands = commandNames.stream().map(MissionCommand::valueOf).collect(toSet());
+            Set<StrandCommand> commands = commandNames.stream().map(StrandCommand::valueOf).collect(toSet());
 
             if (rootStrand.equals(strand)) {
                 builder.add(strand, runState, cursor, null, commands);

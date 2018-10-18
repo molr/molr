@@ -2,7 +2,7 @@ package org.molr.agency.remote.rest;
 
 import org.molr.commons.domain.AgencyState;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
@@ -60,7 +60,7 @@ public class RestRemoteAgency implements Agency {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         client.get()
                 .uri("/instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name())
                 .exchange().subscribe();

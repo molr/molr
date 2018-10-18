@@ -5,7 +5,7 @@ package org.molr.agency.server.demo;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.ImmutableMissionRepresentation;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionCommand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
@@ -64,7 +64,7 @@ public class DemoMole implements Mole {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, MissionCommand command) {
+    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         /* NOOP for the moment */
     }
 

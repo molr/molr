@@ -11,7 +11,7 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 public class MissionState {
-    private final SetMultimap<Strand, MissionCommand> strandAllowedCommands;
+    private final SetMultimap<Strand, StrandCommand> strandAllowedCommands;
     private final Map<Strand, Block> strandCursorPositions;
     private final Map<Strand, RunState> strandRunStates;
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
@@ -26,7 +26,7 @@ public class MissionState {
         this.strandRunStates = builder.strandRunStatesBuilder.build();
     }
 
-    public Set<MissionCommand> allowedCommandsFor(Strand strand) {
+    public Set<StrandCommand> allowedCommandsFor(Strand strand) {
         return this.strandAllowedCommands.get(strand);
     }
 
@@ -90,7 +90,7 @@ public class MissionState {
 
 
     public static class Builder {
-        private ImmutableSetMultimap.Builder<Strand, MissionCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
+        private ImmutableSetMultimap.Builder<Strand, StrandCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
         private ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
         private ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
         private ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
@@ -99,7 +99,7 @@ public class MissionState {
         private Builder() {
         }
 
-        public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, Set<MissionCommand> allowedCommands) {
+        public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, Set<StrandCommand> allowedCommands) {
             requireNonNull(strand, "strand must not be null");
             requireNonNull(runState, "runState must not be null");
             /* cursor might be null! */
@@ -122,7 +122,7 @@ public class MissionState {
             return this;
         }
 
-        public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, MissionCommand... allowedCommands) {
+        public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, StrandCommand... allowedCommands) {
             return this.add(strand, runState, cursor, parent, ImmutableSet.copyOf(allowedCommands));
         }
 
