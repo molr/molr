@@ -50,7 +50,7 @@ public abstract class RunnableMissionSupport implements RunnableBranchSupport {
         return getClass().getSimpleName();
     }
 
-    ExecutionData build() {
+    public ExecutionData build() {
         return builder.build();
     }
 

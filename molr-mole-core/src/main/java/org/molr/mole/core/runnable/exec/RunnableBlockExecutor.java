@@ -14,7 +14,7 @@ public class RunnableBlockExecutor extends LeafExecutor {
 
     private final Map<Block, Runnable> runnables;
 
-    protected RunnableBlockExecutor(ResultBucket resultTracker, Map<Block, Runnable> runnables) {
+    public RunnableBlockExecutor(ResultBucket resultTracker, Map<Block, Runnable> runnables) {
         super(resultTracker);
         this.runnables = ImmutableMap.copyOf(runnables);
     }

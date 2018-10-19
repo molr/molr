@@ -16,6 +16,10 @@ public class TreeStructure {
         this.parallelBlocks = parallelBlocks;
     }
 
+    public MissionRepresentation missionRepresentation() {
+        return representation;
+    }
+
 
     public List<Block> childrenOf(Block block) {
         return representation.childrenOf(block);

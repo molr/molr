@@ -20,14 +20,15 @@ import static java.util.Objects.requireNonNull;
 public class TreeMissionExecutor implements MissionExecutor {
 
     private final ReplayProcessor states = ReplayProcessor.cacheLast();
+    private final SequentialExecutor rootExecutor;
 
-    protected TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
         Block rootBlock = treeStructure.rootBlock();
         MutableStrandState rootState = MutableStrandState.root(rootBlock);
         StrandFactoryImpl strandFactory = new StrandFactoryImpl();
         Strand strand = strandFactory.nextStrand();
         CursorTracker cursorTracker = CursorTracker.ofBlock(rootBlock);
-        SequentialExecutor rootExecutor = new SequentialExecutor(strand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory);
+        rootExecutor = new SequentialExecutor(strand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory);
 
         if (!treeStructure.isLeaf(rootBlock)) {
             rootExecutor.stepInto();
@@ -41,6 +42,7 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instruct(Strand strand, StrandCommand command) {
+        rootExecutor.instruct(command);
         //Optional.ofNullable(strandInstances.get(strand)).ifPresent(i -> i.instruct(command));
     }
 
