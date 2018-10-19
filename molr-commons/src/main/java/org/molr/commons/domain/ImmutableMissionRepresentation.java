@@ -73,9 +73,13 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
             this.rootBlock = requireNonNull(rootBlock, "rootBlock must not be null");
         }
 
-        public Builder parentToChild(Block parentId, Block childId) {
-            treeBuilder.put(parentId, childId);
+        public Builder parentToChild(Block parent, Block child) {
+            treeBuilder.put(parent, child);
             return this;
+        }
+
+        public Block root() {
+            return this.rootBlock;
         }
 
         public MissionRepresentation build() {
