@@ -17,7 +17,7 @@ import static java.util.Objects.requireNonNull;
  *
  *
  */
-public abstract class TreeMissionExecutor implements MissionExecutor {
+public class TreeMissionExecutor implements MissionExecutor {
 
     private final ReplayProcessor states = ReplayProcessor.cacheLast();
 
@@ -44,12 +44,5 @@ public abstract class TreeMissionExecutor implements MissionExecutor {
         //Optional.ofNullable(strandInstances.get(strand)).ifPresent(i -> i.instruct(command));
     }
 
-    /**
-     * This finally delegates the real exewcution to something else. This is called fcr leaves only.
-     *
-     * @param strand
-     * @param block
-     */
-    protected abstract void execute(Strand strand, Block block);
 
 }

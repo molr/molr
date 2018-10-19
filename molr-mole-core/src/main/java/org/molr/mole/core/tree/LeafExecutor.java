@@ -12,5 +12,9 @@ public abstract class LeafExecutor {
 
     public abstract void execute(Block block);
 
+    protected ResultBucket tracker() {
+        return this.resultTracker;
+    }
+
 
 }
