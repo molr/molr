@@ -1,11 +1,8 @@
 package org.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
-import org.molr.commons.domain.Block;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.MissionState;
+import org.molr.commons.domain.*;
 import org.molr.commons.domain.RunState;
-import org.molr.commons.domain.Strand;
 
 import java.util.*;
 

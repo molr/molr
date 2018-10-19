@@ -15,4 +15,5 @@ public interface MissionRepresentation {
 
     Set<Block> allBlocks();
 
+    boolean isLeaf(Block block);
 }

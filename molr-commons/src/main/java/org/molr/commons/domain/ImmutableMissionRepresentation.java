@@ -40,6 +40,11 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
         return blocks;
     }
 
+    @Override
+    public boolean isLeaf(Block block) {
+        return childrenOf(block).isEmpty();
+    }
+
     public static Builder builder(Block rootBlock) {
         return new Builder(rootBlock);
     }

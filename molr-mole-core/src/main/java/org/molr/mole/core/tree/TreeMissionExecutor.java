@@ -19,76 +19,18 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class TreeMissionExecutor implements MissionExecutor {
 
-    private final MissionRepresentation representation;
-
-
-    private final Map<Strand, SequentialExecutor> strandInstances = new ConcurrentHashMap<>();
-
-
-    private final Map<Strand, MutableStrandState> strandStates = new ConcurrentHashMap<>();
-
-
-    private final Map<Strand, Block> strandCursorPositions = new ConcurrentHashMap<>();
-    private final Map<Strand, RunState> strandRunStates = new ConcurrentHashMap<>();
-
-
-    private final AtomicLong nextId = new AtomicLong(0);
     private final ReplayProcessor states = ReplayProcessor.cacheLast();
 
-
-    protected TreeMissionExecutor(MissionRepresentation representation) {
-        this.representation = requireNonNull(representation, "representation must not be null");
-
-        Block rootBlock = representation.rootBlock();
+    protected TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
+        Block rootBlock = treeStructure.rootBlock();
         MutableStrandState rootState = MutableStrandState.root(rootBlock);
-        Strand rootStrand = nextStrand();
-        strandStates.put(rootStrand, rootState);
-        strandCursorPositions.put(rootStrand, rootBlock);
+        StrandFactoryImpl strandFactory = new StrandFactoryImpl();
+        Strand strand = strandFactory.nextStrand();
+        CursorTracker cursorTracker = CursorTracker.ofBlock(rootBlock);
+        SequentialExecutor rootExecutor = new SequentialExecutor(strand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory);
 
-        if (!isLeaf(rootBlock)) {
-            stepInto(rootStrand, rootBlock);
-        }
-    }
-
-
-    private void stepInto(Strand strand, Block block) {
-//        if (isLeaf(block)) {
-//            execute(strand, block);
-//        } else
-//
-        if (parallelChildren(block)) {
-            for (Block child : childrenOf(block)) {
-                Strand newStrand = nextStrand();
-                strandCursorPositions.put(newStrand, child);
-                //run(newStrand, block);
-            }
-        } else {
-            List<Block> children = childrenOf(block);
-            Block firstChild = children.get(0);
-            strandCursorPositions.put(strand, firstChild);
-
-        }
-
-    }
-
-    private void run(Strand strand, Block block) {
-        if (isLeaf(block)) {
-            execute(strand, block);
-        } else {
-            runInto(strand, block);
-        }
-    }
-
-    private void runInto(Strand strand, Block block) {
-        if (parallelChildren(block)) {
-            for (Block child : childrenOf(block)) {
-                Strand newStrand = nextStrand();
-                run(newStrand, block);
-            }
-        } else {
-            for (Block child : childrenOf(block)) {
-                run(strand, block);
-            }
+        if (!treeStructure.isLeaf(rootBlock)) {
+            rootExecutor.stepInto();
         }
     }
 
@@ -99,25 +41,8 @@ public abstract class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instruct(Strand strand, StrandCommand command) {
-        Optional.ofNullable(strandInstances.get(strand)).ifPresent(i -> i.instruct(command));
+        //Optional.ofNullable(strandInstances.get(strand)).ifPresent(i -> i.instruct(command));
     }
-
-    protected abstract boolean parallelChildren(Block block);
-
-
-    private boolean isLeaf(Block block) {
-        return childrenOf(block).isEmpty();
-    }
-
-    private List<Block> childrenOf(Block block) {
-        return representation.childrenOf(block);
-    }
-
-
-    private Strand nextStrand() {
-        return Strand.ofId("" + nextId.getAndIncrement());
-    }
-
 
     /**
      * This finally delegates the real exewcution to something else. This is called fcr leaves only.
