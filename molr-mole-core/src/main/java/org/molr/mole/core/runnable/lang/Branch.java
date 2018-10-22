@@ -19,18 +19,20 @@ public class Branch implements RunnableBranchSupport {
         return new Branch(builder, parent);
     }
 
-    public void run(String name, Runnable runnable) {
-        builder.nodeChild(parent, name, runnable);
+    public Block run(String name, Runnable runnable) {
+        return builder.leafChild(parent, name, runnable);
     }
 
-    public void sequential(String name, Consumer<Branch> branchDefiner) {
+    public Block sequential(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.sequentialChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
+        return node;
     }
 
-    public void parallel(String name, Consumer<Branch> branchDefiner) {
+    public Block parallel(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.parallelChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
+        return node;
     }
 
 

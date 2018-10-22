@@ -3,6 +3,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.ExecutionData;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
+import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.TreeMissionExecutor;
@@ -26,56 +27,54 @@ public class SequenceTry {
 
         ExecutionData data = new RunnableMissionSupport() {
             {
-                mission("Root");
+                mission("Root", root -> {
 
-                sequential("First", b -> {
-                    b.println("First A");
-                    b.println("First B");
+                    root.sequential("First", b -> {
+                        b.run(log("First A"));
+                        b.run(log("First B"));
+                    });
+
+                    root.sequential("Second", b -> {
+                        b.run(log("second A"));
+                        b.run(log("second B"));
+                    });
+
+                    root.run(log("Third"));
+
+                    root.parallel("Parallel", b -> {
+                        b.run(log("Parallel A"));
+                        b.run(log("parallel B"));
+                    });
+
                 });
-
-                sequential("Second", b -> {
-                    b.println("second A");
-                    b.println("second B");
-                });
-
-                println("Third");
-
-                parallel("Parallel", b -> {
-                    b.println("Parallel A");
-                    b.println("parallel B");
-                });
-
             }
         }.build();
 
 
         TreeStructure treeStructure = data.treeStructure();
         TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, createInstructions(treeStructure));
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, data.runnables());
         TreeMissionExecutor mission = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker);
 
-//        mission.instruct(mission.getStrand(), StrandCommand.STEP_INTO);
-//        mission.instruct(mission.getStrand(), StrandCommand.STEP_OVER);
-        //mission.instruct(mission.getStrand(), StrandCommand.STEP_OVER);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_INTO);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+        // mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 //        mission.instruct(null, StrandCommand.RESUME);
 //        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_INTO);
 //        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 //        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
-//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 
-        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
-        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
-        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 
         logResultsOf(resultTracker, treeStructure);
     }
 
-    private static Map<Block, Runnable> createInstructions(TreeStructure treeStructure) {
-        ImmutableMap.Builder<Block, Runnable> builder = ImmutableMap.builder();
-
-        visitParentBeforeChild(treeStructure, block -> builder.put(block, () -> LOGGER.info("{} executed", block.text())));
-
-        return builder.build();
+    private static RunnableBranchSupport.Task log(String text) {
+        return new RunnableBranchSupport.Task(text, () -> LOGGER.info("{} executed", text));
     }
 
     private static void logResultsOf(TreeResultTracker resultTracker, TreeStructure structure) {
@@ -85,10 +84,6 @@ public class SequenceTry {
             LOGGER.info("{}{} -> {}", span, b.text(), resultTracker.resultFor(b));
         };
         visitParentBeforeChild(structure, c);
-    }
-
-    private static void visitParentBeforeChild(TreeStructure structure, Consumer<Block> c) {
-        visitParentBeforeChild(structure, (block, depth) -> c.accept(block));
     }
 
     private static void visitParentBeforeChild(TreeStructure structure, BiConsumer<Block, Integer> c) {

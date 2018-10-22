@@ -59,9 +59,10 @@ public class ExecutionData {
             return child;
         }
 
-        public void nodeChild(Block parent, String childName, Runnable runnable) {
+        public Block leafChild(Block parent, String childName, Runnable runnable) {
             Block child = addChild(parent, childName);
             runnables.put(child, runnable);
+            return child;
         }
 
         public Block root() {
