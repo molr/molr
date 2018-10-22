@@ -5,6 +5,7 @@ import com.google.common.collect.ListMultimap;
 import org.molr.commons.domain.Strand;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StrandFactoryImpl implements StrandFactory {

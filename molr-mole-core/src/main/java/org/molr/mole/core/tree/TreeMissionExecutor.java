@@ -4,11 +4,8 @@ import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static java.util.Objects.requireNonNull;
+import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 
 
 /**
@@ -36,10 +33,10 @@ public class TreeMissionExecutor implements MissionExecutor {
         Block rootBlock = treeStructure.rootBlock();
         MutableStrandState rootState = MutableStrandState.root(rootBlock);
         CursorTracker cursorTracker = CursorTracker.ofBlock(rootBlock);
-        rootExecutor = new SequentialExecutor(rootStrand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory, strandTracker);
+        rootExecutor = new SequentialExecutorImpl(rootStrand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory, strandTracker, new SingleThreadDispacherFactory());
 
         if (!treeStructure.isLeaf(rootBlock)) {
-            rootExecutor.stepInto();
+            rootExecutor.instruct(STEP_INTO);
         }
     }
 

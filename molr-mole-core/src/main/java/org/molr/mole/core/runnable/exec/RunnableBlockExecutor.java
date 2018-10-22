@@ -6,6 +6,7 @@ import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.ResultBucket;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static org.molr.commons.domain.Result.FAILED;
 import static org.molr.commons.domain.Result.SUCCESS;

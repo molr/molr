@@ -16,11 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.molr.commons.domain.Result.SUCCESS;
+import static org.molr.commons.domain.Result.UNDEFINED;
 
 public class TreeSteppingTest {
 
@@ -28,6 +30,7 @@ public class TreeSteppingTest {
 
     private static Block FIRST;
     private static Block SECOND;
+    private static Block THIRD;
 
     private final static ExecutionData DATA = new RunnableMissionSupport() {
         {
@@ -43,7 +46,7 @@ public class TreeSteppingTest {
                     b.run(log("second B"));
                 });
 
-                root.run(log("Third"));
+                THIRD = root.run(log("Third"));
 
                 root.parallel("Parallel", b -> {
                     b.run(log("Parallel A"));
@@ -68,19 +71,25 @@ public class TreeSteppingTest {
     }
 
     @Test
-    public void stepInGetsBackOut() {
+    public void stepInGetsBackOut() throws InterruptedException {
+        Thread.sleep(500);
         missionExecutor.instruct(missionExecutor.getRootStrand(), StrandCommand.STEP_INTO);
+        Thread.sleep(500);
         missionExecutor.instruct(missionExecutor.getRootStrand(), StrandCommand.STEP_OVER);
+        Thread.sleep(500);
         missionExecutor.instruct(missionExecutor.getRootStrand(), StrandCommand.STEP_OVER);
+        Thread.sleep(500);
         missionExecutor.instruct(missionExecutor.getRootStrand(), StrandCommand.STEP_OVER);
-
-        /* This we have to solve ;-)*/
-            missionExecutor.instruct(missionExecutor.getRootStrand(), StrandCommand.STEP_OVER);
+        Thread.sleep(500);
 
         logResultsOf(resultTracker, treeStructure);
 
+        Thread.sleep(500);
+
+
         assertThat(resultFor(FIRST)).isEqualTo(SUCCESS);
         assertThat(resultFor(SECOND)).isEqualTo(SUCCESS);
+        assertThat(resultFor(THIRD)).isEqualTo(UNDEFINED);
     }
 
     private Result resultFor(Block node) {
