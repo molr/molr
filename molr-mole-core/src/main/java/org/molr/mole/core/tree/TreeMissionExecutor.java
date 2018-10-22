@@ -21,18 +21,36 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     private final ReplayProcessor states = ReplayProcessor.cacheLast();
     private final SequentialExecutor rootExecutor;
+    private final MutableStrandTracker strandTracker;
+    private final Strand rootStrand;
+    private final StrandFactoryImpl strandFactory;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
+
+        strandFactory = new StrandFactoryImpl();
+        rootStrand = strandFactory.nextStrand();
+
+        strandTracker = new MutableStrandTracker();
+        strandTracker.trackStrand(rootStrand);
+
         Block rootBlock = treeStructure.rootBlock();
         MutableStrandState rootState = MutableStrandState.root(rootBlock);
-        StrandFactoryImpl strandFactory = new StrandFactoryImpl();
-        Strand strand = strandFactory.nextStrand();
         CursorTracker cursorTracker = CursorTracker.ofBlock(rootBlock);
-        rootExecutor = new SequentialExecutor(strand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory);
+        rootExecutor = new SequentialExecutor(rootStrand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory, strandTracker);
 
         if (!treeStructure.isLeaf(rootBlock)) {
             rootExecutor.stepInto();
         }
+    }
+
+    @Deprecated
+    public Strand getRootStrand() {
+        return rootStrand;
+    }
+
+    @Deprecated
+    public StrandFactoryImpl getStrandFactory() {
+        return strandFactory;
     }
 
     @Override
@@ -42,7 +60,8 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instruct(Strand strand, StrandCommand command) {
-        rootExecutor.instruct(command);
+        SequentialExecutor executor = strandTracker.currentExecutorFor(strand);
+        executor.instruct(command);
         //Optional.ofNullable(strandInstances.get(strand)).ifPresent(i -> i.instruct(command));
     }
 

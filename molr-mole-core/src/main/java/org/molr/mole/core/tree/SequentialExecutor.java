@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,7 +21,7 @@ TODO: pause/resume child states
  */
 public class SequentialExecutor {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SequentialExecutor.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(SequentialExecutor.class);
 
     private final Set<SequentialExecutor> childrenExecutors = newSetFromMap(new ConcurrentHashMap<>());
 
@@ -39,16 +36,19 @@ public class SequentialExecutor {
     private final LeafExecutor leafExecutor;
     private final ResultTracker resultTracker;
     private final StrandFactory strandFactory;
+    private final MutableStrandTracker strandTracker;
 
-    public SequentialExecutor(Strand strand, CursorTracker cursorTracker, TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker, StrandFactory strandFactory) {
+    public SequentialExecutor(Strand strand, CursorTracker cursorTracker, TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker, StrandFactory strandFactory, MutableStrandTracker strandTracker) {
         this.strand = requireNonNull(strand, "strand must not be null");
         this.cursorTracker = requireNonNull(cursorTracker, "cursorTracker must not be null");
         this.treeStructure = requireNonNull(treeStructure, "treeStructure must not be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor must not be null");
         this.resultTracker = requireNonNull(resultTracker, "resultTracker must not be null");
         this.strandFactory = requireNonNull(strandFactory, "strandFactory must not be null");
-    }
+        this.strandTracker = requireNonNull(strandTracker, "strandTracker must not be null");
 
+        strandTracker.setCurrentExecutorFor(strand, this);
+    }
 
     private void resume() {
         assertPaused("Can resume only when paused.");
@@ -102,6 +102,7 @@ public class SequentialExecutor {
         } else {
             newChildExecutor(strand, treeStructure.childrenOf(block));
         }
+
     }
 
 
@@ -116,7 +117,9 @@ public class SequentialExecutor {
             leafExecutor.execute(block);
         } else if (treeStructure.isParallel(block)) {
             for (Block child : treeStructure.childrenOf(block)) {
-                runSubTree(strandFactory.createChildStrand(strand), Collections.singletonList(child));
+                Strand newStrand = strandFactory.createChildStrand(strand);
+                strandTracker.trackStrand(newStrand);
+                runSubTree(newStrand, Collections.singletonList(child));
             }
         } else {
             runSubTree(strand, treeStructure.childrenOf(block));
@@ -133,8 +136,13 @@ public class SequentialExecutor {
     private void moveNext() {
         Optional<Block> nextBlock = cursorTracker.moveNext();
         if (!nextBlock.isPresent()) {
-            runState.set(FINISHED);
+            finishExecutor();
         }
+    }
+
+    private void finishExecutor() {
+        runState.set(FINISHED);
+        strandTracker.unsetCurrentExecutorFor(strand, this);
     }
 
 
@@ -195,7 +203,7 @@ public class SequentialExecutor {
     }
 
     private SequentialExecutor sequExecutor(Strand newStrand, CursorTracker newCursorTracker) {
-        return new SequentialExecutor(newStrand, newCursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory);
+        return new SequentialExecutor(newStrand, newCursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory, strandTracker);
     }
 
 }

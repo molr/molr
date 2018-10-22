@@ -58,8 +58,14 @@ public class SequenceTry {
 //        mission.instruct(mission.getStrand(), StrandCommand.STEP_OVER);
         //mission.instruct(mission.getStrand(), StrandCommand.STEP_OVER);
 //        mission.instruct(null, StrandCommand.RESUME);
-        mission.instruct(null, StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_INTO);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+//        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
+        mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);
 
         logResultsOf(resultTracker, treeStructure);
     }
