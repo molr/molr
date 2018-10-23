@@ -1,7 +1,6 @@
 package org.molr.mole.core.runnable.lang;
 
-import org.molr.commons.domain.Block;
-import org.molr.mole.core.runnable.ExecutionData;
+import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ public abstract class RunnableMissionSupport {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RunnableMissionSupport.class);
 
-    private ExecutionData.Builder builder;
+    private RunnableLeafsMission.Builder builder;
 
     protected void mission(String newName, Consumer<Branch> branchConsumer) {
         if (this.builder != null) {
@@ -31,11 +30,11 @@ public abstract class RunnableMissionSupport {
     }
 
     private Branch root(String name) {
-        this.builder = ExecutionData.builder(name);
+        this.builder = RunnableLeafsMission.builder(name);
         return Branch.withParent(builder, builder.root());
     }
 
-    public ExecutionData build() {
+    public RunnableLeafsMission build() {
         return builder.build();
     }
 

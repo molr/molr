@@ -1,5 +1,8 @@
 package org.molr.mole.core.tree;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 import org.molr.commons.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import static org.molr.commons.domain.Result.SUCCESS;
 import static org.molr.commons.domain.RunState.FINISHED;
 import static org.molr.commons.domain.RunState.PAUSED;
 import static org.molr.commons.domain.RunState.RUNNING;
+import static org.molr.commons.domain.StrandCommand.*;
 
 /*
 TODO: pause/resume child states
@@ -25,12 +29,12 @@ public class SequentialExecutorImpl implements SequentialExecutor {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SequentialExecutorImpl.class);
 
+
     private final Set<SequentialExecutor> childrenExecutors = newSetFromMap(new ConcurrentHashMap<>());
 
     private final AtomicBoolean shallRun = new AtomicBoolean(false);
 
     private final Strand strand;
-
 
     private final CompletableFuture<Void> end = new CompletableFuture<>();
 
@@ -53,7 +57,8 @@ public class SequentialExecutorImpl implements SequentialExecutor {
         this.resultTracker = requireNonNull(resultTracker, "resultTracker must not be null");
         this.strandFactory = requireNonNull(strandFactory, "strandFactory must not be null");
         this.strandTracker = requireNonNull(strandTracker, "strandTracker must not be null");
-        this.dispatcherFactory = requireNonNull(dispatcherFactory, "dispatcherFactory must not be null");;
+        this.dispatcherFactory = requireNonNull(dispatcherFactory, "dispatcherFactory must not be null");
+        ;
 
         strandTracker.setCurrentExecutorFor(strand, this);
         this.dispatcher = this.dispatcherFactory.createDispatcher(strand, this::dispatch);
@@ -143,7 +148,7 @@ public class SequentialExecutorImpl implements SequentialExecutor {
             moveNextOrPause();
         } else {
             List<SequentialExecutor> childExecutors = createAndReactOnChildExecutors(block);
-            childExecutors.forEach(e -> e.instruct(StrandCommand.RESUME));
+            childExecutors.forEach(e -> e.instruct(RESUME));
         }
     }
 
@@ -184,6 +189,41 @@ public class SequentialExecutorImpl implements SequentialExecutor {
         SequentialExecutor childExecutor = sequExecutor(strand, CursorTracker.ofBlocks(blocks));
         this.childrenExecutors.add(childExecutor);
         return childExecutor;
+    }
+
+    /* XXX to be seen if this is the right way... Is there a runstate per strand or better per node... or both?*/
+    public RunState runState() {
+        return runState.get();
+    }
+
+    @Override
+    public Block cursor() {
+        return cursorTracker.actual().orElse(null);
+    }
+
+    @Override
+    public Set<StrandCommand> allowedCommands() {
+        return allowedCommands(cursorTracker.actual(), runState());
+    }
+
+    private Set<StrandCommand> allowedCommands(Optional<Block> cursor, RunState runState) {
+        if (!cursor.isPresent()) {
+            return Collections.emptySet();
+        }
+
+        ImmutableSet.Builder<StrandCommand> builder = ImmutableSet.builder();
+        switch (runState) {
+            case PAUSED:
+                builder.add(RESUME, STEP_OVER, SKIP);
+                if (!treeStructure.isLeaf(cursor.get())) {
+                    builder.add(STEP_INTO);
+                }
+                break;
+            case RUNNING:
+                builder.add(PAUSE);
+                break;
+        }
+        return builder.build();
     }
 
 

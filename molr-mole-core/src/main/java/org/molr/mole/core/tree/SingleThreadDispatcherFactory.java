@@ -11,13 +11,12 @@ import java.util.function.Consumer;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
-public class SingleThreadDispacherFactory implements DispacherFactory {
+public class SingleThreadDispatcherFactory implements DispacherFactory {
 
     private final ConcurrentHashMap<Strand, ExecutorService> strandExecutors = new ConcurrentHashMap<>();
 
     @Override
     public CommandDispatcher createDispatcher(Strand strand, Consumer<StrandCommand> command) {
-        //ExecutorService executorService = strandExecutors.computeIfAbsent(strand, this::singleThreadExecutor);
         return new SingleThreadDispatcher(command, singleThreadExecutor(strand));
     }
 

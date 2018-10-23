@@ -3,8 +3,12 @@ package org.molr.mole.core.tree;
 import org.molr.commons.domain.Strand;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 public class MutableStrandTracker {
 
@@ -19,7 +23,7 @@ public class MutableStrandTracker {
 
     public void setCurrentExecutorFor(Strand strand, SequentialExecutor executor) {
         Stack<SequentialExecutor> executors = tracker.get(strand);
-        if(executors == null) {
+        if (executors == null) {
             throw new IllegalArgumentException(strand + " is not managed by this tracker");
         }
         // ????
@@ -30,12 +34,12 @@ public class MutableStrandTracker {
 
     public void unsetCurrentExecutorFor(Strand strand, SequentialExecutor executor) {
         Stack<SequentialExecutor> executors = tracker.get(strand);
-        if(executors == null) {
+        if (executors == null) {
             throw new IllegalArgumentException(strand + " is not managed by this tracker");
         }
         // ????
         synchronized (executors) {
-            if(!executors.peek().equals(executor)) {
+            if (!executors.peek().equals(executor)) {
                 throw new IllegalArgumentException("Trying to unset current executor for " + strand + " but the strand is pointing at another executor");
             }
             executors.pop();
@@ -44,10 +48,18 @@ public class MutableStrandTracker {
 
     public SequentialExecutor currentExecutorFor(Strand strand) {
         Stack<SequentialExecutor> executors = tracker.get(strand);
-        if(executors == null) {
+        if (executors == null) {
             throw new IllegalArgumentException(strand + " is not managed by this tracker");
         }
 
         return executors.peek();
+    }
+
+
+    public Set<Strand> activeStrands() {
+        return tracker.entrySet().stream()
+                .filter(e -> e.getValue().empty())
+                .map(e -> e.getKey())
+                .collect(toSet());
     }
 }

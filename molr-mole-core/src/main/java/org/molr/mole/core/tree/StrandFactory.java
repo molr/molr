@@ -6,4 +6,7 @@ public interface StrandFactory {
 
     Strand createChildStrand(Strand parent);
 
+    Strand rootStrand();
+
+    Strand parentOf(Strand strand);
 }

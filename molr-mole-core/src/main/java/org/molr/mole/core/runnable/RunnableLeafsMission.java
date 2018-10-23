@@ -1,23 +1,21 @@
 package org.molr.mole.core.runnable;
 
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.ImmutableMissionRepresentation;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.mole.core.tree.TreeStructure;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ExecutionData {
+public class RunnableLeafsMission {
 
     private final ImmutableMap<Block, Runnable> runnables;
     private final TreeStructure treeStructure;
 
-    private ExecutionData(Builder builder) {
+    private RunnableLeafsMission(Builder builder) {
         this.runnables = builder.runnables.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
@@ -31,6 +29,9 @@ public class ExecutionData {
         return this.runnables;
     }
 
+    public String name() {
+        return this.treeStructure.rootBlock().text();
+    }
 
     public static Builder builder(String rootName) {
         return new Builder(rootName);
@@ -69,8 +70,8 @@ public class ExecutionData {
             return representationBuilder.root();
         }
 
-        public ExecutionData build() {
-            return new ExecutionData(this);
+        public RunnableLeafsMission build() {
+            return new RunnableLeafsMission(this);
         }
 
         private Block addChild(Block parent, String childName) {

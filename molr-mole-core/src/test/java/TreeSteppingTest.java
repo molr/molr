@@ -1,10 +1,9 @@
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.StrandCommand;
-import org.molr.mole.core.runnable.ExecutionData;
+import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,7 @@ public class TreeSteppingTest {
     private static Block SECOND;
     private static Block THIRD;
 
-    private final static ExecutionData DATA = new RunnableMissionSupport() {
+    private final static RunnableLeafsMission DATA = new RunnableMissionSupport() {
         {
             mission("Root", root -> {
 

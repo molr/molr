@@ -1,7 +1,6 @@
-import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
-import org.molr.mole.core.runnable.ExecutionData;
+import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
@@ -14,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class SequenceTry {
@@ -25,7 +22,7 @@ public class SequenceTry {
 
     public static void main(String[] args) throws IOException {
 
-        ExecutionData data = new RunnableMissionSupport() {
+        RunnableLeafsMission data = new RunnableMissionSupport() {
             {
                 mission("Root", root -> {
 
