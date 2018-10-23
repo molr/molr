@@ -107,7 +107,7 @@ public class MissionState {
 
             if (parent == null) {
                 if (rootStrand != null) {
-                    throw new IllegalArgumentException("Trying to set another root strand (strand without a parent), while rootStrand already set to '" + rootStrand + "'.");
+                    throw new IllegalArgumentException("Trying to set another root strand (strand without a parent: '" + strand + "'), while rootStrand already set to '" + rootStrand + "'.");
                 }
                 rootStrand = strand;
             } else {

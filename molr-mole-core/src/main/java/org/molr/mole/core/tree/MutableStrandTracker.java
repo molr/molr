@@ -58,7 +58,7 @@ public class MutableStrandTracker {
 
     public Set<Strand> activeStrands() {
         return tracker.entrySet().stream()
-                .filter(e -> e.getValue().empty())
+                .filter(e -> !e.getValue().empty())
                 .map(e -> e.getKey())
                 .collect(toSet());
     }

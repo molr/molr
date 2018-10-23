@@ -18,7 +18,7 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission demoMission() {
         return new RunnableMissionSupport() {
             {
-                mission("Root", root -> {
+                mission("Executable Leafs Demo Mission", root -> {
 
                     root.sequential("First", b -> {
                         b.run(log("First A"));
@@ -43,6 +43,27 @@ public class DemoRunnableLeafsConfiguration {
         }.build();
     }
 
+    @Bean
+    public RunnableLeafsMission parallelBlocksMission() {
+        return new RunnableMissionSupport() {
+            {
+                mission("Parallel Blocks", root -> {
+
+                    root.parallel("Parallel 1", b -> {
+                        b.run(log("Parallel 1A"));
+                        b.run(log("parallel 1B"));
+                    });
+
+                    root.parallel("Parallel 2", b -> {
+                        b.run(log("Parallel 2A"));
+                        b.run(log("parallel 2B"));
+                    });
+
+                });
+
+            }
+        }.build();
+    }
 
 
     private static RunnableBranchSupport.Task log(String text) {

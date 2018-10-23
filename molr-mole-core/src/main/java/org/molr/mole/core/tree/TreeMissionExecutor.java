@@ -59,13 +59,17 @@ public class TreeMissionExecutor implements MissionExecutor {
     MissionState state() {
         MissionState.Builder builder = MissionState.builder();
         for (Strand strand : strandTracker.activeStrands()) {
-            SequentialExecutor executor = strandTracker.currentExecutorFor(strand);
-            RunState runState = executor.runState();
-            Block cursor = executor.cursor();
-            Strand parent = strandFactory.parentOf(strand);
-            builder.add(strand, runState, cursor, parent, executor.allowedCommands());
+            addStrand(builder, strand);
         }
         return builder.build();
+    }
+
+    private void addStrand(MissionState.Builder builder, Strand strand) {
+        SequentialExecutor executor = strandTracker.currentExecutorFor(strand);
+        RunState runState = executor.runState();
+        Block cursor = executor.cursor();
+        Strand parent = strandFactory.parentOf(strand);
+        builder.add(strand, runState, cursor, parent, executor.allowedCommands());
     }
 
     @Override
