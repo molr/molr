@@ -1,13 +1,17 @@
 package org.molr.mole.core.tree;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
-import org.molr.commons.domain.*;
+import org.molr.commons.domain.Block;
+import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,7 +24,11 @@ import static org.molr.commons.domain.Result.SUCCESS;
 import static org.molr.commons.domain.RunState.FINISHED;
 import static org.molr.commons.domain.RunState.PAUSED;
 import static org.molr.commons.domain.RunState.RUNNING;
-import static org.molr.commons.domain.StrandCommand.*;
+import static org.molr.commons.domain.StrandCommand.PAUSE;
+import static org.molr.commons.domain.StrandCommand.RESUME;
+import static org.molr.commons.domain.StrandCommand.SKIP;
+import static org.molr.commons.domain.StrandCommand.STEP_INTO;
+import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 
 /*
 TODO: pause/resume child states
@@ -58,7 +66,7 @@ public class SequentialExecutorImpl implements SequentialExecutor {
         this.strandFactory = requireNonNull(strandFactory, "strandFactory must not be null");
         this.strandTracker = requireNonNull(strandTracker, "strandTracker must not be null");
         this.dispatcherFactory = requireNonNull(dispatcherFactory, "dispatcherFactory must not be null");
-        ;
+
 
         strandTracker.setCurrentExecutorFor(strand, this);
         this.dispatcher = this.dispatcherFactory.createDispatcher(strand, this::dispatch);

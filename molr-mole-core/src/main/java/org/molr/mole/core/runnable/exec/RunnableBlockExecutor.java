@@ -30,4 +30,18 @@ public class RunnableBlockExecutor extends LeafExecutor {
         }
     }
 
+    /**
+     * VERY SIMPLISTIC IMPLEMENTATION FOR NOW TODO Implement properly
+     */
+    @Deprecated
+    @Override
+    public CompletableFuture<Boolean> executeAsync(Block block) {
+        try {
+            execute(block);
+            return CompletableFuture.completedFuture(true);
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(false);
+        }
+    }
+
 }

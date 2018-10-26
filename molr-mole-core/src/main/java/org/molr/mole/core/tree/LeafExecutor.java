@@ -14,6 +14,8 @@ public abstract class LeafExecutor {
 
     public abstract void execute(Block block);
 
+    public abstract CompletableFuture<Boolean> executeAsync(Block block);
+
     protected ResultBucket tracker() {
         return this.resultTracker;
     }

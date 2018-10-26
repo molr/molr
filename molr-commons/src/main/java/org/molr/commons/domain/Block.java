@@ -80,5 +80,12 @@ public class Block {
         return builder(id, text).build();
     }
 
-
+    @Override
+    public String toString() {
+        return "Block{" +
+                "id='" + id + '\'' +
+                ", text='" + text + '\'' +
+                ", navigable=" + navigable +
+                '}';
+    }
 }

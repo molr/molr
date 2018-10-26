@@ -5,7 +5,9 @@ import com.google.common.collect.ListMultimap;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
@@ -43,6 +45,15 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
     @Override
     public boolean isLeaf(Block block) {
         return childrenOf(block).isEmpty();
+    }
+
+    @Override
+    public Optional<Block> parentOf(Block block) {
+        if(block.equals(root)) {
+            return Optional.empty();
+        }
+
+        return children.entries().stream().filter(e -> e.getValue().equals(block)).map(Map.Entry::getKey).findFirst();
     }
 
     public static Builder builder(Block rootBlock) {

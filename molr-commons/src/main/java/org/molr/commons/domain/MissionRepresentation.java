@@ -5,6 +5,7 @@
 package org.molr.commons.domain;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface MissionRepresentation {
@@ -16,4 +17,6 @@ public interface MissionRepresentation {
     Set<Block> allBlocks();
 
     boolean isLeaf(Block block);
+
+    Optional<Block> parentOf(Block block);
 }
