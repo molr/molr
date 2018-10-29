@@ -1,5 +1,7 @@
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
+import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
@@ -7,6 +9,8 @@ import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.LeafExecutor;
+import org.molr.mole.core.tree.PossiblyBrokenStrandExecutor;
+import org.molr.mole.core.tree.StandaloneStrandExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
@@ -15,10 +19,12 @@ import org.molr.mole.core.tree.TreeStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StrandExecutorTry {
 
@@ -71,21 +77,32 @@ public class StrandExecutorTry {
         Strand rootStrand = strandFactory.rootStrand();
         Block rootBlock = treeStructure.rootBlock();
 
-        StrandExecutor strandExecutor = new StrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, leafExecutor);
+        StrandExecutor strandExecutor = new StandaloneStrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, leafExecutor);
 
-        strandExecutor.getStateStream().subscribe(s -> LOGGER.info("Current state: {}", s));
+        CountDownLatch finishedLatch = new CountDownLatch(1);
+
+        strandExecutor.getStateStream().subscribe(s -> {
+            LOGGER.info("Current state: {}", s);
+            if(s == RunState.FINISHED) {
+                finishedLatch.countDown();
+            }
+        });
         strandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
 
-        strandExecutor.instruct(StrandCommand.STEP_INTO);
-        strandExecutor.instruct(StrandCommand.SKIP);
-        strandExecutor.instruct(StrandCommand.SKIP);
-        strandExecutor.instruct(StrandCommand.SKIP);
-        strandExecutor.instruct(StrandCommand.STEP_OVER);
-//        LOGGER.info("PARALLEL RESULT {}", parallelFuture.get(5, TimeUnit.SECONDS));
+        strandExecutor.instruct(StrandCommand.RESUME);
+        sleep(2000);
+        strandExecutor.instruct(StrandCommand.PAUSE);
+        sleep(2000);
+        strandExecutor.instruct(StrandCommand.RESUME);
+
+        // Execute just the parallel
 //        strandExecutor.instruct(StrandCommand.STEP_INTO);
+//        strandExecutor.instruct(StrandCommand.SKIP);
+//        strandExecutor.instruct(StrandCommand.SKIP);
+//        strandExecutor.instruct(StrandCommand.SKIP);
 //        strandExecutor.instruct(StrandCommand.STEP_OVER);
 
-        sleep(1000);
+        assertThat(finishedLatch.await(60, TimeUnit.SECONDS)).isTrue();
         System.out.println(strandExecutor);
     }
 

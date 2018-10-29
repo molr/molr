@@ -12,7 +12,7 @@ public abstract class LeafExecutor {
         this.resultTracker = resultTracker;
     }
 
-    public abstract void execute(Block block);
+    public abstract boolean execute(Block block);
 
     public abstract CompletableFuture<Boolean> executeAsync(Block block);
 

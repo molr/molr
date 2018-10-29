@@ -21,12 +21,17 @@ public class RunnableBlockExecutor extends LeafExecutor {
     }
 
     @Override
-    public void execute(Block block) {
+    public boolean execute(Block block) {
         try {
+//            if(block.id().equals("9"))
+//                throw new RuntimeException("SIMULATION");
+            Thread.sleep(1000);
             runnables.get(block).run();
             tracker().push(block, SUCCESS);
+            return true;
         } catch (Exception e) {
             tracker().push(block, FAILED);
+            return false;
         }
     }
 
@@ -36,12 +41,7 @@ public class RunnableBlockExecutor extends LeafExecutor {
     @Deprecated
     @Override
     public CompletableFuture<Boolean> executeAsync(Block block) {
-        try {
-            execute(block);
-            return CompletableFuture.completedFuture(true);
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture(false);
-        }
+        return CompletableFuture.supplyAsync(() -> execute(block));
     }
 
 }
