@@ -15,29 +15,45 @@ import org.molr.mole.core.tree.TreeStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 public class StrandExecutorTry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StrandExecutorTry.class);
+
+    private static Block FIRST;
+    private static Block FIRST_A;
+    private static Block FIRST_B;
+    private static Block SECOND;
+    private static Block SECOND_A;
+    private static Block SECOND_B;
+    private static Block THIRD;
+    private static Block PARALLEL;
+    private static Block PARALLEL_A;
+    private static Block PARALLEL_B;
 
     private final static RunnableLeafsMission DATA = new RunnableMissionSupport() {
         {
             mission("Root", root -> {
 
-                root.sequential("First", b -> {
-                    b.run(log("First A"));
-                    b.run(log("First B"));
+                FIRST = root.sequential("First", b -> {
+                    FIRST_A = b.run(log("First A"));
+                    FIRST_B = b.run(log("First B"));
                 });
 
-                root.sequential("Second", b -> {
-                    b.run(log("second A"));
-                    b.run(log("second B"));
+                SECOND = root.sequential("Second", b -> {
+                    SECOND_A = b.run(log("second A"));
+                    SECOND_B = b.run(log("second B"));
                 });
 
-                root.run(log("Third"));
+                THIRD = root.run(log("Third"));
 
-                root.parallel("Parallel", b -> {
-                    b.run(log("Parallel A"));
-                    b.run(log("parallel B"));
+                PARALLEL = root.parallel("Parallel", b -> {
+                    PARALLEL_A = b.run(log("Parallel A"));
+                    PARALLEL_B = b.run(log("parallel B"));
                 });
 
             });
@@ -46,7 +62,7 @@ public class StrandExecutorTry {
     }.build();
 
     @Test
-    public void testMovement() {
+    public void testMovement() throws InterruptedException, ExecutionException, TimeoutException {
         TreeStructure treeStructure = DATA.treeStructure();
         TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables());
@@ -61,10 +77,27 @@ public class StrandExecutorTry {
         strandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
 
         strandExecutor.instruct(StrandCommand.STEP_INTO);
+        strandExecutor.instruct(StrandCommand.SKIP);
+        strandExecutor.instruct(StrandCommand.SKIP);
+        strandExecutor.instruct(StrandCommand.SKIP);
         strandExecutor.instruct(StrandCommand.STEP_OVER);
+//        LOGGER.info("PARALLEL RESULT {}", parallelFuture.get(5, TimeUnit.SECONDS));
+//        strandExecutor.instruct(StrandCommand.STEP_INTO);
+//        strandExecutor.instruct(StrandCommand.STEP_OVER);
 
         sleep(1000);
         System.out.println(strandExecutor);
+    }
+
+    @Test
+    public void testSubstructure() {
+        TreeStructure treeStructure = DATA.treeStructure();
+
+        TreeStructure substructure = treeStructure.substructure(FIRST_A);
+        LOGGER.info("FIRST_A {}", substructure.allBlocks());
+
+        substructure = treeStructure.substructure(FIRST);
+        LOGGER.info("FIRST {}", substructure.allBlocks());
     }
 
     private void sleep(int millis) {

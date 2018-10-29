@@ -5,6 +5,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
+import org.molr.mole.core.utils.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -91,13 +93,14 @@ public class StrandExecutor {
 
         if (structure.isParallel(actualBlock)) {
             updateState(RunState.RUNNING);
-            return structure.childrenOf(actualBlock).stream()
+            List<Mono<Boolean>> futuresAsMono = structure.childrenOf(actualBlock).stream()
                     .map(this::createChildStrandExecutor)
-                    .map(childExecutor -> childExecutor.instruct(StrandCommand.RESUME))
+                    .map(childExecutor -> childExecutor.instruct(StrandCommand.STEP_OVER))
                     .map(Mono::fromFuture)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), futures -> Mono.zip(futures, a -> a)))
-                    .cast(Boolean[].class)
-                    .map(booleans -> Stream.of(booleans).reduce(true, Boolean::logicalAnd))
+                    .collect(Collectors.toList());
+
+            return Mono.zip(futuresAsMono, objs -> ArrayUtils.convertArrayTo(objs, Boolean.class))
+                    .map((List<Boolean> booleans) -> booleans.stream().reduce(true, Boolean::logicalAnd))
                     .doOnNext(r -> LOGGER.debug("[{}] children RESUME finished with result {}", strand, r))
                     .doOnNext(r -> updateState(RunState.PAUSED))
                     .doOnNext(r -> moveNext())
@@ -116,7 +119,7 @@ public class StrandExecutor {
                 throw new IllegalStateException(strand + " child execution threw exception", e);
             }
         }
-        moveNext();
+//        moveNext();
         return CompletableFuture.completedFuture(overallResult);
     }
 
@@ -148,7 +151,7 @@ public class StrandExecutor {
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = new StrandExecutor(childStrand, childBlock, structure, strandFactory, leafExecutor);
+        StrandExecutor childExecutor = new StrandExecutor(childStrand, childBlock, structure.substructure(childBlock), strandFactory, leafExecutor);
         childExecutor.getStateStream().filter(RunState.FINISHED::equals).subscribe(s -> {
             synchronized (this) { /* must use the same lock as public synchronized methods */
                 removeChildExecutor(childExecutor);

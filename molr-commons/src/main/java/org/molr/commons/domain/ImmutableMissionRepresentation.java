@@ -35,9 +35,10 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
     @Override
     public Set<Block> allBlocks() {
         HashSet<Block> blocks = new HashSet<>();
-        for (Block block : children.keys()) {
-            blocks.add(block);
-            blocks.addAll(children.get(block));
+        blocks.add(root);
+        for (Block parent : children.keys()) {
+            blocks.add(parent);
+            blocks.addAll(children.get(parent));
         }
         return blocks;
     }

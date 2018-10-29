@@ -1,11 +1,13 @@
 package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Block;
+import org.molr.commons.domain.ImmutableMissionRepresentation;
 import org.molr.commons.domain.MissionRepresentation;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TreeStructure {
 
@@ -21,6 +23,32 @@ public class TreeStructure {
         return representation;
     }
 
+    public TreeStructure substructure(Block block) {
+        if (!representation.allBlocks().contains(block)) {
+            throw new IllegalArgumentException("Block " + block + " is not part of this structure");
+        }
+
+        ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(block);
+        addChildren(block, null, builder);
+
+        MissionRepresentation subrepresentation = builder.build();
+        Set<Block> subparallelBlocks = parallelBlocks.stream()
+                .filter(subrepresentation.allBlocks()::contains).collect(Collectors.toSet());
+        return new TreeStructure(subrepresentation, subparallelBlocks);
+    }
+
+    private void addChildren(Block child, Block parent, ImmutableMissionRepresentation.Builder builder) {
+        if(parent != null) {
+            builder.parentToChild(parent, child);
+        }
+
+        if (!isLeaf(child)) {
+            for (Block grandChild : childrenOf(child)) {
+                addChildren(grandChild, child, builder);
+            }
+        }
+    }
+
     public Optional<Block> nextBlock(Block actualBlock) {
         Optional<Block> maybeParent = parentOf(actualBlock);
         if (!maybeParent.isPresent()) {
@@ -29,16 +57,16 @@ public class TreeStructure {
         }
         Block parent = maybeParent.get();
 
-        if (isLeaf(actualBlock)) {
-            return nextBlock(parent);
-        }
+//        if (isLeaf(actualBlock)) {
+//            return nextBlock(parent);
+//        }
 
         if (isParallel(actualBlock)) {
             return nextBlock(parent);
         }
 
         List<Block> siblings = childrenOf(parent);
-        if(isLastSibling(actualBlock, siblings)) {
+        if (isLastSibling(actualBlock, siblings)) {
             return nextBlock(parent);
         }
 
@@ -60,7 +88,6 @@ public class TreeStructure {
         return representation.parentOf(block);
     }
 
-
     public List<Block> childrenOf(Block block) {
         return representation.childrenOf(block);
     }
@@ -75,5 +102,9 @@ public class TreeStructure {
 
     public Block rootBlock() {
         return representation.rootBlock();
+    }
+
+    public Set<Block> allBlocks() {
+        return representation.allBlocks();
     }
 }
