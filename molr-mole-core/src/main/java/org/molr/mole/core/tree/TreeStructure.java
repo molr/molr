@@ -107,4 +107,11 @@ public class TreeStructure {
     public Set<Block> allBlocks() {
         return representation.allBlocks();
     }
+
+    /**
+     * #target is a descendat of #source block if it is contained in the subtree that has source as root
+     */
+    public boolean isDescendantOf(Block target, Block source) {
+        return substructure(source).allBlocks().contains(target);
+    }
 }

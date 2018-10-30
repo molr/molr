@@ -15,6 +15,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -59,18 +60,18 @@ public class PossiblyBrokenStrandExecutor implements StrandExecutor {
     }
 
     @Override
-    public synchronized CompletableFuture<Boolean> instruct(StrandCommand command) {
+    public synchronized void instruct(StrandCommand command) {
         switch (command) {
             case PAUSE:
-                return pause();
+                pause();
             case SKIP:
-                return skip();
+                skip();
             case RESUME:
-                return resume();
+                resume();
             case STEP_INTO:
-                return stepInto();
+                stepInto();
             case STEP_OVER:
-                return stepOver();
+                stepOver();
         }
         throw new IllegalArgumentException("Command '" + command + "' could not be interpreted.");
     }
@@ -126,21 +127,21 @@ public class PossiblyBrokenStrandExecutor implements StrandExecutor {
             });
         }
 
-        if (structure.isParallel(actualBlock)) {
-            updateState(RunState.RUNNING);
-            List<Mono<Boolean>> futuresAsMono = structure.childrenOf(actualBlock).stream()
-                    .map(this::createChildStrandExecutor)
-                    .map(childExecutor -> childExecutor.instruct(StrandCommand.STEP_OVER))
-                    .map(Mono::fromFuture)
-                    .collect(Collectors.toList());
-
-            return Mono.zip(futuresAsMono, objs -> ArrayUtils.convertArrayTo(objs, Boolean.class))
-                    .map((List<Boolean> booleans) -> booleans.stream().reduce(true, Boolean::logicalAnd))
-                    .doOnNext(r -> LOGGER.debug("[{}] children RESUME finished with result {}", strand, r))
-                    .doOnNext(r -> updateState(RunState.PAUSED))
-                    .doOnNext(r -> moveNext())
-                    .toFuture();
-        }
+//        if (structure.isParallel(actualBlock)) {
+//            updateState(RunState.RUNNING);
+//            List<Mono<Boolean>> futuresAsMono = structure.childrenOf(actualBlock).stream()
+//                    .map(this::createChildStrandExecutor)
+//                    .map(childExecutor -> childExecutor.instruct(StrandCommand.STEP_OVER))
+//                    .map(Mono::fromFuture)
+//                    .collect(Collectors.toList());
+//
+//            return Mono.zip(futuresAsMono, objs -> ArrayUtils.convertArrayTo(objs, Boolean.class))
+//                    .map((List<Boolean> booleans) -> booleans.stream().reduce(true, Boolean::logicalAnd))
+//                    .doOnNext(r -> LOGGER.debug("[{}] children RESUME finished with result {}", strand, r))
+//                    .doOnNext(r -> updateState(RunState.PAUSED))
+//                    .doOnNext(r -> moveNext())
+//                    .toFuture();
+//        }
 
         boolean overallResult = true;
         for (Block childBlock : structure.childrenOf(actualBlock)) {
@@ -260,5 +261,15 @@ public class PossiblyBrokenStrandExecutor implements StrandExecutor {
     @Override
     public Flux<Block> getBlockStream() {
         return blockStream;
+    }
+
+    @Override
+    public Flux<Set<StrandCommand>> getAllowedCommandStream() {
+        return null;
+    }
+
+    @Override
+    public RunState getState() {
+        return null;
     }
 }

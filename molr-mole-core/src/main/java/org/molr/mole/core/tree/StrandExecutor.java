@@ -5,12 +5,17 @@ import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import reactor.core.publisher.Flux;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 
 public interface StrandExecutor {
-    CompletableFuture<Boolean> instruct(StrandCommand command);
+
+    void instruct(StrandCommand command);
 
     Flux<RunState> getStateStream();
 
     Flux<Block> getBlockStream();
+
+    Flux<Set<StrandCommand>> getAllowedCommandStream();
+
+    RunState getState();
 }

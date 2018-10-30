@@ -1,4 +1,3 @@
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.RunState;
@@ -9,9 +8,9 @@ import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.LeafExecutor;
-import org.molr.mole.core.tree.PossiblyBrokenStrandExecutor;
 import org.molr.mole.core.tree.StandaloneStrandExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
+import org.molr.mole.core.tree.StrandExecutorFactory;
 import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
 import org.molr.mole.core.tree.TreeResultTracker;
@@ -20,9 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +55,13 @@ public class StrandExecutorTry {
                 THIRD = root.run(log("Third"));
 
                 PARALLEL = root.parallel("Parallel", b -> {
-                    PARALLEL_A = b.run(log("Parallel A"));
+                    PARALLEL_A = b.sequential("parallel A", b1 -> {
+                       b1.run(log("parallel A.1"));
+                       b1.run(log("parallel A.2"));
+                       b1.run(log("parallel A.3"));
+                       b1.run(log("parallel A.4"));
+                       b1.run(log("parallel A.5"));
+                    });
                     PARALLEL_B = b.run(log("parallel B"));
                 });
 
@@ -68,32 +71,33 @@ public class StrandExecutorTry {
     }.build();
 
     @Test
-    public void testMovement() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testMovement() throws InterruptedException {
         TreeStructure treeStructure = DATA.treeStructure();
         TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables());
 
         StrandFactory strandFactory = new StrandFactoryImpl();
+        StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         Strand rootStrand = strandFactory.rootStrand();
         Block rootBlock = treeStructure.rootBlock();
 
-        StrandExecutor strandExecutor = new StandaloneStrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, leafExecutor);
+        StrandExecutor strandExecutor = new StandaloneStrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, strandExecutorFactory, leafExecutor);
 
         CountDownLatch finishedLatch = new CountDownLatch(1);
 
         strandExecutor.getStateStream().subscribe(s -> {
-            LOGGER.info("Current state: {}", s);
+//            LOGGER.info("Current state: {}", s);
             if(s == RunState.FINISHED) {
                 finishedLatch.countDown();
             }
         });
-        strandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
+//        strandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
 
-        strandExecutor.instruct(StrandCommand.RESUME);
-        sleep(2000);
-        strandExecutor.instruct(StrandCommand.PAUSE);
-        sleep(2000);
-        strandExecutor.instruct(StrandCommand.RESUME);
+//        strandExecutor.instruct(StrandCommand.RESUME);
+//        sleep(2000);
+//        strandExecutor.instruct(StrandCommand.PAUSE);
+//        sleep(2000);
+//        strandExecutor.instruct(StrandCommand.RESUME);
 
         // Execute just the parallel
 //        strandExecutor.instruct(StrandCommand.STEP_INTO);
@@ -101,6 +105,24 @@ public class StrandExecutorTry {
 //        strandExecutor.instruct(StrandCommand.SKIP);
 //        strandExecutor.instruct(StrandCommand.SKIP);
 //        strandExecutor.instruct(StrandCommand.STEP_OVER);
+
+//        strandExecutor.instruct(StrandCommand.STEP_INTO);
+//        sleep(1000);
+//        strandExecutor.instruct(StrandCommand.RESUME);
+//        sleep(8000);
+//        strandExecutor.instruct(StrandCommand.PAUSE);
+//        sleep(1000);
+//        strandExecutor.instruct(StrandCommand.RESUME);
+
+        strandExecutor.instruct(StrandCommand.STEP_OVER);
+        sleep(8000);
+        strandExecutor.instruct(StrandCommand.PAUSE);
+        sleep(1000);
+        strandExecutorFactory._getStrandExecutorByStrandId("1").get().instruct(StrandCommand.RESUME);
+
+        sleep(8000);
+
+        strandExecutor.instruct(StrandCommand.STEP_OVER);
 
         assertThat(finishedLatch.await(60, TimeUnit.SECONDS)).isTrue();
         System.out.println(strandExecutor);
@@ -110,11 +132,10 @@ public class StrandExecutorTry {
     public void testSubstructure() {
         TreeStructure treeStructure = DATA.treeStructure();
 
-        TreeStructure substructure = treeStructure.substructure(FIRST_A);
-        LOGGER.info("FIRST_A {}", substructure.allBlocks());
+        for (Block child : treeStructure.childrenOf(PARALLEL)) {
+            LOGGER.info("{}", treeStructure.substructure(child).allBlocks());
+        }
 
-        substructure = treeStructure.substructure(FIRST);
-        LOGGER.info("FIRST {}", substructure.allBlocks());
     }
 
     private void sleep(int millis) {
