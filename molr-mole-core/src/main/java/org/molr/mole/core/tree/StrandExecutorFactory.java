@@ -1,7 +1,6 @@
 package org.molr.mole.core.tree;
 
 import com.google.common.collect.ImmutableSet;
-import org.molr.commons.domain.Block;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
 
@@ -20,7 +19,7 @@ public class StrandExecutorFactory {
     private final StrandFactory strandFactory;
     private final LeafExecutor leafExecutor;
     // FIXME #1 change to interface!
-    private ImmutableSet<StandaloneStrandExecutor> strandExecutors;
+    private ImmutableSet<ConcurrentStrandExecutor> strandExecutors;
 
     public StrandExecutorFactory(StrandFactory strandFactory, LeafExecutor leafExecutor) {
         this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
@@ -28,9 +27,9 @@ public class StrandExecutorFactory {
         this.strandExecutors = ImmutableSet.of();
     }
 
-    public StrandExecutor createStrandExecutor(Strand strand, Block block, TreeStructure substructure) {
+    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure) {
         synchronized (strandExecutorLock) {
-            StandaloneStrandExecutor newStrand = new StandaloneStrandExecutor(strand, block, substructure, strandFactory, this, leafExecutor);
+            ConcurrentStrandExecutor newStrand = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor);
             addStrandExecutor(newStrand);
             return newStrand;
         }
@@ -38,7 +37,7 @@ public class StrandExecutorFactory {
 
     public Set<StrandExecutor> activeStrandExecutors() {
         synchronized (strandExecutorLock) {
-            return strandExecutors.stream().filter(s -> s.getState() == RunState.FINISHED).collect(Collectors.toSet());
+            return strandExecutors.stream().filter(s -> s.getActualState() == RunState.FINISHED).collect(Collectors.toSet());
         }
     }
 
@@ -54,8 +53,8 @@ public class StrandExecutorFactory {
         }
     }
 
-    private void addStrandExecutor(StandaloneStrandExecutor strandExecutor) {
-        strandExecutors = ImmutableSet.<StandaloneStrandExecutor>builder().addAll(strandExecutors).add(strandExecutor).build();
+    private void addStrandExecutor(ConcurrentStrandExecutor strandExecutor) {
+        strandExecutors = ImmutableSet.<ConcurrentStrandExecutor>builder().addAll(strandExecutors).add(strandExecutor).build();
     }
 
 }

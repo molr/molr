@@ -34,9 +34,16 @@ import static org.molr.commons.domain.StrandCommand.SKIP;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 
-public class StandaloneStrandExecutor implements StrandExecutor {
+/**
+ * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
+ * thread avoiding to block the {@link #instruct(StrandCommand)} method (or any other for that matter).
+ * <p>
+ * TODO #1 concurrency should be ok
+ * TODO #2 check atomicity of public operations
+ */
+public class ConcurrentStrandExecutor implements StrandExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StandaloneStrandExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
     private static final int EXECUTOR_SLEEP_MS = 25;
 
     private final ExecutorService executor;
@@ -52,11 +59,11 @@ public class StandaloneStrandExecutor implements StrandExecutor {
     private final Flux<Block> blockStream;
     private final Flux<Set<StrandCommand>> allowedCommandStream;
     private ImmutableList<StrandExecutor> childExecutors;
-    private AtomicReference<StrandExecutorState> actualState;
+    private AtomicReference<ExecutorState> actualState;
     private AtomicReference<Block> actualBlock;
     private AtomicReference<Block> currentStepOverSource = new AtomicReference<>();
 
-    public StandaloneStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor) {
+    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
@@ -77,16 +84,21 @@ public class StandaloneStrandExecutor implements StrandExecutor {
 
         this.actualBlock = new AtomicReference<>();
         this.actualState = new AtomicReference<>();
+
         updateActualBlock(actualBlock);
-        updateState(StrandExecutorState.IDLE);
+        updateState(ExecutorState.IDLE);
 
         this.executor.submit(this::lifecycle);
     }
 
     private void lifecycle() {
-        while (actualState.get() != StrandExecutorState.FINISHED) {
+        while (actualState.get() != ExecutorState.FINISHED) {
 
             StrandCommand nextCommand = commandQueue.poll();
+
+            if (nextCommand != null) {
+                LOGGER.debug("[{}] picked up command {}", strand, nextCommand);
+            }
 
             if (nextCommand == StrandCommand.PAUSE) {
                 pause();
@@ -106,38 +118,40 @@ public class StandaloneStrandExecutor implements StrandExecutor {
             // FIXME possibly merge with the next if..
             if (nextCommand == StrandCommand.STEP_OVER) {
                 if (structure.isParallel(actualBlock.get()) && !childExecutors.isEmpty()) {
-                    updateState(StrandExecutorState.WAITING_FOR_CHILDREN);
+                    updateState(ExecutorState.WAITING_FOR_CHILDREN);
+                    LOGGER.debug("[{}] instructing children to RESUME", strand);
                     childExecutors.forEach(child -> child.instruct(RESUME));
                 } else {
                     currentStepOverSource.set(actualBlock.get());
-                    updateState(StrandExecutorState.STEPPING_OVER);
+                    updateState(ExecutorState.STEPPING_OVER);
                 }
             }
 
             if (nextCommand == StrandCommand.RESUME) {
                 if (structure.isParallel(actualBlock.get()) && !childExecutors.isEmpty()) {
-                    updateState(StrandExecutorState.WAITING_FOR_CHILDREN);
+                    updateState(ExecutorState.WAITING_FOR_CHILDREN);
+                    LOGGER.debug("[{}] instructing children to RESUME", strand);
                     childExecutors.forEach(child -> child.instruct(RESUME));
                 } else {
-                    updateState(StrandExecutorState.RESUMING);
+                    updateState(ExecutorState.RESUMING);
                 }
             }
 
-            if (actualState.get() == StrandExecutorState.STEPPING_OVER) {
+            if (actualState.get() == ExecutorState.STEPPING_OVER) {
                 // FIXME potential performance bottleneck #isDescendantOf
                 if (!structure.isDescendantOf(actualBlock.get(), currentStepOverSource.get())) {
                     // Stepping over has finished the subtree of the block that initiate it.. finishing
-                    updateState(StrandExecutorState.IDLE);
+                    updateState(ExecutorState.IDLE);
                     currentStepOverSource.set(null);
                 }
             }
 
-            if (actualState.get() == StrandExecutorState.WAITING_FOR_CHILDREN) {
+            if (actualState.get() == ExecutorState.WAITING_FOR_CHILDREN) {
                 if (childExecutors.isEmpty()) {
                     if (currentStepOverSource.get() != null) {
-                        updateState(StrandExecutorState.STEPPING_OVER);
+                        updateState(ExecutorState.STEPPING_OVER);
                     } else {
-                        updateState(StrandExecutorState.RESUMING);
+                        updateState(ExecutorState.RESUMING);
                     }
                     moveNext();
                 } else {
@@ -145,17 +159,16 @@ public class StandaloneStrandExecutor implements StrandExecutor {
                 }
             }
 
-            if (actualState.get() == StrandExecutorState.RESUMING ||
-                    actualState.get() == StrandExecutorState.STEPPING_OVER
-                    || actualState.get() == StrandExecutorState.WAITING_FOR_CHILDREN) {
+            if (actualState.get() == ExecutorState.RESUMING || actualState.get() == ExecutorState.STEPPING_OVER) {
 
                 if (structure.isLeaf(actualBlock.get())) {
+                    LOGGER.debug("[{}] executing {}", strand, actualBlock.get());
                     Boolean leafOk = leafExecutor.execute(actualBlock.get());
                     if (leafOk) {
                         moveNext();
                     } else {
                         LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock, leafOk);
-                        updateState(StrandExecutorState.IDLE);
+                        updateState(ExecutorState.IDLE);
                     }
                 } else if (structure.isParallel(actualBlock.get())) {
                     for (Block child : structure.childrenOf(actualBlock.get())) {
@@ -163,7 +176,7 @@ public class StandaloneStrandExecutor implements StrandExecutor {
                         childExecutor.instruct(RESUME);
                     }
                     LOGGER.debug("[{}] waiting for children strand to finish", strand);
-                    updateState(StrandExecutorState.WAITING_FOR_CHILDREN);
+                    updateState(ExecutorState.WAITING_FOR_CHILDREN);
                 } else {
                     // Sequential block, moving into
                     moveInto();
@@ -189,9 +202,21 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         }
     }
 
+    /**
+     * TODO think about a command for this!! A parametrized command will also solve the concurrency issues that the implementation below have
+     */
+    @Deprecated
+    public void moveTo(Block block) {
+        if (!structure.contains(block)) {
+            throw new IllegalArgumentException("Cannot move to " + block + " as is not part of this tree structure");
+        }
+
+        updateActualBlock(block);
+    }
+
     private void pause() {
         LOGGER.debug("[{}] paused and instructed children to pause", strand);
-        updateState(StrandExecutorState.IDLE);
+        updateState(ExecutorState.IDLE);
         childExecutors.forEach(child -> child.instruct(StrandCommand.PAUSE));
     }
 
@@ -207,17 +232,17 @@ public class StandaloneStrandExecutor implements StrandExecutor {
                 childExecutor.instruct(StrandCommand.PAUSE);
             }
 
-            updateState(StrandExecutorState.IDLE);
+            updateState(ExecutorState.IDLE);
             return;
         }
 
         moveInto();
-        updateState(StrandExecutorState.IDLE);
+        updateState(ExecutorState.IDLE);
     }
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, childBlock, structure.substructure(childBlock));
+        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock));
         childExecutor.getStateStream().filter(RunState.FINISHED::equals).subscribe(s -> {
             synchronized (this) { /* must use the same lock as public synchronized methods */
                 removeChildExecutor(childExecutor);
@@ -235,7 +260,6 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         }
 
         Block firstChild = children.get(0);
-        LOGGER.debug("[{}] moved into first child {} (parent is {})", strand, firstChild, actualBlock);
         updateActualBlock(firstChild);
     }
 
@@ -245,7 +269,7 @@ public class StandaloneStrandExecutor implements StrandExecutor {
             updateActualBlock(nextBlock.get());
         } else {
             LOGGER.debug("[{}] {} is the last block. Finished", strand, actualBlock);
-            updateState(StrandExecutorState.FINISHED);
+            updateState(ExecutorState.FINISHED);
             updateActualBlock(null);
         }
     }
@@ -259,20 +283,20 @@ public class StandaloneStrandExecutor implements StrandExecutor {
     }
 
     private void updateActualBlock(Block newBlock) {
-        LOGGER.debug("[{}] moved to {}", strand, newBlock);
+        LOGGER.debug("[{}] block = {}", strand, newBlock);
         // TODO Should we complete the stream if the newBlock is null? (strand execution finished)
-        blockSink.onNext(newBlock);
         actualBlock.set(newBlock);
+        blockSink.onNext(newBlock);
     }
 
-    private void updateState(StrandExecutorState newState) {
-        LOGGER.debug("[{}] {}", strand, newState);
+    private void updateState(ExecutorState newState) {
+        LOGGER.debug("[{}] state = {}", strand, newState);
         // TODO Should we complete the stream if the new state is FINISHED?
-        stateSink.onNext(runstateFrom(newState));
         actualState.set(newState);
+        stateSink.onNext(runstateFrom(newState));
     }
 
-    private static RunState runstateFrom(StrandExecutorState state) {
+    private static RunState runstateFrom(ExecutorState state) {
         switch (state) {
             case RESUMING:
             case RUNNING_LEAF:
@@ -303,8 +327,13 @@ public class StandaloneStrandExecutor implements StrandExecutor {
     }
 
     @Override
-    public RunState getState() {
+    public RunState getActualState() {
         return runstateFrom(actualState.get());
+    }
+
+    @Override
+    public Block getActualBlock() {
+        return actualBlock.get();
     }
 
     private Set<StrandCommand> allowedCommands(RunState state, Block block) {
@@ -331,7 +360,7 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         return strand;
     }
 
-    private enum StrandExecutorState {
+    private enum ExecutorState {
         IDLE,
         STEPPING_OVER,
         RUNNING_LEAF,

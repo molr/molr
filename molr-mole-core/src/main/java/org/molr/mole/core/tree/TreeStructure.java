@@ -10,6 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * TODO #1 consider merging with MissionRepresentation
+ */
 public class TreeStructure {
 
     private final MissionRepresentation representation;
@@ -82,6 +85,10 @@ public class TreeStructure {
 
     public Set<Block> allBlocks() {
         return representation.allBlocks();
+    }
+
+    public boolean contains(Block block) {
+        return allBlocks().contains(block);
     }
 
     public MissionRepresentation missionRepresentation() {

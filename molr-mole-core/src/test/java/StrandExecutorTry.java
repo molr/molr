@@ -8,7 +8,7 @@ import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.LeafExecutor;
-import org.molr.mole.core.tree.StandaloneStrandExecutor;
+import org.molr.mole.core.tree.ConcurrentStrandExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.StrandExecutorFactory;
 import org.molr.mole.core.tree.StrandFactory;
@@ -82,7 +82,7 @@ public class StrandExecutorTry {
         Strand rootStrand = strandFactory.rootStrand();
         Block rootBlock = treeStructure.rootBlock();
 
-        StrandExecutor strandExecutor = new StandaloneStrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, strandExecutorFactory, leafExecutor);
+        StrandExecutor strandExecutor = new ConcurrentStrandExecutor(rootStrand, rootBlock, treeStructure, strandFactory, strandExecutorFactory, leafExecutor);
 
         CountDownLatch finishedLatch = new CountDownLatch(1);
 

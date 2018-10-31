@@ -60,4 +60,8 @@ public class TreeResultTracker implements ResultBucket, ResultTracker {
     public Result resultFor(Block block) {
         return leafStreams.get(block).result();
     }
+
+    public Flux<Result> resultUpdatesFor(Block block) {
+        return leafStreams.get(block).asStream();
+    }
 }

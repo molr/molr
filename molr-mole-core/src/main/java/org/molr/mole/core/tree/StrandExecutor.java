@@ -17,5 +17,7 @@ public interface StrandExecutor {
 
     Flux<Set<StrandCommand>> getAllowedCommandStream();
 
-    RunState getState();
+    RunState getActualState();
+
+    Block getActualBlock();
 }

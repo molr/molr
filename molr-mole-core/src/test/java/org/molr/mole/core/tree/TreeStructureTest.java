@@ -3,16 +3,14 @@ package org.molr.mole.core.tree;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TreeStructureTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TreeStructureTest.class);
+    private static final Runnable NOOP = () -> {
+    };
 
     private static Block FIRST;
     private static Block FIRST_A;
@@ -32,24 +30,24 @@ public class TreeStructureTest {
             mission("Root", root -> {
 
                 FIRST = root.sequential("First", b -> {
-                    FIRST_A = b.run(log("First A"));
-                    FIRST_B = b.run(log("First B"));
+                    FIRST_A = b.run("First A", NOOP);
+                    FIRST_B = b.run("First B", NOOP);
                 });
 
                 SECOND = root.sequential("Second", b -> {
-                    SECOND_A = b.run(log("second A"));
-                    SECOND_B = b.run(log("second B"));
+                    SECOND_A = b.run("second A", NOOP);
+                    SECOND_B = b.run("second B", NOOP);
                 });
 
-                THIRD = root.run(log("Third"));
+                THIRD = root.run("Third", NOOP);
 
                 PARALLEL = root.parallel("Parallel", b -> {
-                    PARALLEL_A = b.run(log("parallel A"));
-                    PARALLEL_B = b.run(log("parallel B"));
+                    PARALLEL_A = b.run("parallel A", NOOP);
+                    PARALLEL_B = b.run("parallel B", NOOP);
                 });
 
                 FOURTH = root.sequential("Fourth", b -> {
-                    FOURTH_A = b.run(log("Fourth"));
+                    FOURTH_A = b.run("Fourth", NOOP);
                 });
             });
 
@@ -124,10 +122,6 @@ public class TreeStructureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSubstructureOfUnknownBlockThrows() {
         DATA.treeStructure().substructure(Block.idAndText("unknown", "unknown"));
-    }
-
-    private static RunnableBranchSupport.Task log(String text) {
-        return new RunnableBranchSupport.Task(text, () -> LOGGER.info("{} executed", text));
     }
 
 }
