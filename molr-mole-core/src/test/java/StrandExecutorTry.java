@@ -15,6 +15,7 @@ import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
 import org.molr.mole.core.tree.TreeResultTracker;
 import org.molr.mole.core.tree.TreeStructure;
+import org.molr.mole.core.utils.TreeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,15 @@ public class StrandExecutorTry {
         strandExecutor.instruct(StrandCommand.STEP_OVER);
 
         assertThat(finishedLatch.await(60, TimeUnit.SECONDS)).isTrue();
+
+
+        RunState runState = strandExecutor.getStateStream().blockFirst();
+        System.out.println(runState);
+
         System.out.println(strandExecutor);
+
+
+        TreeUtils.logResultsOf(resultTracker, treeStructure);
     }
 
     @Test

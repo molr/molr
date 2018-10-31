@@ -5,6 +5,7 @@ import org.molr.commons.domain.ImmutableMissionRepresentation;
 import org.molr.commons.domain.MissionRepresentation;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,10 +20,12 @@ public class TreeStructure {
         this.parallelBlocks = parallelBlocks;
     }
 
-    public MissionRepresentation missionRepresentation() {
-        return representation;
-    }
-
+    /**
+     * Returns a new {@link TreeStructure} with the specified {@link Block} as root. It will not return a view of
+     * this structure but a completely new one.
+     * <p>
+     * NOTE: The current implementation is not optimized for performance...
+     */
     public TreeStructure substructure(Block block) {
         if (!representation.allBlocks().contains(block)) {
             throw new IllegalArgumentException("Block " + block + " is not part of this structure");
@@ -37,18 +40,14 @@ public class TreeStructure {
         return new TreeStructure(subrepresentation, subparallelBlocks);
     }
 
-    private void addChildren(Block child, Block parent, ImmutableMissionRepresentation.Builder builder) {
-        if(parent != null) {
-            builder.parentToChild(parent, child);
-        }
-
-        if (!isLeaf(child)) {
-            for (Block grandChild : childrenOf(child)) {
-                addChildren(grandChild, child, builder);
-            }
-        }
-    }
-
+    /**
+     * Optionally returns the next block in the tree structure of the specified parameter.
+     * Since this method does not know the history of the movements, it will not return as next block a children of the
+     * parameter.
+     * On the contrary, if the parameter is the last child of a sequence, it will automatically resolve the sibling
+     * of the parent as the next block.
+     * An empty {@link Optional} indicates that there is no next block and the tree navigation can be considered finished
+     */
     public Optional<Block> nextBlock(Block actualBlock) {
         Optional<Block> maybeParent = parentOf(actualBlock);
         if (!maybeParent.isPresent()) {
@@ -57,35 +56,12 @@ public class TreeStructure {
         }
         Block parent = maybeParent.get();
 
-//        if (isLeaf(actualBlock)) {
-//            return nextBlock(parent);
-//        }
-
-        if (isParallel(actualBlock)) {
-            return nextBlock(parent);
-        }
-
         List<Block> siblings = childrenOf(parent);
         if (isLastSibling(actualBlock, siblings)) {
             return nextBlock(parent);
         }
 
         return nextSiblingOf(actualBlock, siblings);
-    }
-
-    private boolean isLastSibling(Block actualBlock, List<Block> siblings) {
-        return siblings.indexOf(actualBlock) >= siblings.size() - 1;
-    }
-
-    private Optional<Block> nextSiblingOf(Block block, List<Block> siblings) {
-        if (isLastSibling(block, siblings)) {
-            return Optional.empty();
-        }
-        return Optional.of(siblings.get(siblings.indexOf(block) + 1));
-    }
-
-    private Optional<Block> parentOf(Block block) {
-        return representation.parentOf(block);
     }
 
     public List<Block> childrenOf(Block block) {
@@ -108,10 +84,57 @@ public class TreeStructure {
         return representation.allBlocks();
     }
 
+    public MissionRepresentation missionRepresentation() {
+        return representation;
+    }
+
     /**
-     * #target is a descendat of #source block if it is contained in the subtree that has source as root
+     * Determines whether or not the {@code target} is a descendant of the {@code source} block in this structure.
+     * <p>
+     * NOTE: The current implementation is not optimized for performance...
      */
     public boolean isDescendantOf(Block target, Block source) {
         return substructure(source).allBlocks().contains(target);
+    }
+
+    private void addChildren(Block child, Block parent, ImmutableMissionRepresentation.Builder builder) {
+        if (parent != null) {
+            builder.parentToChild(parent, child);
+        }
+
+        if (!isLeaf(child)) {
+            for (Block grandChild : childrenOf(child)) {
+                addChildren(grandChild, child, builder);
+            }
+        }
+    }
+
+    private boolean isLastSibling(Block actualBlock, List<Block> siblings) {
+        return siblings.indexOf(actualBlock) >= siblings.size() - 1;
+    }
+
+    private Optional<Block> nextSiblingOf(Block block, List<Block> siblings) {
+        if (isLastSibling(block, siblings)) {
+            return Optional.empty();
+        }
+        return Optional.of(siblings.get(siblings.indexOf(block) + 1));
+    }
+
+    private Optional<Block> parentOf(Block block) {
+        return representation.parentOf(block);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TreeStructure that = (TreeStructure) o;
+        return Objects.equals(representation, that.representation) &&
+                Objects.equals(parallelBlocks, that.parallelBlocks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(representation, parallelBlocks);
     }
 }

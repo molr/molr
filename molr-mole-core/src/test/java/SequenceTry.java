@@ -1,4 +1,3 @@
-import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
@@ -12,9 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
+
+import static org.molr.mole.core.utils.TreeUtils.logResultsOf;
 
 public class SequenceTry {
 
@@ -74,29 +72,5 @@ public class SequenceTry {
         return new RunnableBranchSupport.Task(text, () -> LOGGER.info("{} executed", text));
     }
 
-    private static void logResultsOf(TreeResultTracker resultTracker, TreeStructure structure) {
-        LOGGER.info("Results:");
-        BiConsumer<Block, Integer> c = (b, depth) -> {
-            String span = Arrays.stream(new int[depth]).mapToObj(a -> "\t").collect(Collectors.joining());
-            LOGGER.info("{}{} -> {}", span, b.text(), resultTracker.resultFor(b));
-        };
-        visitParentBeforeChild(structure, c);
-    }
-
-    private static void visitParentBeforeChild(TreeStructure structure, BiConsumer<Block, Integer> c) {
-        visitParentBeforeChild(structure.rootBlock(), 0, c, structure);
-    }
-
-    private static void visitParentBeforeChild(Block block, int depth, BiConsumer<Block, Integer> c, TreeStructure structure) {
-        c.accept(block, depth);
-        depth++;
-
-        if (structure.isLeaf(block))
-            return;
-
-        for (Block child : structure.childrenOf(block)) {
-            visitParentBeforeChild(child, depth, c, structure);
-        }
-    }
 
 }

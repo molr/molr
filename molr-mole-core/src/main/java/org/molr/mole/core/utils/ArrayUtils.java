@@ -7,7 +7,9 @@ import java.util.List;
 public class ArrayUtils {
 
     /**
-     * TODO Introduce apache commons dependency??
+     * Cast each object of the array to the specified class. Incompatible types will throw {@link ClassCastException}.
+     * <p>
+     * TODO use apache commons?
      */
     public static <T> List<T> convertArrayTo(Object[] array, Class<T> clazz) {
         ImmutableList.Builder<T> builder = ImmutableList.builder();

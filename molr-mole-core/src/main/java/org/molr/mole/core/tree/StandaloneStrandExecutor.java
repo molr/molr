@@ -37,7 +37,7 @@ import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 public class StandaloneStrandExecutor implements StrandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandaloneStrandExecutor.class);
-    public static final int EXECUTOR_SLEEP_MS = 10;
+    private static final int EXECUTOR_SLEEP_MS = 25;
 
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
@@ -228,10 +228,6 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         return childExecutor;
     }
 
-    private StandaloneStrandExecutor newStrandExecutor(Block childBlock, Strand childStrand, TreeStructure treeStructure, LeafExecutor leafExecutor) {
-        return new StandaloneStrandExecutor(childStrand, childBlock, treeStructure, strandFactory, strandExecutorFactory, leafExecutor);
-    }
-
     private void moveInto() {
         List<Block> children = structure.childrenOf(actualBlock.get());
         if (children.isEmpty()) {
@@ -243,14 +239,6 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         updateActualBlock(firstChild);
     }
 
-    private void addChildExecutor(StrandExecutor childExecutor) {
-        childExecutors = ImmutableList.<StrandExecutor>builder().addAll(childExecutors).add(childExecutor).build();
-    }
-
-    private void removeChildExecutor(StrandExecutor childExecutor) {
-        childExecutors = childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(toImmutableList());
-    }
-
     private void moveNext() {
         Optional<Block> nextBlock = structure.nextBlock(actualBlock.get());
         if (nextBlock.isPresent()) {
@@ -260,6 +248,14 @@ public class StandaloneStrandExecutor implements StrandExecutor {
             updateState(StrandExecutorState.FINISHED);
             updateActualBlock(null);
         }
+    }
+
+    private void addChildExecutor(StrandExecutor childExecutor) {
+        childExecutors = ImmutableList.<StrandExecutor>builder().addAll(childExecutors).add(childExecutor).build();
+    }
+
+    private void removeChildExecutor(StrandExecutor childExecutor) {
+        childExecutors = childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(toImmutableList());
     }
 
     private void updateActualBlock(Block newBlock) {
@@ -340,6 +336,7 @@ public class StandaloneStrandExecutor implements StrandExecutor {
         STEPPING_OVER,
         RUNNING_LEAF,
         RESUMING,
-        FINISHED, WAITING_FOR_CHILDREN;
+        FINISHED,
+        WAITING_FOR_CHILDREN;
     }
 }
