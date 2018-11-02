@@ -2,6 +2,7 @@ package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import reactor.core.publisher.Flux;
 
@@ -20,4 +21,9 @@ public interface StrandExecutor {
     RunState getActualState();
 
     Block getActualBlock();
+
+    Set<StrandCommand> getAllowedCommands();
+
+    Strand getStrand();
+
 }

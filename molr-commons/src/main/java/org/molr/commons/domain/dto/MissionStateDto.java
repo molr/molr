@@ -6,7 +6,9 @@ import org.molr.commons.domain.RunState;
 
 import java.util.*;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -17,35 +19,33 @@ public class MissionStateDto {
     public final Map<String, BlockDto> strandCursorPositions;
     public final Map<String, String> strandRunStates;
     public final Map<String, List<String>> parentToChildrenStrands;
-    public final Set<StrandDto> activeStrands;
-    public final String rootStrandId;
+    public final Set<StrandDto> strands;
 
-    public MissionStateDto(Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> activeStrands, Map<String, List<String>> parentToChildrenStrands, String rootStrandId) {
+    private MissionStateDto(Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands) {
         this.strandAllowedCommands = strandAllowedCommands;
         this.strandCursorPositions = strandCursorPositions;
         this.strandRunStates = strandRunStates;
-        this.activeStrands = activeStrands;
+        this.strands = strands;
         this.parentToChildrenStrands = parentToChildrenStrands;
-        this.rootStrandId = rootStrandId;
     }
 
     public MissionStateDto() {
-        this.strandAllowedCommands = Collections.emptyMap();
-        this.strandCursorPositions = Collections.emptyMap();
-        this.strandRunStates = Collections.emptyMap();
-        this.activeStrands = emptySet();
-        this.parentToChildrenStrands = Collections.emptyMap();
-        this.rootStrandId = null;
+        this(emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap());
     }
 
     public static final MissionStateDto from(MissionState missionState) {
-        Set<Strand> activeStrands = missionState.activeStrands();
-        Set<StrandDto> strandDtos = activeStrands.stream().map(StrandDto::from).collect(toSet());
-        Map<String, BlockDto> strandCursors = activeStrands.stream().filter(s -> missionState.cursorPositionIn(s).isPresent()).collect(toMap(s -> s.id(), s -> missionState.cursorPositionIn(s).map(BlockDto::from).get()));
-        Map<String, String> runStates = activeStrands.stream().collect(toMap(s -> s.id(), s -> missionState.runStateOf(s).name()));
+        Set<Strand> allStrands = missionState.allStrands();
+        Set<StrandDto> strandDtos = allStrands.stream().map(StrandDto::from).collect(toSet());
+        Map<String, BlockDto> strandCursors = allStrands.stream()
+                .filter(s -> missionState.cursorPositionIn(s).isPresent())
+                .collect(toMap(Strand::id, s -> missionState.cursorPositionIn(s).map(BlockDto::from).get()));
+
+        Map<String, String> runStates = allStrands.stream()
+                .collect(toMap(Strand::id, s -> missionState.runStateOf(s).name()));
+
         Map<String, List<String>> parentToChildrenStrands = new HashMap<>();
         Map<String, Set<String>> allowedCommands = new HashMap<>();
-        for (Strand strand : activeStrands) {
+        for (Strand strand : allStrands) {
             Set<StrandCommand> commands = missionState.allowedCommandsFor(strand);
             if (!commands.isEmpty()) {
                 allowedCommands.put(strand.id(), commands.stream().map(StrandCommand::name).collect(toSet()));
@@ -56,28 +56,25 @@ public class MissionStateDto {
                 parentToChildrenStrands.put(strand.id(), children.stream().map((Strand::id)).collect(toList()));
             }
         }
-        return new MissionStateDto(allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, missionState.rootStrand().id());
+        return new MissionStateDto(allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands);
     }
 
     public MissionState toMissionState() {
+        Map<String, Strand> idsToStrand = strands.stream().collect(toMap(s -> s.id, StrandDto::toStrand));
         MissionState.Builder builder = MissionState.builder();
-        Map<String, Strand> strands = activeStrands.stream().collect(toMap(s -> s.id, StrandDto::toStrand));
 
-        ImmutableMap<String, String> childrenToParent = childToParent();
-        Strand rootStrand = strands.get(rootStrandId);
-        for (StrandDto strandDto : activeStrands) {
+        Map<String, String> childrenToParentStrandId = childToParent();
+        for (StrandDto strandDto : strands) {
             Strand strand = strandDto.toStrand();
-            Block cursor = Optional.ofNullable(strandCursorPositions.get(strandDto.id)).map(BlockDto::toBlock).orElse(null);
-            RunState runState = RunState.valueOf(strandRunStates.get(strandDto.id));
+            Block block = ofNullable(strandCursorPositions.get(strandDto.id)).map(BlockDto::toBlock).orElse(null);
+            RunState state = RunState.valueOf(strandRunStates.get(strandDto.id));
 
-            Set<String> commandNames = Optional.ofNullable(strandAllowedCommands.get(strandDto.id)).orElse(emptySet());
+            Set<String> commandNames = ofNullable(strandAllowedCommands.get(strandDto.id)).orElse(emptySet());
             Set<StrandCommand> commands = commandNames.stream().map(StrandCommand::valueOf).collect(toSet());
 
-            if (rootStrand.equals(strand)) {
-                builder.add(strand, runState, cursor, null, commands);
-            } else {
-                builder.add(strand, runState, cursor, strands.get(childrenToParent.get(strand)), commands);
-            }
+            String parentStrandId = childrenToParentStrandId.get(strand.id());
+            Strand parentStrand = parentStrandId == null ? null : idsToStrand.get(parentStrandId);
+            builder.add(strand, state, block, parentStrand, commands);
         }
         return builder.build();
     }
@@ -99,7 +96,7 @@ public class MissionStateDto {
                 "strandAllowedCommands=" + strandAllowedCommands +
                 ", strandCursorPositions=" + strandCursorPositions +
                 ", strandRunStates=" + strandRunStates +
-                ", activeStrands=" + activeStrands +
+                ", strands=" + strands +
                 '}';
     }
 }

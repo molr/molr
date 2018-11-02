@@ -7,6 +7,7 @@ import org.molr.commons.domain.Strand;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StrandFactoryImpl implements StrandFactory {
@@ -47,9 +48,17 @@ public class StrandFactoryImpl implements StrandFactory {
     }
 
     @Override
-    public Strand parentOf(Strand strand) {
+    public Optional<Strand> parentOf(Strand strand) {
         synchronized (lock) {
-            return childToParent.get(strand);
+            if(rootStrand.equals(strand)) {
+                return Optional.empty();
+            }
+
+            if (childToParent.values().contains(strand) || childToParent.keySet().contains(strand)) {
+                return Optional.ofNullable(childToParent.get(strand));
+            }
+
+            throw new IllegalArgumentException(strand + " was not created by this factory");
         }
     }
 

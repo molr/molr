@@ -3,9 +3,9 @@ package org.molr.mole.core.tree;
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Schedulers;
 
-import java.time.Duration;
-import java.util.Collections;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
@@ -16,33 +16,42 @@ import static org.molr.commons.domain.StrandCommand.STEP_INTO;
  */
 public class TreeMissionExecutor implements MissionExecutor {
 
-    private final Flux<MissionState> states = Flux.interval(Duration.ofSeconds(1)).map(l -> state()).cache(1);
-    private final SequentialExecutor rootExecutor;
-    private final MutableStrandTracker strandTracker;
-    private final Strand rootStrand;
+    private final Flux<MissionState> states;
     private final StrandFactoryImpl strandFactory;
+    private final StrandExecutorFactory strandExecutorFactory;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
-
         strandFactory = new StrandFactoryImpl();
-        rootStrand = strandFactory.rootStrand();
+        strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
 
-        strandTracker = new MutableStrandTracker();
-        strandTracker.trackStrand(rootStrand);
+        ReplayProcessor<Object> statesSink = ReplayProcessor.cacheLast();
 
-        Block rootBlock = treeStructure.rootBlock();
-        MutableStrandState rootState = MutableStrandState.root(rootBlock);
-        CursorTracker cursorTracker = CursorTracker.ofBlock(rootBlock);
-        rootExecutor = new SequentialExecutorImpl(rootStrand, cursorTracker, treeStructure, leafExecutor, resultTracker, strandFactory, strandTracker, new SingleThreadDispatcherFactory());
+        strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
+            newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
+            newExecutor.getStateStream().subscribe(any -> statesSink.onNext(new Object()));
+        });
 
-        if (!treeStructure.isLeaf(rootBlock)) {
+        states = statesSink.map(signal -> gatherStates()).publishOn(Schedulers.elastic()).doOnNext(a -> System.out.println(a));
+
+        Strand rootStrand = strandFactory.rootStrand();
+        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure);
+
+        /*
+        merge of
+            actual block
+            actual state
+
+            PER STRAND!
+         */
+
+        if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
         }
     }
 
     @Deprecated
     public Strand getRootStrand() {
-        return rootStrand;
+        return strandFactory.rootStrand();
     }
 
     @Deprecated
@@ -56,25 +65,24 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
 
 
-    MissionState state() {
+    private MissionState gatherStates() {
         MissionState.Builder builder = MissionState.builder();
-        for (Strand strand : strandTracker.activeStrands()) {
-            addStrand(builder, strand);
+        for (StrandExecutor executor : strandExecutorFactory.allStrandExecutors()) {
+            RunState runState = executor.getActualState();
+            Block cursor = executor.getActualBlock();
+            Optional<Strand> parent = strandFactory.parentOf(executor.getStrand());
+            if(parent.isPresent()) {
+                builder.add(executor.getStrand(), runState, cursor, parent.get(), executor.getAllowedCommands());
+            } else {
+                builder.add(executor.getStrand(), runState, cursor, executor.getAllowedCommands());
+            }
         }
         return builder.build();
     }
 
-    private void addStrand(MissionState.Builder builder, Strand strand) {
-        SequentialExecutor executor = strandTracker.currentExecutorFor(strand);
-        RunState runState = executor.runState();
-        Block cursor = executor.cursor();
-        Strand parent = strandFactory.parentOf(strand);
-        builder.add(strand, runState, cursor, parent, executor.allowedCommands());
-    }
-
     @Override
     public void instruct(Strand strand, StrandCommand command) {
-        SequentialExecutor executor = strandTracker.currentExecutorFor(strand);
+        StrandExecutor executor = strandExecutorFactory.getStrandExecutorFor(strand);
         executor.instruct(command);
     }
 

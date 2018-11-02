@@ -2,11 +2,13 @@ package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Strand;
 
+import java.util.Optional;
+
 public interface StrandFactory {
 
     Strand createChildStrand(Strand parent);
 
     Strand rootStrand();
 
-    Strand parentOf(Strand strand);
+    Optional<Strand> parentOf(Strand strand);
 }

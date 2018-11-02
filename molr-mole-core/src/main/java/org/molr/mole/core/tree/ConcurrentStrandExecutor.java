@@ -336,6 +336,16 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         return actualBlock.get();
     }
 
+    @Override
+    public Strand getStrand() {
+        return strand;
+    }
+
+    @Override
+    public Set<StrandCommand> getAllowedCommands() {
+        return allowedCommands(runstateFrom(actualState.get()), actualBlock.get());
+    }
+
     private Set<StrandCommand> allowedCommands(RunState state, Block block) {
         if (block == null) {
             return Collections.emptySet();
@@ -354,10 +364,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 break;
         }
         return builder.build();
-    }
-
-    public Strand getStrand() {
-        return strand;
     }
 
     private enum ExecutorState {

@@ -15,10 +15,8 @@ public class MissionState {
     private final Map<Strand, Block> strandCursorPositions;
     private final Map<Strand, RunState> strandRunStates;
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
-    private final Strand rootStrand;
 
     private MissionState(Builder builder) {
-        this.rootStrand = Objects.requireNonNull(builder.rootStrand);
         /* Consider checking that the tree is consistent (everything has to be connected to the root)*/
         this.parentToChildren = builder.parentToChildrenBuilder.build();
         this.strandAllowedCommands = builder.strandAllowedCommandsBuilder.build();
@@ -38,22 +36,16 @@ public class MissionState {
         return this.strandRunStates.get(strand);
     }
 
-    public Strand rootStrand() {
-        return this.rootStrand;
+    public Optional<Strand> rootStrand() {
+        return allStrands().stream().filter(strand -> !parentToChildren.containsValue(strand)).findFirst();
     }
 
     public List<Strand> childrenOf(Strand parent) {
         return this.parentToChildren.get(parent);
     }
 
-    public Set<Strand> activeStrands() {
-        HashSet<Strand> strands = new HashSet<>();
-        strands.add(rootStrand);
-        for (Strand strand : parentToChildren.keySet()) {
-            strands.add(strand);
-            strands.addAll(parentToChildren.get(strand));
-        }
-        return strands;
+    public Set<Strand> allStrands() {
+        return strandRunStates.keySet();
     }
 
     public static final Builder builder() {
@@ -68,13 +60,12 @@ public class MissionState {
         return Objects.equals(strandAllowedCommands, that.strandAllowedCommands) &&
                 Objects.equals(strandCursorPositions, that.strandCursorPositions) &&
                 Objects.equals(strandRunStates, that.strandRunStates) &&
-                Objects.equals(parentToChildren, that.parentToChildren) &&
-                Objects.equals(rootStrand, that.rootStrand);
+                Objects.equals(parentToChildren, that.parentToChildren);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(strandAllowedCommands, strandCursorPositions, strandRunStates, parentToChildren, rootStrand);
+        return Objects.hash(strandAllowedCommands, strandCursorPositions, strandRunStates, parentToChildren);
     }
 
     @Override
@@ -84,17 +75,14 @@ public class MissionState {
                 ", strandCursorPositions=" + strandCursorPositions +
                 ", strandRunStates=" + strandRunStates +
                 ", parentToChildren=" + parentToChildren +
-                ", rootStrand=" + rootStrand +
                 '}';
     }
 
-
     public static class Builder {
-        private ImmutableSetMultimap.Builder<Strand, StrandCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
-        private ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
-        private ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
-        private ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
-        private Strand rootStrand;
+        private final ImmutableSetMultimap.Builder<Strand, StrandCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
+        private final ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
+        private final ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
 
         private Builder() {
         }
@@ -105,12 +93,7 @@ public class MissionState {
             /* cursor might be null! */
             /* parent might be null! */
 
-            if (parent == null) {
-                if (rootStrand != null) {
-                    throw new IllegalArgumentException("Trying to set another root strand (strand without a parent: '" + strand + "'), while rootStrand already set to '" + rootStrand + "'.");
-                }
-                rootStrand = strand;
-            } else {
+            if (parent != null) {
                 parentToChildrenBuilder.put(parent, strand);
             }
 
@@ -124,6 +107,10 @@ public class MissionState {
 
         public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, StrandCommand... allowedCommands) {
             return this.add(strand, runState, cursor, parent, ImmutableSet.copyOf(allowedCommands));
+        }
+
+        public Builder add(Strand strand, RunState runState, Block cursor, Set<StrandCommand> allowedCommands) {
+            return this.add(strand, runState, cursor, null, allowedCommands);
         }
 
         public MissionState build() {
