@@ -50,6 +50,8 @@ public class TreeStructure {
      * On the contrary, if the parameter is the last child of a sequence, it will automatically resolve the sibling
      * of the parent as the next block.
      * An empty {@link Optional} indicates that there is no next block and the tree navigation can be considered finished
+     *
+     * TODO ?? think if it makes sense to have a VisitorInstance that knows how to navigate from a block onwards..
      */
     public Optional<Block> nextBlock(Block actualBlock) {
         Optional<Block> maybeParent = parentOf(actualBlock);

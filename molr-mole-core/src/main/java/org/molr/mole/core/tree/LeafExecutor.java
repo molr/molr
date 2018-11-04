@@ -1,24 +1,20 @@
 package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Block;
-
-import java.util.concurrent.CompletableFuture;
+import org.molr.commons.domain.Result;
 
 public abstract class LeafExecutor {
 
-    private final ResultBucket resultTracker;
+    private final ResultBucket resultBucket;
 
-    protected LeafExecutor(ResultBucket resultTracker) {
-        this.resultTracker = resultTracker;
+    protected LeafExecutor(ResultBucket resultBucket) {
+        this.resultBucket = resultBucket;
     }
 
-    public abstract boolean execute(Block block);
-
-    public abstract CompletableFuture<Boolean> executeAsync(Block block);
-
-    protected ResultBucket tracker() {
-        return this.resultTracker;
+    protected ResultBucket resultBucket() {
+        return this.resultBucket;
     }
 
+    public abstract Result execute(Block block);
 
 }

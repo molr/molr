@@ -6,6 +6,6 @@ package org.molr.commons.domain;
 
 public interface MissionHandleFactory {
 
-    MissionHandle next();
+    MissionHandle createHandle();
 
 }

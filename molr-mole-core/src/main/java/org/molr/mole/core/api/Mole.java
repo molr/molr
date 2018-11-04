@@ -14,13 +14,12 @@ import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Strand;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface Mole {
 
     Set<Mission> availableMissions();
 
-    Mono<MissionRepresentation> representationOf(Mission mission);
+    MissionRepresentation representationOf(Mission mission);
 
     void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params);
 

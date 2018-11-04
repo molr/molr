@@ -52,8 +52,8 @@ public class SequenceMoleAdapter implements Mole {
     }
 
     @Override
-    public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return Mono.just(representations.get(mission));
+    public MissionRepresentation representationOf(Mission mission) {
+        return representations.get(mission);
     }
 
     @Override

@@ -49,8 +49,8 @@ public class DemoMole implements Mole {
     }
 
     @Override
-    public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return Mono.just(missions.get(mission));
+    public MissionRepresentation representationOf(Mission mission) {
+        return missions.get(mission);
     }
 
     @Override

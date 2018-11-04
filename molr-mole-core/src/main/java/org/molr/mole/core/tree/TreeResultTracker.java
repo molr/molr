@@ -1,6 +1,5 @@
 package org.molr.mole.core.tree;
 
-import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.Result;
@@ -11,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class TreeResultTracker implements ResultBucket, ResultTracker {
 
@@ -35,7 +36,9 @@ public class TreeResultTracker implements ResultBucket, ResultTracker {
             map.put(block, new LeafResultTracker());
         } else {
             representation.childrenOf(block).forEach(b -> addTrackerForBlock(b, map));
-            List<Flux<Result>> childrenResults = representation.childrenOf(block).stream().map(map::get).map(BlockResultTracker::asStream).collect(Collectors.toList());
+            List<Flux<Result>> childrenResults = representation.childrenOf(block).stream()
+                    .map(map::get)
+                    .map(BlockResultTracker::asStream).collect(toList());
             map.put(block, new BlockResultCombiner(childrenResults));
         }
     }

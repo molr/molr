@@ -1,6 +1,5 @@
 package org.molr.mole.core.runnable;
 
-import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
@@ -8,9 +7,7 @@ import org.molr.mole.core.tree.*;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Objects.requireNonNull;
@@ -21,10 +18,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     private final Map<Mission, RunnableLeafsMission> missions;
 
     public RunnableLeafsMole(Set<RunnableLeafsMission> missions) {
-        this.missions = createMap(requireNonNull(missions, "missions must not be null"));
+        this.missions = createMissionsMap(requireNonNull(missions, "missions must not be null"));
     }
 
-    private Map<Mission, RunnableLeafsMission> createMap(Set<RunnableLeafsMission> newMissions) {
+    private Map<Mission, RunnableLeafsMission> createMissionsMap(Set<RunnableLeafsMission> newMissions) {
         return newMissions.stream()
                 .collect(toImmutableMap(m -> new Mission(m.name()), identity()));
     }
@@ -35,8 +32,12 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
 
     @Override
-    public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return Mono.just(missions.get(mission).treeStructure().missionRepresentation());
+    public MissionRepresentation representationOf(Mission mission) {
+        RunnableLeafsMission runnableMission = missions.get(mission);
+        if(runnableMission == null) {
+            throw new IllegalArgumentException(mission + " is not a mission of this mole");
+        }
+        return runnableMission.treeStructure().missionRepresentation();
     }
 
 

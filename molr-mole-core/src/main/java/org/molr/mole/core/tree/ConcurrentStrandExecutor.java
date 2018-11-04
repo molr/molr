@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.molr.commons.domain.Block;
+import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
@@ -163,11 +164,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
                 if (structure.isLeaf(actualBlock.get())) {
                     LOGGER.debug("[{}] executing {}", strand, actualBlock.get());
-                    Boolean leafOk = leafExecutor.execute(actualBlock.get());
-                    if (leafOk) {
+                    Result result = leafExecutor.execute(actualBlock.get());
+                    if (result == Result.SUCCESS) {
                         moveNext();
                     } else {
-                        LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock, leafOk);
+                        LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock, result);
                         updateState(ExecutorState.IDLE);
                     }
                 } else if (structure.isParallel(actualBlock.get())) {

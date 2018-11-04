@@ -100,6 +100,7 @@ public class MissionState {
             if (cursor != null) {
                 strandCursorPositionsBuilder.put(strand, cursor);
             }
+
             strandRunStatesBuilder.put(strand, runState);
             strandAllowedCommandsBuilder.putAll(strand, allowedCommands);
             return this;

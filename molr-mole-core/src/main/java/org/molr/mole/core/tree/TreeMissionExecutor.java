@@ -1,10 +1,11 @@
 package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.*;
+import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -24,25 +25,18 @@ public class TreeMissionExecutor implements MissionExecutor {
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
 
-        ReplayProcessor<Object> statesSink = ReplayProcessor.cacheLast();
-
+        EmitterProcessor<Object> statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
             newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> statesSink.onNext(new Object()));
         });
-
-        states = statesSink.map(signal -> gatherStates()).publishOn(Schedulers.elastic()).doOnNext(a -> System.out.println(a));
+        states = statesSink.map(signal -> gatherMissionState())
+                .cache(1)
+                .sample(Duration.ofMillis(100))
+                .publishOn(Schedulers.elastic());
 
         Strand rootStrand = strandFactory.rootStrand();
         StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure);
-
-        /*
-        merge of
-            actual block
-            actual state
-
-            PER STRAND!
-         */
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -64,8 +58,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         return states;
     }
 
-
-    private MissionState gatherStates() {
+    private MissionState gatherMissionState() {
         MissionState.Builder builder = MissionState.builder();
         for (StrandExecutor executor : strandExecutorFactory.allStrandExecutors()) {
             RunState runState = executor.getActualState();

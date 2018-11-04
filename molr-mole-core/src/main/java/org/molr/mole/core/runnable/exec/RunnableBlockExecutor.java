@@ -2,16 +2,25 @@ package org.molr.mole.core.runnable.exec;
 
 import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Block;
+import org.molr.commons.domain.Result;
 import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.ResultBucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static org.molr.commons.domain.Result.FAILED;
 import static org.molr.commons.domain.Result.SUCCESS;
 
+/**
+ * Leaf executor that relates {@link Runnable} with {@link Block} for the leaf execution logic.
+ * <p>
+ * The result of a leaf is considered {@link Result#SUCCESS} if the execution does not throw any exception.
+ */
 public class RunnableBlockExecutor extends LeafExecutor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunnableBlockExecutor.class);
 
     private final Map<Block, Runnable> runnables;
 
@@ -21,27 +30,16 @@ public class RunnableBlockExecutor extends LeafExecutor {
     }
 
     @Override
-    public boolean execute(Block block) {
+    public Result execute(Block block) {
         try {
-//            if(block.id().equals("9"))
-//                throw new RuntimeException("SIMULATION");
-            Thread.sleep(1000);
             runnables.get(block).run();
-            tracker().push(block, SUCCESS);
-            return true;
+            resultBucket().push(block, SUCCESS);
+            return SUCCESS;
         } catch (Exception e) {
-            tracker().push(block, FAILED);
-            return false;
+            LOGGER.trace("Execution of {} threw an exception: {}", block, e.getMessage(), e);
+            resultBucket().push(block, FAILED);
+            return FAILED;
         }
-    }
-
-    /**
-     * VERY SIMPLISTIC IMPLEMENTATION FOR NOW TODO Implement properly
-     */
-    @Deprecated
-    @Override
-    public CompletableFuture<Boolean> executeAsync(Block block) {
-        return CompletableFuture.supplyAsync(() -> execute(block));
     }
 
 }

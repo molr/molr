@@ -11,7 +11,7 @@ public class AtomicIncrementMissionHandleFactory implements MissionHandleFactory
     private final AtomicLong nextId = new AtomicLong(0);
 
     @Override
-    public MissionHandle next() {
+    public MissionHandle createHandle() {
         return MissionHandle.ofId("" + nextId.getAndIncrement());
     }
 
