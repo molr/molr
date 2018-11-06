@@ -1,7 +1,7 @@
 package org.molr.mole.core.runnable.demo.conf;
 
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
+import org.molr.mole.core.runnable.lang.Branch;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class DemoRunnableLeafsConfiguration {
     }
 
 
-    private static RunnableBranchSupport.Task log(String text) {
-        return new RunnableBranchSupport.Task(text, () -> LOGGER.info("{} executed", text));
+    private static Branch.Task log(String text) {
+        return new Branch.Task(text, () -> LOGGER.info("{} executed", text));
     }
 }
