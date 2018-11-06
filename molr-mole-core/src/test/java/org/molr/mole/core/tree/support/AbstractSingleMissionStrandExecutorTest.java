@@ -15,7 +15,8 @@ import org.molr.mole.core.tree.TreeStructure;
 /**
  * Abstract support class for a test against one mission, specified via the {@link #mission()} abstract method.
  */
-public abstract class AbstractSingleMissionStrandExecutorTest implements SingleMissionStrandExecutorTestSupport, MissionCreationTestSupport {
+public abstract class AbstractSingleMissionStrandExecutorTest implements SingleMissionStrandExecutorTestSupport,
+        MissionCreationTestSupport, LatchTestSupport {
 
     private TreeStructure treeStructure;
     private TreeResultTracker resultTracker;
@@ -43,7 +44,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     }
 
     @Override
-    public StrandExecutor strandExecutor() {
+    public StrandExecutor rootStrandExecutor() {
         return strandExecutor;
     }
 

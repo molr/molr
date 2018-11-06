@@ -1,5 +1,8 @@
 package org.molr.mole.core.tree.support;
 
+import org.assertj.core.api.AbstractComparableAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
@@ -12,29 +15,41 @@ import org.molr.mole.core.tree.TreeResultTracker;
  */
 public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTestSupport {
 
-    StrandExecutor strandExecutor();
+    StrandExecutor rootStrandExecutor();
 
     TreeResultTracker treeResultTracker();
 
-    default RunState waitForStateToBe(RunState state) {
-        return waitForStateToBe(strandExecutor(), state);
+    default void waitForStateToBe(RunState state) {
+        waitForStrandStateToBe(rootStrandExecutor(), state);
     }
 
-    default boolean isFinishedSync() {
-        return isFinishedSync(strandExecutor());
+    default void waitForRootStrandToFinish() {
+        waitForStrandToFinish(rootStrandExecutor());
     }
 
     default void waitForActualBlockToBe(Block block) {
-        waitForActualBlockToBe(strandExecutor(), block);
+        waitForActualBlockToBe(rootStrandExecutor(), block);
     }
 
     default void waitForResultOfBlockToBe(Block block, Result result) {
         waitForResultOfBlockToBe(treeResultTracker(), block, result);
     }
 
+    default ObjectAssert<Block> assertThatActualBlock() {
+        return assertThatActualBlockOf(rootStrandExecutor());
+    }
+
+    default AbstractComparableAssert<?, RunState> assertThatActualState() {
+        return assertThatActualStateOf(rootStrandExecutor());
+    }
+
+    default AbstractComparableAssert<?, Result> assertThatResultOf(Block block) {
+        return Assertions.assertThat(treeResultTracker().resultFor(block));
+    }
+
     @Deprecated
-    default void moveTo(Block destination) {
-        moveTo(strandExecutor(), destination);
+    default void moveRootStrandTo(Block destination) {
+        moveTo(rootStrandExecutor(), destination);
     }
 
 }

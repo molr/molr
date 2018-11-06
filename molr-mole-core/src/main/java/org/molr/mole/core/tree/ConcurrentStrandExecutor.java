@@ -93,6 +93,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     private void lifecycle() {
+        // FIXME refactor in a more maintainable way, after tests are complete!
         while (actualState.get() != ExecutorState.FINISHED) {
 
             StrandCommand nextCommand = commandQueue.poll();
@@ -116,25 +117,22 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 continue;
             }
 
-            // FIXME possibly merge with the next if..
-            if (nextCommand == StrandCommand.STEP_OVER) {
-                if (structure.isParallel(actualBlock.get()) && !childExecutors.isEmpty()) {
-                    updateState(ExecutorState.WAITING_FOR_CHILDREN);
-                    LOGGER.debug("[{}] instructing children to RESUME", strand);
-                    childExecutors.forEach(child -> child.instruct(RESUME));
-                } else {
-                    currentStepOverSource.set(actualBlock.get());
-                    updateState(ExecutorState.STEPPING_OVER);
-                }
+            if (nextCommand == STEP_OVER) {
+                currentStepOverSource.set(actualBlock.get());
             }
 
-            if (nextCommand == StrandCommand.RESUME) {
+            if (nextCommand == STEP_OVER || nextCommand == RESUME) {
+
                 if (structure.isParallel(actualBlock.get()) && !childExecutors.isEmpty()) {
                     updateState(ExecutorState.WAITING_FOR_CHILDREN);
                     LOGGER.debug("[{}] instructing children to RESUME", strand);
                     childExecutors.forEach(child -> child.instruct(RESUME));
                 } else {
-                    updateState(ExecutorState.RESUMING);
+                    if (nextCommand == STEP_OVER) {
+                        updateState(ExecutorState.STEPPING_OVER);
+                    } else {
+                        updateState(ExecutorState.RESUMING);
+                    }
                 }
             }
 
@@ -156,6 +154,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     }
                     moveNext();
                 } else {
+//                    childExecutors.stream().map()
                     continue;
                 }
             }

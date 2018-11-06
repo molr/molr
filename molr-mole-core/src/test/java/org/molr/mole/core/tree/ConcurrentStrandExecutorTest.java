@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+@SuppressWarnings("unused")
 public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorTest.class);
@@ -72,91 +71,85 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @Test
     public void testSuccess() {
-        strandExecutor().instruct(StrandCommand.RESUME);
+        rootStrandExecutor().instruct(StrandCommand.RESUME);
 
-        assertThat(isFinishedSync(strandExecutor())).isTrue();
-        assertThat(currentRootResult()).isEqualTo(Result.SUCCESS);
+        waitForRootStrandToFinish();
+        assertThatActualState().isEqualTo(RunState.FINISHED);
+        assertThatResultOf(treeStructure().rootBlock()).isEqualTo(Result.SUCCESS);
     }
 
     @Test
     public void testStepInto() {
-        strandExecutor().instruct(StrandCommand.STEP_INTO);
-        waitForActualBlockToBe(strandExecutor(), FIRST);
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(FIRST);
+        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        waitForActualBlockToBe(FIRST);
+        assertThatActualBlock().isEqualTo(FIRST);
 
-        strandExecutor().instruct(StrandCommand.STEP_INTO);
-        waitForActualBlockToBe(strandExecutor(), FIRST_A);
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(FIRST_A);
+        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        waitForActualBlockToBe(FIRST_A);
+        assertThatActualBlock().isEqualTo(FIRST_A);
 
-        strandExecutor().instruct(StrandCommand.STEP_INTO);
-        waitForActualBlockToBe(strandExecutor(), FIRST_A);
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(FIRST_A)
-                .describedAs("Stepping into a leaf should have no effect");
+        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        waitForActualBlockToBe(FIRST_A);
+        assertThatActualBlock().isEqualTo(FIRST_A).as("Stepping into a leaf should have no effect");
     }
 
     @Test
     public void testStepOver() {
-        moveTo(strandExecutor(), FIRST_A);
-        waitForActualBlockToBe(strandExecutor(), FIRST_A);
+        moveRootStrandTo(FIRST_A);
+        waitForActualBlockToBe(FIRST_A);
 
-        strandExecutor().instruct(StrandCommand.STEP_OVER);
-        waitForResultOfBlockToBe(treeResultTracker(), FIRST_A, Result.SUCCESS);
-        waitForActualBlockToBe(strandExecutor(), FIRST_B);
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(FIRST_B)
-                .as("Strand should have moved to next after STEP_OVER success");
+        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        waitForResultOfBlockToBe(FIRST_A, Result.SUCCESS);
+        waitForActualBlockToBe(FIRST_B);
+        assertThatActualBlock().isEqualTo(FIRST_B).as("Strand should have moved to next after STEP_OVER success");
 
-        strandExecutor().instruct(StrandCommand.STEP_OVER);
-        waitForResultOfBlockToBe(treeResultTracker(), FIRST_B, Result.SUCCESS);
-        waitForActualBlockToBe(strandExecutor(), SECOND);
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(SECOND)
-                .as("Strand should have moved to next after STEP_OVER success");
+        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        waitForResultOfBlockToBe(FIRST_B, Result.SUCCESS);
+        waitForActualBlockToBe(SECOND);
+        assertThatActualBlock().isEqualTo(SECOND).as("Strand should have moved to next after STEP_OVER success");
 
         List<Block> successfulBlocks = Arrays.asList(FIRST_A, FIRST_B, FIRST);
         treeStructure().allBlocks().forEach(block -> {
             if (successfulBlocks.contains(block)) {
-                assertThat(treeResultTracker().resultFor(block)).isEqualTo(Result.SUCCESS)
-                        .as("Result for %s should be SUCCESS!", block);
+                assertThatResultOf(block).isEqualTo(Result.SUCCESS).as("Result for %s should be SUCCESS!", block);
             } else {
-                assertThat(treeResultTracker().resultFor(block)).isEqualTo(Result.UNDEFINED)
-                        .as("Block %s should have not been evaluated in this test...", block);
+                assertThatResultOf(block).isEqualTo(Result.UNDEFINED).as("Block %s should have not been evaluated in this test...", block);
             }
         });
     }
 
     @Test
     public void testSkippingLastBlockFinishes() {
-        moveTo(strandExecutor(), FOURTH);
-        waitForActualBlockToBe(strandExecutor(), FOURTH);
+        moveRootStrandTo(FOURTH);
+        waitForActualBlockToBe(FOURTH);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForStateToBe(strandExecutor(), RunState.FINISHED);
-        assertThat(strandExecutor().getActualState()).isEqualTo(RunState.FINISHED)
-                .as("Skipping the last block should finish the strand");
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForStateToBe(RunState.FINISHED);
+        assertThatActualState().isEqualTo(RunState.FINISHED).as("Skipping the last block should finish the strand");
     }
 
     @Test
     public void testSkippingBlocks() {
-        moveTo(strandExecutor(), FIRST);
-        waitForActualBlockToBe(strandExecutor(), FIRST);
+        moveRootStrandTo(FIRST);
+        waitForActualBlockToBe(FIRST);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForActualBlockToBe(strandExecutor(), SECOND);
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForActualBlockToBe(SECOND);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForActualBlockToBe(strandExecutor(), THIRD);
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForActualBlockToBe(THIRD);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForActualBlockToBe(strandExecutor(), PARALLEL);
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForActualBlockToBe(PARALLEL);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForActualBlockToBe(strandExecutor(), FOURTH);
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForActualBlockToBe(FOURTH);
 
-        strandExecutor().instruct(StrandCommand.SKIP);
-        waitForStateToBe(strandExecutor(), RunState.FINISHED);
+        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        waitForStateToBe(RunState.FINISHED);
 
         for (Block block : treeStructure().allBlocks()) {
-            assertThat(treeResultTracker().resultFor(block)).isEqualTo(Result.UNDEFINED)
-                    .as("Result should be UNDEFINED when skipping all blocks");
+            assertThatResultOf(block).isEqualTo(Result.UNDEFINED).as("Result should be UNDEFINED when skipping all blocks");
         }
     }
 

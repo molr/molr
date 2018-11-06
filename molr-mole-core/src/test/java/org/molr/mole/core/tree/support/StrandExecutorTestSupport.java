@@ -1,5 +1,8 @@
 package org.molr.mole.core.tree.support;
 
+import org.assertj.core.api.AbstractComparableAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
@@ -14,12 +17,12 @@ import java.time.Duration;
  */
 public interface StrandExecutorTestSupport {
 
-    default RunState waitForStateToBe(StrandExecutor strandExecutor, RunState state) {
-        return strandExecutor.getStateStream().filter(state::equals).blockFirst(Duration.ofMinutes(1));
+    default void waitForStrandStateToBe(StrandExecutor strandExecutor, RunState state) {
+        strandExecutor.getStateStream().filter(state::equals).blockFirst(Duration.ofMinutes(1));
     }
 
-    default boolean isFinishedSync(StrandExecutor strandExecutor) {
-        return waitForStateToBe(strandExecutor, RunState.FINISHED) != null;
+    default void waitForStrandToFinish(StrandExecutor strandExecutor) {
+        waitForStrandStateToBe(strandExecutor, RunState.FINISHED);
     }
 
     default void waitForActualBlockToBe(StrandExecutor strandExecutor, Block block) {
@@ -28,6 +31,14 @@ public interface StrandExecutorTestSupport {
 
     default void waitForResultOfBlockToBe(TreeResultTracker resultTracker, Block block, Result result) {
         resultTracker.resultUpdatesFor(block).filter(result::equals).blockFirst(Duration.ofMinutes(1));
+    }
+
+    default ObjectAssert<Block> assertThatActualBlockOf(StrandExecutor strandExecutor) {
+        return Assertions.assertThat(strandExecutor.getActualBlock());
+    }
+
+    default AbstractComparableAssert<?, RunState> assertThatActualStateOf(StrandExecutor executor) {
+        return Assertions.assertThat(executor.getActualState());
     }
 
     @Deprecated

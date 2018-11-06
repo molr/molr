@@ -7,8 +7,8 @@ import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.RunnableBranchSupport;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.ConcurrentStrandExecutor;
+import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.StrandExecutorFactory;
 import org.molr.mole.core.tree.StrandFactory;
@@ -92,28 +92,28 @@ public class StrandExecutorTry {
                 finishedLatch.countDown();
             }
         });
-//        strandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
+//        rootStrandExecutor.getBlockStream().subscribe(b -> LOGGER.info("Current block: {}", b));
 
-//        strandExecutor.instruct(StrandCommand.RESUME);
+//        rootStrandExecutor.instruct(StrandCommand.RESUME);
 //        sleep(2000);
-//        strandExecutor.instruct(StrandCommand.PAUSE);
+//        rootStrandExecutor.instruct(StrandCommand.PAUSE);
 //        sleep(2000);
-//        strandExecutor.instruct(StrandCommand.RESUME);
+//        rootStrandExecutor.instruct(StrandCommand.RESUME);
 
         // Execute just the parallel
-//        strandExecutor.instruct(StrandCommand.STEP_INTO);
-//        strandExecutor.instruct(StrandCommand.SKIP);
-//        strandExecutor.instruct(StrandCommand.SKIP);
-//        strandExecutor.instruct(StrandCommand.SKIP);
-//        strandExecutor.instruct(StrandCommand.STEP_OVER);
+//        rootStrandExecutor.instruct(StrandCommand.STEP_INTO);
+//        rootStrandExecutor.instruct(StrandCommand.SKIP);
+//        rootStrandExecutor.instruct(StrandCommand.SKIP);
+//        rootStrandExecutor.instruct(StrandCommand.SKIP);
+//        rootStrandExecutor.instruct(StrandCommand.STEP_OVER);
 
-//        strandExecutor.instruct(StrandCommand.STEP_INTO);
+//        rootStrandExecutor.instruct(StrandCommand.STEP_INTO);
 //        sleep(1000);
-//        strandExecutor.instruct(StrandCommand.RESUME);
+//        rootStrandExecutor.instruct(StrandCommand.RESUME);
 //        sleep(8000);
-//        strandExecutor.instruct(StrandCommand.PAUSE);
+//        rootStrandExecutor.instruct(StrandCommand.PAUSE);
 //        sleep(1000);
-//        strandExecutor.instruct(StrandCommand.RESUME);
+//        rootStrandExecutor.instruct(StrandCommand.RESUME);
 
         strandExecutor.instruct(StrandCommand.STEP_OVER);
         sleep(8000);

@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorPauseTest.class);
@@ -59,48 +57,34 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
 
     @Test
     public void testPause() {
-        strandExecutor().instruct(StrandCommand.RESUME);
+        rootStrandExecutor().instruct(StrandCommand.RESUME);
 
         await(task1Start);
-        strandExecutor().instruct(StrandCommand.PAUSE);
-        task1Finish.countDown();
+        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        unlatch(task1Finish);
 
-        waitForStateToBe(strandExecutor(), RunState.PAUSED);
-        assertThat(treeResultTracker().resultFor(TASK_1)).isEqualTo(Result.SUCCESS)
-                .as("Task 1 should have finished before pausing");
-        assertThat(treeResultTracker().resultFor(TASK_2)).isEqualTo(Result.UNDEFINED)
-                .as("Task 2 should have not been run");
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(TASK_2)
-                .as("Executor should point to task 2");
+        waitForStateToBe(RunState.PAUSED);
+        assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS).as("Task 1 should have finished before pausing");
+        assertThatResultOf(TASK_2).isEqualTo(Result.UNDEFINED).as("Task 2 should have not been run");
+        assertThatActualBlock().isEqualTo(TASK_2).as("Executor should point to task 2");
 
-        strandExecutor().instruct(StrandCommand.RESUME);
+        rootStrandExecutor().instruct(StrandCommand.RESUME);
 
         await(task2Start);
-        strandExecutor().instruct(StrandCommand.PAUSE);
-        task2Finish.countDown();
+        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        unlatch(task2Finish);
 
-        waitForStateToBe(strandExecutor(), RunState.PAUSED);
-        assertThat(treeResultTracker().resultFor(TASK_2)).isEqualTo(Result.SUCCESS)
-                .as("Task 2 should have finished before pausing");
-        assertThat(treeResultTracker().resultFor(TASK_3)).isEqualTo(Result.UNDEFINED)
-                .as("Task 3 should have not been run");
-        assertThat(strandExecutor().getActualBlock()).isEqualTo(TASK_3)
-                .as("Executor should point to task 3");
+        waitForStateToBe(RunState.PAUSED);
+        assertThatResultOf(TASK_2).isEqualTo(Result.SUCCESS).as("Task 2 should have finished before pausing");
+        assertThatResultOf(TASK_3).isEqualTo(Result.UNDEFINED).as("Task 3 should have not been run");
+        assertThatActualBlock().isEqualTo(TASK_3).as("Executor should point to task 3");
 
-        strandExecutor().instruct(StrandCommand.RESUME);
-        waitForStateToBe(strandExecutor(), RunState.FINISHED);
+        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        waitForStateToBe(RunState.FINISHED);
 
-        assertThat(treeResultTracker().resultFor(TASK_1)).isEqualTo(Result.SUCCESS);
-        assertThat(treeResultTracker().resultFor(TASK_2)).isEqualTo(Result.SUCCESS);
-        assertThat(treeResultTracker().resultFor(TASK_3)).isEqualTo(Result.SUCCESS);
-    }
-
-    private void await(CountDownLatch latch) {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(TASK_2).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(TASK_3).isEqualTo(Result.SUCCESS);
     }
 
     @Override
