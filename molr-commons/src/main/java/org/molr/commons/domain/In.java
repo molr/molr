@@ -5,9 +5,6 @@ package org.molr.commons.domain;
  */
 public interface In {
 
-    int intValue(String name);
+    <T> T get(Placeholder<T> placeholder);
 
-    double doubleValue(String name);
-
-    String stringValue(String name);
 }
