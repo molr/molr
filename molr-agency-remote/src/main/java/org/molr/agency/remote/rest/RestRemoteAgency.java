@@ -1,16 +1,7 @@
 package org.molr.agency.remote.rest;
 
-import org.molr.commons.domain.AgencyState;
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.MissionHandle;
-import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Strand;
-import org.molr.commons.domain.dto.AgencyStateDto;
-import org.molr.commons.domain.dto.MissionHandleDto;
-import org.molr.commons.domain.dto.MissionRepresentationDto;
-import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.commons.domain.*;
+import org.molr.commons.domain.dto.*;
 import org.molr.agency.core.Agency;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -41,6 +32,12 @@ public class RestRemoteAgency implements Agency {
     public Mono<MissionRepresentation> representationOf(Mission mission) {
         return mono("/mission/" + mission.name() + "/representation", MissionRepresentationDto.class)
                 .map(MissionRepresentationDto::toMissionRepresentation);
+    }
+
+    @Override
+    public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
+        return mono("/mission/" + mission.name() + "/parameter-description", MissionParameterDescriptionDto.class)
+                .map(MissionParameterDescriptionDto::toMissionParameterDescription);
     }
 
     @Override

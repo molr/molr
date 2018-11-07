@@ -1,16 +1,14 @@
 import org.junit.Before;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
+import org.molr.commons.domain.MissionInput;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.Branch;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.molr.mole.core.tree.LeafExecutor;
-import org.molr.mole.core.tree.TreeMissionExecutor;
-import org.molr.mole.core.tree.TreeResultTracker;
-import org.molr.mole.core.tree.TreeStructure;
+import org.molr.mole.core.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +62,7 @@ public class TreeSteppingTest {
     public void setUp() {
         treeStructure = DATA.treeStructure();
         resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables());
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), new ConcurrentMissionOutputCollector());
         missionExecutor = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker);
     }
 

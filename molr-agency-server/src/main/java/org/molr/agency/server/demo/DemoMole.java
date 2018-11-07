@@ -13,9 +13,10 @@ import org.molr.commons.domain.Strand;
 import org.molr.mole.core.api.Mole;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.molr.commons.domain.MissionParameterDescription;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,6 +52,11 @@ public class DemoMole implements Mole {
     @Override
     public MissionRepresentation representationOf(Mission mission) {
         return missions.get(mission);
+    }
+
+    @Override
+    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+        return new MissionParameterDescription(Collections.emptySet());
     }
 
     @Override

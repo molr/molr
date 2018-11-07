@@ -1,20 +1,10 @@
 import org.junit.Test;
-import org.molr.commons.domain.Block;
-import org.molr.commons.domain.RunState;
-import org.molr.commons.domain.Strand;
-import org.molr.commons.domain.StrandCommand;
+import org.molr.commons.domain.*;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.Branch;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.molr.mole.core.tree.ConcurrentStrandExecutor;
-import org.molr.mole.core.tree.LeafExecutor;
-import org.molr.mole.core.tree.StrandExecutor;
-import org.molr.mole.core.tree.StrandExecutorFactory;
-import org.molr.mole.core.tree.StrandFactory;
-import org.molr.mole.core.tree.StrandFactoryImpl;
-import org.molr.mole.core.tree.TreeResultTracker;
-import org.molr.mole.core.tree.TreeStructure;
+import org.molr.mole.core.tree.*;
 import org.molr.mole.core.utils.TreeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +65,7 @@ public class StrandExecutorTry {
     public void testMovement() throws InterruptedException {
         TreeStructure treeStructure = DATA.treeStructure();
         TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables());
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), new ConcurrentMissionOutputCollector());
 
         StrandFactory strandFactory = new StrandFactoryImpl();
         StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);

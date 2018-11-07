@@ -8,10 +8,10 @@ import cern.molr.sample.states.SequenceMissionState;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.RunState;
 import org.molr.mole.core.api.Mole;
+import org.molr.commons.domain.MissionParameterDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,6 +54,11 @@ public class SequenceMoleAdapter implements Mole {
     @Override
     public MissionRepresentation representationOf(Mission mission) {
         return representations.get(mission);
+    }
+
+    @Override
+    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+        return new MissionParameterDescription(Collections.emptySet());
     }
 
     @Override

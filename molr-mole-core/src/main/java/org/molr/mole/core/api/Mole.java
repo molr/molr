@@ -13,6 +13,7 @@ import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.MissionParameterDescription;
 import reactor.core.publisher.Flux;
 
 public interface Mole {
@@ -20,6 +21,8 @@ public interface Mole {
     Set<Mission> availableMissions();
 
     MissionRepresentation representationOf(Mission mission);
+
+    MissionParameterDescription parameterDescriptionOf(Mission mission);
 
     void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params);
 

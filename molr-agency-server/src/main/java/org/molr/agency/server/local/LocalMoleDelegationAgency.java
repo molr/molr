@@ -10,16 +10,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.molr.agency.core.Agency;
-import org.molr.commons.domain.AgencyState;
-import org.molr.commons.domain.ImmutableAgencyState;
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.MissionHandle;
-import org.molr.commons.domain.MissionHandleFactory;
-import org.molr.commons.domain.MissionInstance;
-import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -74,6 +65,11 @@ public class LocalMoleDelegationAgency implements Agency {
     @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
         return supplyOnAgencyExecutorAsync(() -> missionMoles.get(mission).representationOf(mission));
+    }
+
+    @Override
+    public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
+        return supplyOnAgencyExecutorAsync(() -> missionMoles.get(mission).parameterDescriptionOf(mission));
     }
 
     @Override

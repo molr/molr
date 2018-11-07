@@ -9,7 +9,7 @@ public class Placeholder<T> {
     private final Class<T> type;
     private final String name;
 
-    private Placeholder(Class<T> type, String name) {
+    Placeholder(Class<T> type, String name) {
         this.type = requireNonNull(type, "type must not be null");
         this.name = requireNonNull(name, "name must not be null");
     }

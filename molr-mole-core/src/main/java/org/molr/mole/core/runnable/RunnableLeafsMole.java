@@ -1,10 +1,8 @@
 package org.molr.mole.core.runnable;
 
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionRepresentation;
+import org.molr.commons.domain.*;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.tree.*;
-import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,11 +31,20 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
     @Override
     public MissionRepresentation representationOf(Mission mission) {
+        return getOrThrow(mission).treeStructure().missionRepresentation();
+    }
+
+    @Override
+    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+        return getOrThrow(mission).parameterDescription();
+    }
+
+    private RunnableLeafsMission getOrThrow(Mission mission) {
         RunnableLeafsMission runnableMission = missions.get(mission);
-        if(runnableMission == null) {
+        if (runnableMission == null) {
             throw new IllegalArgumentException(mission + " is not a mission of this mole");
         }
-        return runnableMission.treeStructure().missionRepresentation();
+        return runnableMission;
     }
 
 
@@ -46,7 +53,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         TreeStructure treeStructure = runnableLeafMission.treeStructure();
         TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables());
+
+        MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
+
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), MissionInput.from(params), outputCollector);
         return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker);
     }
 }

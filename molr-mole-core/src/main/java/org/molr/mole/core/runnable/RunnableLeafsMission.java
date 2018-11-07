@@ -2,30 +2,36 @@ package org.molr.mole.core.runnable;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.molr.commons.domain.Block;
-import org.molr.commons.domain.ImmutableMissionRepresentation;
-import org.molr.commons.domain.MissionRepresentation;
+import org.molr.commons.domain.*;
+import org.molr.commons.domain.MissionParameterDescription;
 import org.molr.mole.core.tree.TreeStructure;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 
 public class RunnableLeafsMission {
 
-    private final ImmutableMap<Block, Runnable> runnables;
+    private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
     private final TreeStructure treeStructure;
+    private final MissionParameterDescription parameterDescription;
 
-    private RunnableLeafsMission(Builder builder) {
+    private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
+        this.parameterDescription = parameterDescription;
     }
 
     public TreeStructure treeStructure() {
         return this.treeStructure;
     }
 
-    public Map<Block, Runnable> runnables() {
+    public MissionParameterDescription parameterDescription() {
+        return this.parameterDescription;
+    }
+
+    public Map<Block, BiConsumer<In, Out>> runnables() {
         return this.runnables;
     }
 
@@ -42,7 +48,7 @@ public class RunnableLeafsMission {
         private final AtomicLong nextId = new AtomicLong(0);
 
         private final ImmutableMissionRepresentation.Builder representationBuilder;
-        private final ImmutableMap.Builder<Block, Runnable> runnables = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
         private Builder(String rootName) {
@@ -60,7 +66,7 @@ public class RunnableLeafsMission {
             return child;
         }
 
-        public Block leafChild(Block parent, String childName, Runnable runnable) {
+        public Block leafChild(Block parent, String childName, BiConsumer<In, Out> runnable) {
             Block child = addChild(parent, childName);
             runnables.put(child, runnable);
             return child;
@@ -70,8 +76,8 @@ public class RunnableLeafsMission {
             return representationBuilder.root();
         }
 
-        public RunnableLeafsMission build() {
-            return new RunnableLeafsMission(this);
+        public RunnableLeafsMission build(MissionParameterDescription parameterDescription) {
+            return new RunnableLeafsMission(this, parameterDescription);
         }
 
         private Block addChild(Block parent, String childName) {

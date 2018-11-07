@@ -1,6 +1,10 @@
 package org.molr.mole.core.runnable.lang;
 
+import com.google.common.collect.ImmutableSet;
+import org.molr.commons.domain.MissionParameter;
+import org.molr.commons.domain.Placeholder;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
+import org.molr.commons.domain.MissionParameterDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +20,7 @@ public abstract class RunnableMissionSupport {
     private final static Logger LOGGER = LoggerFactory.getLogger(RunnableMissionSupport.class);
 
     private RunnableLeafsMission.Builder builder;
+    private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
     protected void mission(String newName, Consumer<Branch> branchConsumer) {
         if (this.builder != null) {
@@ -34,8 +39,29 @@ public abstract class RunnableMissionSupport {
         return Branch.withParent(builder, builder.root());
     }
 
+    protected <T> Placeholder<T> requiredParameter(Placeholder<T> placeholder) {
+        this.parameterBuilder.add(MissionParameter.required(placeholder));
+        return placeholder;
+    }
+
+    protected <T> Placeholder<T> requiredParameter(Placeholder<T> placeholder, T defaultValue) {
+        this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue));
+        return placeholder;
+    }
+
+    protected <T> Placeholder<T> optionalParameter(Placeholder<T> placeholder) {
+        this.parameterBuilder.add(MissionParameter.optional(placeholder));
+        return placeholder;
+    }
+
+    protected <T> Placeholder<T> optionalParameter(Placeholder<T> placeholder, T defaultValue) {
+        this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue));
+        return placeholder;
+    }
+
     public RunnableLeafsMission build() {
-        return builder.build();
+        MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
+        return builder.build(parameterDescription);
     }
 
 
