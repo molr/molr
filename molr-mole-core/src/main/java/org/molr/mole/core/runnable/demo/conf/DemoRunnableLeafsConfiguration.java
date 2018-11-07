@@ -22,13 +22,43 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission demoMission() {
         return new RunnableMissionSupport() {
             {
+                mission("Executable Leafs Demo Mission", root -> {
+
+                    root.sequential("First", b -> {
+                        b.run(log("First A"));
+                        b.run(log("First B"));
+                    });
+
+                    root.sequential("Second", b -> {
+                        b.run(log("second A"));
+                        b.run(log("second B"));
+                    });
+
+                    root.run(log("Third"));
+
+                    root.parallel("Parallel", b -> {
+                        b.run(log("Parallel A"));
+                        b.run(log("parallel B"));
+                    });
+
+                });
+
+            }
+        }.build();
+    }
+
+
+    @Bean
+    public RunnableLeafsMission parametrizedDemoMission() {
+        return new RunnableMissionSupport() {
+            {
                 Placeholder<Number> it = requiredParameter(number("iterations"), 5);
                 Placeholder<String> message = optionalParameter(string("aMessage"), "Hello World");
 
                 optionalParameter(string("deviceName"));
                 requiredParameter(number("betax"), 180.5);
 
-                mission("Executable Leafs Demo Mission", root -> {
+                mission("Executable Leafs Demo Mission (parametrized)", root -> {
 
                     root.run("print messages", (in, out) -> {
                         for (int i = 0; i < in.get(it).intValue(); i++) {
