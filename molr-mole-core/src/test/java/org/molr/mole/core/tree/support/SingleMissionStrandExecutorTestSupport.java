@@ -9,6 +9,8 @@ import org.molr.commons.domain.RunState;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.TreeResultTracker;
 
+import java.util.Set;
+
 /**
  * Provides support methods for tests that act on one specific {@link StrandExecutor} and mission.
  * This condition makes it possible to reduce the overhead of parameters of the {@link StrandExecutorTestSupport}.
@@ -50,6 +52,15 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
     @Deprecated
     default void moveRootStrandTo(Block destination) {
         moveTo(rootStrandExecutor(), destination);
+    }
+
+    default StrandErrorsRecorder recordStrandErrors() {
+        return recordStrandErrors(rootStrandExecutor());
+    }
+
+    @Deprecated
+    default Set<StrandExecutor> childrenStrandExecutors() {
+        return childrenStrandExecutorsOf(rootStrandExecutor());
     }
 
 }

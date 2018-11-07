@@ -2,6 +2,7 @@ package org.molr.mole.core.tree.support;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
@@ -11,6 +12,7 @@ import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.TreeResultTracker;
 
 import java.time.Duration;
+import java.util.Set;
 
 /**
  * Provides support default methods for testing strand executor behaviour
@@ -45,4 +47,22 @@ public interface StrandExecutorTestSupport {
     default void moveTo(StrandExecutor executor, Block destination) {
         ((ConcurrentStrandExecutor) executor).moveTo(destination);
     }
+
+    default void waitForErrorOfType(StrandErrorsRecorder recorder, Class<? extends Exception> clazz) {
+        recorder.getRecordedExceptionStream().any(exceptions -> exceptions.stream().anyMatch(clazz::isInstance)).block(Duration.ofMinutes(1));
+    }
+
+    default ListAssert<Exception> assertThat(StrandErrorsRecorder recorder) {
+        return Assertions.assertThat(recorder.getExceptions());
+    }
+
+    default StrandErrorsRecorder recordStrandErrors(StrandExecutor executor) {
+        return new StrandErrorsRecorder(executor);
+    }
+
+    @Deprecated
+    default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
+        return executor.getChildrenStrandExecutors();
+    }
+
 }

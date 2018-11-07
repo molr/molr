@@ -22,8 +22,15 @@ public interface StrandExecutor {
 
     Block getActualBlock();
 
+    Flux<Exception> getErrorsStream();
+
     Set<StrandCommand> getAllowedCommands();
 
     Strand getStrand();
 
+    /**
+     * TODO decide if this should be part of the API
+     */
+    @Deprecated
+    Set<StrandExecutor> getChildrenStrandExecutors();
 }

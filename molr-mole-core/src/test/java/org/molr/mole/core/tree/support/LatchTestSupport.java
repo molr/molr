@@ -1,6 +1,7 @@
 package org.molr.mole.core.tree.support;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Support interface that provides default methods for handling {@link CountDownLatch}es.
@@ -25,7 +26,9 @@ public interface LatchTestSupport {
 
     default void await(CountDownLatch latch) {
         try {
-            latch.await();
+            if (!latch.await(1, TimeUnit.MINUTES)) {
+                throw new RuntimeException("Latch timed out");
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

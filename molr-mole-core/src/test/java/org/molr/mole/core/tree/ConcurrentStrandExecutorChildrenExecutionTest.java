@@ -1,10 +1,9 @@
 package org.molr.mole.core.tree;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
-import org.molr.commons.domain.Result;
-import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
@@ -14,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingleMissionStrandExecutorTest {
+import static org.molr.commons.domain.RunState.FINISHED;
+import static org.molr.commons.domain.RunState.PAUSED;
+
+public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStepOverParallelTest.class);
 
@@ -28,10 +30,6 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
     private CountDownLatch latchB1Start;
     private CountDownLatch latchA1End;
     private CountDownLatch latchB1End;
-    private CountDownLatch latchA2Start;
-    private CountDownLatch latchB2Start;
-    private CountDownLatch latchA2End;
-    private CountDownLatch latchB2End;
 
     @Override
     protected RunnableLeafsMission mission() {
@@ -45,8 +43,6 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
                                 await(latchA1End);
                             });
                             parallelA2 = bA.run("A.2", () -> {
-                                unlatch(latchA2Start);
-                                await(latchA2End);
                             });
                         });
                         b.sequential("sequential branch B", bB -> {
@@ -55,8 +51,6 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
                                 await(latchB1End);
                             });
                             parallelB2 = bB.run("B.2", () -> {
-                                unlatch(latchB2Start);
-                                await(latchB2End);
                             });
                         });
                     });
@@ -71,50 +65,35 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
         latchB1Start = new CountDownLatch(1);
         latchA1End = new CountDownLatch(1);
         latchB1End = new CountDownLatch(1);
-        latchA2Start = new CountDownLatch(1);
-        latchB2Start = new CountDownLatch(1);
-        latchA2End = new CountDownLatch(1);
-        latchB2End = new CountDownLatch(1);
     }
 
+    @Ignore
     @Test
-    public void testStepOverTwiceWithParallelStrands() {
+    public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallel);
-        assertThatActualBlock().isEqualTo(parallel);
-
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
-        await(latchA1Start, latchB1Start);
-
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
-
-        unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
-
-        waitForStateToBe(RunState.FINISHED);
-        assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelB1).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelB2).isEqualTo(Result.SUCCESS);
-    }
-
-    @Test
-    public void testResumeAfterStepOverWithParallelStrands() {
-        moveRootStrandTo(parallel);
-        assertThatActualBlock().isEqualTo(parallel);
-
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
-        await(latchA1Start, latchB1Start);
-
         rootStrandExecutor().instruct(StrandCommand.RESUME);
 
-        unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
+        await(latchA1Start, latchB1Start);
+        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        waitForStateToBe(PAUSED);
 
-        waitForStateToBe(RunState.FINISHED);
-        assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelB1).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(parallelB2).isEqualTo(Result.SUCCESS);
+        unlatch(latchA1End, latchB1End);
+        childrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
+
+        assertThatActualState().isEqualTo(PAUSED);
+        childrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(PAUSED));
+
+        childrenStrandExecutors().forEach(se -> se.instruct(StrandCommand.RESUME));
+        childrenStrandExecutors().forEach(this::waitForStrandToFinish);
+
+        // TODO put wait for state finished on parent when test passes!
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertThatActualState().isEqualTo(FINISHED);
     }
 
     @Override
