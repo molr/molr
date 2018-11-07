@@ -1,7 +1,7 @@
 package org.molr.commons.domain.dto;
 
 import com.google.common.collect.BiMap;
-import com.sun.management.MissionControlMXBean;
+import com.google.common.collect.ImmutableBiMap;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.Placeholder;
 
@@ -9,13 +9,25 @@ import java.util.Objects;
 
 public class MissionParameterDto<T> {
 
-    public static final String NUMBER = "number";
-    public static final String STRING = "string";
+    private static final BiMap<Class<?>, String> TYPE_NAMES = ImmutableBiMap.of(
+            String.class, "string",
+            Double.class, "double",
+            Integer.class, "integer",
+            Long.class, "long",
+            Boolean.class, "boolean"
+    );
 
     public final String name;
     public final String type;
     public final boolean required;
     public final T defaultValue;
+
+    public MissionParameterDto() {
+        this.name = null;
+        this.type = null;
+        this.required = false;
+        this.defaultValue = null;
+    }
 
     public MissionParameterDto(String name, String type, boolean required, T defaultValue) {
         this.name = Objects.requireNonNull(name, "name must not be null");
@@ -38,21 +50,17 @@ public class MissionParameterDto<T> {
     }
 
     private Placeholder<T> placeholder() {
-        if (NUMBER.equals(this.type)) {
-            return (Placeholder<T>) Placeholder.number(name);
-        }
-        if (STRING.equals(this.type)) {
-            return (Placeholder<T>) Placeholder.string(name);
+        Class<?> typeClass = TYPE_NAMES.inverse().get(this.type);
+        if (name != null) {
+            return (Placeholder<T>) Placeholder.__do_not_use_externally__create__(typeClass, name);
         }
         throw new IllegalStateException("Type '" + this.type + "' is cannot be converted into a valid java type.");
     }
 
     private static final String typeStringFrom(Class<?> type) {
-        if (Number.class.isAssignableFrom(type)) {
-            return NUMBER;
-        }
-        if (String.class.isAssignableFrom(type)) {
-            return STRING;
+        String typeName = TYPE_NAMES.get(type);
+        if (typeName != null) {
+            return typeName;
         }
         throw new IllegalArgumentException("type '" + type + "' cannot be mapped to a valid json value");
     }

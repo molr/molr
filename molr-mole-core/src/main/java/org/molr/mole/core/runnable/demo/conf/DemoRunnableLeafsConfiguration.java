@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.molr.commons.domain.Placeholder.number;
-import static org.molr.commons.domain.Placeholder.string;
+import static org.molr.commons.domain.Placeholder.aDouble;
+import static org.molr.commons.domain.Placeholder.aString;
+import static org.molr.commons.domain.Placeholder.anInteger;
 
 @Configuration
 public class DemoRunnableLeafsConfiguration {
@@ -52,19 +53,24 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission parametrizedDemoMission() {
         return new RunnableMissionSupport() {
             {
-                Placeholder<Number> it = requiredParameter(number("iterations"), 5);
-                Placeholder<String> message = optionalParameter(string("aMessage"), "Hello World");
+                Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
+                Placeholder<String> message = mandatory(aString("aMessage"), "Hello World");
 
-                optionalParameter(string("deviceName"));
-                requiredParameter(number("betax"), 180.5);
+                Placeholder<String> device = optional(aString("deviceName"));
+                Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
                 mission("Executable Leafs Demo Mission (parametrized)", root -> {
 
                     root.run("print messages", (in, out) -> {
-                        for (int i = 0; i < in.get(it).intValue(); i++) {
-                            LOGGER.info("Iteration=" + i + "; " + in.get(message));
+                        for (int i = 0; i < in.get(iterations); i++) {
+                            LOGGER.info("Iteration=" + i + "; " + in.get(message) + i);
                             out.emit("iteration-" + i, in.get(message) + i);
                         }
+                    });
+
+                    root.run("print optionals", in -> {
+                        LOGGER.info("device=" + in.get(device));
+                        LOGGER.info("betax=" + in.get(betax));
                     });
 
                     root.sequential("First", b -> {

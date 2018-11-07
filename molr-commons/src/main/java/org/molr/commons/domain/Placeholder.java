@@ -14,11 +14,27 @@ public class Placeholder<T> {
         this.name = requireNonNull(name, "name must not be null");
     }
 
-    public static final Placeholder<Number> number(String name) {
-        return new Placeholder<>(Number.class, name);
+    public static final <T> Placeholder<T> __do_not_use_externally__create__(Class<T> type, String name) {
+        return new Placeholder<>(type, name);
     }
 
-    public static final Placeholder<String> string(String name) {
+    public static final Placeholder<Double> aDouble(String name) {
+        return new Placeholder<>(Double.class, name);
+    }
+
+    public static final Placeholder<Boolean> aBoolean(String name) {
+        return new Placeholder<>(Boolean.class, name);
+    }
+
+    public static final Placeholder<Integer> anInteger(String name) {
+        return new Placeholder<>(Integer.class, name);
+    }
+
+    public static final Placeholder<Long> aLong(String name) {
+        return new Placeholder<>(Long.class, name);
+    }
+
+    public static final Placeholder<String> aString(String name) {
         return new Placeholder<>(String.class, name);
     }
 

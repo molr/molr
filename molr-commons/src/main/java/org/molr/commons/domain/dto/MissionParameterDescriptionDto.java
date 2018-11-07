@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.MissionParameterDescription;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -12,6 +13,10 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 public class MissionParameterDescriptionDto {
 
     public final Set<MissionParameterDto> parameters;
+
+    public MissionParameterDescriptionDto() {
+        this.parameters = Collections.emptySet();
+    }
 
     public MissionParameterDescriptionDto(Set<MissionParameterDto> missionParameters) {
         this.parameters = Objects.requireNonNull(missionParameters, "missionParameters must not be null");

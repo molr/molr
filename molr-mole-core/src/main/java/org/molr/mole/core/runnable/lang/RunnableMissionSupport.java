@@ -39,22 +39,22 @@ public abstract class RunnableMissionSupport {
         return Branch.withParent(builder, builder.root());
     }
 
-    protected <T> Placeholder<T> requiredParameter(Placeholder<T> placeholder) {
+    protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.required(placeholder));
         return placeholder;
     }
 
-    protected <T> Placeholder<T> requiredParameter(Placeholder<T> placeholder, T defaultValue) {
+    protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, T defaultValue) {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue));
         return placeholder;
     }
 
-    protected <T> Placeholder<T> optionalParameter(Placeholder<T> placeholder) {
+    protected <T> Placeholder<T> optional(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder));
         return placeholder;
     }
 
-    protected <T> Placeholder<T> optionalParameter(Placeholder<T> placeholder, T defaultValue) {
+    protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue));
         return placeholder;
     }
