@@ -26,7 +26,7 @@ public interface LatchTestSupport {
 
     default void await(CountDownLatch latch) {
         try {
-            if (!latch.await(1, TimeUnit.MINUTES)) {
+            if (!latch.await(10, TimeUnit.MINUTES)) {
                 throw new RuntimeException("Latch timed out");
             }
         } catch (InterruptedException e) {

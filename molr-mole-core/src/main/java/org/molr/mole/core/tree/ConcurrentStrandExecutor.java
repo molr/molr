@@ -104,20 +104,25 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         // FIXME refactor in a more maintainable way, after tests are complete!
         while (actualState.get() != ExecutorState.FINISHED) {
 
-            /* housekeeping children */
-            if (hasChildren()) {
+            /* remove finished children */
+            if (hasChildren() && actualState.get() == ExecutorState.WAITING_FOR_CHILDREN) {
                 childExecutors.stream().filter(c -> c.getActualState() == FINISHED).forEach(this::removeChildExecutor);
-                if (hasChildren() &&
-                        (actualState.get() != ExecutorState.WAITING_FOR_CHILDREN && actualState.get() != ExecutorState.IDLE)) {
-                    publishError(new StrandExecutorException("[{}] inconsistent state! There are children, so current state can only be IDLE or WAITING FOR CHILDREN, pausing! Current state is {}", strand, actualState.get()));
+            }
+
+            /* if has children then the state can only be WAITING or IDLE*/
+            if (hasChildren() && actualState.get() != ExecutorState.WAITING_FOR_CHILDREN && actualState.get() != ExecutorState.IDLE) {
+                publishError(new StrandExecutorException("[{}] inconsistent state! There are children, so current state can only be IDLE or WAITING FOR CHILDREN, pausing! Current state is {}", strand, actualState.get()));
+                updateState(ExecutorState.IDLE);
+            }
+
+            if(hasChildren()) {
+                boolean allPaused = childExecutors.stream().map(StrandExecutor::getActualState).allMatch(PAUSED::equals);
+                if(allPaused && actualState.get() != ExecutorState.IDLE) {
+                    LOGGER.debug("[{}] paused because all children are paused", strand);
                     updateState(ExecutorState.IDLE);
-//                } else {
-//                    if (childExecutors.stream().anyMatch(c -> c.getActualState() == RUNNING)) {
-//                        if (actualState.get() == ExecutorState.IDLE) {
-//                            LOGGER.debug("[{}] at least 1 child is running, will wait for them to finish", strand);
-//                            updateState(ExecutorState.WAITING_FOR_CHILDREN);
-//                        }
-//                    }
+                } else if(!allPaused && actualState.get() != ExecutorState.WAITING_FOR_CHILDREN) {
+                    LOGGER.debug("[{}] has some non-paused children. Setting the state to waiting", strand);
+                    updateState(ExecutorState.WAITING_FOR_CHILDREN);
                 }
             }
 
@@ -174,15 +179,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 }
             }
 
-            if (actualState.get() == ExecutorState.STEPPING_OVER) {
-                // FIXME potential performance bottleneck #isDescendantOf
-                if (!structure.isDescendantOf(actualBlock.get(), currentStepOverSource.get())) {
-                    // Stepping over has finished the subtree of the block that initiate it.. finishing
-                    updateState(ExecutorState.IDLE);
-                    currentStepOverSource.set(null);
-                }
-            }
-
             if (actualState.get() == ExecutorState.WAITING_FOR_CHILDREN) {
                 if (childExecutors.isEmpty()) {
                     if (currentStepOverSource.get() != null) {
@@ -193,6 +189,15 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     moveNext();
                 } else {
                     continue;
+                }
+            }
+
+            if (actualState.get() == ExecutorState.STEPPING_OVER) {
+                // FIXME potential performance bottleneck #isDescendantOf
+                if (!structure.isDescendantOf(actualBlock.get(), currentStepOverSource.get())) {
+                    // Stepping over has finished the subtree of the block that initiate it.. finishing
+                    updateState(ExecutorState.IDLE);
+                    currentStepOverSource.set(null);
                 }
             }
 
@@ -261,9 +266,13 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     private void pause() {
-        LOGGER.debug("[{}] paused{}", strand, hasChildren() ? " and instructed children to pause" : "");
-        updateState(ExecutorState.IDLE);
-        childExecutors.forEach(child -> child.instruct(StrandCommand.PAUSE));
+        if (hasChildren()) {
+            LOGGER.debug("[{}] instructing children to pause", strand);
+            childExecutors.forEach(child -> child.instruct(PAUSE));
+        } else {
+            LOGGER.debug("[{}] paused", strand);
+            updateState(ExecutorState.IDLE);
+        }
     }
 
     private void stepInto() {

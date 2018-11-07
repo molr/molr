@@ -97,6 +97,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
 
@@ -113,6 +114,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
         rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
@@ -158,6 +160,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
         rootStrandExecutor().instruct(STEP_OVER);
@@ -176,9 +179,9 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         childrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(RUNNING));
 
         rootStrandExecutor().instruct(PAUSE);
+        unlatch(latchAEnd, latchBEnd);
         waitForStateToBe(PAUSED);
 
-        unlatch(latchAEnd, latchBEnd);
         childrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
 
         assertThatActualState().isEqualTo(PAUSED);
