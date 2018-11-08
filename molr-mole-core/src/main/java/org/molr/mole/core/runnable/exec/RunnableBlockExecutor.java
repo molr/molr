@@ -3,6 +3,7 @@ package org.molr.mole.core.runnable.exec;
 import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.tree.LeafExecutor;
+import org.molr.mole.core.tree.MissionOutputCollector;
 import org.molr.mole.core.tree.ResultBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

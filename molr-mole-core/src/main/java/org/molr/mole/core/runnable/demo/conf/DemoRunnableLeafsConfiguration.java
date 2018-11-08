@@ -9,15 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.molr.commons.domain.Placeholder.aDouble;
-import static org.molr.commons.domain.Placeholder.aString;
-import static org.molr.commons.domain.Placeholder.anInteger;
+import static org.molr.commons.domain.Placeholder.*;
 
 @Configuration
 public class DemoRunnableLeafsConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoRunnableLeafsConfiguration.class);
-
 
     @Bean
     public RunnableLeafsMission demoMission() {
@@ -54,6 +51,7 @@ public class DemoRunnableLeafsConfiguration {
         return new RunnableMissionSupport() {
             {
                 Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
+                Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500);
                 Placeholder<String> message = mandatory(aString("aMessage"), "Hello World");
 
                 Placeholder<String> device = optional(aString("deviceName"));
@@ -64,13 +62,17 @@ public class DemoRunnableLeafsConfiguration {
                     root.run("print messages", (in, out) -> {
                         for (int i = 0; i < in.get(iterations); i++) {
                             LOGGER.info("Iteration=" + i + "; " + in.get(message) + i);
+                            sleepUnchecked(in.get(sleepMilis));
                             out.emit("iteration-" + i, in.get(message) + i);
                         }
                     });
 
-                    root.run("print optionals", in -> {
+                    root.run("print optionals", (in, out) -> {
                         LOGGER.info("device=" + in.get(device));
+                        out.emit("device", in.get(device)); /* Will not be added as null is not allowed */
+
                         LOGGER.info("betax=" + in.get(betax));
+                        out.emit("betax", in.get(betax));
                     });
 
                     root.sequential("First", b -> {
@@ -121,5 +123,13 @@ public class DemoRunnableLeafsConfiguration {
 
     private static Branch.Task log(String text) {
         return new Branch.Task(text, (in, out) -> LOGGER.info("{} executed", text));
+    }
+
+    private static final void sleepUnchecked(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

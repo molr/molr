@@ -24,6 +24,10 @@ public class MolrAgencyRestService {
     @Autowired
     private Agency agency;
 
+    /*
+        GET mappings
+     */
+
     @GetMapping(path = "/mission/{missionName}/representation")
     public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
         return agency.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
@@ -44,12 +48,22 @@ public class MolrAgencyRestService {
         return agency.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
+    @GetMapping(path = "/instance/{missionHandle}/outputs")
+    public Flux<MissionOutputDto> outputsFor(@PathVariable("missionHandle") String missionHandle) {
+        return agency.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
+    }
+
+
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
                 .take(count)
                 .map(i -> new TestValueDto("Test output " + i));
     }
+
+    /*
+        POST mappings
+     */
 
     @PostMapping(path = "/mission/{missionName}/instantiate")
     public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {

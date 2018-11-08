@@ -7,13 +7,7 @@ package org.molr.mole.core.api;
 import java.util.Map;
 import java.util.Set;
 
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.MissionHandle;
-import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Strand;
-import org.molr.commons.domain.MissionParameterDescription;
+import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 
 public interface Mole {
@@ -27,6 +21,8 @@ public interface Mole {
     void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params);
 
     Flux<MissionState> statesFor(MissionHandle handle);
+
+    Flux<MissionOutput> outputsFor(MissionHandle handle);
 
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 

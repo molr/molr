@@ -83,6 +83,11 @@ public class SequenceMoleAdapter implements Mole {
     }
 
     @Override
+    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
+        return Flux.empty();
+    }
+
+    @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         if (!MAIN_STRAND.equals(strand)) {
             throw new IllegalArgumentException("No strand " + strand + " available in this mission.");

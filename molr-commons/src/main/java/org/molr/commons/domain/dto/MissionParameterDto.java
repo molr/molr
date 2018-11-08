@@ -13,7 +13,6 @@ public class MissionParameterDto<T> {
             String.class, "string",
             Double.class, "double",
             Integer.class, "integer",
-            Long.class, "long",
             Boolean.class, "boolean"
     );
 

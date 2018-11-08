@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -88,12 +89,21 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
+        return fromActiveMoleOrError(handle, m -> m.statesFor(handle));
+    }
+
+    @Override
+    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
+        return fromActiveMoleOrError(handle, m -> m.outputsFor(handle));
+    }
+
+    private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Mole, Flux<T>> fluxMapper) {
         return supplyOnAgencyExecutorSync(() -> {
             Mole activeMole = activeMoles.get(handle);
             if (activeMole == null) {
                 return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
             }
-            return activeMole.statesFor(handle);
+            return fluxMapper.apply(activeMole);
         });
     }
 

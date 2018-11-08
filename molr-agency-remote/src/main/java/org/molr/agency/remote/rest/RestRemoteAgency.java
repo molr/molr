@@ -61,6 +61,13 @@ public class RestRemoteAgency implements Agency {
                 .doOnError(e -> LOGGER.error("error while retrieving mission states for handle '" + handle + "'", e));
     }
 
+    @Override
+    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
+        return flux("/instance/" + handle.id() + "/outputs", MissionOutputDto.class)
+                .map(MissionOutputDto::toMissionOutput)
+                .doOnError(e -> LOGGER.error("error while retrieving mission outputs for handle '" + handle + "'", e));
+    }
+
 
     /* Post requests */
 

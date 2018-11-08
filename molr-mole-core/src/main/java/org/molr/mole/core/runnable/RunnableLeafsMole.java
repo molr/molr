@@ -39,6 +39,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         return getOrThrow(mission).parameterDescription();
     }
 
+
     private RunnableLeafsMission getOrThrow(Mission mission) {
         RunnableLeafsMission runnableMission = missions.get(mission);
         if (runnableMission == null) {
@@ -57,6 +58,6 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), MissionInput.from(params), outputCollector);
-        return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker);
+        return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);
     }
 }

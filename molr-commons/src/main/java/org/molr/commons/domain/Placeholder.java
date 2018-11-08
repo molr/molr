@@ -26,12 +26,11 @@ public class Placeholder<T> {
         return new Placeholder<>(Boolean.class, name);
     }
 
+    /* aLong does not work at the moment ... the transport over json always converts into integers
+    when numbers fit into integers and then the case fails .. so for the moment we avoid it ;-)*/
+
     public static final Placeholder<Integer> anInteger(String name) {
         return new Placeholder<>(Integer.class, name);
-    }
-
-    public static final Placeholder<Long> aLong(String name) {
-        return new Placeholder<>(Long.class, name);
     }
 
     public static final Placeholder<String> aString(String name) {

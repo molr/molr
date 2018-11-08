@@ -20,10 +20,12 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final Flux<MissionState> states;
     private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
+    private final MissionOutputCollector outputCollector;
 
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker, MissionOutputCollector outputCollector) {
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
+        this.outputCollector = outputCollector;
 
         EmitterProcessor<Object> statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
@@ -56,6 +58,11 @@ public class TreeMissionExecutor implements MissionExecutor {
     @Override
     public Flux<MissionState> states() {
         return states;
+    }
+
+    @Override
+    public Flux<MissionOutput> outputs() {
+        return outputCollector.asStream();
     }
 
     private MissionState gatherMissionState() {

@@ -2,18 +2,10 @@ package org.molr.agency.server.demo;
 
 //import cern.lhc.app.seq.scheduler.domain.execution.demo.SleepBlock;
 
-import org.molr.commons.domain.Block;
-import org.molr.commons.domain.ImmutableMissionRepresentation;
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.MissionHandle;
-import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.molr.commons.domain.MissionParameterDescription;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
@@ -66,6 +58,11 @@ public class DemoMole implements Mole {
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
+        return Flux.empty();
+    }
+
+    @Override
+    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
         return Flux.empty();
     }
 

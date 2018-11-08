@@ -62,8 +62,9 @@ public class TreeSteppingTest {
     public void setUp() {
         treeStructure = DATA.treeStructure();
         resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), new ConcurrentMissionOutputCollector());
-        missionExecutor = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker);
+        ConcurrentMissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), outputCollector);
+        missionExecutor = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);
     }
 
     @Test

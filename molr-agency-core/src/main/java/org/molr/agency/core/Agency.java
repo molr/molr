@@ -22,6 +22,8 @@ public interface Agency {
 
     Flux<MissionState> statesFor(MissionHandle handle);
 
+    Flux<MissionOutput> outputsFor(MissionHandle handle);
+
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
 }
