@@ -81,6 +81,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
 
@@ -92,14 +93,14 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
 
     @Test
     public void testSkipAfterResumeWithChildrenThrows() {
+        StrandErrorsRecorder recorder = recordStrandErrors();
+
         moveRootStrandTo(blockParallel);
         rootStrandExecutor().instruct(RESUME);
         await(latchAStart, latchBStart);
 
-        StrandErrorsRecorder recorder = recordStrandErrors();
         waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
-
 
         rootStrandExecutor().instruct(StrandCommand.SKIP);
 
@@ -130,6 +131,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
         rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
@@ -145,6 +147,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordStrandErrors();
+        waitForStateToBe(RUNNING);
         assertThatActualState().isEqualTo(RUNNING);
 
         rootStrandExecutor().instruct(STEP_OVER);
@@ -175,6 +178,8 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         rootStrandExecutor().instruct(RESUME);
         await(latchAStart, latchBStart);
 
+        waitForStateToBe(RUNNING);
+        childrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, RUNNING));
         assertThatActualState().isEqualTo(RUNNING);
         childrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(RUNNING));
 

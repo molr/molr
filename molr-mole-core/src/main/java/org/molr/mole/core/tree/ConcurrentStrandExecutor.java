@@ -48,7 +48,7 @@ import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
-    private static final int EXECUTOR_SLEEP_MS = 25;
+    private static final int EXECUTOR_SLEEP_MS = 60;
 
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
