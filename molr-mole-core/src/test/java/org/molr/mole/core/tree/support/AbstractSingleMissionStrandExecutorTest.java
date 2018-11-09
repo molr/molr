@@ -11,7 +11,7 @@ import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.StrandExecutorFactory;
 import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
-import org.molr.mole.core.tree.TreeResultTracker;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.molr.mole.core.tree.TreeStructure;
 
 /**
@@ -21,7 +21,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         MissionCreationTestSupport, LatchTestSupport {
 
     private TreeStructure treeStructure;
-    private TreeResultTracker resultTracker;
+    private TreeTracker resultTracker;
     private LeafExecutor leafExecutor;
     private StrandFactory strandFactory;
     private StrandExecutorFactory strandExecutorFactory;
@@ -34,7 +34,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         RunnableLeafsMission mission = mission();
 
         treeStructure = mission.treeStructure();
-        resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
+        resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector());
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
@@ -51,7 +51,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     }
 
     @Override
-    public TreeResultTracker treeResultTracker() {
+    public TreeTracker treeResultTracker() {
         return resultTracker;
     }
 

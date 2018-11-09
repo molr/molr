@@ -5,6 +5,7 @@ import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.Branch;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.*;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.molr.mole.core.utils.TreeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class StrandExecutorTry {
     @Test
     public void testMovement() throws InterruptedException {
         TreeStructure treeStructure = DATA.treeStructure();
-        TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
+        TreeTracker resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), new ConcurrentMissionOutputCollector());
 
         StrandFactory strandFactory = new StrandFactoryImpl();

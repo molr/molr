@@ -1,6 +1,7 @@
 package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.*;
+import org.molr.mole.core.tree.tracking.Tracker;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -21,9 +22,9 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
-    private final ResultTracker resultTracker;
+    private final Tracker<Result> resultTracker;
 
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker, MissionOutputCollector outputCollector) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector) {
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         this.outputCollector = outputCollector;

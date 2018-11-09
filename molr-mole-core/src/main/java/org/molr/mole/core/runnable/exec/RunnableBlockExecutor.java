@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.tree.LeafExecutor;
 import org.molr.mole.core.tree.MissionOutputCollector;
-import org.molr.mole.core.tree.ResultBucket;
+import org.molr.mole.core.tree.tracking.Bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class RunnableBlockExecutor extends LeafExecutor {
 
     private final Map<Block, BiConsumer<In, Out>> runnables;
 
-    public RunnableBlockExecutor(ResultBucket resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, MissionOutputCollector outputCollector) {
+    public RunnableBlockExecutor(Bucket resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, MissionOutputCollector outputCollector) {
         super(resultTracker, input, outputCollector);
         this.runnables = ImmutableMap.copyOf(runnables);
     }

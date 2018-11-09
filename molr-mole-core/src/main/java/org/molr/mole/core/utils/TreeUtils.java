@@ -1,7 +1,7 @@
 package org.molr.mole.core.utils;
 
 import org.molr.commons.domain.Block;
-import org.molr.mole.core.tree.TreeResultTracker;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.molr.mole.core.tree.TreeStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class TreeUtils {
     /**
      * Walks through the {@link TreeStructure} logging on screen the result of each node
      */
-    public static void logResultsOf(TreeResultTracker resultTracker, TreeStructure structure) {
+    public static void logResultsOf(TreeTracker resultTracker, TreeStructure structure) {
         LOGGER.info("Results:");
         BiConsumer<Block, Integer> c = (b, depth) -> {
             String span = Arrays.stream(new int[depth]).mapToObj(a -> "\t").collect(Collectors.joining());

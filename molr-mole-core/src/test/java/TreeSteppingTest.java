@@ -9,6 +9,7 @@ import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.runnable.lang.Branch;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.*;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +57,12 @@ public class TreeSteppingTest {
 
     private TreeStructure treeStructure;
     private TreeMissionExecutor missionExecutor;
-    private TreeResultTracker resultTracker;
+    private TreeTracker resultTracker;
 
     @Before
     public void setUp() {
         treeStructure = DATA.treeStructure();
-        resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
+        resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         ConcurrentMissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), outputCollector);
         missionExecutor = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);
@@ -97,7 +98,7 @@ public class TreeSteppingTest {
         return new Branch.Task(text, () -> LOGGER.info("{} executed", text));
     }
 
-    private static void logResultsOf(TreeResultTracker resultTracker, TreeStructure structure) {
+    private static void logResultsOf(TreeTracker resultTracker, TreeStructure structure) {
         LOGGER.info("Results:");
         BiConsumer<Block, Integer> c = (b, depth) -> {
             String span = Arrays.stream(new int[depth]).mapToObj(a -> "\t").collect(Collectors.joining());

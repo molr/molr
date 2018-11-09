@@ -7,7 +7,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
 import org.molr.mole.core.tree.StrandExecutor;
-import org.molr.mole.core.tree.TreeResultTracker;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.util.Set;
 
@@ -19,7 +19,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     StrandExecutor rootStrandExecutor();
 
-    TreeResultTracker treeResultTracker();
+    TreeTracker treeResultTracker();
 
     default void waitForStateToBe(RunState state) {
         waitForStrandStateToBe(rootStrandExecutor(), state);

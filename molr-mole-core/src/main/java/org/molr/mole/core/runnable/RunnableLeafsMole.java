@@ -3,6 +3,7 @@ package org.molr.mole.core.runnable;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.tree.*;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     protected MissionExecutor instantiate(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         TreeStructure treeStructure = runnableLeafMission.treeStructure();
-        TreeResultTracker resultTracker = new TreeResultTracker(treeStructure.missionRepresentation());
+        TreeTracker resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
 
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 

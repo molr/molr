@@ -1,20 +1,21 @@
 package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.*;
+import org.molr.mole.core.tree.tracking.Bucket;
 
 public abstract class LeafExecutor {
 
-    private final ResultBucket resultBucket;
+    private final Bucket resultBucket;
     private final MissionInput input;
     private final MissionOutputCollector output;
 
-    protected LeafExecutor(ResultBucket resultBucket, MissionInput input, MissionOutputCollector output) {
+    protected LeafExecutor(Bucket resultBucket, MissionInput input, MissionOutputCollector output) {
         this.resultBucket = resultBucket;
         this.input = input;
         this.output = output;
     }
 
-    protected ResultBucket resultBucket() {
+    protected Bucket resultBucket() {
         return this.resultBucket;
     }
 

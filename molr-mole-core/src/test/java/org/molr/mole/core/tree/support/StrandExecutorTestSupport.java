@@ -9,7 +9,7 @@ import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
 import org.molr.mole.core.tree.ConcurrentStrandExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
-import org.molr.mole.core.tree.TreeResultTracker;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.time.Duration;
 import java.util.Set;
@@ -31,7 +31,7 @@ public interface StrandExecutorTestSupport {
         strandExecutor.getBlockStream().filter(block::equals).blockFirst(Duration.ofMinutes(1));
     }
 
-    default void waitForResultOfBlockToBe(TreeResultTracker resultTracker, Block block, Result result) {
+    default void waitForResultOfBlockToBe(TreeTracker resultTracker, Block block, Result result) {
         resultTracker.resultUpdatesFor(block).filter(result::equals).blockFirst(Duration.ofMinutes(1));
     }
 
