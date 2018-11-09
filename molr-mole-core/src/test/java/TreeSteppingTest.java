@@ -57,12 +57,12 @@ public class TreeSteppingTest {
 
     private TreeStructure treeStructure;
     private TreeMissionExecutor missionExecutor;
-    private TreeTracker resultTracker;
+    private TreeTracker<Result> resultTracker;
 
     @Before
     public void setUp() {
         treeStructure = DATA.treeStructure();
-        resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         ConcurrentMissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), outputCollector);
         missionExecutor = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);

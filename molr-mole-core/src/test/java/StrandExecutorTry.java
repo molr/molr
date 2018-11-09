@@ -65,7 +65,7 @@ public class StrandExecutorTry {
     @Test
     public void testMovement() throws InterruptedException {
         TreeStructure treeStructure = DATA.treeStructure();
-        TreeTracker resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        TreeTracker resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, DATA.runnables(),  MissionInput.empty(), new ConcurrentMissionOutputCollector());
 
         StrandFactory strandFactory = new StrandFactoryImpl();

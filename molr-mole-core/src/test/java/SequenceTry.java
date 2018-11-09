@@ -47,7 +47,7 @@ public class SequenceTry {
 
 
         TreeStructure treeStructure = data.treeStructure();
-        TreeTracker resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        TreeTracker resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         ConcurrentMissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, data.runnables(),  MissionInput.empty(), outputCollector);
         TreeMissionExecutor mission = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);

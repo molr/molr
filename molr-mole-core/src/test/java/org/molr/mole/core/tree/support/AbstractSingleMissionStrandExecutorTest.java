@@ -34,7 +34,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         RunnableLeafsMission mission = mission();
 
         treeStructure = mission.treeStructure();
-        resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector());
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
@@ -51,7 +51,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     }
 
     @Override
-    public TreeTracker treeResultTracker() {
+    public TreeTracker<Result> treeResultTracker() {
         return resultTracker;
     }
 

@@ -19,7 +19,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     StrandExecutor rootStrandExecutor();
 
-    TreeTracker treeResultTracker();
+    TreeTracker<Result> treeResultTracker();
 
     default void waitForStateToBe(RunState state) {
         waitForStrandStateToBe(rootStrandExecutor(), state);

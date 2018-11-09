@@ -54,7 +54,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     protected MissionExecutor instantiate(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         TreeStructure treeStructure = runnableLeafMission.treeStructure();
-        TreeTracker resultTracker = new TreeTracker(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        TreeTracker resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
 
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 
