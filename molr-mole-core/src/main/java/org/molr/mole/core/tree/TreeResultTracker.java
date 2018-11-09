@@ -1,5 +1,6 @@
 package org.molr.mole.core.tree;
 
+import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.Result;
@@ -9,19 +10,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.stream.Collectors.toList;
 
 public class TreeResultTracker implements ResultBucket, ResultTracker {
 
     private final MissionRepresentation representation;
 
-    private final Map<Block, BlockResultTracker> leafStreams;
+    private final Map<Block, BlockResultTracker> blockResultTrackers;
 
     public TreeResultTracker(MissionRepresentation representation) {
         this.representation = representation;
-        this.leafStreams = createBlockTrackers();
+        this.blockResultTrackers = createBlockTrackers();
     }
 
     private Map<Block, BlockResultTracker> createBlockTrackers() {
@@ -32,7 +33,7 @@ public class TreeResultTracker implements ResultBucket, ResultTracker {
     }
 
     private void addTrackerForBlock(Block block, Map<Block, BlockResultTracker> map) {
-        if(representation.isLeaf(block)) {
+        if (representation.isLeaf(block)) {
             map.put(block, new LeafResultTracker());
         } else {
             representation.childrenOf(block).forEach(b -> addTrackerForBlock(b, map));
@@ -48,7 +49,7 @@ public class TreeResultTracker implements ResultBucket, ResultTracker {
         if (!representation.isLeaf(node)) {
             throw new IllegalArgumentException("publishing results is only allowed for leaves.");
         }
-        BlockResultTracker blockTracker = leafStreams.get(node);
+        BlockResultTracker blockTracker = blockResultTrackers.get(node);
         if (blockTracker == null) {
             throw new IllegalStateException("No block tracker found for block '" + node + "'.");
         }
@@ -61,10 +62,16 @@ public class TreeResultTracker implements ResultBucket, ResultTracker {
 
     @Override
     public Result resultFor(Block block) {
-        return leafStreams.get(block).result();
+        return blockResultTrackers.get(block).result();
     }
 
     public Flux<Result> resultUpdatesFor(Block block) {
-        return leafStreams.get(block).asStream();
+        return blockResultTrackers.get(block).asStream();
     }
+
+    @Override
+    public Map<Block, Result> blockResults() {
+        return this.blockResultTrackers.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().result()));
+    }
+
 }

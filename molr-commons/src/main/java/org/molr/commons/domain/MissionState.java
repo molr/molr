@@ -9,12 +9,15 @@ import com.google.common.collect.*;
 import java.util.*;
 
 import static java.util.Objects.requireNonNull;
+import static org.molr.commons.domain.Result.UNDEFINED;
 
 public class MissionState {
     private final SetMultimap<Strand, StrandCommand> strandAllowedCommands;
     private final Map<Strand, Block> strandCursorPositions;
     private final Map<Strand, RunState> strandRunStates;
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
+    private final Map<String, Result> blockIdsToResult;
+
 
     private MissionState(Builder builder) {
         /* Consider checking that the tree is consistent (everything has to be connected to the root)*/
@@ -22,6 +25,7 @@ public class MissionState {
         this.strandAllowedCommands = builder.strandAllowedCommandsBuilder.build();
         this.strandCursorPositions = builder.strandCursorPositionsBuilder.build();
         this.strandRunStates = builder.strandRunStatesBuilder.build();
+        this.blockIdsToResult = builder.blockIdsToResult.build();
     }
 
     public Set<StrandCommand> allowedCommandsFor(Strand strand) {
@@ -34,6 +38,14 @@ public class MissionState {
 
     public RunState runStateOf(Strand strand) {
         return this.strandRunStates.get(strand);
+    }
+
+    public Map<String, Result> blockIdsToResult() {
+        return this.blockIdsToResult;
+    }
+
+    public Result resultOf(Block block) {
+        return Optional.ofNullable(blockIdsToResult.get(block.id())).orElse(UNDEFINED);
     }
 
     public Optional<Strand> rootStrand() {
@@ -60,12 +72,13 @@ public class MissionState {
         return Objects.equals(strandAllowedCommands, that.strandAllowedCommands) &&
                 Objects.equals(strandCursorPositions, that.strandCursorPositions) &&
                 Objects.equals(strandRunStates, that.strandRunStates) &&
-                Objects.equals(parentToChildren, that.parentToChildren);
+                Objects.equals(parentToChildren, that.parentToChildren) &&
+                Objects.equals(blockIdsToResult, that.blockIdsToResult);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(strandAllowedCommands, strandCursorPositions, strandRunStates, parentToChildren);
+        return Objects.hash(strandAllowedCommands, strandCursorPositions, strandRunStates, parentToChildren, blockIdsToResult);
     }
 
     @Override
@@ -75,6 +88,7 @@ public class MissionState {
                 ", strandCursorPositions=" + strandCursorPositions +
                 ", strandRunStates=" + strandRunStates +
                 ", parentToChildren=" + parentToChildren +
+                ", blockIdsToResult=" + blockIdsToResult +
                 '}';
     }
 
@@ -83,6 +97,7 @@ public class MissionState {
         private final ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
         private final ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
         private final ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
+        private final ImmutableMap.Builder<String, Result> blockIdsToResult = ImmutableMap.builder();
 
         private Builder() {
         }
@@ -112,6 +127,16 @@ public class MissionState {
 
         public Builder add(Strand strand, RunState runState, Block cursor, Set<StrandCommand> allowedCommands) {
             return this.add(strand, runState, cursor, null, allowedCommands);
+        }
+
+
+        public Builder blockResult(String blockId, Result result) {
+            blockIdsToResult.put(blockId, result);
+            return this;
+        }
+
+        public Builder blockResult(Block block, Result result) {
+            return blockResult(block.id(), result);
         }
 
         public MissionState build() {

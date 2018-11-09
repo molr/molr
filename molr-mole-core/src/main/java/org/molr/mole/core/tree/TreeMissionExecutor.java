@@ -21,11 +21,13 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
+    private final ResultTracker resultTracker;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, ResultTracker resultTracker, MissionOutputCollector outputCollector) {
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         this.outputCollector = outputCollector;
+        this.resultTracker = resultTracker;
 
         EmitterProcessor<Object> statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
@@ -71,12 +73,14 @@ public class TreeMissionExecutor implements MissionExecutor {
             RunState runState = executor.getActualState();
             Block cursor = executor.getActualBlock();
             Optional<Strand> parent = strandFactory.parentOf(executor.getStrand());
-            if(parent.isPresent()) {
+            if (parent.isPresent()) {
                 builder.add(executor.getStrand(), runState, cursor, parent.get(), executor.getAllowedCommands());
             } else {
                 builder.add(executor.getStrand(), runState, cursor, executor.getAllowedCommands());
             }
         }
+
+        resultTracker.blockResults().entrySet().forEach(e -> builder.blockResult(e.getKey(), e.getValue()));
         return builder.build();
     }
 

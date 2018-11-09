@@ -5,7 +5,9 @@ import org.molr.commons.domain.*;
 import org.molr.commons.domain.RunState;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -20,17 +22,19 @@ public class MissionStateDto {
     public final Map<String, String> strandRunStates;
     public final Map<String, List<String>> parentToChildrenStrands;
     public final Set<StrandDto> strands;
+    public final Map<String, String> blockResults;
 
-    private MissionStateDto(Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands) {
+    private MissionStateDto(Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults) {
         this.strandAllowedCommands = strandAllowedCommands;
         this.strandCursorPositions = strandCursorPositions;
         this.strandRunStates = strandRunStates;
         this.strands = strands;
         this.parentToChildrenStrands = parentToChildrenStrands;
+        this.blockResults = blockResults;
     }
 
     public MissionStateDto() {
-        this(emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap());
+        this(emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap());
     }
 
     public static final MissionStateDto from(MissionState missionState) {
@@ -56,7 +60,11 @@ public class MissionStateDto {
                 parentToChildrenStrands.put(strand.id(), children.stream().map((Strand::id)).collect(toList()));
             }
         }
-        return new MissionStateDto(allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands);
+
+
+        Map<String, String> blockRunStates = missionState.blockIdsToResult().entrySet().stream()
+                .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().name()));
+        return new MissionStateDto(allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, blockRunStates);
     }
 
     public MissionState toMissionState() {
@@ -76,6 +84,8 @@ public class MissionStateDto {
             Strand parentStrand = parentStrandId == null ? null : idsToStrand.get(parentStrandId);
             builder.add(strand, state, block, parentStrand, commands);
         }
+
+        blockResults.entrySet().forEach(e -> builder.blockResult(e.getKey(), Result.valueOf(e.getValue())));
         return builder.build();
     }
 
