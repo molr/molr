@@ -31,16 +31,8 @@ public class RunnableBlockExecutor extends LeafExecutor {
     }
 
     @Override
-    public Result execute(Block block) {
-        try {
-            runnables.get(block).accept(input(), outputFor(block));
-            resultBucket().push(block, SUCCESS);
-            return SUCCESS;
-        } catch (Exception e) {
-            LOGGER.warn("Execution of {} threw an exception: {}", block, e.getMessage(), e);
-            resultBucket().push(block, FAILED);
-            return FAILED;
-        }
+    protected void doExecute(Block block) {
+        runnables.get(block).accept(input(), outputFor(block));
     }
 
 }
