@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static org.molr.commons.domain.Result.FAILED;
-import static org.molr.commons.domain.Result.SUCCESS;
-
 /**
  * Leaf executor that relates {@link Runnable} with {@link Block} for the leaf execution logic.
  * <p>
@@ -25,8 +22,8 @@ public class RunnableBlockExecutor extends LeafExecutor {
 
     private final Map<Block, BiConsumer<In, Out>> runnables;
 
-    public RunnableBlockExecutor(Bucket resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, MissionOutputCollector outputCollector) {
-        super(resultTracker, input, outputCollector);
+    public RunnableBlockExecutor(Bucket resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, MissionOutputCollector outputCollector, Bucket<RunState> runStateBucket) {
+        super(resultTracker, runStateBucket, input, outputCollector);
         this.runnables = ImmutableMap.copyOf(runnables);
     }
 

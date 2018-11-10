@@ -1,5 +1,6 @@
 import org.molr.commons.domain.MissionInput;
 import org.molr.commons.domain.Result;
+import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
@@ -49,8 +50,10 @@ public class SequenceTry {
         TreeStructure treeStructure = data.treeStructure();
         TreeTracker resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         ConcurrentMissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, data.runnables(),  MissionInput.empty(), outputCollector);
-        TreeMissionExecutor mission = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector);
+        TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
+
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, data.runnables(),  MissionInput.empty(), outputCollector, runStateTracker);
+        TreeMissionExecutor mission = new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker);
 
         mission.instruct(mission.getRootStrand(), StrandCommand.STEP_INTO);
         mission.instruct(mission.getRootStrand(), StrandCommand.STEP_OVER);

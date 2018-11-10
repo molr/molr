@@ -6,10 +6,12 @@ package org.molr.commons.domain;
 
 import com.google.common.collect.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
-import static org.molr.commons.domain.Result.UNDEFINED;
 
 public class MissionState {
     private final SetMultimap<Strand, StrandCommand> strandAllowedCommands;
@@ -17,6 +19,7 @@ public class MissionState {
     private final Map<Strand, RunState> strandRunStates;
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
     private final Map<String, Result> blockIdsToResult;
+    private final Map<String, RunState> blockIdsToRunState;
 
 
     private MissionState(Builder builder) {
@@ -26,6 +29,7 @@ public class MissionState {
         this.strandCursorPositions = builder.strandCursorPositionsBuilder.build();
         this.strandRunStates = builder.strandRunStatesBuilder.build();
         this.blockIdsToResult = builder.blockIdsToResult.build();
+        this.blockIdsToRunState = builder.blockIdsToRunState.build();
     }
 
     public Set<StrandCommand> allowedCommandsFor(Strand strand) {
@@ -44,8 +48,16 @@ public class MissionState {
         return this.blockIdsToResult;
     }
 
+    public Map<String, RunState> blockIdsToRunState() {
+        return this.blockIdsToRunState;
+    }
+
     public Result resultOf(Block block) {
-        return Optional.ofNullable(blockIdsToResult.get(block.id())).orElse(UNDEFINED);
+        return Optional.ofNullable(blockIdsToResult.get(block.id())).orElse(Result.UNDEFINED);
+    }
+
+    public RunState runStateOf(Block block) {
+        return Optional.ofNullable(blockIdsToRunState.get(block.id())).orElse(RunState.UNDEFINED);
     }
 
     public Optional<Strand> rootStrand() {
@@ -64,40 +76,13 @@ public class MissionState {
         return new Builder();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MissionState that = (MissionState) o;
-        return Objects.equals(strandAllowedCommands, that.strandAllowedCommands) &&
-                Objects.equals(strandCursorPositions, that.strandCursorPositions) &&
-                Objects.equals(strandRunStates, that.strandRunStates) &&
-                Objects.equals(parentToChildren, that.parentToChildren) &&
-                Objects.equals(blockIdsToResult, that.blockIdsToResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(strandAllowedCommands, strandCursorPositions, strandRunStates, parentToChildren, blockIdsToResult);
-    }
-
-    @Override
-    public String toString() {
-        return "MissionState{" +
-                "strandAllowedCommands=" + strandAllowedCommands +
-                ", strandCursorPositions=" + strandCursorPositions +
-                ", strandRunStates=" + strandRunStates +
-                ", parentToChildren=" + parentToChildren +
-                ", blockIdsToResult=" + blockIdsToResult +
-                '}';
-    }
-
     public static class Builder {
         private final ImmutableSetMultimap.Builder<Strand, StrandCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
         private final ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
         private final ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
         private final ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
         private final ImmutableMap.Builder<String, Result> blockIdsToResult = ImmutableMap.builder();
+        private final ImmutableMap.Builder<String, RunState> blockIdsToRunState = ImmutableMap.builder();
 
         private Builder() {
         }
@@ -129,7 +114,6 @@ public class MissionState {
             return this.add(strand, runState, cursor, null, allowedCommands);
         }
 
-
         public Builder blockResult(String blockId, Result result) {
             blockIdsToResult.put(blockId, result);
             return this;
@@ -137,6 +121,15 @@ public class MissionState {
 
         public Builder blockResult(Block block, Result result) {
             return blockResult(block.id(), result);
+        }
+
+        public Builder blockRunState(String blockId, RunState runState) {
+            blockIdsToRunState.put(blockId, runState);
+            return this;
+        }
+
+        public Builder blockRunState(Block block, RunState runState) {
+            return blockRunState(block.id(), runState);
         }
 
         public MissionState build() {

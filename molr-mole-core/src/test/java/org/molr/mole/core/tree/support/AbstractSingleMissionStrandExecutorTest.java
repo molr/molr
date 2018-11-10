@@ -3,6 +3,7 @@ package org.molr.mole.core.tree.support;
 import org.junit.Before;
 import org.molr.commons.domain.MissionInput;
 import org.molr.commons.domain.Result;
+import org.molr.commons.domain.RunState;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
@@ -35,7 +36,9 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
 
         treeStructure = mission.treeStructure();
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector());
+        TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
+
+        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector(), runStateTracker);
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure);

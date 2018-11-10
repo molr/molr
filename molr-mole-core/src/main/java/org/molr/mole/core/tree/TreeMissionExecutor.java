@@ -2,6 +2,7 @@ package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.*;
 import org.molr.mole.core.tree.tracking.Tracker;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -23,8 +24,10 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final StrandExecutorFactory strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
     private final Tracker<Result> resultTracker;
+    private final TreeTracker<RunState> runStateTracker;
 
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker) {
+        this.runStateTracker = runStateTracker;
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         this.outputCollector = outputCollector;
@@ -82,6 +85,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         }
 
         resultTracker.blockResults().entrySet().forEach(e -> builder.blockResult(e.getKey(), e.getValue()));
+        runStateTracker.blockResults().entrySet().forEach(e -> builder.blockRunState(e.getKey(), e.getValue()));
         return builder.build();
     }
 

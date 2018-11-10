@@ -4,6 +4,10 @@
 
 package org.molr.commons.domain;
 
+import com.google.common.collect.Iterables;
+
+import java.util.stream.StreamSupport;
+
 public enum RunState {
     UNDEFINED,
     RUNNING,
@@ -21,11 +25,11 @@ public enum RunState {
                 return PAUSED;
             }
         }
-        for (RunState value : values) {
-            if (UNDEFINED == value) {
-                return UNDEFINED;
-            }
+
+        if (StreamSupport.stream(values.spliterator(), false).allMatch(FINISHED::equals)) {
+            return FINISHED;
         }
-        return FINISHED;
+        return UNDEFINED;
+
     }
 }
