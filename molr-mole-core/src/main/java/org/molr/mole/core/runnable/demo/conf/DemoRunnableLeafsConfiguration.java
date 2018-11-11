@@ -77,6 +77,9 @@ public class DemoRunnableLeafsConfiguration {
 
                     root.sequential("First", b -> {
                         b.run(log("First A"));
+                        b.run("Failing subtask ", () -> {
+                            throw new RuntimeException("Failing on purpose.");
+                        });
                         b.run(log("First B"));
                     });
 
