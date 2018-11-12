@@ -22,7 +22,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     TreeTracker<Result> treeResultTracker();
 
-    default void waitForStateToBe(RunState state) {
+    default void waitForRootStateToBe(RunState state) {
         waitForStrandStateToBe(rootStrandExecutor(), state);
     }
 
@@ -30,7 +30,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
         waitForStrandToFinish(rootStrandExecutor());
     }
 
-    default void waitForActualBlockToBe(Block block) {
+    default void waitForRootBlockToBe(Block block) {
         waitForActualBlockToBe(rootStrandExecutor(), block);
     }
 
@@ -38,11 +38,11 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
         waitForResultOfBlockToBe(treeResultTracker(), block, result);
     }
 
-    default ObjectAssert<Block> assertThatActualBlock() {
+    default ObjectAssert<Block> assertThatRootBlock() {
         return assertThatActualBlockOf(rootStrandExecutor());
     }
 
-    default AbstractComparableAssert<?, RunState> assertThatActualState() {
+    default AbstractComparableAssert<?, RunState> assertThatRootState() {
         return assertThatActualStateOf(rootStrandExecutor());
     }
 
@@ -55,30 +55,30 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
         moveTo(rootStrandExecutor(), destination);
     }
 
-    default StrandErrorsRecorder recordStrandErrors() {
+    default StrandErrorsRecorder recordRootStrandErrors() {
         return recordStrandErrors(rootStrandExecutor());
     }
 
     @Deprecated
-    default Set<StrandExecutor> childrenStrandExecutors() {
+    default Set<StrandExecutor> rootChildrenStrandExecutors() {
         return childrenStrandExecutorsOf(rootStrandExecutor());
     }
 
-    default void waitForProcessedCommand(StrandCommand command) {
+    default void waitForProcessedCommandByRoot(StrandCommand command) {
         waitForProcessedCommand(rootStrandExecutor(), command);
     }
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
      */
-    default void instructSync(StrandCommand command) {
+    default void instructRootSync(StrandCommand command) {
         instructSync(rootStrandExecutor(), command);
     }
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and return immediately
      */
-    default void instructAsync(StrandCommand command) {
+    default void instructRootAsync(StrandCommand command) {
         instructAsync(rootStrandExecutor(), command);
     }
 

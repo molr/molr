@@ -20,8 +20,10 @@ import java.util.Set;
  */
 public interface StrandExecutorTestSupport {
 
+    Duration TIMEOUT = Duration.ofSeconds(30);
+
     default void waitForStrandStateToBe(StrandExecutor strandExecutor, RunState state) {
-        strandExecutor.getStateStream().filter(state::equals).blockFirst(Duration.ofMinutes(1));
+        strandExecutor.getStateStream().filter(state::equals).blockFirst(TIMEOUT);
     }
 
     default void waitForStrandToFinish(StrandExecutor strandExecutor) {
@@ -29,11 +31,11 @@ public interface StrandExecutorTestSupport {
     }
 
     default void waitForActualBlockToBe(StrandExecutor strandExecutor, Block block) {
-        strandExecutor.getBlockStream().filter(block::equals).blockFirst(Duration.ofMinutes(1));
+        strandExecutor.getBlockStream().filter(block::equals).blockFirst(TIMEOUT);
     }
 
     default void waitForResultOfBlockToBe(TreeTracker resultTracker, Block block, Result result) {
-        resultTracker.resultUpdatesFor(block).filter(result::equals).blockFirst(Duration.ofMinutes(1));
+        resultTracker.resultUpdatesFor(block).filter(result::equals).blockFirst(TIMEOUT);
     }
 
     default ObjectAssert<Block> assertThatActualBlockOf(StrandExecutor strandExecutor) {
@@ -50,7 +52,7 @@ public interface StrandExecutorTestSupport {
     }
 
     default void waitForErrorOfType(StrandErrorsRecorder recorder, Class<? extends Exception> clazz) {
-        recorder.getRecordedExceptionStream().any(exceptions -> exceptions.stream().anyMatch(clazz::isInstance)).block(Duration.ofMinutes(1));
+        recorder.getRecordedExceptionStream().any(exceptions -> exceptions.stream().anyMatch(clazz::isInstance)).block(TIMEOUT);
     }
 
     default ListAssert<Exception> assertThat(StrandErrorsRecorder recorder) {
@@ -68,7 +70,7 @@ public interface StrandExecutorTestSupport {
 
     default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
         ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
-                .filter(command::equals).blockFirst(Duration.ofMinutes(1));
+                .filter(command::equals).blockFirst(TIMEOUT);
     }
 
     /**

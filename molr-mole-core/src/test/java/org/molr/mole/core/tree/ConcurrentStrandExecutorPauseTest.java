@@ -57,30 +57,30 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
 
     @Test
     public void testPause() {
-        instructAsync(StrandCommand.RESUME);
+        instructRootAsync(StrandCommand.RESUME);
 
         await(task1Start);
-        instructAsync(StrandCommand.PAUSE);
+        instructRootAsync(StrandCommand.PAUSE);
         unlatch(task1Finish);
 
-        waitForStateToBe(RunState.PAUSED);
+        waitForRootStateToBe(RunState.PAUSED);
         assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS).as("Task 1 should have finished before pausing");
         assertThatResultOf(TASK_2).isEqualTo(Result.UNDEFINED).as("Task 2 should have not been run");
-        assertThatActualBlock().isEqualTo(TASK_2).as("Executor should point to task 2");
+        assertThatRootBlock().isEqualTo(TASK_2).as("Executor should point to task 2");
 
-        instructAsync(StrandCommand.RESUME);
+        instructRootAsync(StrandCommand.RESUME);
 
         await(task2Start);
-        instructAsync(StrandCommand.PAUSE);
+        instructRootAsync(StrandCommand.PAUSE);
         unlatch(task2Finish);
 
-        waitForStateToBe(RunState.PAUSED);
+        waitForRootStateToBe(RunState.PAUSED);
         assertThatResultOf(TASK_2).isEqualTo(Result.SUCCESS).as("Task 2 should have finished before pausing");
         assertThatResultOf(TASK_3).isEqualTo(Result.UNDEFINED).as("Task 3 should have not been run");
-        assertThatActualBlock().isEqualTo(TASK_3).as("Executor should point to task 3");
+        assertThatRootBlock().isEqualTo(TASK_3).as("Executor should point to task 3");
 
-        instructAsync(StrandCommand.RESUME);
-        waitForStateToBe(RunState.FINISHED);
+        instructRootAsync(StrandCommand.RESUME);
+        waitForRootStateToBe(RunState.FINISHED);
 
         assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS);
         assertThatResultOf(TASK_2).isEqualTo(Result.SUCCESS);

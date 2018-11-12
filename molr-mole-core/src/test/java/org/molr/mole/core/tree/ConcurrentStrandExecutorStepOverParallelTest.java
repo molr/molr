@@ -80,16 +80,16 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
     @Test
     public void testStepOverTwiceWithParallelStrands() {
         moveRootStrandTo(parallel);
-        assertThatActualBlock().isEqualTo(parallel);
+        assertThatRootBlock().isEqualTo(parallel);
 
-        instructSync(StrandCommand.STEP_OVER);
+        instructRootSync(StrandCommand.STEP_OVER);
         await(latchA1Start, latchB1Start);
 
-        instructSync(StrandCommand.STEP_OVER);
+        instructRootSync(StrandCommand.STEP_OVER);
 
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 
-        waitForStateToBe(RunState.FINISHED);
+        waitForRootStateToBe(RunState.FINISHED);
         assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);
@@ -100,16 +100,16 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
     @Test
     public void testResumeAfterStepOverWithParallelStrands() {
         moveRootStrandTo(parallel);
-        assertThatActualBlock().isEqualTo(parallel);
+        assertThatRootBlock().isEqualTo(parallel);
 
-        instructSync(StrandCommand.STEP_OVER);
+        instructRootSync(StrandCommand.STEP_OVER);
         await(latchA1Start, latchB1Start);
 
-        instructSync(StrandCommand.RESUME);
+        instructRootSync(StrandCommand.RESUME);
 
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 
-        waitForStateToBe(RunState.FINISHED);
+        waitForRootStateToBe(RunState.FINISHED);
         assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);
