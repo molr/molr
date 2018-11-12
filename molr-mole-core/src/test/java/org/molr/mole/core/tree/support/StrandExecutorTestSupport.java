@@ -65,7 +65,7 @@ public interface StrandExecutorTestSupport {
 
     @Deprecated
     default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
-        return executor.getChildrenStrandExecutors();
+        return ((ConcurrentStrandExecutor) executor).getChildrenStrandExecutors();
     }
 
     default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {

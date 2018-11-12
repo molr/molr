@@ -18,7 +18,6 @@ import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +66,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final Flux<RunState> stateStream;
     private final ReplayProcessor<Block> blockSink;
     private final Flux<Block> blockStream;
-    private final Flux<Set<StrandCommand>> allowedCommandStream;
     private final EmitterProcessor<Exception> errorSink;
     private final Flux<Exception> errorStream;
     private final AtomicReference<ExecutorState> actualState;
@@ -92,8 +90,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.stateStream = stateSink.publishOn(publishingScheduler("states"));
         this.blockSink = ReplayProcessor.cacheLast();
         this.blockStream = blockSink.publishOn(publishingScheduler("cursor"));
-        this.allowedCommandStream = Flux.combineLatest(this.stateStream, this.blockStream, this::allowedCommands)
-                .sample(Duration.ofMillis(100)); // Trying to avoid sending 2 updates when both state and block change
 
         this.executor = Executors.newSingleThreadExecutor(namedThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.commandQueue = new LinkedBlockingQueue<>(1);
@@ -180,7 +176,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             }
 
             if (actualState.get() == ExecutorState.WAITING_FOR_CHILDREN) {
-                if (childExecutors.isEmpty()) {
+                if (!hasChildren()) {
                     if (currentStepOverSource.get() != null) {
                         updateState(ExecutorState.STEPPING_OVER);
                     } else {
@@ -270,28 +266,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         if (!commandQueue.offer(command)) {
             LOGGER.warn("Command {} cannot be accepted by strand {} because it is processing another command", command, strand);
         }
-    }
-
-    /**
-     * TODO think about a command for this!! A parametrized command will also solve the concurrency issues that the implementation below have
-     */
-    @Deprecated
-    @VisibleForTesting
-    public void moveTo(Block block) {
-        if (!structure.contains(block)) {
-            throw new IllegalArgumentException("Cannot move to " + block + " as is not part of this tree structure");
-        }
-
-        updateActualBlock(block);
-    }
-
-    /**
-     * TODO Evaluate if public is necessary
-     */
-    @Deprecated
-    @VisibleForTesting
-    public Flux<StrandCommand> getLastCommandStream() {
-        return lastCommandStream;
     }
 
     private void pause() {
@@ -401,11 +375,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     @Override
-    public Flux<Set<StrandCommand>> getAllowedCommandStream() {
-        return allowedCommandStream;
-    }
-
-    @Override
     public RunState getActualState() {
         return runstateFrom(actualState.get());
     }
@@ -418,11 +387,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     @Override
     public Strand getStrand() {
         return strand;
-    }
-
-    @Override
-    public Set<StrandExecutor> getChildrenStrandExecutors() {
-        return ImmutableSet.copyOf(childExecutors);
     }
 
     @Override
@@ -439,13 +403,18 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         if (block == null) {
             return Collections.emptySet();
         }
+        boolean hasChildren = hasChildren();
 
         ImmutableSet.Builder<StrandCommand> builder = ImmutableSet.builder();
         switch (state) {
             case PAUSED:
-                builder.add(RESUME, STEP_OVER, SKIP);
-                if (!structure.isLeaf(block)) {
-                    builder.add(STEP_INTO);
+                builder.add(RESUME);
+                if (!hasChildren) {
+                    builder.add(STEP_OVER, SKIP);
+
+                    if (!structure.isLeaf(block)) {
+                        builder.add(STEP_INTO);
+                    }
                 }
                 break;
             case RUNNING:
@@ -453,6 +422,33 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 break;
         }
         return builder.build();
+    }
+
+    /**
+     * TODO Evaluate if public is necessary
+     */
+    @Deprecated
+    @VisibleForTesting
+    public Flux<StrandCommand> getLastCommandStream() {
+        return lastCommandStream;
+    }
+
+    /**
+     * TODO think about a command for this!! A parametrized command will also solve the concurrency issues that the implementation below have
+     */
+    @Deprecated
+    @VisibleForTesting
+    public void moveTo(Block block) {
+        if (!structure.contains(block)) {
+            throw new IllegalArgumentException("Cannot move to " + block + " as is not part of this tree structure");
+        }
+
+        updateActualBlock(block);
+    }
+
+    @VisibleForTesting
+    public Set<StrandExecutor> getChildrenStrandExecutors() {
+        return ImmutableSet.copyOf(childExecutors);
     }
 
     private Scheduler publishingScheduler(String suffix) {

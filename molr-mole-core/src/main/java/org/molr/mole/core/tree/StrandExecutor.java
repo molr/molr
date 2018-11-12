@@ -16,8 +16,6 @@ public interface StrandExecutor {
 
     Flux<Block> getBlockStream();
 
-    Flux<Set<StrandCommand>> getAllowedCommandStream();
-
     RunState getActualState();
 
     Block getActualBlock();
@@ -28,9 +26,4 @@ public interface StrandExecutor {
 
     Strand getStrand();
 
-    /**
-     * TODO decide if this should be part of the API
-     */
-    @Deprecated
-    Set<StrandExecutor> getChildrenStrandExecutors();
 }
