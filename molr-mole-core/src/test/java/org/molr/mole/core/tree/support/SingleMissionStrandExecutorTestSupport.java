@@ -6,6 +6,7 @@ import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.tracking.TreeTracker;
 
@@ -61,6 +62,24 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
     @Deprecated
     default Set<StrandExecutor> childrenStrandExecutors() {
         return childrenStrandExecutorsOf(rootStrandExecutor());
+    }
+
+    default void waitForProcessedCommand(StrandCommand command) {
+        waitForProcessedCommand(rootStrandExecutor(), command);
+    }
+
+    /**
+     * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
+     */
+    default void instructSync(StrandCommand command) {
+        instructSync(rootStrandExecutor(), command);
+    }
+
+    /**
+     * Will instruct the specified command on the {@link #rootStrandExecutor()} and return immediately
+     */
+    default void instructAsync(StrandCommand command) {
+        instructAsync(rootStrandExecutor(), command);
     }
 
 }

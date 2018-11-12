@@ -7,6 +7,7 @@ import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.tree.ConcurrentStrandExecutor;
 import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.tracking.TreeTracker;
@@ -63,6 +64,26 @@ public interface StrandExecutorTestSupport {
     @Deprecated
     default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
         return executor.getChildrenStrandExecutors();
+    }
+
+    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
+        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
+                .filter(command::equals).blockFirst(Duration.ofMinutes(1));
+    }
+
+    /**
+     * Will instruct the specified command on the specified {@link StrandExecutor} and wait for it to be processed processing
+     */
+    default void instructSync(StrandExecutor executor, StrandCommand command) {
+        executor.instruct(command);
+        waitForProcessedCommand(executor, command);
+    }
+
+    /**
+     * Will instruct the specified command on the specified {@link StrandExecutor} and return immediately
+     */
+    default void instructAsync(StrandExecutor executor, StrandCommand command) {
+        executor.instruct(command);
     }
 
 }

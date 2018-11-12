@@ -1,8 +1,8 @@
 package org.molr.mole.core.tree;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
@@ -37,6 +38,7 @@ import static org.molr.commons.domain.StrandCommand.RESUME;
 import static org.molr.commons.domain.StrandCommand.SKIP;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 import static org.molr.commons.domain.StrandCommand.STEP_OVER;
+import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
@@ -48,7 +50,7 @@ import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
-    private static final int EXECUTOR_SLEEP_MS = 60;
+    private static final int EXECUTOR_SLEEP_MS = 10;
 
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
@@ -57,6 +59,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final StrandFactory strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
     private final LeafExecutor leafExecutor;
+    private final ReplayProcessor<StrandCommand> lastCommandSink;
+    private final Flux<StrandCommand> lastCommandStream;
     private final ReplayProcessor<RunState> stateSink;
     private final Flux<RunState> stateStream;
     private final ReplayProcessor<Block> blockSink;
@@ -78,16 +82,18 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
         this.childExecutors = ImmutableList.of();
 
+        this.lastCommandSink = ReplayProcessor.cacheLast();
+        this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
         this.errorSink = EmitterProcessor.create();
-        this.errorStream = errorSink.publishOn(Schedulers.elastic());
+        this.errorStream = errorSink.publishOn(publishingScheduler("errors"));
         this.stateSink = ReplayProcessor.cacheLast();
-        this.stateStream = stateSink.publishOn(Schedulers.elastic());
+        this.stateStream = stateSink.publishOn(publishingScheduler("states"));
         this.blockSink = ReplayProcessor.cacheLast();
-        this.blockStream = blockSink.publishOn(Schedulers.elastic());
+        this.blockStream = blockSink.publishOn(publishingScheduler("cursor"));
         this.allowedCommandStream = Flux.combineLatest(this.stateStream, this.blockStream, this::allowedCommands)
                 .sample(Duration.ofMillis(100)); // Trying to avoid sending 2 updates when both state and block change
 
-        this.executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("strand" + strand.id() + "-exec-%d").build());
+        this.executor = Executors.newSingleThreadExecutor(namedThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.commandQueue = new LinkedBlockingQueue<>(1);
 
         this.actualBlock = new AtomicReference<>();
@@ -115,63 +121,55 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 updateState(ExecutorState.IDLE);
             }
 
-            if(hasChildren()) {
+            if (hasChildren()) {
                 boolean allPaused = childExecutors.stream().map(StrandExecutor::getActualState).allMatch(PAUSED::equals);
-                if(allPaused && actualState.get() != ExecutorState.IDLE) {
+                if (allPaused && actualState.get() != ExecutorState.IDLE) {
                     LOGGER.debug("[{}] paused because all children are paused", strand);
                     updateState(ExecutorState.IDLE);
-                } else if(!allPaused && actualState.get() != ExecutorState.WAITING_FOR_CHILDREN) {
+                } else if (!allPaused && actualState.get() != ExecutorState.WAITING_FOR_CHILDREN) {
                     LOGGER.debug("[{}] has some non-paused children. Setting the state to waiting", strand);
                     updateState(ExecutorState.WAITING_FOR_CHILDREN);
                 }
             }
 
-            StrandCommand nextCommand = commandQueue.poll();
+            StrandCommand commandToExecute = commandQueue.poll();
 
-            if (nextCommand != null) {
-                LOGGER.debug("[{}] picked up command {}", strand, nextCommand);
-            }
-
-            if (nextCommand == StrandCommand.PAUSE) {
+            if (commandToExecute == StrandCommand.PAUSE) {
                 pause();
-                continue;
             }
 
-            if (nextCommand == StrandCommand.SKIP) {
+            if (commandToExecute == StrandCommand.SKIP) {
                 if (hasChildren()) {
-                    publishError(new RejectedCommandException(nextCommand, "[{}] has children so skipping is not allowed", strand));
+                    publishError(new RejectedCommandException(commandToExecute, "[{}] has children so skipping is not allowed", strand));
                 } else {
                     moveNext();
                 }
-                continue;
             }
 
-            if (nextCommand == StrandCommand.STEP_INTO) {
+            if (commandToExecute == StrandCommand.STEP_INTO) {
                 if (hasChildren()) {
-                    publishError(new RejectedCommandException(nextCommand, "[{}] has children so step into is not allowed", strand));
+                    publishError(new RejectedCommandException(commandToExecute, "[{}] has children so step into is not allowed", strand));
                 } else {
                     stepInto();
                 }
-                continue;
             }
 
-            if (nextCommand == STEP_OVER && hasChildren()) {
-                publishError(new RejectedCommandException(nextCommand, "[{}] has children so step over is not allowed", strand));
-                continue;
+            if (commandToExecute == STEP_OVER && hasChildren()) {
+                publishError(new RejectedCommandException(commandToExecute, "[{}] has children so step over is not allowed", strand));
             }
 
-            if (nextCommand == STEP_OVER) {
+            if (commandToExecute == STEP_OVER) {
                 currentStepOverSource.set(actualBlock.get());
             }
 
-            if (nextCommand == STEP_OVER || nextCommand == RESUME) {
+            if (commandToExecute == STEP_OVER || commandToExecute == RESUME) {
 
                 if (structure.isParallel(actualBlock.get()) && hasChildren()) {
                     updateState(ExecutorState.WAITING_FOR_CHILDREN);
                     LOGGER.debug("[{}] instructing children to RESUME", strand);
                     childExecutors.forEach(child -> child.instruct(RESUME));
                 } else {
-                    if (nextCommand == STEP_OVER) {
+                    if (commandToExecute == STEP_OVER) {
                         updateState(ExecutorState.STEPPING_OVER);
                     } else {
                         updateState(ExecutorState.RESUMING);
@@ -187,8 +185,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                         updateState(ExecutorState.RESUMING);
                     }
                     moveNext();
-                } else {
-                    continue;
                 }
             }
 
@@ -225,6 +221,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 }
             }
 
+            if (commandToExecute != null) {
+                LOGGER.debug("[{}] consumed command {}", strand, commandToExecute);
+                lastCommandSink.onNext(commandToExecute);
+            }
+
             try {
                 Thread.sleep(EXECUTOR_SLEEP_MS);
             } catch (InterruptedException e) {
@@ -257,12 +258,22 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
      * TODO think about a command for this!! A parametrized command will also solve the concurrency issues that the implementation below have
      */
     @Deprecated
+    @VisibleForTesting
     public void moveTo(Block block) {
         if (!structure.contains(block)) {
             throw new IllegalArgumentException("Cannot move to " + block + " as is not part of this tree structure");
         }
 
         updateActualBlock(block);
+    }
+
+    /**
+     * TODO Evaluate if public is necessary
+     */
+    @Deprecated
+    @VisibleForTesting
+    public Flux<StrandCommand> getLastCommandStream() {
+        return lastCommandStream;
     }
 
     private void pause() {
@@ -426,6 +437,10 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         return builder.build();
     }
 
+    private Scheduler publishingScheduler(String suffix) {
+        return Schedulers.newSingle("strand-exec-" + strand.id() + "-" + suffix);
+    }
+
     private enum ExecutorState {
         IDLE,
         STEPPING_OVER,
@@ -433,5 +448,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         RESUMING,
         FINISHED,
         WAITING_FOR_CHILDREN;
+
     }
 }

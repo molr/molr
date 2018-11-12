@@ -67,10 +67,11 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallelBlock);
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructSync(StrandCommand.RESUME);
 
         await(latchA1Start, latchB1Start);
-        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        instructSync(StrandCommand.PAUSE);
+        waitForProcessedCommand(StrandCommand.PAUSE);
         unlatch(latchA1End, latchB1End);
 
         waitForStateToBe(PAUSED);
@@ -89,10 +90,11 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldMoveNextOnParent() {
         moveRootStrandTo(parallelBlock);
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        instructSync(StrandCommand.PAUSE);
+        waitForProcessedCommand(StrandCommand.PAUSE);
         unlatch(latchA1End, latchB1End);
 
         waitForStateToBe(PAUSED);

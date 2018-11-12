@@ -33,11 +33,11 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
             {
                 mission("Pausing test", root -> {
                     TASK_1 = root.run("Long task1", () -> {
-                        task1Start.countDown();
+                        unlatch(task1Start);
                         await(task1Finish);
                     });
                     TASK_2 = root.run("Long task2", () -> {
-                        task2Start.countDown();
+                        unlatch(task2Start);
                         await(task2Finish);
                     });
                     TASK_3 = root.run("NOOP", () -> {
@@ -57,10 +57,10 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
 
     @Test
     public void testPause() {
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructAsync(StrandCommand.RESUME);
 
         await(task1Start);
-        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        instructAsync(StrandCommand.PAUSE);
         unlatch(task1Finish);
 
         waitForStateToBe(RunState.PAUSED);
@@ -68,10 +68,10 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
         assertThatResultOf(TASK_2).isEqualTo(Result.UNDEFINED).as("Task 2 should have not been run");
         assertThatActualBlock().isEqualTo(TASK_2).as("Executor should point to task 2");
 
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructAsync(StrandCommand.RESUME);
 
         await(task2Start);
-        rootStrandExecutor().instruct(StrandCommand.PAUSE);
+        instructAsync(StrandCommand.PAUSE);
         unlatch(task2Finish);
 
         waitForStateToBe(RunState.PAUSED);
@@ -79,7 +79,7 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
         assertThatResultOf(TASK_3).isEqualTo(Result.UNDEFINED).as("Task 3 should have not been run");
         assertThatActualBlock().isEqualTo(TASK_3).as("Executor should point to task 3");
 
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructAsync(StrandCommand.RESUME);
         waitForStateToBe(RunState.FINISHED);
 
         assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS);

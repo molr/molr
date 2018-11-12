@@ -82,10 +82,10 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
         moveRootStrandTo(parallel);
         assertThatActualBlock().isEqualTo(parallel);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
         await(latchA1Start, latchB1Start);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
 
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 
@@ -102,10 +102,10 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
         moveRootStrandTo(parallel);
         assertThatActualBlock().isEqualTo(parallel);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
         await(latchA1Start, latchB1Start);
 
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructSync(StrandCommand.RESUME);
 
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 

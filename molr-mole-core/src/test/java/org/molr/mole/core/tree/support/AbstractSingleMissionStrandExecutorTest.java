@@ -12,8 +12,8 @@ import org.molr.mole.core.tree.StrandExecutor;
 import org.molr.mole.core.tree.StrandExecutorFactory;
 import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
-import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.molr.mole.core.tree.TreeStructure;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 
 /**
  * Abstract support class for a test against one mission, specified via the {@link #mission()} abstract method.
@@ -44,10 +44,6 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure);
     }
 
-    public Result currentRootResult() {
-        return treeResultTracker().resultFor(treeStructure().rootBlock());
-    }
-
     @Override
     public StrandExecutor rootStrandExecutor() {
         return strandExecutor;
@@ -58,19 +54,23 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         return resultTracker;
     }
 
-    public TreeStructure treeStructure() {
+    protected Result currentRootResult() {
+        return treeResultTracker().resultFor(treeStructure().rootBlock());
+    }
+
+    protected TreeStructure treeStructure() {
         return treeStructure;
     }
 
-    public LeafExecutor leafExecutor() {
+    protected LeafExecutor leafExecutor() {
         return leafExecutor;
     }
 
-    public StrandFactory strandFactory() {
+    protected StrandFactory strandFactory() {
         return strandFactory;
     }
 
-    public StrandExecutorFactory strandExecutorFactory() {
+    protected StrandExecutorFactory strandExecutorFactory() {
         return strandExecutorFactory;
     }
 

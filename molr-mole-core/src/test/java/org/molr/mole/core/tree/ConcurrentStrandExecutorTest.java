@@ -71,7 +71,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @Test
     public void testSuccess() {
-        rootStrandExecutor().instruct(StrandCommand.RESUME);
+        instructSync(StrandCommand.RESUME);
 
         waitForRootStrandToFinish();
         assertThatActualState().isEqualTo(RunState.FINISHED);
@@ -80,15 +80,15 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @Test
     public void testStepInto() {
-        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        instructSync(StrandCommand.STEP_INTO);
         waitForActualBlockToBe(FIRST);
         assertThatActualBlock().isEqualTo(FIRST);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        instructSync(StrandCommand.STEP_INTO);
         waitForActualBlockToBe(FIRST_A);
         assertThatActualBlock().isEqualTo(FIRST_A);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_INTO);
+        instructSync(StrandCommand.STEP_INTO);
         waitForActualBlockToBe(FIRST_A);
         assertThatActualBlock().isEqualTo(FIRST_A).as("Stepping into a leaf should have no effect");
     }
@@ -98,12 +98,12 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         moveRootStrandTo(FIRST_A);
         waitForActualBlockToBe(FIRST_A);
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
         waitForResultOfBlockToBe(FIRST_A, Result.SUCCESS);
         waitForActualBlockToBe(FIRST_B);
         assertThatActualBlock().isEqualTo(FIRST_B).as("Strand should have moved to next after STEP_OVER success");
 
-        rootStrandExecutor().instruct(StrandCommand.STEP_OVER);
+        instructSync(StrandCommand.STEP_OVER);
         waitForResultOfBlockToBe(FIRST_B, Result.SUCCESS);
         waitForActualBlockToBe(SECOND);
         assertThatActualBlock().isEqualTo(SECOND).as("Strand should have moved to next after STEP_OVER success");
@@ -123,7 +123,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         moveRootStrandTo(FOURTH);
         waitForActualBlockToBe(FOURTH);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForStateToBe(RunState.FINISHED);
         assertThatActualState().isEqualTo(RunState.FINISHED).as("Skipping the last block should finish the strand");
     }
@@ -133,19 +133,19 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         moveRootStrandTo(FIRST);
         waitForActualBlockToBe(FIRST);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForActualBlockToBe(SECOND);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForActualBlockToBe(THIRD);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForActualBlockToBe(PARALLEL);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForActualBlockToBe(FOURTH);
 
-        rootStrandExecutor().instruct(StrandCommand.SKIP);
+        instructSync(StrandCommand.SKIP);
         waitForStateToBe(RunState.FINISHED);
 
         for (Block block : treeStructure().allBlocks()) {
