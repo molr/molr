@@ -50,7 +50,9 @@ import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
-    private static final int EXECUTOR_SLEEP_MS = 10;
+    private static final int EXECUTOR_SLEEP_MS_IDLE = 50;
+    private static final int EXECUTOR_SLEEP_MS_DEFAULT = 10;
+    private static final int EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN = 25;
 
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
@@ -226,15 +228,31 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 lastCommandSink.onNext(commandToExecute);
             }
 
-            try {
-                Thread.sleep(EXECUTOR_SLEEP_MS);
-            } catch (InterruptedException e) {
-                throw new IllegalStateException(strand + " thread interrupted!", e);
-            }
+            cycleSleep();
         }
 
         LOGGER.debug("Executor for strand {} is finished", strand);
         executor.shutdown();
+    }
+
+    /**
+     * Tweak this parameters will improve the performances a lot. Possibly to be externalized to be configurable...
+     */
+    private void cycleSleep() {
+        try {
+            switch (actualState.get()) {
+                case WAITING_FOR_CHILDREN:
+                    Thread.sleep(EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN);
+                    break;
+                case IDLE:
+                    Thread.sleep(EXECUTOR_SLEEP_MS_IDLE);
+                    break;
+                default:
+                    Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
+            }
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(strand + " thread interrupted!", e);
+        }
     }
 
     private void publishError(Exception error) {
