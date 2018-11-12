@@ -191,7 +191,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             }
 
             if (actualState.get() == ExecutorState.STEPPING_OVER) {
-                // FIXME potential performance bottleneck #isDescendantOf
+                // FIXME potential performance bottleneck #isDescendantOf is very slow
                 if (!structure.isDescendantOf(actualBlock.get(), currentStepOverSource.get())) {
                     // Stepping over has finished the subtree of the block that initiate it.. finishing
                     updateState(ExecutorState.IDLE);

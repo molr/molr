@@ -71,7 +71,6 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
         await(latchA1Start, latchB1Start);
         instructSync(StrandCommand.PAUSE);
-        waitForProcessedCommand(StrandCommand.PAUSE);
         unlatch(latchA1End, latchB1End);
 
         waitForStateToBe(PAUSED);
@@ -94,7 +93,6 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
         await(latchA1Start, latchB1Start);
         instructSync(StrandCommand.PAUSE);
-        waitForProcessedCommand(StrandCommand.PAUSE);
         unlatch(latchA1End, latchB1End);
 
         waitForStateToBe(PAUSED);
