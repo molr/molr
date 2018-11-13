@@ -25,6 +25,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final MissionOutputCollector outputCollector;
     private final Tracker<Result> resultTracker;
     private final TreeTracker<RunState> runStateTracker;
+    private final MissionRepresentation representation;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker) {
         this.runStateTracker = runStateTracker;
@@ -32,6 +33,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         this.outputCollector = outputCollector;
         this.resultTracker = resultTracker;
+        this.representation = treeStructure.missionRepresentation();
 
         EmitterProcessor<Object> statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
@@ -69,6 +71,11 @@ public class TreeMissionExecutor implements MissionExecutor {
     @Override
     public Flux<MissionOutput> outputs() {
         return outputCollector.asStream();
+    }
+
+    @Override
+    public Flux<MissionRepresentation> representations() {
+        return Flux.just(this.representation);
     }
 
     private MissionState gatherMissionState() {

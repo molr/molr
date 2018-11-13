@@ -53,6 +53,10 @@ public class MolrAgencyRestService {
         return agency.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
     }
 
+    @GetMapping(path = "/instance/{missionHandle}/representations")
+    public Flux<MissionRepresentationDto> representationsFor(@PathVariable("missionHandle") String missionHandle) {
+        return agency.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
+    }
 
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {

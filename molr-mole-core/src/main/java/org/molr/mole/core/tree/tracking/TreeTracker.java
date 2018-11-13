@@ -4,11 +4,9 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
 import org.molr.commons.domain.Result;
 import reactor.core.publisher.Flux;
+import sun.reflect.generics.tree.Tree;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
@@ -24,35 +22,21 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
     private final T defaultValue;
     private final Function<Iterable<T>, T> summarizer;
 
-    private TreeTracker(MissionRepresentation representation, T defaultValue, Function<Iterable<T>, T> summarizer) {
-        this.representation = representation;
-        this.defaultValue = defaultValue;
-        this.summarizer = summarizer;
-        this.blockResultTrackers = createBlockTrackers();
+    private TreeTracker(Builder<T> builder) {
+        this.representation = builder.representation;
+        this.defaultValue = builder.defaultValue;
+        this.summarizer = builder.summarizer;
+        this.blockResultTrackers = builder.createBlockTrackers();
     }
 
     public static <T> TreeTracker<T> create(MissionRepresentation representation, T defaultValue, Function<Iterable<T>, T> summarizer) {
-        return new TreeTracker<T>(representation, defaultValue, summarizer);
+        return new Builder(representation, defaultValue, summarizer, null).build();
     }
 
-    private Map<Block, BlockTracker<T>> createBlockTrackers() {
-        Block block = representation.rootBlock();
-        HashMap<Block, BlockTracker<T>> map = new HashMap<>();
-        addTrackerForBlock(block, map);
-        return Collections.unmodifiableMap(map);
+    public static <T> TreeTracker<T> create(MissionRepresentation representation, TreeTracker<T> oldTracker) {
+        return new Builder(representation, oldTracker.defaultValue, oldTracker.summarizer, oldTracker).build();
     }
 
-    private void addTrackerForBlock(Block block, Map<Block, BlockTracker<T>> map) {
-        if (representation.isLeaf(block)) {
-            map.put(block, new LeafTracker(defaultValue));
-        } else {
-            representation.childrenOf(block).forEach(b -> addTrackerForBlock(b, map));
-            List<Flux<T>> childrenResults = representation.childrenOf(block).stream()
-                    .map(map::get)
-                    .map(BlockTracker::asStream).collect(toList());
-            map.put(block, BlockCombiner.combine(childrenResults, defaultValue, summarizer));
-        }
-    }
 
     @Override
     public void push(Block node, T result) {
@@ -72,7 +56,7 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 
     @Override
     public T resultFor(Block block) {
-        return blockResultTrackers.get(block).result();
+        return Optional.ofNullable(blockResultTrackers.get(block)).map(r -> r.result()).orElse(null);
     }
 
     public Flux<T> resultUpdatesFor(Block block) {
@@ -82,6 +66,56 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
     @Override
     public Map<Block, T> blockResults() {
         return this.blockResultTrackers.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().result()));
+    }
+
+    public static class Builder<T> {
+
+        private final MissionRepresentation representation;
+        private final TreeTracker<T> oldTracker;
+        private final T defaultValue;
+        private final Function<Iterable<T>, T> summarizer;
+
+        private Builder(MissionRepresentation representation, T defaultValue, Function<Iterable<T>, T> summarizer, TreeTracker<T> oldTracker) {
+            this.representation = Objects.requireNonNull(representation, "representation must not be null");
+            this.defaultValue = Objects.requireNonNull(defaultValue, "defaultValue must not be null");
+            this.summarizer = Objects.requireNonNull(summarizer, "summarizer must not be null");
+            this.oldTracker = oldTracker;
+        }
+
+
+        private TreeTracker<T> build() {
+            return new TreeTracker<>(this);
+        }
+
+        private Map<Block, BlockTracker<T>> createBlockTrackers() {
+            Block block = representation.rootBlock();
+            HashMap<Block, BlockTracker<T>> map = new HashMap<>();
+            addTrackerForBlock(block, map);
+            return Collections.unmodifiableMap(map);
+        }
+
+        private void addTrackerForBlock(Block block, Map<Block, BlockTracker<T>> map) {
+            if (representation.isLeaf(block)) {
+                map.put(block, new LeafTracker(initialValueFor(block)));
+            } else {
+                representation.childrenOf(block).forEach(b -> addTrackerForBlock(b, map));
+                List<Flux<T>> childrenResults = representation.childrenOf(block).stream()
+                        .map(map::get)
+                        .map(BlockTracker::asStream).collect(toList());
+                map.put(block, BlockCombiner.combine(childrenResults, initialValueFor(block), summarizer));
+            }
+        }
+
+        private T initialValueFor(Block block) {
+            if (this.oldTracker != null) {
+                T initialValue = oldTracker.resultFor(block);
+                if (initialValue != null) {
+                    return initialValue;
+                }
+            }
+            return defaultValue;
+        }
+
     }
 
 }

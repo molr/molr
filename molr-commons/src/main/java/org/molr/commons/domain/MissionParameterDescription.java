@@ -2,6 +2,8 @@ package org.molr.commons.domain;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,6 +19,11 @@ public class MissionParameterDescription {
 
     public Set<MissionParameter<?>> parameters() {
         return this.parameters;
+    }
+
+
+    public static final MissionParameterDescription empty() {
+        return new MissionParameterDescription(ImmutableSet.of());
     }
 
     @Override

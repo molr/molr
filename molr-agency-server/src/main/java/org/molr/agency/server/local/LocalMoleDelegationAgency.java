@@ -97,6 +97,11 @@ public class LocalMoleDelegationAgency implements Agency {
         return fromActiveMoleOrError(handle, m -> m.outputsFor(handle));
     }
 
+    @Override
+    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
+        return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
+    }
+
     private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Mole, Flux<T>> fluxMapper) {
         return supplyOnAgencyExecutorSync(() -> {
             Mole activeMole = activeMoles.get(handle);

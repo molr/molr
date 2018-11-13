@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +15,8 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
-    private final ReplayProcessor<MissionOutput> output = ReplayProcessor.cacheLast();
+    private final ReplayProcessor<MissionOutput> outputSink = ReplayProcessor.cacheLast();
+    private final Flux<MissionOutput> outputStream = outputSink.publishOn(Schedulers.newSingle("Output collector"));
 
     private final Map<Block, Map<String, Object>> blockOutputs = new ConcurrentHashMap<>();
 
@@ -42,12 +44,12 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     }
 
     private void publish() {
-        output.onNext(MissionOutput.fromBlocks(this.blockOutputs));
+        outputSink.onNext(MissionOutput.fromBlocks(this.blockOutputs));
     }
 
     @Override
     public Flux<MissionOutput> asStream() {
-        return this.output;
+        return this.outputStream;
     }
 
 

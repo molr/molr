@@ -50,15 +50,28 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
 
     @Override
     public Optional<Block> parentOf(Block block) {
-        if(block.equals(root)) {
+        if (block.equals(root)) {
             return Optional.empty();
         }
 
         return children.entries().stream().filter(e -> e.getValue().equals(block)).map(Map.Entry::getKey).findFirst();
     }
 
+    @Override
+    public ListMultimap<Block, Block> parentsToChildren() {
+        return this.children;
+    }
+
     public static Builder builder(Block rootBlock) {
         return new Builder(rootBlock);
+    }
+
+    public static Builder builder(MissionRepresentation oldRepresentation) {
+        return builder(oldRepresentation.rootBlock()).parentsToChildren(oldRepresentation.parentsToChildren());
+    }
+
+    public static MissionRepresentation empty(String name) {
+        return builder(Block.idAndText("0", name)).build();
     }
 
     @Override
@@ -72,7 +85,6 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(root, children);
     }
 
@@ -87,6 +99,11 @@ public class ImmutableMissionRepresentation implements MissionRepresentation {
 
         public Builder parentToChild(Block parent, Block child) {
             treeBuilder.put(parent, child);
+            return this;
+        }
+
+        public Builder parentsToChildren(ListMultimap<Block, Block> tree) {
+            this.treeBuilder.putAll(tree);
             return this;
         }
 

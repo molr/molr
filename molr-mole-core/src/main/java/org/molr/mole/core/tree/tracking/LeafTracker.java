@@ -15,6 +15,7 @@ public class LeafTracker<T> implements BlockTracker<T> {
     public LeafTracker(T initialValue) {
         this.result = new AtomicReference<>(initialValue);
         summary.subscribe(this.result::set);
+        summary.onNext(initialValue);
     }
 
     @Override

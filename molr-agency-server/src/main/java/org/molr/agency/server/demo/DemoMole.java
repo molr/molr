@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DemoMole implements Mole {
@@ -23,6 +24,8 @@ public class DemoMole implements Mole {
             ImmutableMap.of(new Mission("Find Dr No."), dummyTree("Find Dr No."),
                     new Mission("Conquer Rome"), dummyTree("Conquer Rome"),
                     new Mission("Linear Mission"), linear("Linear Mission"));
+
+    private final Map<MissionHandle, MissionRepresentation> instances = new ConcurrentHashMap<>();
 
     private MissionRepresentation linear(String missionName) {
         Block rootNode = Block.builder(id(), missionName).build();
@@ -53,7 +56,7 @@ public class DemoMole implements Mole {
 
     @Override
     public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        /* NOOP for the moment */
+        instances.put(handle, representationOf(mission));
     }
 
     @Override
@@ -64,6 +67,11 @@ public class DemoMole implements Mole {
     @Override
     public Flux<MissionOutput> outputsFor(MissionHandle handle) {
         return Flux.empty();
+    }
+
+    @Override
+    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
+        return Flux.just(instances.get(handle));
     }
 
     @Override

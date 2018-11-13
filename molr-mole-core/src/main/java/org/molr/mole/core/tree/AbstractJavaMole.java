@@ -14,18 +14,23 @@ public abstract class AbstractJavaMole implements Mole {
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
 
     @Override
-    public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
+    public final void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
         executors.put(handle, instantiate(mission, params));
     }
 
     @Override
-    public Flux<MissionState> statesFor(MissionHandle handle) {
+    public final Flux<MissionState> statesFor(MissionHandle handle) {
         return fromExecutorOrError(handle, MissionExecutor::states);
     }
 
     @Override
-    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
+    public final Flux<MissionOutput> outputsFor(MissionHandle handle) {
         return fromExecutorOrError(handle, MissionExecutor::outputs);
+    }
+
+    @Override
+    public final Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
+        return fromExecutorOrError(handle, MissionExecutor::representations);
     }
 
 
@@ -36,7 +41,7 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     @Override
-    public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
+    public final void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         Optional.ofNullable(executors.get(handle))
                 .ifPresent(e -> e.instruct(strand, command));
     }
