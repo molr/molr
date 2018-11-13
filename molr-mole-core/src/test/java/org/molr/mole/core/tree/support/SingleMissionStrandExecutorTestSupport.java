@@ -1,7 +1,7 @@
 package org.molr.mole.core.tree.support;
 
 import org.assertj.core.api.AbstractComparableAssert;
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.IterableAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
@@ -22,32 +22,36 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     TreeTracker<Result> treeResultTracker();
 
-    default void waitForRootStateToBe(RunState state) {
-        waitForStrandStateToBe(rootStrandExecutor(), state);
+    default void waitUntilRootStrandStateIs(RunState state) {
+        waitUntilStrandStateIs(rootStrandExecutor(), state);
     }
 
-    default void waitForRootStrandToFinish() {
-        waitForStrandToFinish(rootStrandExecutor());
+    default void waitUntilRootStrandIsFinished() {
+        waitUntilStrandIsFinished(rootStrandExecutor());
     }
 
-    default void waitForRootBlockToBe(Block block) {
-        waitForActualBlockToBe(rootStrandExecutor(), block);
+    default void waitUntilRootStrandBlockIs(Block block) {
+        waitUntilActualBlockIs(rootStrandExecutor(), block);
     }
 
-    default void waitForResultOfBlockToBe(Block block, Result result) {
-        waitForResultOfBlockToBe(treeResultTracker(), block, result);
+    default void waitUntilResultOfBlockIs(Block block, Result result) {
+        waitUntilResultOfBlockIs(treeResultTracker(), block, result);
     }
 
-    default ObjectAssert<Block> assertThatRootBlock() {
-        return assertThatActualBlockOf(rootStrandExecutor());
+    default ObjectAssert<Block> assertThatRootStrandBlock() {
+        return assertThatBlockOf(rootStrandExecutor());
     }
 
-    default AbstractComparableAssert<?, RunState> assertThatRootState() {
-        return assertThatActualStateOf(rootStrandExecutor());
+    default AbstractComparableAssert<?, RunState> assertThatRootStrandState() {
+        return assertThatStateOf(rootStrandExecutor());
     }
 
     default AbstractComparableAssert<?, Result> assertThatResultOf(Block block) {
-        return Assertions.assertThat(treeResultTracker().resultFor(block));
+        return assertThatResultOf(treeResultTracker(), block);
+    }
+
+    default IterableAssert<StrandCommand> assertThatStrandRootAllowedCommands() {
+        return assertThatAllowedCommandsOf(rootStrandExecutor());
     }
 
     @Deprecated
@@ -60,25 +64,21 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
     }
 
     @Deprecated
-    default Set<StrandExecutor> rootChildrenStrandExecutors() {
+    default Set<StrandExecutor> rootStrandChildren() {
         return childrenStrandExecutorsOf(rootStrandExecutor());
-    }
-
-    default void waitForProcessedCommandByRoot(StrandCommand command) {
-        waitForProcessedCommand(rootStrandExecutor(), command);
     }
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
      */
-    default void instructRootSync(StrandCommand command) {
+    default void instructRootStrandSync(StrandCommand command) {
         instructSync(rootStrandExecutor(), command);
     }
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and return immediately
      */
-    default void instructRootAsync(StrandCommand command) {
+    default void instructRootStrandAsync(StrandCommand command) {
         instructAsync(rootStrandExecutor(), command);
     }
 

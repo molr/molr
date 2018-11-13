@@ -22,7 +22,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         MissionCreationTestSupport, LatchTestSupport {
 
     private TreeStructure treeStructure;
-    private TreeTracker resultTracker;
+    private TreeTracker<Result> resultTracker;
     private LeafExecutor leafExecutor;
     private StrandFactory strandFactory;
     private StrandExecutorFactory strandExecutorFactory;
@@ -52,10 +52,6 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     @Override
     public TreeTracker<Result> treeResultTracker() {
         return resultTracker;
-    }
-
-    protected Result currentRootResult() {
-        return treeResultTracker().resultFor(treeStructure().rootBlock());
     }
 
     protected TreeStructure treeStructure() {

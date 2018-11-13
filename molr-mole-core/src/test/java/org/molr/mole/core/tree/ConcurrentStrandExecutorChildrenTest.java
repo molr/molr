@@ -77,15 +77,15 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testSkipAfterStepOverWithChildrenThrows() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordRootStrandErrors();
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
 
-        instructRootSync(StrandCommand.SKIP);
+        instructRootStrandSync(StrandCommand.SKIP);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -96,13 +96,13 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         StrandErrorsRecorder recorder = recordRootStrandErrors();
 
         moveRootStrandTo(blockParallel);
-        instructRootSync(RESUME);
+        instructRootStrandSync(RESUME);
         await(latchAStart, latchBStart);
 
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        instructRootSync(StrandCommand.SKIP);
+        instructRootStrandSync(StrandCommand.SKIP);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -111,14 +111,14 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testStepIntoAfterStepOverWithChildrenThrows() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordRootStrandErrors();
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        instructRootSync(StrandCommand.STEP_INTO);
+        instructRootStrandSync(StrandCommand.STEP_INTO);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -127,14 +127,14 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testStepIntoAfterResumeWithChildrenThrows() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(RESUME);
+        instructRootStrandSync(RESUME);
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordRootStrandErrors();
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        instructRootSync(StrandCommand.STEP_INTO);
+        instructRootStrandSync(StrandCommand.STEP_INTO);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -143,14 +143,14 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testStepOverAfterStepOverWithChildrenThrows() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordRootStrandErrors();
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -159,14 +159,14 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testStepOverAfterResumeWithChildrenThrows() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(RESUME);
+        instructRootStrandSync(RESUME);
         await(latchAStart, latchBStart);
 
         StrandErrorsRecorder recorder = recordRootStrandErrors();
-        waitForRootStateToBe(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
 
         waitForErrorOfType(recorder, RejectedCommandException.class);
         assertThat(recorder).allMatch(RejectedCommandException.class::isInstance);
@@ -175,27 +175,27 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Test
     public void testResumeWithChildrenResumesTheChildren() {
         moveRootStrandTo(blockParallel);
-        instructRootSync(RESUME);
+        instructRootStrandSync(RESUME);
         await(latchAStart, latchBStart);
 
-        waitForRootStateToBe(RUNNING);
-        rootChildrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, RUNNING));
-        assertThatRootState().isEqualTo(RUNNING);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(RUNNING));
+        waitUntilRootStrandStateIs(RUNNING);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, RUNNING));
+        assertThatRootStrandState().isEqualTo(RUNNING);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(RUNNING));
 
-        instructRootSync(PAUSE);
+        instructRootStrandSync(PAUSE);
         unlatch(latchAEnd, latchBEnd);
-        waitForRootStateToBe(PAUSED);
+        waitUntilRootStrandStateIs(PAUSED);
 
-        rootChildrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
-        assertThatRootState().isEqualTo(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(PAUSED));
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
 
-        instructRootSync(RESUME);
+        instructRootStrandSync(RESUME);
 
-        waitForRootStateToBe(FINISHED);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(FINISHED));
+        waitUntilRootStrandStateIs(FINISHED);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(FINISHED));
     }
 
     @Override

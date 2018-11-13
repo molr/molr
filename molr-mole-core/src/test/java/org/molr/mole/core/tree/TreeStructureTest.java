@@ -4,6 +4,10 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.utils.TreeUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -122,6 +126,18 @@ public class TreeStructureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSubstructureOfUnknownBlockThrows() {
         DATA.treeStructure().substructure(Block.idAndText("unknown", "unknown"));
+    }
+
+    /* Testing tree utils.. */
+    @Test
+    public void testBlockHasParallelParent() {
+        List<Block> withoutParallelParentNodes = Arrays.asList(FIRST, FIRST_A, FIRST_B, SECOND, SECOND_A, SECOND_B, THIRD, PARALLEL, FOURTH, FOURTH_A);
+        List<Block> withParallelParentNodes = Arrays.asList(PARALLEL_A, PARALLEL_B);
+
+        withoutParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, DATA.treeStructure()))
+                .as("Block %s should not have a parallel parent", node).isFalse());
+        withParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, DATA.treeStructure()))
+                .as("Block %s should have a parallel parent", node).isTrue());
     }
 
 }

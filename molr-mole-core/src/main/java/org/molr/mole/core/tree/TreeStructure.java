@@ -129,7 +129,7 @@ public class TreeStructure {
         return Optional.of(siblings.get(siblings.indexOf(block) + 1));
     }
 
-    private Optional<Block> parentOf(Block block) {
+    public Optional<Block> parentOf(Block block) {
         return representation.parentOf(block);
     }
 

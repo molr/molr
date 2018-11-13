@@ -78,92 +78,92 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallelBlock);
-        instructRootSync(StrandCommand.RESUME);
+        instructRootStrandSync(StrandCommand.RESUME);
 
         await(latchA1Start, latchB1Start);
-        instructRootSync(PAUSE);
+        instructRootStrandSync(PAUSE);
         unlatch(latchA1End, latchB1End, latchB2End);
 
-        waitForRootStateToBe(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
+        waitUntilRootStrandStateIs(PAUSED);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
-        assertThatRootState().isEqualTo(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(PAUSED));
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
 
-        rootChildrenStrandExecutors().forEach(se -> se.instruct(StrandCommand.RESUME));
-        rootChildrenStrandExecutors().forEach(this::waitForStrandToFinish);
+        rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
+        rootStrandChildren().forEach(this::waitUntilStrandIsFinished);
 
-        waitForRootStateToBe(FINISHED);
-        assertThatRootState().isEqualTo(FINISHED);
+        waitUntilRootStrandStateIs(FINISHED);
+        assertThatRootStrandState().isEqualTo(FINISHED);
     }
 
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldMoveNextOnParent() {
         moveRootStrandTo(parallelBlock);
-        instructRootSync(StrandCommand.STEP_OVER);
+        instructRootStrandSync(StrandCommand.STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        instructRootSync(PAUSE);
+        instructRootStrandSync(PAUSE);
         unlatch(latchA1End, latchB1End, latchB2End);
 
-        waitForRootStateToBe(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
+        waitUntilRootStrandStateIs(PAUSED);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
-        assertThatRootState().isEqualTo(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(PAUSED));
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
 
-        rootChildrenStrandExecutors().forEach(se -> se.instruct(StrandCommand.RESUME));
-        rootChildrenStrandExecutors().forEach(this::waitForStrandToFinish);
+        rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
+        rootStrandChildren().forEach(this::waitUntilStrandIsFinished);
 
-        waitForRootBlockToBe(lastBlock);
-        assertThatRootBlock().isEqualTo(lastBlock);
+        waitUntilRootStrandBlockIs(lastBlock);
+        assertThatRootStrandBlock().isEqualTo(lastBlock);
     }
 
     @Test
     public void testIfAllChildrenArePausedParentShouldPause() {
         moveRootStrandTo(parallelBlock);
-        instructRootSync(StrandCommand.RESUME);
+        instructRootStrandSync(StrandCommand.RESUME);
 
         await(latchA1Start, latchB1Start);
-        rootChildrenStrandExecutors().forEach(se -> instructAsync(se, PAUSE));
+        rootStrandChildren().forEach(se -> instructAsync(se, PAUSE));
         unlatch(latchA1End, latchB1End, latchB2End);
 
-        rootChildrenStrandExecutors().forEach(se -> waitForStrandStateToBe(se, PAUSED));
-        waitForRootStateToBe(PAUSED);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
+        waitUntilRootStrandStateIs(PAUSED);
 
-        assertThatRootState().isEqualTo(PAUSED);
-        rootChildrenStrandExecutors().forEach(se -> assertThatActualStateOf(se).isEqualTo(PAUSED));
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
     }
 
     @Test
     public void testIfAtLeastOneChildrenIsRunningParentIsWaiting() {
         /* WAITING_FOR_CHILDREN == RUNNING RunState */
         moveRootStrandTo(parallelBlock);
-        instructRootSync(StrandCommand.RESUME);
+        instructRootStrandSync(StrandCommand.RESUME);
 
         await(latchA1Start, latchB1Start);
-        instructRootSync(PAUSE);
+        instructRootStrandSync(PAUSE);
         unlatch(latchA1End, latchB1End);
 
-        waitForRootStateToBe(PAUSED);
+        waitUntilRootStrandStateIs(PAUSED);
 
-        StrandExecutor strandA = rootChildrenStrandExecutors().stream()
+        StrandExecutor strandA = rootStrandChildren().stream()
                 .filter(se -> se.getActualBlock().equals(blockA2)).findFirst().get();
 
-        StrandExecutor strandB = rootChildrenStrandExecutors().stream()
+        StrandExecutor strandB = rootStrandChildren().stream()
                 .filter(se -> se.getActualBlock().equals(blockB2)).findFirst().get();
 
-        assertThatActualStateOf(strandA).isEqualTo(PAUSED);
-        assertThatActualStateOf(strandB).isEqualTo(PAUSED);
+        assertThatStateOf(strandA).isEqualTo(PAUSED);
+        assertThatStateOf(strandB).isEqualTo(PAUSED);
 
         instructAsync(strandB, RESUME);
         await(latchB2Start);
 
-        waitForRootStateToBe(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
 
-        assertThatActualStateOf(strandA).isEqualTo(PAUSED);
-        assertThatActualStateOf(strandB).isEqualTo(RUNNING);
-        assertThatRootState().isEqualTo(RUNNING);
+        assertThatStateOf(strandA).isEqualTo(PAUSED);
+        assertThatStateOf(strandB).isEqualTo(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
     }
 
     @Override

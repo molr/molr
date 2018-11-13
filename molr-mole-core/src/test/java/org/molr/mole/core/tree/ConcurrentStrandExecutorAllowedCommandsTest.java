@@ -1,11 +1,8 @@
 package org.molr.mole.core.tree;
 
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.IterableAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
-import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
 import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
@@ -61,6 +58,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                             bA.run("A.1", () -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
+                                System.out.println();
                             });
                             blockA2 = bA.run("A.2", () -> {
                             });
@@ -97,62 +95,58 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     @Test
     public void testPausedLeafCommands() {
         moveRootStrandTo(leafBlock);
-        assertThatRootState().isEqualTo(PAUSED);
+        assertThatRootStrandState().isEqualTo(PAUSED);
 
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER);
     }
 
     @Test
     public void testRunningLeafCommands() {
         moveRootStrandTo(leafBlock);
-        instructRootAsync(RESUME);
+        instructRootStrandAsync(RESUME);
         await(latchLeafStart);
 
-        assertThatRootState().isEqualTo(RUNNING);
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
+        assertThatRootStrandState().isEqualTo(RUNNING);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
     }
 
     @Test
     public void testPausedSequentialBlockCommands() {
         moveRootStrandTo(sequentialBlock);
-        assertThatRootState().isEqualTo(PAUSED);
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
     }
 
     @Test
     public void testPausedParallelBlockCommands() {
         moveRootStrandTo(parallelBlock);
-        assertThatRootState().isEqualTo(PAUSED);
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
     }
 
     @Test
     public void testWaitingForChildrenParallelBlockCommands() {
         moveRootStrandTo(parallelBlock);
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        assertThatRootState().isEqualTo(RUNNING);
+        assertThatRootStrandState().isEqualTo(RUNNING);
 
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
     }
 
     @Test
     public void testPausedParallelBlockWithChildrenCommands() {
         moveRootStrandTo(parallelBlock);
-        instructRootSync(STEP_OVER);
+        instructRootStrandSync(STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        instructRootSync(PAUSE);
+        instructRootStrandSync(PAUSE);
         unlatch(latchA1End, latchB1End);
 
-        waitForRootStateToBe(PAUSED);
+        waitUntilRootStrandStateIs(PAUSED);
 
-        assertThatRootAllowedCommands().containsExactlyInAnyOrder(RESUME);
-    }
-
-    private IterableAssert<StrandCommand> assertThatRootAllowedCommands() {
-        return Assertions.assertThat(rootStrandExecutor().getAllowedCommands());
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(RESUME);
     }
 
     @Override

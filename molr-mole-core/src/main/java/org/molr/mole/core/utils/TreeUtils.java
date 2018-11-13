@@ -1,12 +1,13 @@
 package org.molr.mole.core.utils;
 
 import org.molr.commons.domain.Block;
-import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.molr.mole.core.tree.TreeStructure;
+import org.molr.mole.core.tree.tracking.TreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,21 @@ public class TreeUtils {
         for (Block child : structure.childrenOf(block)) {
             visitParentBeforeChild(child, depth, c, structure);
         }
+    }
+
+    /**
+     * Return whether or not the block has a parent in the hierarchy of the provided {@link TreeStructure} that is
+     * parallel
+     */
+    public static boolean doesBlockHaveAParallelParent(Block block, TreeStructure structure) {
+        Optional<Block> parent = structure.parentOf(block);
+        if (parent.isPresent()) {
+            if (structure.isParallel(parent.get())) {
+                return true;
+            }
+            return doesBlockHaveAParallelParent(parent.get(), structure);
+        }
+        return false;
     }
 
 }

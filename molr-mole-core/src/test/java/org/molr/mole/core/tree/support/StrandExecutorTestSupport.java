@@ -2,6 +2,7 @@ package org.molr.mole.core.tree.support;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.IterableAssert;
 import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.molr.commons.domain.Block;
@@ -22,55 +23,61 @@ public interface StrandExecutorTestSupport {
 
     Duration TIMEOUT = Duration.ofSeconds(30);
 
-    default void waitForStrandStateToBe(StrandExecutor strandExecutor, RunState state) {
+    default void waitUntilStrandStateIs(StrandExecutor strandExecutor, RunState state) {
         strandExecutor.getStateStream().filter(state::equals).blockFirst(TIMEOUT);
+        assertThatStateOf(strandExecutor).isEqualTo(state);
     }
 
-    default void waitForStrandToFinish(StrandExecutor strandExecutor) {
-        waitForStrandStateToBe(strandExecutor, RunState.FINISHED);
+    default void waitUntilStrandIsFinished(StrandExecutor strandExecutor) {
+        waitUntilStrandStateIs(strandExecutor, RunState.FINISHED);
+        assertThatStateOf(strandExecutor).isEqualTo(RunState.FINISHED);
     }
 
-    default void waitForActualBlockToBe(StrandExecutor strandExecutor, Block block) {
+    default void waitUntilActualBlockIs(StrandExecutor strandExecutor, Block block) {
         strandExecutor.getBlockStream().filter(block::equals).blockFirst(TIMEOUT);
+        assertThatBlockOf(strandExecutor).isEqualTo(block);
     }
 
-    default void waitForResultOfBlockToBe(TreeTracker resultTracker, Block block, Result result) {
+    default void waitUntilResultOfBlockIs(TreeTracker<Result> resultTracker, Block block, Result result) {
         resultTracker.resultUpdatesFor(block).filter(result::equals).blockFirst(TIMEOUT);
+        assertThatResultOf(resultTracker, block).isEqualTo(result);
     }
 
-    default ObjectAssert<Block> assertThatActualBlockOf(StrandExecutor strandExecutor) {
-        return Assertions.assertThat(strandExecutor.getActualBlock());
-    }
-
-    default AbstractComparableAssert<?, RunState> assertThatActualStateOf(StrandExecutor executor) {
-        return Assertions.assertThat(executor.getActualState());
-    }
-
-    @Deprecated
-    default void moveTo(StrandExecutor executor, Block destination) {
-        ((ConcurrentStrandExecutor) executor).moveTo(destination);
+    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
+        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
+                .filter(command::equals).blockFirst(TIMEOUT);
     }
 
     default void waitForErrorOfType(StrandErrorsRecorder recorder, Class<? extends Exception> clazz) {
         recorder.getRecordedExceptionStream().any(exceptions -> exceptions.stream().anyMatch(clazz::isInstance)).block(TIMEOUT);
     }
 
+    default AbstractComparableAssert<?, Result> assertThatResultOf(TreeTracker<Result> resultTracker, Block block) {
+        return Assertions.assertThat(resultTracker.resultFor(block));
+    }
+
+    default ObjectAssert<Block> assertThatBlockOf(StrandExecutor strandExecutor) {
+        return Assertions.assertThat(strandExecutor.getActualBlock());
+    }
+
+    default AbstractComparableAssert<?, RunState> assertThatStateOf(StrandExecutor executor) {
+        return Assertions.assertThat(executor.getActualState());
+    }
+
     default ListAssert<Exception> assertThat(StrandErrorsRecorder recorder) {
         return Assertions.assertThat(recorder.getExceptions());
+    }
+
+    default IterableAssert<StrandCommand> assertThatAllowedCommandsOf(StrandExecutor executor) {
+        return Assertions.assertThat(executor.getAllowedCommands());
     }
 
     default StrandErrorsRecorder recordStrandErrors(StrandExecutor executor) {
         return new StrandErrorsRecorder(executor);
     }
 
-    @Deprecated
     default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
         return ((ConcurrentStrandExecutor) executor).getChildrenStrandExecutors();
-    }
-
-    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
-        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
-                .filter(command::equals).blockFirst(TIMEOUT);
     }
 
     /**
@@ -86,6 +93,12 @@ public interface StrandExecutorTestSupport {
      */
     default void instructAsync(StrandExecutor executor, StrandCommand command) {
         executor.instruct(command);
+    }
+
+    @Deprecated
+    default void moveTo(StrandExecutor executor, Block destination) {
+        ((ConcurrentStrandExecutor) executor).moveTo(destination);
+        assertThatBlockOf(executor).isEqualTo(destination);
     }
 
 }
