@@ -31,7 +31,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
     }
 
     default void waitUntilRootStrandBlockIs(Block block) {
-        waitUntilActualBlockIs(rootStrandExecutor(), block);
+        waitUntilStrandBlockIs(rootStrandExecutor(), block);
     }
 
     default void waitUntilResultOfBlockIs(Block block, Result result) {

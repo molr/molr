@@ -64,9 +64,9 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
         unlatch(task1Finish);
 
         waitUntilRootStrandStateIs(RunState.PAUSED);
-        assertThatResultOf(TASK_1).isEqualTo(Result.SUCCESS).as("Task 1 should have finished before pausing");
-        assertThatResultOf(TASK_2).isEqualTo(Result.UNDEFINED).as("Task 2 should have not been run");
-        assertThatRootStrandBlock().isEqualTo(TASK_2).as("Executor should point to task 2");
+        assertThatResultOf(TASK_1).as("Task 1 should have finished before pausing").isEqualTo(Result.SUCCESS);
+        assertThatResultOf(TASK_2).as("Task 2 should have not been run").isEqualTo(Result.UNDEFINED);
+        assertThatRootStrandBlock().as("Executor should point to task 2").isEqualTo(TASK_2);
 
         instructRootStrandAsync(StrandCommand.RESUME);
 
@@ -75,9 +75,9 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
         unlatch(task2Finish);
 
         waitUntilRootStrandStateIs(RunState.PAUSED);
-        assertThatResultOf(TASK_2).isEqualTo(Result.SUCCESS).as("Task 2 should have finished before pausing");
-        assertThatResultOf(TASK_3).isEqualTo(Result.UNDEFINED).as("Task 3 should have not been run");
-        assertThatRootStrandBlock().isEqualTo(TASK_3).as("Executor should point to task 3");
+        assertThatResultOf(TASK_2).as("Task 2 should have finished before pausing").isEqualTo(Result.SUCCESS);
+        assertThatResultOf(TASK_3).as("Task 3 should have not been run").isEqualTo(Result.UNDEFINED);
+        assertThatRootStrandBlock().as("Executor should point to task 3").isEqualTo(TASK_3);
 
         instructRootStrandAsync(StrandCommand.RESUME);
         waitUntilRootStrandStateIs(RunState.FINISHED);

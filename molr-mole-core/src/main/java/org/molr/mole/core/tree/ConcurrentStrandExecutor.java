@@ -137,7 +137,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
                 /* if has children then the state can only be WAITING or IDLE*/
                 if (hasChildren() && actualState() != ExecutorState.WAITING_FOR_CHILDREN && actualState() != ExecutorState.IDLE) {
-                    publishError(new StrandExecutorException("[{}] inconsistent state! There are children, so current state can only be IDLE or WAITING FOR CHILDREN, pausing! Current state is {}", strand, actualState()));
+                    publishError(exception(StrandExecutorException.class, "[{}] inconsistent state! There are children, so current state can only be IDLE or WAITING FOR CHILDREN, pausing! Current state is {}", strand, actualState()));
                     updateState(ExecutorState.IDLE);
                 }
 

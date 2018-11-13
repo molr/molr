@@ -87,14 +87,10 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         waitUntilRootStrandStateIs(PAUSED);
         rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
-        assertThatRootStrandState().isEqualTo(PAUSED);
-        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
-
         rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
         rootStrandChildren().forEach(this::waitUntilStrandIsFinished);
 
         waitUntilRootStrandStateIs(FINISHED);
-        assertThatRootStrandState().isEqualTo(FINISHED);
     }
 
     @Test
@@ -109,14 +105,10 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         waitUntilRootStrandStateIs(PAUSED);
         rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
-        assertThatRootStrandState().isEqualTo(PAUSED);
-        rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
-
         rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
         rootStrandChildren().forEach(this::waitUntilStrandIsFinished);
 
         waitUntilRootStrandBlockIs(lastBlock);
-        assertThatRootStrandBlock().isEqualTo(lastBlock);
     }
 
     @Test
@@ -131,7 +123,6 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
         waitUntilRootStrandStateIs(PAUSED);
 
-        assertThatRootStrandState().isEqualTo(PAUSED);
         rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
     }
 
@@ -147,6 +138,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
         waitUntilRootStrandStateIs(PAUSED);
 
+        /* at this point the children must be at these blocks*/
         StrandExecutor strandA = rootStrandChildren().stream()
                 .filter(se -> se.getActualBlock().equals(blockA2)).findFirst().get();
 

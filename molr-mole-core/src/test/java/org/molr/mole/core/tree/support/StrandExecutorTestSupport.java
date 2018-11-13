@@ -33,7 +33,7 @@ public interface StrandExecutorTestSupport {
         assertThatStateOf(strandExecutor).isEqualTo(RunState.FINISHED);
     }
 
-    default void waitUntilActualBlockIs(StrandExecutor strandExecutor, Block block) {
+    default void waitUntilStrandBlockIs(StrandExecutor strandExecutor, Block block) {
         strandExecutor.getBlockStream().filter(block::equals).blockFirst(TIMEOUT);
         assertThatBlockOf(strandExecutor).isEqualTo(block);
     }

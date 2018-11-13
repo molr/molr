@@ -1,5 +1,7 @@
 package org.molr.mole.core.tree.support;
 
+import org.assertj.core.api.AbstractComparableAssert;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.molr.commons.domain.MissionInput;
 import org.molr.commons.domain.Result;
@@ -70,4 +72,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         return strandExecutorFactory;
     }
 
+    public AbstractComparableAssert<?, Result> assertThatRootResult() {
+        return Assertions.assertThat(treeResultTracker().resultFor(treeStructure().rootBlock()));
+    }
 }

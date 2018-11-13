@@ -58,11 +58,12 @@ public class TreeStructureTest {
         }
     }.build();
 
+    private static final TreeStructure STRUCTURE = DATA.treeStructure();
+
     @Test
     public void testSubtreeOfLeafContainsJustTheLeaf() {
-        TreeStructure structure = DATA.treeStructure();
-        structure.allBlocks().stream().filter(structure::isLeaf).forEach(leaf -> {
-            TreeStructure substructure = structure.substructure(leaf);
+        STRUCTURE.allBlocks().stream().filter(STRUCTURE::isLeaf).forEach(leaf -> {
+            TreeStructure substructure = STRUCTURE.substructure(leaf);
             assertThat(substructure.allBlocks()).hasSize(1);
             assertThat(substructure.rootBlock()).isEqualTo(leaf);
             assertThat(substructure.allBlocks().iterator().next()).isEqualTo(leaf);
@@ -71,10 +72,9 @@ public class TreeStructureTest {
 
     @Test
     public void testSubtrees() {
-        TreeStructure structure = DATA.treeStructure();
-        TreeStructure firstSubtree = structure.substructure(FIRST);
-        TreeStructure secondSubtree = structure.substructure(SECOND);
-        TreeStructure parallelSubtree = structure.substructure(PARALLEL);
+        TreeStructure firstSubtree = STRUCTURE.substructure(FIRST);
+        TreeStructure secondSubtree = STRUCTURE.substructure(SECOND);
+        TreeStructure parallelSubtree = STRUCTURE.substructure(PARALLEL);
 
         assertThat(firstSubtree.rootBlock()).isEqualTo(FIRST);
         assertThat(firstSubtree.allBlocks()).containsExactlyInAnyOrder(FIRST, FIRST_A, FIRST_B);
@@ -91,41 +91,38 @@ public class TreeStructureTest {
         assertThat(parallelSubtree.isLeaf(PARALLEL_A)).isTrue();
         assertThat(parallelSubtree.isLeaf(PARALLEL_B)).isTrue();
 
-        assertThat(structure.substructure(structure.rootBlock())).isEqualTo(structure);
+        assertThat(STRUCTURE.substructure(STRUCTURE.rootBlock())).isEqualTo(STRUCTURE);
     }
 
     @Test
     public void testNextOfLastIsNull() {
-        TreeStructure tree = DATA.treeStructure();
-        assertThat(tree.nextBlock(FOURTH)).isEmpty();
-        assertThat(tree.nextBlock(FOURTH_A)).isEmpty();
+        assertThat(STRUCTURE.nextBlock(FOURTH)).isEmpty();
+        assertThat(STRUCTURE.nextBlock(FOURTH_A)).isEmpty();
     }
 
     @Test
     public void testNextOfSequenceIsNextSibling() {
-        TreeStructure tree = DATA.treeStructure();
-        assertThat(tree.nextBlock(FIRST)).contains(SECOND);
-        assertThat(tree.nextBlock(SECOND)).contains(THIRD);
-        assertThat(tree.nextBlock(THIRD)).contains(PARALLEL);
-        assertThat(tree.nextBlock(PARALLEL)).contains(FOURTH);
+        assertThat(STRUCTURE.nextBlock(FIRST)).contains(SECOND);
+        assertThat(STRUCTURE.nextBlock(SECOND)).contains(THIRD);
+        assertThat(STRUCTURE.nextBlock(THIRD)).contains(PARALLEL);
+        assertThat(STRUCTURE.nextBlock(PARALLEL)).contains(FOURTH);
 
-        assertThat(tree.nextBlock(PARALLEL_A)).contains(PARALLEL_B);
-        assertThat(tree.nextBlock(FIRST_A)).contains(FIRST_B);
-        assertThat(tree.nextBlock(FIRST_A)).contains(FIRST_B);
-        assertThat(tree.nextBlock(SECOND_A)).contains(SECOND_B);
+        assertThat(STRUCTURE.nextBlock(PARALLEL_A)).contains(PARALLEL_B);
+        assertThat(STRUCTURE.nextBlock(FIRST_A)).contains(FIRST_B);
+        assertThat(STRUCTURE.nextBlock(FIRST_A)).contains(FIRST_B);
+        assertThat(STRUCTURE.nextBlock(SECOND_A)).contains(SECOND_B);
     }
 
     @Test
     public void testNextOfLastChildIsNextOfParent() {
-        TreeStructure tree = DATA.treeStructure();
-        assertThat(tree.nextBlock(FIRST_B)).contains(SECOND);
-        assertThat(tree.nextBlock(SECOND_B)).contains(THIRD);
-        assertThat(tree.nextBlock(PARALLEL_B)).contains(FOURTH);
+        assertThat(STRUCTURE.nextBlock(FIRST_B)).contains(SECOND);
+        assertThat(STRUCTURE.nextBlock(SECOND_B)).contains(THIRD);
+        assertThat(STRUCTURE.nextBlock(PARALLEL_B)).contains(FOURTH);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSubstructureOfUnknownBlockThrows() {
-        DATA.treeStructure().substructure(Block.idAndText("unknown", "unknown"));
+        STRUCTURE.substructure(Block.idAndText("unknown", "unknown"));
     }
 
     /* Testing tree utils.. */
@@ -134,9 +131,9 @@ public class TreeStructureTest {
         List<Block> withoutParallelParentNodes = Arrays.asList(FIRST, FIRST_A, FIRST_B, SECOND, SECOND_A, SECOND_B, THIRD, PARALLEL, FOURTH, FOURTH_A);
         List<Block> withParallelParentNodes = Arrays.asList(PARALLEL_A, PARALLEL_B);
 
-        withoutParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, DATA.treeStructure()))
+        withoutParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, STRUCTURE))
                 .as("Block %s should not have a parallel parent", node).isFalse());
-        withParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, DATA.treeStructure()))
+        withParallelParentNodes.forEach(node -> assertThat(TreeUtils.doesBlockHaveAParallelParent(node, STRUCTURE))
                 .as("Block %s should have a parallel parent", node).isTrue());
     }
 

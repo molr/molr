@@ -1,10 +1,9 @@
 package org.molr.mole.core.tree;
 
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 import org.molr.commons.domain.Block;
-import org.molr.commons.domain.Result;
-import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
@@ -15,6 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.molr.commons.domain.Result.SUCCESS;
+import static org.molr.commons.domain.Result.UNDEFINED;
+import static org.molr.commons.domain.RunState.FINISHED;
+import static org.molr.commons.domain.RunState.PAUSED;
 
 @SuppressWarnings("unused")
 public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExecutorTest {
@@ -74,23 +78,33 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         instructRootStrandSync(StrandCommand.RESUME);
 
         waitUntilRootStrandIsFinished();
-        assertThatRootStrandState().isEqualTo(RunState.FINISHED);
-        assertThatResultOf(treeStructure().rootBlock()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(treeStructure().rootBlock()).isEqualTo(SUCCESS);
     }
 
     @Test
     public void testStepInto() {
         instructRootStrandSync(StrandCommand.STEP_INTO);
         waitUntilRootStrandBlockIs(FIRST);
-        assertThatRootStrandBlock().isEqualTo(FIRST);
 
         instructRootStrandSync(StrandCommand.STEP_INTO);
         waitUntilRootStrandBlockIs(FIRST_A);
-        assertThatRootStrandBlock().isEqualTo(FIRST_A);
+    }
 
+    @Test
+    public void testStepIntoALeafHasNoEffect() {
+        moveRootStrandTo(FIRST_A);
         instructRootStrandSync(StrandCommand.STEP_INTO);
-        waitUntilRootStrandBlockIs(FIRST_A);
-        assertThatRootStrandBlock().isEqualTo(FIRST_A).as("Stepping into a leaf should have no effect");
+        assertThatRootStrandBlock().as("Stepping into a leaf should have no effect").isEqualTo(FIRST_A);
+    }
+    
+    @Test
+    public void testStepIntoParallelBlockSpawnsStrands() {
+        moveRootStrandTo(PARALLEL);
+        instructRootStrandSync(StrandCommand.STEP_INTO);
+        waitUntilRootStrandStateIs(PAUSED);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
+
+        Assertions.assertThat(rootStrandChildren()).hasSize(2);
     }
 
     @Test
@@ -99,21 +113,19 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         waitUntilRootStrandBlockIs(FIRST_A);
 
         instructRootStrandSync(StrandCommand.STEP_OVER);
-        waitUntilResultOfBlockIs(FIRST_A, Result.SUCCESS);
+        waitUntilResultOfBlockIs(FIRST_A, SUCCESS);
         waitUntilRootStrandBlockIs(FIRST_B);
-        assertThatRootStrandBlock().isEqualTo(FIRST_B).as("Strand should have moved to next after STEP_OVER success");
 
         instructRootStrandSync(StrandCommand.STEP_OVER);
-        waitUntilResultOfBlockIs(FIRST_B, Result.SUCCESS);
+        waitUntilResultOfBlockIs(FIRST_B, SUCCESS);
         waitUntilRootStrandBlockIs(SECOND);
-        assertThatRootStrandBlock().isEqualTo(SECOND).as("Strand should have moved to next after STEP_OVER success");
 
         List<Block> successfulBlocks = Arrays.asList(FIRST_A, FIRST_B, FIRST);
         treeStructure().allBlocks().forEach(block -> {
             if (successfulBlocks.contains(block)) {
-                assertThatResultOf(block).isEqualTo(Result.SUCCESS).as("Result for %s should be SUCCESS!", block);
+                assertThatResultOf(block).as("Result for %s should be SUCCESS!", block).isEqualTo(SUCCESS);
             } else {
-                assertThatResultOf(block).isEqualTo(Result.UNDEFINED).as("Block %s should have not been evaluated in this test...", block);
+                assertThatResultOf(block).as("Block %s should have not been evaluated in this test...", block).isEqualTo(UNDEFINED);
             }
         });
     }
@@ -124,14 +136,12 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         waitUntilRootStrandBlockIs(FOURTH);
 
         instructRootStrandSync(StrandCommand.SKIP);
-        waitUntilRootStrandStateIs(RunState.FINISHED);
-        assertThatRootStrandState().isEqualTo(RunState.FINISHED).as("Skipping the last block should finish the strand");
+        assertThatRootStrandState().as("Skipping the last block should finish the strand").isEqualTo(FINISHED);
     }
 
     @Test
     public void testSkippingBlocks() {
         moveRootStrandTo(FIRST);
-        waitUntilRootStrandBlockIs(FIRST);
 
         instructRootStrandSync(StrandCommand.SKIP);
         waitUntilRootStrandBlockIs(SECOND);
@@ -146,10 +156,10 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         waitUntilRootStrandBlockIs(FOURTH);
 
         instructRootStrandSync(StrandCommand.SKIP);
-        waitUntilRootStrandStateIs(RunState.FINISHED);
+        waitUntilRootStrandStateIs(FINISHED);
 
         for (Block block : treeStructure().allBlocks()) {
-            assertThatResultOf(block).isEqualTo(Result.UNDEFINED).as("Result should be UNDEFINED when skipping all blocks");
+            assertThatResultOf(block).as("Result should be UNDEFINED when skipping all blocks").isEqualTo(UNDEFINED);
         }
     }
 

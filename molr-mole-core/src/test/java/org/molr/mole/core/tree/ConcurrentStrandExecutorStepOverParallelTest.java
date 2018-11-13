@@ -86,10 +86,10 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
         await(latchA1Start, latchB1Start);
 
         instructRootStrandSync(StrandCommand.STEP_OVER);
-
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 
         waitUntilRootStrandStateIs(RunState.FINISHED);
+
         assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);
@@ -106,10 +106,10 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
         await(latchA1Start, latchB1Start);
 
         instructRootStrandSync(StrandCommand.RESUME);
-
         unlatch(latchA1End, latchB1End, latchA2End, latchB2End);
 
         waitUntilRootStrandStateIs(RunState.FINISHED);
+
         assertThatResultOf(parallel).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA1).isEqualTo(Result.SUCCESS);
         assertThatResultOf(parallelA2).isEqualTo(Result.SUCCESS);

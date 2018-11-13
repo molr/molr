@@ -86,7 +86,6 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
 
         await(latchStart);
         waitUntilRootStrandStateIs(RUNNING);
-        assertThatRootStrandState().isEqualTo(RUNNING);
 
         moveRootStrandTo(SEQUENTIAL);
     }
