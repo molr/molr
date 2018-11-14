@@ -21,9 +21,10 @@ this repository. The currently most up-to-date branch is `op-proposal`.
 > The current version is heavily under development and not yet stable at all. We hope this to change within a few weeks. 
 > Stay tuned! 
 
-### Concepts
-Currently documentation of molr is hosted in a different repository:
+### Concept & Vision
+The original document about the vision and purpose of molr can be found in a separate repo:
 
+https://github.com/molr/molr-docs/blob/master/README.md
 
 ### Package structure
 
