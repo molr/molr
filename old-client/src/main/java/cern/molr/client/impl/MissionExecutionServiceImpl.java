@@ -59,7 +59,7 @@ public class MissionExecutionServiceImpl implements MissionExecutionService {
 
         } catch (NumberFormatException error) {
             LOGGER.error("error while parsing the port string property into an integer", error);
-            throw new RuntimeException(error);
+            throw error;
         } catch (Exception error) {
             LOGGER.error("error while trying to get client config.properties file host and port, using the default " +
                     "values", error);

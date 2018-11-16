@@ -260,9 +260,9 @@ public class MoleSpecificTest {
 
     }
 
-    private void launchSequenceMissionExampleCustomController(String execName, List<MissionEvent> events,
-                                                              List<CommandResponse> commandResponses, List<MissionState> states,
-                                                              CountDownLatch finishSignal) throws Exception {
+    private void launchSequenceMissionCustomController(String execName, List<MissionEvent> events,
+                                                       List<CommandResponse> commandResponses, List<MissionState> states,
+                                                       CountDownLatch finishSignal) throws Exception {
 
         CountDownLatch instantiateSignal = new CountDownLatch(1);
         CountDownLatch startSignal = new CountDownLatch(1);
@@ -455,7 +455,7 @@ public class MoleSpecificTest {
         List<MissionState> states = new ArrayList<>();
         CountDownLatch finishSignal = new CountDownLatch(1);
 
-        launchSequenceMissionExampleCustomController("exec", events, commandResponses, states, finishSignal);
+        launchSequenceMissionCustomController("exec", events, commandResponses, states, finishSignal);
         finishSignal.await(1, TimeUnit.MINUTES);
 
         testAll(events, commandResponses, states);
@@ -493,7 +493,7 @@ public class MoleSpecificTest {
                         .TERMINATE)},
                 states.get(1).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(9).getLevel());
-        Assert.assertEquals("MISSION TASKS_FINISHED", states.get(9).getStatus());
+        Assert.assertEquals("MISSION FINISHED", states.get(9).getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, states.get(9).getPossibleCommands().toArray());
         Assert.assertEquals(MissionState.Level.MOLE_RUNNER, states.get(10).getLevel());
         Assert.assertEquals("SESSION TERMINATED", states.get(10).getStatus());
@@ -550,7 +550,7 @@ public class MoleSpecificTest {
 
     private void testFinishedState(MissionState state) {
         Assert.assertEquals(MissionState.Level.MOLE, state.getLevel());
-        Assert.assertEquals("ALL TASKS TASKS_FINISHED", state.getStatus());
+        Assert.assertEquals("ALL TASKS FINISHED", state.getStatus());
         Assert.assertArrayEquals(new MissionCommand[]{}, state.getPossibleCommands().toArray());
     }
 

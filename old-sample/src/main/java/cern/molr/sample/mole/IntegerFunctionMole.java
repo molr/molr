@@ -70,6 +70,11 @@ public class IntegerFunctionMole implements Mole<Integer, Integer> {
         }
     }
 
+    /**
+     * This mole does not define specific commands
+     * @param command
+     * @throws CommandNotAcceptedException
+     */
     @Override
     public void sendCommand(MissionCommand command) throws CommandNotAcceptedException {
 

@@ -14,6 +14,7 @@ import java.util.Objects;
 
 /**
  * Standard client controller which can be extended to create custom controllers
+ *
  * @author yassine-kr
  */
 public class StandardController implements ClientMissionController {

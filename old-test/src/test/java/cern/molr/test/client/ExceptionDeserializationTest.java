@@ -54,6 +54,7 @@ public class ExceptionDeserializationTest {
 
     }
 
+
     @Test
     public void invocationExceptionTypelessTest() {
         InvocationTargetException invocationTargetException = new InvocationTargetException(new Exception
@@ -102,7 +103,7 @@ public class ExceptionDeserializationTest {
             StackTraceElement[] stackTraceElements = null;
             String message = null;
 
-            for (jp.nextToken() ; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+            for (jp.nextToken(); jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
                 jp.nextToken();
 
                 switch (jp.getCurrentName()) {

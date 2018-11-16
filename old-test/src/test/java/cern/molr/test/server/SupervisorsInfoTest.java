@@ -26,7 +26,6 @@ public class SupervisorsInfoTest {
 
     private ConfigurableApplicationContext serverContext;
     private ConfigurableApplicationContext supervisorContext;
-    private WebFluxRestClient client = new WebFluxRestClient("http://localhost", 8000);
     private WebFluxWebSocketClient clientSocket = new WebFluxWebSocketClient("http://localhost", 8000);
 
     @Before

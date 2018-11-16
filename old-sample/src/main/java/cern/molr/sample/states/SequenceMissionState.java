@@ -22,7 +22,7 @@ public class SequenceMissionState extends MissionState {
 
     public SequenceMissionState(@JsonProperty("level") Level level, @JsonProperty("status") String status,
                                 @JsonProperty("possibleCommands") List<MissionCommand> possibleCommands, @JsonProperty("taskNumber") int
-            taskNumber, @JsonProperty("state") State state) {
+                                        taskNumber, @JsonProperty("state") State state) {
         super(level, status, possibleCommands);
         this.taskNumber = taskNumber;
         this.state = state;

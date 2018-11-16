@@ -83,7 +83,7 @@ public abstract class RemoteReader implements AutoCloseable {
 
     }
 
-    static void closeResource(AutoCloseable closeable, Consumer<Exception> onError) {
+    static public void closeResource(AutoCloseable closeable, Consumer<Exception> onError) {
         try {
             closeable.close();
         } catch (Exception error) {

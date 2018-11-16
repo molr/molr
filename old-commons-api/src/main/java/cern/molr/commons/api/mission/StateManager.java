@@ -15,7 +15,6 @@ import java.util.List;
 public interface StateManager {
 
     /**
-     *
      * @return the current state
      */
     MissionState getState();

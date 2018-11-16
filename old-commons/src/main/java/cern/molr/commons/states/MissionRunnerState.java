@@ -16,7 +16,7 @@ public class MissionRunnerState extends MissionState {
     private final State state;
 
     public MissionRunnerState(@JsonProperty("level") Level level, @JsonProperty("status") String status,
-                                @JsonProperty("possibleCommands") List<MissionCommand> possibleCommands, @JsonProperty
+                              @JsonProperty("possibleCommands") List<MissionCommand> possibleCommands, @JsonProperty
                                       ("state") State state) {
         super(level, status, possibleCommands);
         this.state = state;

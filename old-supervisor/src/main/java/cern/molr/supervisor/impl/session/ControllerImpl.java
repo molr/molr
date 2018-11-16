@@ -9,7 +9,6 @@ import cern.molr.supervisor.api.session.EventsListener;
 import cern.molr.supervisor.api.session.MoleController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +90,6 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
      * Need to be "synchronized" to avoid sending many commands at the same time
      * The next command is executed after returning result of the last sent command
      *
-     *
      * @return the command response; whether the command was accepted
      */
     @Override
@@ -103,13 +101,13 @@ public class ControllerImpl implements MoleController, EventsListener, Closeable
 
             while (commandStatus == null) {
             }
-            if (commandStatus.isAccepted()) {
+            if (commandStatus.isSuccess()) {
                 String message = commandStatus.getReason();
                 commandStatus = null;
                 return new CommandResponse(new Ack(message));
             } else {
                 CommandResponse response =
-                        new CommandResponse(commandStatus.getException());
+                        new CommandResponse(commandStatus.getThrowable());
                 commandStatus = null;
                 return response;
             }

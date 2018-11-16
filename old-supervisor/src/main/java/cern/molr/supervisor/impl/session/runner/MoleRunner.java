@@ -14,9 +14,8 @@ import cern.molr.commons.api.response.MissionEvent;
 import cern.molr.commons.api.response.MissionState;
 import cern.molr.commons.api.web.SimpleSubscriber;
 import cern.molr.commons.commands.MissionControlCommand;
-import cern.molr.commons.events.MissionRunnerEvent;
-import cern.molr.commons.events.MissionExceptionEvent;
 import cern.molr.commons.events.MissionFinished;
+import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.commons.events.MissionStateEvent;
 import cern.molr.commons.impl.mission.MissionImpl;
 import cern.molr.commons.web.SerializationUtils;
@@ -24,7 +23,6 @@ import cern.molr.supervisor.api.session.runner.CommandListener;
 import cern.molr.supervisor.impl.session.CommandStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +35,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * The entry point to execute a mission in a spawned JVM. It has a reader which reads commands from STDIN and writes
  * events in STDOUT
+ * <p>
+ * TODO if the logger writes to the output stream it leads to issues, because the supervisor attempts to deserialize
  *
  * @author nachivpn
  * @author yassine-kr
@@ -179,19 +179,18 @@ public class MoleRunner implements CommandListener {
 
             sendEvent(new MissionRunnerEvent(MissionRunnerEvent.Event.MISSION_STARTED));
 
-            CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture.supplyAsync(() -> {
                 try {
-                    MissionEvent missionFinishedEvent =
-                            new MissionFinished(future.get());
+                    MissionEvent missionFinishedEvent = new MissionFinished<>(future.get());
                     sendEvent(missionFinishedEvent);
                 } catch (ExecutionException | InterruptedException error) {
-                    sendEvent(new MissionExceptionEvent(error.getCause()));
+                    sendEvent(new MissionRunnerEvent(error.getCause()));
                 }
                 System.exit(0);
                 return null;
             });
         } catch (Exception error) {
-            sendEvent(new MissionExceptionEvent(error));
+            sendEvent(new MissionRunnerEvent(error));
             System.exit(-1);
         }
     }

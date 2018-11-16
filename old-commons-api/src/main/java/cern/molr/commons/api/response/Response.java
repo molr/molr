@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 /**
  * Represents a generic response sent by the server
+ *
  * @param <R> the type of the returned object
  */
 public class Response<R> {

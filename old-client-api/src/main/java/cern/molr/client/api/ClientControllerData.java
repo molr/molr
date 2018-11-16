@@ -2,6 +2,7 @@ package cern.molr.client.api;
 
 /**
  * Data used to create a client controller
+ *
  * @author yassine-kr
  */
 public class ClientControllerData {

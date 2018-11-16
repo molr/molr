@@ -43,7 +43,7 @@ public class MolrServerToSupervisorImpl implements MolrServerToSupervisor {
         restClient = new WebFluxRestClient(host, port);
         socketClient = new WebFluxWebSocketClient(host, port);
     }
-    
+
     @Override
     public Optional<SupervisorState> getState() {
         try {

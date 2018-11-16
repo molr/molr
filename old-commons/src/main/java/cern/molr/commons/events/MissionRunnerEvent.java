@@ -10,12 +10,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author yassine-kr
  */
-public class MissionRunnerEvent implements MissionEvent {
+public class MissionRunnerEvent extends MissionEvent {
 
     private final Event event;
 
-    public MissionRunnerEvent(@JsonProperty("event") Event event) {
+    public MissionRunnerEvent(@JsonProperty("success") boolean success, @JsonProperty("throwable") Throwable throwable,
+                              @JsonProperty("event") Event event) {
+        super(success, throwable);
         this.event = event;
+    }
+
+    public MissionRunnerEvent(Event event) {
+        super(true, null);
+        this.event = event;
+    }
+
+    public MissionRunnerEvent(Throwable throwable) {
+        super(false, throwable);
+        event = Event.MISSION_ERROR;
     }
 
     public Event getEvent() {
@@ -30,6 +42,7 @@ public class MissionRunnerEvent implements MissionEvent {
     public enum Event {
         MISSION_STARTED,
         SESSION_INSTANTIATED,
-        SESSION_TERMINATED
+        SESSION_TERMINATED,
+        MISSION_ERROR
     }
 }

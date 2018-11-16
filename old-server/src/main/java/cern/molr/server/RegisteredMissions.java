@@ -13,6 +13,7 @@ public class RegisteredMissions {
 
     /**
      * Instantiates {@link RegisteredMissions}.
+     *
      * @param missions canonical paths of mission classes to be registered in MolR server registry
      */
     public RegisteredMissions(List<String> missions) {
