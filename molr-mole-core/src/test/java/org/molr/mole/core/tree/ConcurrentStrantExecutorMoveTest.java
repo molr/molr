@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
 
     @Override
     protected RunnableLeafsMission mission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("Root", root -> {
                     SEQUENTIAL = root.sequential("Sequential", b -> {

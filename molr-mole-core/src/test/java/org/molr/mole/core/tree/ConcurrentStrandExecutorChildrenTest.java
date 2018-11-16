@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.molr.mole.core.tree.exception.RejectedCommandException;
 import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
 import org.molr.mole.core.tree.support.StrandErrorsRecorder;
@@ -42,7 +42,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
     @Override
     protected RunnableLeafsMission mission() {
         LOGGER.info("MISSION CREATED");
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("Root", root -> {
                     blockParallel = root.parallel("Parallel", p -> {

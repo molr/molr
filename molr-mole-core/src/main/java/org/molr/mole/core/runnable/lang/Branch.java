@@ -4,6 +4,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.In;
 import org.molr.commons.domain.Out;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
+import org.molr.mole.core.utils.Uncheckeds;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -30,11 +31,15 @@ public class Branch {
         return run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, Consumer<In> runnable) {
-        return builder.leafChild(parent, name, (in, out) -> runnable.accept(in));
+    public Block run(String name, Uncheckeds.CheckedThrowingRunnable runnable) {
+        return run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, BiConsumer<In, Out> runnable) {
+    public Block run(String name, Uncheckeds.CheckedThrowingConsumer<In> runnable) {
+        return run(name, (in, out) -> runnable.accept(in));
+    }
+
+    public Block run(String name, Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable) {
         return builder.leafChild(parent, name, runnable);
     }
 
@@ -59,25 +64,18 @@ public class Branch {
     }
 
     public Block sleep(long time, TimeUnit unit) {
-        return run("Sleep " + time + " " + unit, () -> {
-            try {
-                unit.sleep(time);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return run("Sleep " + time + " " + unit, () -> unit.sleep(time));
     }
-
 
     public static class Task {
         private final String name;
-        private final BiConsumer<In, Out> runnable;
+        private final Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable;
 
         public Task(String name, Runnable runnable) {
             this(name, (in, out) -> runnable.run());
         }
 
-        public Task(String name, BiConsumer<In, Out> runnable) {
+        public Task(String name, Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable) {
             this.name = requireNonNull(name, "name must not be null.");
             this.runnable = requireNonNull(runnable, "runnable must not be null");
         }
@@ -104,4 +102,6 @@ public class Branch {
                     '}';
         }
     }
+
+
 }

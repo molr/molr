@@ -12,7 +12,6 @@ import cern.molr.commons.commands.MissionControlCommand;
 import cern.molr.commons.events.MissionFinished;
 import cern.molr.commons.events.MissionRunnerEvent;
 import cern.molr.sample.commands.SequenceCommand;
-import cern.molr.sample.controllers.SequenceMissionController;
 import cern.molr.sample.events.SequenceMissionEvent;
 import cern.molr.sample.mission.SequenceMissionExample;
 import cern.molr.server.ServerMain;

@@ -5,7 +5,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 
@@ -18,7 +18,7 @@ public class ConcurrentStrandExecutorLeafExecutionTest extends AbstractSingleMis
 
     @Override
     protected RunnableLeafsMission mission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("test", root -> {
                     failingBlock = root.run("failing", () -> {

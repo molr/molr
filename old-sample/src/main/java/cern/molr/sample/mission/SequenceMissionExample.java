@@ -15,7 +15,6 @@ import java.util.List;
  *
  * @author yassine-kr
  */
-@RunWithMole(SequenceMole.class)
 public class SequenceMissionExample implements SequenceMission {
 
 

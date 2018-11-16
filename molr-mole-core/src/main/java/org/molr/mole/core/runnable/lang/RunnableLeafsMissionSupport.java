@@ -15,9 +15,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * An abstract class which is intended to describe a tree of runnables, which can be used as simple test case for parallel tree execution.
  */
-public abstract class RunnableMissionSupport {
+public abstract class RunnableLeafsMissionSupport {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RunnableMissionSupport.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RunnableLeafsMissionSupport.class);
 
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();

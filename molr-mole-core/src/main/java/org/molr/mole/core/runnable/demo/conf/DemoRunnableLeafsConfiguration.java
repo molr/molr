@@ -3,7 +3,7 @@ package org.molr.mole.core.runnable.demo.conf;
 import org.molr.commons.domain.Placeholder;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.Branch;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ public class DemoRunnableLeafsConfiguration {
 
     @Bean
     public RunnableLeafsMission demoMission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("Executable Leafs Demo Mission", root -> {
 
@@ -48,7 +48,7 @@ public class DemoRunnableLeafsConfiguration {
 
     @Bean
     public RunnableLeafsMission parametrizedDemoMission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
                 Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500);
@@ -103,7 +103,7 @@ public class DemoRunnableLeafsConfiguration {
 
     @Bean
     public RunnableLeafsMission parallelBlocksMission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("Parallel Blocks", root -> {
 

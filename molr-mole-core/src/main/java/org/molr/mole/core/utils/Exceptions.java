@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
 
 import static org.slf4j.helpers.MessageFormatter.arrayFormat;
 
-public class ExceptionUtils {
+public class Exceptions {
 
     /**
      * Instantiate the provided exception {@link Class}. It will look for a constructor compatible with {@link String}
@@ -21,5 +21,8 @@ public class ExceptionUtils {
             throw new IllegalArgumentException("Cannot instantiate exception class " + clazz.getSimpleName());
         }
     }
+
+
+
 
 }

@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class TreeUtils {
+public class Trees {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TreeUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Trees.class);
 
     /**
      * Walks through the {@link TreeStructure} logging on screen the result of each node

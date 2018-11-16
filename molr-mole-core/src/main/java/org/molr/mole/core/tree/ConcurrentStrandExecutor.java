@@ -10,7 +10,7 @@ import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.tree.exception.RejectedCommandException;
 import org.molr.mole.core.tree.exception.StrandExecutorException;
-import org.molr.mole.core.utils.TreeUtils;
+import org.molr.mole.core.utils.Trees;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
@@ -37,7 +37,7 @@ import static org.molr.commons.domain.StrandCommand.RESUME;
 import static org.molr.commons.domain.StrandCommand.SKIP;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 import static org.molr.commons.domain.StrandCommand.STEP_OVER;
-import static org.molr.mole.core.utils.ExceptionUtils.exception;
+import static org.molr.mole.core.utils.Exceptions.exception;
 import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
 /**
@@ -418,7 +418,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             if (!structure.contains(block)) {
                 throw exception(IllegalArgumentException.class, "Strand {} cannot move to {} as is not part of this tree structure", strand.id(), block);
             }
-            if (TreeUtils.doesBlockHaveAParallelParent(block, structure)) {
+            if (Trees.doesBlockHaveAParallelParent(block, structure)) {
                 throw exception(IllegalArgumentException.class, "Strand {} cannot move to {} as is descendant of a parallel block", strand.id(), block);
             }
             if (actualState() != ExecutorState.IDLE) {
