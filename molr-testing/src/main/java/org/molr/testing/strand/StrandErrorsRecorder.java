@@ -1,4 +1,4 @@
-package org.molr.mole.core.tree.support;
+package org.molr.testing.strand;
 
 import com.google.common.collect.ImmutableList;
 import org.molr.mole.core.tree.StrandExecutor;

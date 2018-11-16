@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
+import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
     @Override
     protected RunnableLeafsMission mission() {
-        return new RunnableLeafsMissionSupport() {
+        return new RunnableMissionSupport() {
             {
                 mission("step-over", root -> {
                     parallelBlock = root.parallel("parallel", b -> {

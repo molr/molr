@@ -1,4 +1,4 @@
-package org.molr.mole.core.tree.support;
+package org.molr.testing.strand;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
