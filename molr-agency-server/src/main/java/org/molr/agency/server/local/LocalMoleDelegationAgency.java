@@ -78,6 +78,9 @@ public class LocalMoleDelegationAgency implements Agency {
         return supplyOnAgencyExecutorAsync(() -> {
             MissionHandle handle = missionHandleFactory.createHandle();
             Mole mole = missionMoles.get(mission);
+            if (mole == null) {
+                throw new IllegalArgumentException("No mole could be found for mission '" + mission + "'.");
+            }
             mole.instantiate(handle, mission, params);
             activeMoles.put(handle, mole);
             MissionInstance instance = new MissionInstance(handle, mission);
