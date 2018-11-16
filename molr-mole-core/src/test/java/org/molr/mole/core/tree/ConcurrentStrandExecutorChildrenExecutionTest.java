@@ -5,16 +5,14 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.molr.commons.domain.RunState.FINISHED;
-import static org.molr.commons.domain.RunState.PAUSED;
-import static org.molr.commons.domain.RunState.RUNNING;
+import static org.molr.commons.domain.RunState.*;
 import static org.molr.commons.domain.StrandCommand.PAUSE;
 import static org.molr.commons.domain.StrandCommand.RESUME;
 
@@ -36,7 +34,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
     @Override
     protected RunnableLeafsMission mission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("step-over", root -> {
                     parallelBlock = root.parallel("parallel", b -> {

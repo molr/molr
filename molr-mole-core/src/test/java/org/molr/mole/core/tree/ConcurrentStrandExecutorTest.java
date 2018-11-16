@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.molr.mole.core.utils.TreeUtils;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import org.molr.mole.core.utils.Trees;
 import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @Override
     protected RunnableLeafsMission mission() {
-        return new RunnableMissionSupport() {
+        return new RunnableLeafsMissionSupport() {
             {
                 mission("Root", root -> {
                     FIRST = root.sequential("First", b -> {
@@ -70,7 +70,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @After
     public void tearDown() {
-        TreeUtils.logResultsOf(treeResultTracker(), treeStructure());
+        Trees.logResultsOf(treeResultTracker(), treeStructure());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
         instructRootStrandSync(StrandCommand.STEP_INTO);
         assertThatRootStrandBlock().as("Stepping into a leaf should have no effect").isEqualTo(FIRST_A);
     }
-    
+
     @Test
     public void testStepIntoParallelBlockSpawnsStrands() {
         moveRootStrandTo(PARALLEL);
