@@ -14,18 +14,18 @@ public final class Uncheckeds {
     }
 
     public static final void runUnchecked(CheckedThrowingRunnable runnable) {
-        try {
-            runnable.run();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        runnable.run();
     }
 
     @FunctionalInterface
     public interface CheckedThrowingRunnable extends Runnable {
         @Override
         default void run() {
-            runUnchecked(() -> checkedThrowingRun());
+            try {
+                checkedThrowingRun();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         void checkedThrowingRun() throws Exception;
