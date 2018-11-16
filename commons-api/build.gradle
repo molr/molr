@@ -1,4 +1,0 @@
-dependencies {
-    compile group: 'org.reactivestreams', name: 'reactive-streams', version: reactiveStreamsVersion
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: fasterXmlJacksonVersion
-}

@@ -1,7 +1,0 @@
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: jUnitVersion
-
-    testCompile project(":client")
-    testCompile project(":server")
-    testCompile project(":supervisor")
-}

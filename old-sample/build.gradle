@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":old-commons")
+    compile project(":old-commons-api")
+    compile project(":old-client")
+}
