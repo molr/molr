@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.molr.commons.domain.Block;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableMissionSupport;
-import org.molr.mole.core.tree.support.AbstractSingleMissionStrandExecutorTest;
+import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

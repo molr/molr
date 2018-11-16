@@ -1,4 +1,4 @@
-package org.molr.mole.core.tree.support;
+package org.molr.testing.strand;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
@@ -16,6 +16,7 @@ import org.molr.mole.core.tree.StrandFactory;
 import org.molr.mole.core.tree.StrandFactoryImpl;
 import org.molr.mole.core.tree.TreeStructure;
 import org.molr.mole.core.tree.tracking.TreeTracker;
+import org.molr.testing.LatchTestSupport;
 
 /**
  * Abstract support class for a test against one mission, specified via the {@link #mission()} abstract method.
