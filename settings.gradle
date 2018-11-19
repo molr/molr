@@ -1,6 +1,6 @@
 include 'molr-commons'
 include "molr-agency-remote", "molr-agency-server", "molr-agency-core"
-include "molr-mole-server",  "molr-mole-core"
+include "molr-mole-server",  "molr-mole-core", "molr-mole-remote"
 
 // Old
 include "old-server-api", 'old-test', 'old-demo', 'old-sample', "old-commons", "old-client", "old-commons-api", "old-supervisor", "old-client-api", "old-server-api"
