@@ -28,8 +28,10 @@ public class MissionParameterDescriptionDto {
     }
 
     public MissionParameterDescription toMissionParameterDescription() {
-        ImmutableSet<MissionParameter<?>> parameters = this.parameters.stream().map(MissionParameterDto::toMissionParameter).collect(toImmutableSet());
-        return new MissionParameterDescription(parameters);
+        /* this seems to be complicatedly achievable with streams... so we do the transformation here in a more classical way*/
+        ImmutableSet.Builder<MissionParameter<?>> builder = ImmutableSet.builder();
+        this.parameters.forEach(p -> builder.add(p.toMissionParameter()));
+        return new MissionParameterDescription(builder.build());
     }
 
     @Override
