@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 /**
  * Implementation of {@link Mole} which allows for the execution of classes implementing the
- * {@link Function<Integer, Integer>} interface.
+ * {@link Function} interface.
  *
  * @author nachivpn
  * @author yassine-kr
