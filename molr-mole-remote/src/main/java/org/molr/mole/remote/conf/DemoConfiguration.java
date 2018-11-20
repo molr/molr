@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class demoConfiguration {
+public class DemoConfiguration {
 
     @Bean
     public Mole mole(){

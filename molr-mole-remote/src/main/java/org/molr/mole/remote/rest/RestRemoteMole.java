@@ -1,5 +1,6 @@
 package org.molr.mole.remote.rest;
 
+import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
 import org.molr.mole.core.api.Mole;
@@ -23,6 +24,8 @@ public class RestRemoteMole implements Mole {
 
     private final WebClient client;
 
+
+
     public RestRemoteMole(String baseUrl) {
         requireNonNull(baseUrl, "baseUrl must not be null");
         client = WebClient.create(baseUrl);
@@ -30,11 +33,11 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Set<Mission> availableMissions() {
-        //probably a better way to do it...
-        Set<Mission> missionSet = new HashSet<>();
-        Flux<MissionDto> missions = getResponseAsFlux("mission/availableMission",MissionDto.class);
-        missions.map(MissionDto::toMission).map(m->missionSet.add(m));
-        return missionSet;
+        return client.get()
+                .uri("mission/availableMissions")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .flatMap(response -> response.bodyToMono(MissionSetDto.class)).block().toMissionSet();
     }
 
     @Override

@@ -58,7 +58,7 @@ public class DemoMole implements Mole {
 
     @Override
     public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        /* NOOP for the moment */
+        instances.put(handle, missions.get(mission));
     }
 
     @Override
