@@ -40,22 +40,22 @@ public class MolrAgencyRestService {
         return agency.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
     }
 
-    @GetMapping(path = "/states")
+    @GetMapping(path = "/states",  produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<AgencyStateDto> states() {
         return agency.states().map(AgencyStateDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/states")
+    @GetMapping(path = "/instance/{missionHandle}/states", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionStateDto> statesFor(@PathVariable("missionHandle") String missionHandle) {
         return agency.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/outputs")
+    @GetMapping(path = "/instance/{missionHandle}/outputs", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionOutputDto> outputsFor(@PathVariable("missionHandle") String missionHandle) {
         return agency.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/representations")
+    @GetMapping(path = "/instance/{missionHandle}/representations", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionRepresentationDto> representationsFor(@PathVariable("missionHandle") String missionHandle) {
         return agency.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
     }

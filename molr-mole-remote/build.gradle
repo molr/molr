@@ -2,16 +2,16 @@ dependencies {
 
     compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
     compile group: 'org.springframework', name: 'spring-webflux', version: springFrameworkVersion
-    compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: '0.7.11.RELEASE'
-    compile group: 'org.synchronoss.cloud', name: 'nio-multipart-parser', version: '1.1.0'
+   // compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: '0.7.11.RELEASE'
+   // compile group: 'org.synchronoss.cloud', name: 'nio-multipart-parser', version: '1.1.0'
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
 
-    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.9.5'
-    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.5'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.5'
+   // compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.9.5'
+    //compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.5'
+   // compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.5'
 
     compile project(":molr-mole-core")
 
