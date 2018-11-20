@@ -22,7 +22,7 @@ public class MoleRestServerTestWithMain {
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .exchange()
                 .flatMap(response -> response.bodyToMono(TestValueDto.class)).block();
-        System.out.println("Returned object contains : " + returnedObject.getText());
+        System.out.println("Returned object contains : " + returnedObject.text);
         System.in.read();
     }
 
