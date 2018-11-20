@@ -4,8 +4,6 @@
 
 package org.molr.commons.domain;
 
-import com.google.common.collect.Iterables;
-
 import java.util.stream.StreamSupport;
 
 public enum RunState {

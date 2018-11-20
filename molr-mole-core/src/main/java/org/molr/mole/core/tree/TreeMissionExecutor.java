@@ -10,7 +10,6 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 
 

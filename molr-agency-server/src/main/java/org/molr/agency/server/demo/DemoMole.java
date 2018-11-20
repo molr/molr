@@ -2,10 +2,10 @@ package org.molr.agency.server.demo;
 
 //import cern.lhc.app.seq.scheduler.domain.execution.demo.SleepBlock;
 
-import org.molr.commons.domain.*;
-import org.molr.mole.core.api.Mole;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.molr.commons.domain.*;
+import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;

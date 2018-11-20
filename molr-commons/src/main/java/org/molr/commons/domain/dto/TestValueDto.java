@@ -1,7 +1,5 @@
 package org.molr.commons.domain.dto;
 
-import java.util.Objects;
-
 public class TestValueDto {
 
     public final String text;

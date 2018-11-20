@@ -8,7 +8,6 @@ import org.molr.mole.core.utils.Uncheckeds;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;

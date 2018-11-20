@@ -4,11 +4,11 @@
 
 package org.molr.agency.core;
 
-import java.util.Map;
-
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 public interface Agency {
 

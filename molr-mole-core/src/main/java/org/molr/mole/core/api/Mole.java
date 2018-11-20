@@ -4,11 +4,11 @@
 
 package org.molr.mole.core.api;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
+
+import java.util.Map;
+import java.util.Set;
 
 public interface Mole {
 

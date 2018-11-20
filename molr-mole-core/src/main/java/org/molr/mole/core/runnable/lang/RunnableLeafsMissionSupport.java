@@ -2,9 +2,9 @@ package org.molr.mole.core.runnable.lang;
 
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.MissionParameter;
+import org.molr.commons.domain.MissionParameterDescription;
 import org.molr.commons.domain.Placeholder;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.commons.domain.MissionParameterDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -12,7 +12,10 @@ import cern.molr.commons.api.request.supervisor.SupervisorUnregisterRequest;
 import cern.molr.commons.api.response.*;
 import cern.molr.commons.web.MolrConfig;
 import org.reactivestreams.Publisher;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 

@@ -4,10 +4,6 @@
 
 package org.molr.commons.domain;
 
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
-
 public enum StrandCommand {
     PAUSE, STEP_OVER, STEP_INTO, SKIP, RESUME;
 

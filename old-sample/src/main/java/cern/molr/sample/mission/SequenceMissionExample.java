@@ -1,8 +1,6 @@
 package cern.molr.sample.mission;
 
-import cern.molr.commons.api.mission.RunWithMole;
 import cern.molr.sample.mole.SequenceMission;
-import cern.molr.sample.mole.SequenceMole;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
