@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
+
 @RestController
 public class MolrMoleRestService {
 
@@ -22,9 +24,16 @@ public class MolrMoleRestService {
 
 
     @GetMapping(path = "mission/availableMissions")
-    public Flux<MissionDto> availableMissions() {
+    public MissionSetDto availableMissions() {
         Set<Mission> missions = mole.availableMissions();
-        return Flux.fromIterable(missions.stream().map(MissionDto::from).collect(Collectors.toSet()));
+        return MissionSetDto.from(missions);
+    }
+
+    @GetMapping(path = "test/{text}")
+    public TestValueDto testServerExchange(@PathVariable("text")  String text) {
+        TestValueDto testDtoValue = new TestValueDto();
+        testDtoValue.setText(text);
+        return testDtoValue;
     }
 
     @GetMapping(path="mission/{missionName}/representation")
@@ -38,7 +47,7 @@ public class MolrMoleRestService {
     }
 
     @PostMapping(path = "mission/{missionMame}/instantiate/{missionHandleId}")
-    public void instantiate(@PathVariable("missionHandleId") String missionHandleId, @PathVariable("misssionName") String missionName,@RequestBody Map<String, Object> params) {
+    public void instantiate(@PathVariable("missionHandleId") String missionHandleId, @PathVariable("missionName") String missionName,@RequestBody Map<String, Object> params) {
         mole.instantiate(MissionHandle.ofId(missionHandleId),new Mission(missionName),params);
     }
 
@@ -62,11 +71,15 @@ public class MolrMoleRestService {
         return mole.representationsFor(MissionHandle.ofId(missionHandleId)).map(MissionRepresentationDto::from);
     }
 
-    @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/test-stream/{count}", produces = APPLICATION_STREAM_JSON_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
                 .take(count)
-                .map(i -> new TestValueDto("Test output " + i));
+                .map(i -> {
+                    TestValueDto testValue = new TestValueDto();
+                    testValue.setText("response number " + i);
+                    return testValue;
+                });
     }
 
 }
