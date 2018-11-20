@@ -1,0 +1,13 @@
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: jUnitVersion
+    
+    compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
+    compile group: 'org.springframework', name: 'spring-webflux', version: springFrameworkVersion
+    compile group: 'io.projectreactor.ipc', name: 'reactor-netty', version: '0.7.11.RELEASE'
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
+
+    compile project(":molr-mole-core")
+}
