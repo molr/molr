@@ -126,7 +126,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
         instructRootStrandSync(STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        assertThatRootStrandState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
 
         assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
     }
