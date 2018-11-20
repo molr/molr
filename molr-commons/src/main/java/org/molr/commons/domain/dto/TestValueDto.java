@@ -4,18 +4,14 @@ import java.util.Objects;
 
 public class TestValueDto {
 
-    private String text;
+    public final String text;
 
-    public TestValueDto() {
-        this.text = null;
-    }
-
-    public void setText(String text){
+    public TestValueDto(String text) {
         this.text = text;
     }
 
-    public String getText(){
-        return this.text;
+    public TestValueDto() {
+        this.text = null;
     }
 
     @Override
