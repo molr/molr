@@ -47,14 +47,14 @@ defined REST API.
 However, if a mole is implemented in Java, than it can (in addition to the remote usage) also be used embedded in 
 the same jvm as the agency. The responsibilities of a mole are best described by the corresponding java interface:
 
-[src/main/java/org/molr/mole/core/api/Mole.java](src/main/java/org/molr/mole/core/api/Mole.java)
+[molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java](molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
  
 #### Agency
 The agency is the central place to manage all available and running missions. The agency keeps track of the existing
 moles and the missions that they can execute. Further it delegates requests from clients to the corresponding moles.
 Its responsibilities are again best described by a look at its interface:
 
-[src/main/java/org/molr/agency/core/Agency.java]{src/main/java/org/molr/agency/core/Agency.java}
+[molr-agency-core/src/main/java/org/molr/agency/core/Agency.java](molr-agency-core/src/main/java/org/molr/agency/core/Agency.java)
 
 Molr is designed to be completely asynchronous. For this purpose, reactive streams are used. The chosen implementation
 for this is [Project Reactor](https://projectreactor.io/), as can be seen from the used classes in the interfaces
