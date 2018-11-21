@@ -1,4 +1,0 @@
-dependencies {
-    compile project(":old-commons-api")
-    compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
-}

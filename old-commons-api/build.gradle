@@ -1,9 +1,0 @@
-dependencies {
-
-    compile group: 'com.google.guava', name: 'guava', version: guavaVersion
-    
-    // TODO: to be removed
-    compile group: 'org.reactivestreams', name: 'reactive-streams', version: reactiveStreamsVersion
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: fasterXmlJacksonVersion
-    compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
-}
