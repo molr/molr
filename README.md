@@ -16,7 +16,7 @@ mol[e] + mo[dula]r = molr
 
 ### Getting Started
 For the moment, there are no packages released yet. Therefore, the only way to try molr for the moment is to clone 
-this repository. The currently most up-to-date branch is `op-proposal`.
+this repository.
 
 > The current version is heavily under development and not yet stable at all. We hope this to change within a few weeks. 
 > Stay tuned! 
