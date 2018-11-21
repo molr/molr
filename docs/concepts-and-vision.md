@@ -13,7 +13,7 @@ Molr shall make it simple to create modular systems, where it has to be possible
 * Ideally, the mole can be deployed through the mother system, so tha only one entry point is required and coupling to other technologies can be minimized (and/or encapsulated)
 
 The following picture shows an overview of an example system using molr:
-![Molr Overview](molr-overview.PNG)
+![Molr Overview](img/molr-overview.PNG)
 
 ## Components and Responsibilities
 

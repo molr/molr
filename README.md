@@ -24,8 +24,8 @@ this repository.
 > Stay tuned! 
 
 ### Concept & Vision
-The original document about the vision and purpose of molr can be found in a separate repo:
-https://github.com/molr/molr-docs/blob/master/README.md
+The original document about the vision and purpose of molr can be found [here](docs/concepts-and-vision.md). 
+
 
 As this document reflects the actual state of development, here the current definition of the key entities in molr...
 
