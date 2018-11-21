@@ -1,8 +1,7 @@
-# molr
-
 [![Build Status](https://travis-ci.com/molr/molr.svg?branch=master)](https://travis-ci.com/molr/molr)
+[![codecov](https://codecov.io/gh/molr/molr/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr)
 
-
+# molr
 
 A Modular Remote Execution and Debugging Framework.
 
