@@ -81,7 +81,7 @@ public interface Agency {
     Mono<MissionRepresentation> representationOf(Mission mission);
 
     /**
-     * Delivers updates of the representation of the mission. Implementations of the agency (and underlaying moles)
+     * Delivers updates of the representation of the mission. Implementations of the agency (and underlying moles)
      * shall guarantee that the returned stream emits at least once for a newly subscribed client.
      *
      * @param handle the handle of the mission for which to retrieve representation updates
