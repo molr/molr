@@ -39,7 +39,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("root", root -> {
+                sequential("root", root -> {
                     leafBlock = root.run("leaf", () -> {
                         unlatch(latchLeafStart);
                         await(latchLeafEnd);

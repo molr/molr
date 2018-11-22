@@ -40,7 +40,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         LOGGER.info("MISSION CREATED");
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Root", root -> {
+                sequential("Root", root -> {
                     blockParallel = root.parallel("Parallel", p -> {
                         p.sequential("Sequence A", seqA -> {
                             blockA1 = seqA.run("A.1", () -> {

@@ -20,7 +20,7 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Executable Leafs Demo Mission", root -> {
+                sequential("Executable Leafs Demo Mission", root -> {
 
                     root.sequential("First", b -> {
                         b.run(log("First A"));
@@ -57,7 +57,7 @@ public class DemoRunnableLeafsConfiguration {
                 Placeholder<String> device = optional(aString("deviceName"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
-                mission("Executable Leafs Demo Mission (parametrized)", root -> {
+                sequential("Executable Leafs Demo Mission (parametrized)", root -> {
 
                     root.run("print messages", (in, out) -> {
                         for (int i = 0; i < in.get(iterations); i++) {
@@ -105,7 +105,7 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission parallelBlocksMission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Parallel Blocks", root -> {
+                sequential("Parallel Blocks", root -> {
 
                     root.parallel("Parallel 1", b -> {
                         b.run(log("Parallel 1A"));

@@ -31,7 +31,7 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Pausing test", root -> {
+                sequential("Pausing test", root -> {
                     TASK_1 = root.run("Long task1", () -> {
                         unlatch(task1Start);
                         await(task1Finish);

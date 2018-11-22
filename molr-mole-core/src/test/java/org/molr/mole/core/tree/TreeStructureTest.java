@@ -31,7 +31,7 @@ public class TreeStructureTest {
 
     private final static RunnableLeafsMission DATA = new RunnableLeafsMissionSupport() {
         {
-            mission("Root", root -> {
+            sequential("Root", root -> {
 
                 FIRST = root.sequential("First", b -> {
                     FIRST_A = b.run("First A", NOOP);
