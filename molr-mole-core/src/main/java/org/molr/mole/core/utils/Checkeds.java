@@ -1,16 +1,15 @@
 package org.molr.mole.core.utils;
 
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-public final class Uncheckeds {
+public final class Checkeds {
 
-    private Uncheckeds() {
+    private Checkeds() {
         /* Only static methods */
-    }
-
-    public static final Runnable unchecked(CheckedThrowingRunnable runnable) {
-        return () -> runUnchecked(runnable);
     }
 
     public static final void runUnchecked(CheckedThrowingRunnable runnable) {
@@ -32,8 +31,22 @@ public final class Uncheckeds {
     }
 
 
-    public static final <T> Consumer<T> unchecked(CheckedThrowingConsumer<T> runnable) {
-        return (t) -> runUnchecked(() -> runnable.accept(t));
+    public static final <T> T callUnchecked(CheckedThrowingCallable<T> runnable) {
+        return runnable.call();
+    }
+
+    @FunctionalInterface
+    public interface CheckedThrowingCallable<T> extends Callable<T> {
+        @Override
+        default T call() {
+            try {
+                return checkedThrowingCall();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        T checkedThrowingCall() throws Exception;
     }
 
     @FunctionalInterface
@@ -58,6 +71,27 @@ public final class Uncheckeds {
         }
 
         void checkedThrowingAccept(T t, U u) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface CheckedThrowingFunction<T, R> extends Function<T, R> {
+
+        @Override
+        default R apply(T t) {
+            return callUnchecked(() -> checkedThrowingApply(t));
+        }
+
+        R checkedThrowingApply(T t) throws Exception;
+    }
+
+    public interface CheckedThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
+
+        @Override
+        default R apply(T t, U u) {
+            return callUnchecked(() -> checkedThrowingApply(t, u));
+        }
+
+        R checkedThrowingApply(T t, U u) throws Exception;
     }
 
 }

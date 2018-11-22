@@ -6,4 +6,6 @@ public interface Out {
 
     void emit(String name, String value);
 
+    <T> void emit(Placeholder<T> placeholder, T value);
+
 }

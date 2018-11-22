@@ -1,10 +1,15 @@
 package org.molr.commons.domain;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
 public class Placeholder<T> {
+
+    private static final Map<Class<?>, ?> DEFAULT_VALUES = ImmutableMap.of(Integer.class, 0, Double.class, 0.0);
 
     private final Class<T> type;
     private final String name;
@@ -43,6 +48,10 @@ public class Placeholder<T> {
 
     public String name() {
         return this.name;
+    }
+
+    public T defaultValue() {
+        return (T) DEFAULT_VALUES.get(this.type);
     }
 
     @Override

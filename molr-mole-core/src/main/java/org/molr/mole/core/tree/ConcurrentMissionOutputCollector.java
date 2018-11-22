@@ -2,6 +2,7 @@ package org.molr.mole.core.tree;
 
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionOutput;
+import org.molr.commons.domain.Placeholder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -32,6 +33,11 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     @Override
     public void put(Block block, String name, String value) {
         putIt(block, name, value);
+    }
+
+    @Override
+    public <T> void put(Block block, Placeholder<T> placeholder, T value) {
+        putIt(block, placeholder.name(), value);
     }
 
     private void putIt(Block block, String name, Object value) {
