@@ -105,10 +105,13 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     }
 
     private void publishState() {
-        MissionState.Builder builder = MissionState.builder();
-        builder.add(singleStrand, strandRunState.get(), cursor(), allowedCommands());
-        builder.blockRunState(rootBlock(), strandRunState.get());
-        builder.blockResult(rootBlock(), result.get());
+        Result rootResult = this.result.get();
+        RunState rootRunState = strandRunState.get();
+
+        MissionState.Builder builder = MissionState.builder(rootResult);
+        builder.add(singleStrand, rootRunState, cursor(), allowedCommands());
+        builder.blockRunState(rootBlock(), rootRunState);
+        builder.blockResult(rootBlock(), rootResult);
         stateSink.onNext(builder.build());
     }
 

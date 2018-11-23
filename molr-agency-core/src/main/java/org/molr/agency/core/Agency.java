@@ -65,6 +65,10 @@ public interface Agency {
      */
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
+    default void instructRoot(MissionHandle handle, StrandCommand command) {
+
+    }
+
     /**
      * Retrieves the initial (!) representation of a mission, meaning when the mission is not instantiated/running. This
      * representation contains for example the tree structure of the mission. In many (or even most) cases, this
@@ -121,5 +125,19 @@ public interface Agency {
      */
     Flux<MissionOutput> outputsFor(MissionHandle handle);
 
+
+    default Mono<MissionHandle> start(Mission mission, Map<String, Object> missionParameters) {
+            Mono<MissionHandle> handle = instantiate(mission, missionParameters);
+            handle.subscribe(h -> instructRoot(h, StrandCommand.RESUME));
+            return handle;
+    }
+
+    default Mono<Result> awaitFinished(MissionHandle handle) {
+        return null;
+    }
+
+    default Mono<Result> run(Mission mission, Map<String, Object> missionParameters) {
+        return start(mission, missionParameters).flatMap(this::awaitFinished);
+    }
 
 }

@@ -16,6 +16,7 @@ import static java.util.stream.Collectors.*;
 
 public class MissionStateDto {
 
+    public final String result;
     public final Map<String, Set<String>> strandAllowedCommands;
     public final Map<String, BlockDto> strandCursorPositions;
     public final Map<String, String> strandRunStates;
@@ -24,7 +25,8 @@ public class MissionStateDto {
     public final Map<String, String> blockResults;
     public final Map<String, String> blockRunStates;
 
-    private MissionStateDto(Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates) {
+    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates) {
+        this.result = result;
         this.strandAllowedCommands = strandAllowedCommands;
         this.strandCursorPositions = strandCursorPositions;
         this.strandRunStates = strandRunStates;
@@ -35,7 +37,7 @@ public class MissionStateDto {
     }
 
     public MissionStateDto() {
-        this(emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap());
+        this(null, emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap());
     }
 
     public static final MissionStateDto from(MissionState missionState) {
@@ -63,7 +65,7 @@ public class MissionStateDto {
         }
 
 
-        return new MissionStateDto(allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()));
+        return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()));
     }
 
     private static <T extends Enum<T>> ImmutableMap<String, String> toNameMap(Map<String, T> inMap) {
@@ -73,7 +75,7 @@ public class MissionStateDto {
 
     public MissionState toMissionState() {
         Map<String, Strand> idsToStrand = strands.stream().collect(toMap(s -> s.id, StrandDto::toStrand));
-        MissionState.Builder builder = MissionState.builder();
+        MissionState.Builder builder = MissionState.builder(Result.valueOf(result));
 
         Map<String, String> childrenToParentStrandId = childToParent();
         for (StrandDto strandDto : strands) {
@@ -105,13 +107,18 @@ public class MissionStateDto {
         return childrenToParentBuilder.build();
     }
 
+
     @Override
     public String toString() {
         return "MissionStateDto{" +
-                "strandAllowedCommands=" + strandAllowedCommands +
+                "result='" + result + '\'' +
+                ", strandAllowedCommands=" + strandAllowedCommands +
                 ", strandCursorPositions=" + strandCursorPositions +
                 ", strandRunStates=" + strandRunStates +
+                ", parentToChildrenStrands=" + parentToChildrenStrands +
                 ", strands=" + strands +
+                ", blockResults=" + blockResults +
+                ", blockRunStates=" + blockRunStates +
                 '}';
     }
 }
