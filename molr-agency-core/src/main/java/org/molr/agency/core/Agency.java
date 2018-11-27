@@ -65,9 +65,6 @@ public interface Agency {
      */
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
-    default void instructRoot(MissionHandle handle, StrandCommand command) {
-
-    }
 
     /**
      * Retrieves the initial (!) representation of a mission, meaning when the mission is not instantiated/running. This
@@ -124,6 +121,12 @@ public interface Agency {
      * @return a stream of the actually available output for the mission instance.
      */
     Flux<MissionOutput> outputsFor(MissionHandle handle);
+
+
+
+    default void instructRoot(MissionHandle handle, StrandCommand command) {
+
+    }
 
 
     default Mono<MissionHandle> start(Mission mission, Map<String, Object> missionParameters) {

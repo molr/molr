@@ -30,19 +30,19 @@ public class MolrAgencyRestService {
         GET mappings
      */
 
+    @GetMapping(path = "/states",  produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<AgencyStateDto> states() {
+        return agency.states().map(AgencyStateDto::from);
+    }
+
     @GetMapping(path = "/mission/{missionName}/representation")
     public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
         return agency.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
 
-    @GetMapping(path = "/mission/{missionName}/parameter-description")
+    @GetMapping(path = "/mission/{missionName}/parameterDescription")
     public Mono<MissionParameterDescriptionDto> parameterDescriptionOf(@PathVariable("missionName") String missionName) {
         return agency.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
-    }
-
-    @GetMapping(path = "/states",  produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<AgencyStateDto> states() {
-        return agency.states().map(AgencyStateDto::from);
     }
 
     @GetMapping(path = "/instance/{missionHandle}/states", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)

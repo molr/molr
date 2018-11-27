@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -35,61 +37,84 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Set<Mission> availableMissions() {
-        String uri = "mission/availableMissions";
-        return getResponseAsMono(uri, MissionSetDto.class).block().toMissionSet();
+        return mono("mission/availableMissions", MissionSetDto.class)
+                .map(MissionSetDto::toMissionSet)
+                .block();
     }
-
 
     @Override
     public MissionRepresentation representationOf(Mission mission) {
-        String uri = "mission/" + mission.name() + "/representation";
-        Mono<MissionRepresentationDto> missionRepresentation = getResponseAsMono(uri, MissionRepresentationDto.class);
-        return missionRepresentation.map(MissionRepresentationDto::toMissionRepresentation).block();
+        return mono("mission/" + mission.name() + "/representation", MissionRepresentationDto.class)
+                .map(MissionRepresentationDto::toMissionRepresentation)
+                .block();
     }
 
     @Override
     public MissionParameterDescription parameterDescriptionOf(Mission mission) {
-        Mono<MissionParameterDescriptionDto> missionRepresentation = getResponseAsMono("mission/" + mission.name() + "/parameterDescription", MissionParameterDescriptionDto.class);
-        return missionRepresentation.map(MissionParameterDescriptionDto::toMissionParameterDescription).block();
+        return mono("mission/" + mission.name() + "/parameterDescription", MissionParameterDescriptionDto.class)
+                .map(MissionParameterDescriptionDto::toMissionParameterDescription)
+                .block();
+    }
+
+    @Override
+    public Flux<MissionState> statesFor(MissionHandle handle) {
+        return flux("instance/" + handle.id() + "/states", MissionStateDto.class)
+                .map(MissionStateDto::toMissionState);
+    }
+
+    @Override
+    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
+        return flux("instance/" + handle.id() + "/outputs", MissionOutputDto.class)
+                .map(MissionOutputDto::toMissionOutput);
+    }
+
+
+    /* to fix*/
+    @Override
+    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
+        return flux("instance/" + handle.id() + "/representations", MissionRepresentationDto.class)
+                .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
     @Override
     public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
         String uri = "mission/" + mission.name() + "/instantiate/" + handle.id();
-        Mono<ClientResponse> clientResponse = client.post().uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(params))
-                .exchange();
-        handleErrors(uri,clientResponse);
-        clientResponse.doOnError(e -> LOGGER.error("Error during mission instantiation", e)).block();
-    }
-
-    @Override
-    public Flux<MissionState> statesFor(MissionHandle handle) {
-        Flux<MissionStateDto> response = getResponseAsFlux("mission/status/" + handle.id(), MissionStateDto.class);
-        return response.map(MissionStateDto::toMissionState);
-    }
-
-    @Override
-    public Flux<MissionOutput> outputsFor(MissionHandle handle) {
-        Flux<MissionOutputDto> response = getResponseAsFlux("mission/outputsFor/" + handle.id(), MissionOutputDto.class);
-        return response.map(MissionOutputDto::toMissionOutput);
-    }
-
-    @Override
-    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
-        Flux<MissionRepresentationDto> response = getResponseAsFlux("mission/outputsFor/" + handle.id(), MissionRepresentationDto.class);
-        return response.map(MissionRepresentationDto::toMissionRepresentation);
+        post(uri, MediaType.APPLICATION_JSON, BodyInserters.fromObject(params));
     }
 
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
-        MissionHandleDto.from(handle);//{missionHandleId}/{strandId}/{standCommand}
-        StrandDto.from(strand);
-        String uri = "mission/instruct/" + handle.id() + "/" + strand.id() + "/" + command.name();
-        Mono<ClientResponse> clientResponse = clientResponseForPost(uri, MediaType.APPLICATION_JSON);
-        handleErrors(uri,clientResponse);
-        clientResponse.doOnError(e -> LOGGER.error("Error during mission instantiation", e)).block();
+        String uri = "instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name();
+        post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
+    }
+
+
+    private static final void throwOnErrors(String uri, Mono<ClientResponse> clientResponse) {
+        HttpStatus responseStatus = clientResponse.block().statusCode();
+        if (responseStatus == HttpStatus.NOT_FOUND) {
+            throw new IllegalStateException("Server response = NOT FOUND : may be a uri problem or wrong parameters. Uri was: '" + uri + "'.");
+        } else if (responseStatus.isError()) {
+            String errorMessage = clientResponse.block().bodyToMono(String.class).block();
+            throw new IllegalArgumentException("error when calling " + uri
+                    + " with http status " + responseStatus.name()
+                    + " and error message: \n" + errorMessage);
+        }
+    }
+
+    private <T> Flux<T> flux(String uri, Class<T> type) {
+        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_STREAM_JSON);
+        throwOnErrors(uri, clientResponse);
+        return clientResponse
+                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
+                .flatMapMany(response -> response.bodyToFlux(type));
+    }
+
+    private <T> Mono<T> mono(String uri, Class<T> type) {
+        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_JSON);
+        throwOnErrors(uri, clientResponse);
+        return clientResponse
+                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
+                .flatMap(response -> response.bodyToMono(type));
     }
 
     private Mono<ClientResponse> clientResponseForGet(String uri, MediaType mediaType) {
@@ -99,40 +124,15 @@ public class RestRemoteMole implements Mole {
                 .exchange();
     }
 
-    private Mono<ClientResponse> clientResponseForPost(String uri, MediaType mediaType) {
-        return client.post()
+    private void post(String uri, MediaType mediaType, BodyInserter<?, ? super ClientHttpRequest> body) {
+        Mono<ClientResponse> response = client.post()
                 .uri(uri)
                 .accept(mediaType)
+                .body(body)
                 .exchange();
+        throwOnErrors(uri, response);
+        response.doOnError(e -> LOGGER.error("Posting request on URI {}.", uri, e)).subscribe();
     }
 
-    private void handleErrors(String uri, Mono<ClientResponse> clientResponse) {
-        HttpStatus responseStatus = clientResponse.block().statusCode();
-        if (responseStatus == HttpStatus.NOT_FOUND) {
-            throw new IllegalStateException("server response = NOT FOUND : may be a uri problem or wrong parameters ");
-        } else if (responseStatus.isError()) {
-            String errorMessage = clientResponse.block().bodyToMono(String.class).block();
-            throw new IllegalArgumentException("error when calling " + uri
-                    + " with http status " + responseStatus.name()
-                    + " and error message " + errorMessage);
-        }
-    }
-
-
-    private <T> Flux<T> getResponseAsFlux(String uri, Class<T> type) {
-        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_STREAM_JSON);
-        handleErrors(uri, clientResponse);
-        return clientResponse
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
-                .flatMapMany(response -> response.bodyToFlux(type));
-    }
-
-    private <T> Mono<T> getResponseAsMono(String uri, Class<T> type) {
-        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_JSON);
-        handleErrors(uri, clientResponse);
-        return clientResponse
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
-                .flatMap(response -> response.bodyToMono(type));
-    }
 }
 

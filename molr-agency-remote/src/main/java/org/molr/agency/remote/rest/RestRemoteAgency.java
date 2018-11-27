@@ -47,7 +47,7 @@ public class RestRemoteAgency implements Agency {
 
     @Override
     public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
-        return mono("/mission/" + mission.name() + "/parameter-description", MissionParameterDescriptionDto.class)
+        return mono("/mission/" + mission.name() + "/parameterDescription", MissionParameterDescriptionDto.class)
                 .map(MissionParameterDescriptionDto::toMissionParameterDescription)
                 .doOnError(e -> LOGGER.error("error while retrieving parameter description", e));
     }

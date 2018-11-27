@@ -4,6 +4,7 @@ import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
 import org.molr.mole.core.api.Mole;
+import org.molr.mole.core.utils.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,49 +32,37 @@ import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 @RestController
 public class MolrMoleRestService {
 
-    @Autowired
-    Mole mole;
-
     private final static Logger LOGGER = LoggerFactory.getLogger(MolrMoleRestService.class);
 
+    @Autowired
+    private Mole mole;
 
-    @GetMapping(path = "mission/availableMissions")
+    @GetMapping(path = "/mission/availableMissions")
     public MissionSetDto availableMissions() {
-        Set<Mission> missions = mole.availableMissions();
-        return MissionSetDto.from(missions);
+        return MissionSetDto.from(mole.availableMissions());
     }
 
-    @GetMapping(path = "mission/{missionName}/representation")
+    @GetMapping(path = "/mission/{missionName}/representation")
     public MissionRepresentationDto representationOf(@PathVariable("missionName") String missionName) {
             return MissionRepresentationDto.from(mole.representationOf(new Mission(missionName)));
     }
 
-    @GetMapping(path = "mission/{missionName}/parameterDescription")
+    @GetMapping(path = "/mission/{missionName}/parameterDescription")
     public MissionParameterDescriptionDto parameterDescriptionOf(@PathVariable("missionName") String missionName) {
         return MissionParameterDescriptionDto.from(mole.parameterDescriptionOf(new Mission(missionName)));
     }
 
-    @PostMapping(path = "mission/{missionName}/instantiate/{missionHandleId}")
-    public void instantiate(@PathVariable("missionHandleId") String missionHandleId, @PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
-        mole.instantiate(MissionHandle.ofId(missionHandleId), new Mission(missionName), params);
-    }
-
-    @GetMapping(path = "mission/status/{missionHandleId}")
+    @GetMapping(path = "/instance/{missionHandleId}/states")
     public Flux<MissionStateDto> statesFor(@PathVariable("missionHandleId") String missionHandleId) {
         return mole.statesFor(MissionHandle.ofId(missionHandleId)).map(MissionStateDto::from);
     }
 
-    @PostMapping(path = "mission/instruct/{missionHandleId}/{strandId}/{strandCommand}")
-    public void instruct(@PathVariable String missionHandleId, @PathVariable String strandId, @PathVariable String strandCommand) {
-        mole.instruct(MissionHandle.ofId(missionHandleId), Strand.ofId(strandId), StrandCommand.valueOf(strandCommand));
-    }
-
-    @GetMapping(path = "mission/outputsFor/{missionHandleId}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/instance/{missionHandleId}/outputs", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionOutputDto> outputsFor(@PathVariable("missionHandleId") String missionHandleId) {
         return mole.outputsFor(MissionHandle.ofId(missionHandleId)).map(MissionOutputDto::from);
     }
 
-    @GetMapping(path = "mission/representationFor/{missionHandleId}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/instance/{missionHandleId}/representations", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionRepresentationDto> representationsFor(@PathVariable String missionHandleId) {
         return mole.representationsFor(MissionHandle.ofId(missionHandleId)).map(MissionRepresentationDto::from);
     }
@@ -85,9 +74,23 @@ public class MolrMoleRestService {
                 .map(i ->  new TestValueDto("response number " + i));
     }
 
+    /*
+        POST mappings
+     */
+
+    @PostMapping(path = "/mission/{missionName}/instantiate/{missionHandleId}")
+    public void instantiate(@PathVariable("missionHandleId") String missionHandleId, @PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
+        mole.instantiate(MissionHandle.ofId(missionHandleId), new Mission(missionName), params);
+    }
+
+    @PostMapping(path = "/instance/{missionHandleId}/{strandId}/instruct/{strandCommand}")
+    public void instruct(@PathVariable String missionHandleId, @PathVariable String strandId, @PathVariable String strandCommand) {
+        mole.instruct(MissionHandle.ofId(missionHandleId), Strand.ofId(strandId), StrandCommand.valueOf(strandCommand));
+    }
+
     @ExceptionHandler({Exception.class})
-    public @ResponseBody ResponseEntity handleException(IllegalArgumentException e){
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public @ResponseBody ResponseEntity handleException(Exception e){
+        return ResponseEntity.badRequest().body(Exceptions.stackTraceFrom(e));
     }
 
 }

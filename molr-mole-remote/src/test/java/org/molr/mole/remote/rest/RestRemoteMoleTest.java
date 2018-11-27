@@ -1,5 +1,6 @@
 package org.molr.mole.remote.rest;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +39,7 @@ public class RestRemoteMoleTest {
     public static final Block BLOCK1 = Block.idAndText("blockId1", "text");
     public static final Strand STRAND1 = Strand.ofId("strandId");
     public static final Strand STRAND2 = Strand.ofId("strandId2");
+    public static final MissionRepresentation AN_EMPTY_REPRESENTATION = ImmutableMissionRepresentation.empty("anEmpty representation");
 
 
     private final String baseUrl = "http://localhost:8800";
@@ -55,7 +57,9 @@ public class RestRemoteMoleTest {
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(parameterDescription);
 
         when(mole.availableMissions()).thenReturn(missions);
-        when(mole.representationOf(any(Mission.class))).thenReturn(ImmutableMissionRepresentation.empty("anEmpty representation"));
+        when(mole.representationOf(any(Mission.class))).thenReturn(AN_EMPTY_REPRESENTATION);
+
+        when(mole.representationsFor(any(MissionHandle.class))).thenReturn(Flux.just(AN_EMPTY_REPRESENTATION));
 
         MissionState.Builder builder = MissionState.builder(Result.SUCCESS);
         builder.add(STRAND1, RunState.PAUSED, BLOCK1, Collections.singleton(StrandCommand.RESUME));
@@ -94,6 +98,14 @@ public class RestRemoteMoleTest {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         MissionRepresentation rep = remoteMole.representationOf(new Mission("Linear Mission"));
         assertThat(rep.parentsToChildren().isEmpty()).isTrue();
+    }
+
+    @Test
+    public void representationsFor() {
+        RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
+        Flux<MissionRepresentation> representaions = remoteMole.representationsFor(MissionHandle.ofId("0"));
+        Set<MissionRepresentation> reps = representaions.collect(Collectors.toSet()).block();
+        assertThat(reps).containsExactly(AN_EMPTY_REPRESENTATION);
     }
 
     @Test(expected = IllegalArgumentException.class)

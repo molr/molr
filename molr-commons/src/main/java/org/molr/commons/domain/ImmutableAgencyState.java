@@ -13,7 +13,7 @@ public class ImmutableAgencyState implements AgencyState {
     private final Set<MissionInstance> activeMissions;
 
     private ImmutableAgencyState(Set<Mission> executableMissions, Iterable<MissionInstance> activeMissions) {
-        requireNonNull(executableMissions, "executableMissions must not be null");
+        requireNonNull(executableMissions, "availableMissions must not be null");
         requireNonNull(activeMissions, "activeMissions must not be null");
         this.executableMissions = ImmutableSet.copyOf(executableMissions);
         this.activeMissions = ImmutableSet.copyOf(activeMissions);
@@ -50,7 +50,7 @@ public class ImmutableAgencyState implements AgencyState {
     @Override
     public String toString() {
         return "ImmutableAgencyState{" +
-                "executableMissions=" + executableMissions +
+                "availableMissions=" + executableMissions +
                 ", activeMissions=" + activeMissions +
                 '}';
     }

@@ -12,16 +12,16 @@ import static java.util.stream.Collectors.toSet;
 
 public class AgencyStateDto {
 
-    public final Set<MissionDto> executableMissions;
+    public final Set<MissionDto> availableMissions;
     public final Set<MissionInstanceDto> activeMissions;
 
-    public AgencyStateDto(Set<MissionDto> executableMissions, Set<MissionInstanceDto> activeMissions) {
-        this.executableMissions = executableMissions;
+    public AgencyStateDto(Set<MissionDto> availableMissions, Set<MissionInstanceDto> activeMissions) {
+        this.availableMissions = availableMissions;
         this.activeMissions = activeMissions;
     }
 
     public AgencyStateDto() {
-        this.executableMissions = null;
+        this.availableMissions = null;
         this.activeMissions = Collections.emptySet();
     }
 
@@ -32,7 +32,7 @@ public class AgencyStateDto {
     }
 
     public AgencyState toAgencyState() {
-        Set<Mission> missions = this.executableMissions.stream().map(MissionDto::toMission).collect(toSet());
+        Set<Mission> missions = this.availableMissions.stream().map(MissionDto::toMission).collect(toSet());
         Set<MissionInstance> instances = this.activeMissions.stream().map(MissionInstanceDto::toMissionInstance).collect(toSet());
         return ImmutableAgencyState.of(missions, instances);
     }
