@@ -9,11 +9,10 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import({MolrAgencyRestService.class, LocalMolrConfiguration.class, DemoConfiguration.class})
-
-public class DemoMolrRestServerMain {
+public class DemoMolrAgencyServerMain {
 
     public static void main(String... args) {
-        SpringApplication.run(DemoMolrRestServerMain.class);
+        SpringApplication.run(DemoMolrAgencyServerMain.class);
     }
 
 }

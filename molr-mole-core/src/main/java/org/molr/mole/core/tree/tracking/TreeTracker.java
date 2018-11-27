@@ -4,11 +4,16 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
 import reactor.core.publisher.Flux;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 
@@ -62,7 +67,7 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 
     @Override
     public Map<Block, T> blockResults() {
-        return this.blockResultTrackers.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().result()));
+        return this.blockResultTrackers.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().result()));
     }
 
     public static class Builder<T> {

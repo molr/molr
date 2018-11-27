@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.stream.Collectors.toSet;
 
 public class MissionParameterDescriptionDto {
 
@@ -23,7 +23,7 @@ public class MissionParameterDescriptionDto {
     }
 
     public static final MissionParameterDescriptionDto from(MissionParameterDescription description) {
-        ImmutableSet<MissionParameterDto> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toImmutableSet());
+        Set<MissionParameterDto> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toSet());
         return new MissionParameterDescriptionDto(parameterDtos);
     }
 

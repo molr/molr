@@ -1,33 +1,84 @@
+buildscript {
+    project.ext['CERN_VM'] = System.getProperty('CERN_TECHNET_VM') ?: System.getenv('CERN_TECHNET_VM') ?: false
+    project.ext['DEPLOYMENT'] = System.getProperty('deployment') ?: false
+    project.ext['VCS_TAG'] = System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG') ?: System.getProperty('VCS_TAG')
+
+    project.ext['BINTRAY.userName'] = System.getProperty('BINTRAY_USER') ?: System.getenv('BINTRAY_USER')
+    project.ext['BINTRAY.apiToken'] = System.getProperty('BINTRAY_API_TOKEN') ?: System.getenv('BINTRAY_API_TOKEN')
+
+    repositories {
+        if (project['CERN_VM']) {
+            maven { url 'http://artifactory.cern.ch/ds-jcenter' }
+            maven { url 'http://artifactory.cern.ch/development' }
+        } else {
+            jcenter()
+        }
+    }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4' }
+}
+
 allprojects {
+    group = "org.molr"
+}
+
+subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'jacoco'
+    apply plugin: 'idea'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    group = "org.molr"
+    sourceCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
-        mavenCentral()
-        maven { url "https://repo.spring.io/snapshot" }
-        maven { url "https://repo.spring.io/milestone" }
+        if (project['CERN_VM']) {
+            maven { url 'http://artifactory.cern.ch/ds-jcenter' }
+            maven { url 'http://artifactory.cern.ch/development' }
+        } else {
+            jcenter()
+        }
     }
 
 
     dependencies {
         compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+
+        testCompile group: 'junit', name: 'junit', version: jUnitVersion
+        testCompile group: 'org.assertj', name: 'assertj-core', version: assertJVersion
     }
 
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    javadoc { options.encoding = "UTF-8" }
+
+    if (!project.tasks.findByName("javadocJar")) {
+        task javadocJar(type: Jar) {
+            classifier = 'javadoc'
+            from javadoc
+        }
     }
 
-}
+    if (!project.tasks.findByName("sourcesJar")) {
+        task sourcesJar(type: Jar) {
+            classifier = 'sources'
+            from sourceSets.main.allSource
+        }
+    }
 
-subprojects {
+    eclipse {
+        classpath {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    idea {
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
     jacocoTestReport {
-
         reports {
             html.enabled = false
             xml.enabled = true
@@ -35,28 +86,11 @@ subprojects {
             csv.enabled = false
         }
     }
-}
 
-subprojects {
-    jar {
-
+    if (project['DEPLOYMENT']) {
+        println "Applying deployment scripts for ${project.name}"
+        apply from: '../gradle/bintray-deploy.gradle'
     }
 }
 
-subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
-task projectJar(type: Jar, dependsOn: subprojects.jar) {
-
-    subprojects.each { subproject ->
-        from subproject.configurations.runtime.allArtifacts.files.collect({ zipTree(it) })
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-
-task zip(type: Zip, dependsOn: projectJar) {
-    from configurations.runtime.allArtifacts.files
-    subprojects.each { subproject ->
-        from subproject.configurations.runtime.filter { !it.path.contains("molr") }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+task wrapper(type: Wrapper) { gradleVersion = '4.10.2' }

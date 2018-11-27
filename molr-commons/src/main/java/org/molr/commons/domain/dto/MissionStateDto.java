@@ -1,18 +1,24 @@
 package org.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
-import org.molr.commons.domain.*;
+import org.molr.commons.domain.Block;
+import org.molr.commons.domain.MissionState;
+import org.molr.commons.domain.Result;
+import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 public class MissionStateDto {
 
@@ -64,13 +70,12 @@ public class MissionStateDto {
             }
         }
 
-
         return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()));
     }
 
-    private static <T extends Enum<T>> ImmutableMap<String, String> toNameMap(Map<String, T> inMap) {
+    private static <T extends Enum<T>> Map<String, String> toNameMap(Map<String, T> inMap) {
         return inMap.entrySet().stream()
-                .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().name()));
+                .collect(toMap(e -> e.getKey(), e -> e.getValue().name()));
     }
 
     public MissionState toMissionState() {

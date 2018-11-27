@@ -1,10 +1,9 @@
 dependencies {
     compile project(":molr-commons")
+    
     compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
     compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
 
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
-    testCompile group: 'org.assertj', name: 'assertj-core', version: assertJVersion
-    testCompile group: 'junit', name: 'junit', version: jUnitVersion
     testCompile project(':molr-testing')
 }

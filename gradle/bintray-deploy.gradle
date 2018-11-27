@@ -1,0 +1,77 @@
+project.ext.getDeploymentVersion = {
+    if(project['VCS_TAG']== null) {
+        throw new RuntimeException("VCS_TAG is not set. Cannot detect deployment version")
+    }
+    String tmpDeploymentVersion = project['VCS_TAG'].replaceFirst("v", "");
+    if (!tmpDeploymentVersion.matches("\\d+\\.\\d+\\.\\d+")) {
+        throw new RuntimeException("Version is not valid. Correct format is like 1.0.2 but was " + tmpDeploymentVersion)
+    }
+    return tmpDeploymentVersion;
+}
+
+bintrayUpload.doFirst {
+    println "Deploying ${project.name} version ${getDeploymentVersion()} from vscTag ${project['VCS_TAG']}"
+}
+
+bintray {
+    user = project['BINTRAY.userName']
+    key = project['BINTRAY.apiToken']
+
+    publications = ['CustomBintray']
+    // When uploading Maven-based publication files. Nebula is because we're using the netflix plugins and they use nebula as default name for a publication
+    dryRun = true // Whether to run this as dry-run, without deploying
+    publish = false // project['DEPLOYMENT'] // Whether version should be auto published after an upload
+    override = false // Whether to override version artifacts already published
+
+    pkg {
+        repo = project['BINTRAY.repo']
+        name = project['BINTRAY.name']
+        userOrg = project['BINTRAY.organization']
+        websiteUrl = project['INFO.github']
+        issueTrackerUrl = project['INFO.githubIssues']
+        vcsUrl = project['INFO.repo']
+        licenses = [project['INFO.licenseNameShort']]
+
+        version {
+            name = getDeploymentVersion()
+            released = new Date()
+            vcsTag = project['VCS_TAG']
+            gpg { sign = true }
+        }
+    }
+}
+
+def pomExtraInfo = {
+    url project['INFO.url']
+    scm {
+        connection "scm:git:${project['INFO.repo']}"
+        developerConnection "scm:git:${project['INFO.repo']}"
+        url project['INFO.repo']
+    }
+    licenses {
+        license {
+            name project['INFO.licenseName']
+            url project['INFO.licenseUrl']
+        }
+    }
+}
+
+publishing {
+    publications {
+        CustomBintray(MavenPublication) {
+            groupId project['POM.groupId']
+            artifactId project['POM.artifactId']
+            version getDeploymentVersion()
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().appendNode('description', project['POM.description'])
+                asNode().children().last() + pomExtraInfo
+            }
+
+            from components.java
+        }
+    }
+}

@@ -3,7 +3,11 @@ package org.molr.mole.core.tree;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.molr.commons.domain.*;
+import org.molr.commons.domain.Block;
+import org.molr.commons.domain.Result;
+import org.molr.commons.domain.RunState;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.tree.exception.RejectedCommandException;
 import org.molr.mole.core.tree.exception.StrandExecutorException;
 import org.molr.mole.core.utils.Trees;
@@ -23,10 +27,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.requireNonNull;
-import static org.molr.commons.domain.RunState.*;
-import static org.molr.commons.domain.StrandCommand.*;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
+import static org.molr.commons.domain.RunState.FINISHED;
+import static org.molr.commons.domain.RunState.PAUSED;
+import static org.molr.commons.domain.RunState.RUNNING;
+import static org.molr.commons.domain.StrandCommand.PAUSE;
+import static org.molr.commons.domain.StrandCommand.RESUME;
+import static org.molr.commons.domain.StrandCommand.SKIP;
+import static org.molr.commons.domain.StrandCommand.STEP_INTO;
+import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 import static org.molr.mole.core.utils.Exceptions.exception;
 import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
@@ -306,7 +317,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     private void removeChildExecutor(StrandExecutor childExecutor) {
-        updateChildrenExecutors(childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(toImmutableList()));
+        updateChildrenExecutors(childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(collectingAndThen(toList(), ImmutableList::copyOf)));
     }
 
     private void updateChildrenExecutors(ImmutableList<StrandExecutor> newChildren) {

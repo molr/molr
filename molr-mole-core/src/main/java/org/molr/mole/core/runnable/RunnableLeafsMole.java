@@ -1,16 +1,27 @@
 package org.molr.mole.core.runnable;
 
-import org.molr.commons.domain.*;
+import org.molr.commons.domain.Mission;
+import org.molr.commons.domain.MissionInput;
+import org.molr.commons.domain.MissionParameterDescription;
+import org.molr.commons.domain.MissionRepresentation;
+import org.molr.commons.domain.Result;
+import org.molr.commons.domain.RunState;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
-import org.molr.mole.core.tree.*;
+import org.molr.mole.core.tree.AbstractJavaMole;
+import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
+import org.molr.mole.core.tree.LeafExecutor;
+import org.molr.mole.core.tree.MissionExecutor;
+import org.molr.mole.core.tree.MissionOutputCollector;
+import org.molr.mole.core.tree.TreeMissionExecutor;
+import org.molr.mole.core.tree.TreeStructure;
 import org.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
 
@@ -22,7 +33,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
     private Map<Mission, RunnableLeafsMission> createMissionsMap(Set<RunnableLeafsMission> newMissions) {
         return newMissions.stream()
-                .collect(toImmutableMap(m -> new Mission(m.name()), identity()));
+                .collect(toMap(m -> new Mission(m.name()), identity()));
     }
 
     @Override
