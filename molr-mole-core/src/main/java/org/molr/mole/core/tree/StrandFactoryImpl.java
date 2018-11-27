@@ -4,6 +4,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.molr.commons.domain.Strand;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,9 +17,11 @@ public class StrandFactoryImpl implements StrandFactory {
     private final Strand rootStrand = strandOfId(0);
     private final AtomicLong nextId = new AtomicLong(1);
 
-    private final ListMultimap<Strand, Strand> parentToChildren = LinkedListMultimap.create();
+    @GuardedBy("lock")
     private final Map<Strand, Strand> childToParent = new HashMap<>();
 
+    @GuardedBy("lock")
+    private final ListMultimap<Strand, Strand> parentToChildren = LinkedListMultimap.create();
 
     @Override
     public Strand createChildStrand(Strand parent) {

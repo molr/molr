@@ -1,5 +1,5 @@
 buildscript {
-    project.ext['CERN_VM'] = System.getProperty('CERN_TECHNET_VM') ?: System.getenv('CERN_TECHNET_VM') ?: false
+    project.ext['CERN_VM'] = System.getProperty('CERN_TECHNET_VM') ?: System.getenv('CERN_TECHNET_VM') ?: System.getProperty('CERN_VM') ?: System.getenv('CERN_VM') ?: false
     project.ext['DEPLOYMENT'] = System.getProperty('deployment') ?: false
     project.ext['VCS_TAG'] = System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG') ?: System.getProperty('VCS_TAG')
 
@@ -23,8 +23,8 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'eclipse'
     apply plugin: 'jacoco'
+    apply plugin: 'eclipse'
     apply plugin: 'idea'
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
@@ -43,6 +43,7 @@ subprojects {
 
     dependencies {
         compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+        compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
         testCompile group: 'junit', name: 'junit', version: jUnitVersion
         testCompile group: 'org.assertj', name: 'assertj-core', version: assertJVersion
