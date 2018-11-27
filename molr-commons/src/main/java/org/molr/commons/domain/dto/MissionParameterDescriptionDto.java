@@ -18,7 +18,7 @@ public class MissionParameterDescriptionDto {
         this.parameters = Collections.emptySet();
     }
 
-    public MissionParameterDescriptionDto(Set<MissionParameterDto> missionParameters) {
+    private MissionParameterDescriptionDto(Set<MissionParameterDto> missionParameters) {
         this.parameters = Objects.requireNonNull(missionParameters, "missionParameters must not be null");
     }
 

@@ -10,15 +10,10 @@ public class MoleRestServerTestWithMain {
 
 
     public static void main(String[] args) throws IOException {
-      /* WebClient client = WebClient.create("http://localhost:8800");
-        client.get()
-                .uri("/test-stream/4")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .subscribe(res -> res.bodyToFlux(TestValueDto.class).subscribe(v -> System.out.println(v)));*/
+
         WebClient client = WebClient.create("http://localhost:8800");
         TestValueDto returnedObject = client.get()
-                .uri("/test/testOK")
+                .uri("/tests/testOK")
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .exchange()
                 .flatMap(response -> response.bodyToMono(TestValueDto.class)).block();
