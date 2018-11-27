@@ -1,4 +1,4 @@
-package org.molr.mole.remote.demo;
+package org.molr.mole.server.demo;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

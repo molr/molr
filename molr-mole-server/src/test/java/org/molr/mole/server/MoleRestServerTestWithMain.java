@@ -1,4 +1,4 @@
-package org.molr.mole.remote;
+package org.molr.mole.server;
 
 import org.molr.commons.domain.dto.TestValueDto;
 import org.springframework.http.MediaType;

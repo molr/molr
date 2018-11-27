@@ -1,7 +1,7 @@
-package org.molr.mole.remote.main;
+package org.molr.mole.server.main;
 
-import org.molr.mole.remote.conf.DemoConfiguration;
-import org.molr.mole.remote.rest.MolrMoleRestService;
+import org.molr.mole.server.conf.DemoConfiguration;
+import org.molr.mole.server.rest.MolrMoleRestService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;

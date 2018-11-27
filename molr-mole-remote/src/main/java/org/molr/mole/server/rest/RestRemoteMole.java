@@ -1,4 +1,4 @@
-package org.molr.mole.remote.rest;
+package org.molr.mole.server.rest;
 
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;

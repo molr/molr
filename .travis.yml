@@ -9,5 +9,9 @@ script:
 - ./gradlew check -i
 - ./gradlew javadoc
 - ./gradlew jacocoTestReport
+notifications:
+  email:
+    on_success: change
+    on_failure: change
 after_success:
 - bash <(curl -s https://codecov.io/bash)

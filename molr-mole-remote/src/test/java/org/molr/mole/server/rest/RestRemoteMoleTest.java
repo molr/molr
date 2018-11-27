@@ -1,4 +1,4 @@
-package org.molr.mole.remote.rest;
+package org.molr.mole.server.rest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -198,7 +198,7 @@ public class RestRemoteMoleTest {
         remoteMole.instruct(MissionHandle.ofId("missionId"), Strand.ofId("strandId"),StrandCommand.RESUME);
     }
 
-    @Test//(expected = Exception.class)
+    @Test(expected = Exception.class)
     public void testWrongUriThrows(){
         RestRemoteMole remoteMole = new RestRemoteMole("http://wrongUri");
         Set<Mission> missions = remoteMole.availableMissions();

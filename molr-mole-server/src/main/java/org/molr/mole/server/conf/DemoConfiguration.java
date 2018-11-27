@@ -1,7 +1,7 @@
-package org.molr.mole.remote.conf;
+package org.molr.mole.server.conf;
 
 import org.molr.mole.core.api.Mole;
-import org.molr.mole.remote.demo.DemoMole;
+import org.molr.mole.server.demo.DemoMole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

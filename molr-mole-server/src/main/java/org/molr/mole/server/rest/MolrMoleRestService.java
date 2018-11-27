@@ -1,4 +1,4 @@
-package org.molr.mole.remote.rest;
+package org.molr.mole.server.rest;
 
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
@@ -6,7 +6,6 @@ import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.dto.*;
 import org.molr.mole.core.api.Mole;
-import org.molr.mole.core.utils.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +84,7 @@ public class MolrMoleRestService {
 
     @ExceptionHandler({Exception.class})
     public @ResponseBody ResponseEntity handleException(Exception e){
-        return ResponseEntity.badRequest().body(Exceptions.stackTraceFrom(e));
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
 }
