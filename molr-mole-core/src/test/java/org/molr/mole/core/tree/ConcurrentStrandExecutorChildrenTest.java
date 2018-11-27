@@ -14,12 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.molr.commons.domain.RunState.FINISHED;
-import static org.molr.commons.domain.RunState.PAUSED;
-import static org.molr.commons.domain.RunState.RUNNING;
-import static org.molr.commons.domain.StrandCommand.PAUSE;
-import static org.molr.commons.domain.StrandCommand.RESUME;
-import static org.molr.commons.domain.StrandCommand.STEP_OVER;
+import static org.molr.commons.domain.RunState.*;
+import static org.molr.commons.domain.StrandCommand.*;
 
 @SuppressWarnings("unused")
 public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionStrandExecutorTest {
@@ -44,7 +40,7 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         LOGGER.info("MISSION CREATED");
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Root", root -> {
+                sequential("Root", root -> {
                     blockParallel = root.parallel("Parallel", p -> {
                         p.sequential("Sequence A", seqA -> {
                             blockA1 = seqA.run("A.1", () -> {

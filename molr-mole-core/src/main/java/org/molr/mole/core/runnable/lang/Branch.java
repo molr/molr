@@ -4,11 +4,10 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.In;
 import org.molr.commons.domain.Out;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
-import org.molr.mole.core.utils.Uncheckeds;
+import org.molr.mole.core.utils.Checkeds;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
@@ -31,15 +30,15 @@ public class Branch {
         return run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, Uncheckeds.CheckedThrowingRunnable runnable) {
+    public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
         return run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, Uncheckeds.CheckedThrowingConsumer<In> runnable) {
+    public Block run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
         return run(name, (in, out) -> runnable.accept(in));
     }
 
-    public Block run(String name, Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+    public Block run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
         return builder.leafChild(parent, name, runnable);
     }
 
@@ -69,13 +68,13 @@ public class Branch {
 
     public static class Task {
         private final String name;
-        private final Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable;
+        private final Checkeds.CheckedThrowingBiConsumer<In, Out> runnable;
 
         public Task(String name, Runnable runnable) {
             this(name, (in, out) -> runnable.run());
         }
 
-        public Task(String name, Uncheckeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+        public Task(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
             this.name = requireNonNull(name, "name must not be null.");
             this.runnable = requireNonNull(runnable, "runnable must not be null");
         }

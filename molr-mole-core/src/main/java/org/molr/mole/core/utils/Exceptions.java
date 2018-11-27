@@ -2,6 +2,8 @@ package org.molr.mole.core.utils;
 
 import org.slf4j.helpers.FormattingTuple;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 
 import static org.slf4j.helpers.MessageFormatter.arrayFormat;
@@ -10,7 +12,8 @@ public class Exceptions {
 
     /**
      * Instantiate the provided exception {@link Class}. It will look for a constructor compatible with {@link String}
-     * and {@link Throwable}. In case such constructor does not exists, this method will throw an {@link IllegalArgumentException}
+     * and {@link Throwable}. In case such constructor does not exists, this method will throw an {@link
+     * IllegalArgumentException}
      */
     public static <T extends Exception> T exception(Class<T> clazz, String message, Object... args) {
         FormattingTuple formatter = arrayFormat(message, args);
@@ -23,6 +26,10 @@ public class Exceptions {
     }
 
 
-
-
+    public static String stackTraceFrom(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        return sw.toString();
+    }
 }

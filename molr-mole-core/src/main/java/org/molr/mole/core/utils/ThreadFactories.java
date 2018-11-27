@@ -1,7 +1,6 @@
 package org.molr.mole.core.utils;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -15,6 +14,6 @@ public final class ThreadFactories {
     }
 
     private ThreadFactories() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

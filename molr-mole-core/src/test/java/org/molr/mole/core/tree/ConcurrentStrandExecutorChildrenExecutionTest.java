@@ -36,7 +36,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("step-over", root -> {
+                sequential("step-over", root -> {
                     parallelBlock = root.parallel("parallel", b -> {
                         b.sequential("sequential branch A", bA -> {
                             bA.run("A.1", () -> {

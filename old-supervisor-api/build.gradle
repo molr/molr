@@ -1,4 +1,0 @@
-dependencies {
-    compile project(":old-commons")
-    compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
-}

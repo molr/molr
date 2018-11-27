@@ -2,16 +2,13 @@ package org.molr.mole.core.tree.tracking;
 
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.Result;
 import reactor.core.publisher.Flux;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.*;
 import java.util.function.Function;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.stream.Collectors.toList;
-import static org.molr.commons.domain.Result.UNDEFINED;
 
 public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 

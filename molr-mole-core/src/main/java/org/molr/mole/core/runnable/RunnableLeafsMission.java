@@ -3,9 +3,7 @@ package org.molr.mole.core.runnable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.*;
-import org.molr.commons.domain.MissionParameterDescription;
 import org.molr.mole.core.tree.TreeStructure;
-import org.molr.mole.core.utils.Uncheckeds;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,8 +38,12 @@ public class RunnableLeafsMission {
         return this.treeStructure.rootBlock().text();
     }
 
-    public static Builder builder(String rootName) {
-        return new Builder(rootName);
+    public static Builder sequentialRoot(String rootName) {
+        return new Builder(rootName, false);
+    }
+
+    public static Builder parallelRoot(String rootName) {
+        return new Builder(rootName, true);
     }
 
     public static class Builder {
@@ -52,8 +54,11 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
-        private Builder(String rootName) {
+        private Builder(String rootName, boolean parallel) {
             Block root = block(rootName);
+            if (parallel) {
+                parallelBlocksBuilder.add(root);
+            }
             representationBuilder = ImmutableMissionRepresentation.builder(root);
         }
 

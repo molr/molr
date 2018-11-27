@@ -42,7 +42,7 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Root", root -> {
+                sequential("Root", root -> {
                     FIRST = root.sequential("First", b -> {
                         FIRST_A = b.run(log("First A"));
                         FIRST_B = b.run(log("First B"));

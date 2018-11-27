@@ -1,7 +1,7 @@
 package org.molr.agency.remote.conf;
 
-import org.molr.agency.remote.rest.RestRemoteAgency;
 import org.molr.agency.core.Agency;
+import org.molr.agency.remote.rest.RestRemoteAgency;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

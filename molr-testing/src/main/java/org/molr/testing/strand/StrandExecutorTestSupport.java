@@ -1,10 +1,6 @@
 package org.molr.testing.strand;
 
-import org.assertj.core.api.AbstractComparableAssert;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.IterableAssert;
-import org.assertj.core.api.ListAssert;
-import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.api.*;
 import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;

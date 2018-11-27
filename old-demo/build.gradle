@@ -1,4 +1,0 @@
-dependencies {
-    compile project(":old-client")
-    compile project(":old-sample")
-}

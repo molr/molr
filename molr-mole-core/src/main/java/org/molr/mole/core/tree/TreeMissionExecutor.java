@@ -10,12 +10,12 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
 import static org.molr.commons.domain.StrandCommand.STEP_INTO;
 
 
 /**
- * Keeps track of the state of the execution of one mission instance. It assumes a tree of execution blocks, can execute them and keeps track of cursor positions within strands.
+ * Keeps track of the state of the execution of one mission instance. It assumes a tree of execution blocks, can execute
+ * them and keeps track of cursor positions within strands.
  */
 public class TreeMissionExecutor implements MissionExecutor {
 
@@ -79,7 +79,8 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
 
     private MissionState gatherMissionState() {
-        MissionState.Builder builder = MissionState.builder();
+        Result rootResult = resultTracker.resultFor(representation.rootBlock());
+        MissionState.Builder builder = MissionState.builder(rootResult);
         for (StrandExecutor executor : strandExecutorFactory.allStrandExecutors()) {
             RunState runState = executor.getActualState();
             Block cursor = executor.getActualBlock();

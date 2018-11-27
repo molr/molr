@@ -1,13 +1,11 @@
 package org.molr.agency.remote.rest;
 
+import org.molr.agency.core.Agency;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
-import org.molr.agency.core.Agency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserter;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;

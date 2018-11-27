@@ -5,8 +5,6 @@ import reactor.core.publisher.ReplayProcessor;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Arrays.stream;
-
 public class LeafTracker<T> implements BlockTracker<T> {
 
     private final ReplayProcessor<T> summary = ReplayProcessor.cacheLast();

@@ -1,9 +1,10 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/78b10d06c5474a908dcf5ad7da08e269)](https://app.codacy.com/app/molr-developers/molr?utm_source=github.com&utm_medium=referral&utm_content=molr/molr&utm_campaign=Badge_Grade_Dashboard)
+[![Build Status](https://travis-ci.com/molr/molr.svg?branch=master)](https://travis-ci.com/molr/molr)
+[![codecov](https://codecov.io/gh/molr/molr/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr)
+[![GitHub license](https://img.shields.io/github/license/molr/molr.svg)](https://github.com/molr/molr/blob/master/LICENSE)
+
+
 # molr
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0158f5fd2de44a3db54f387096a4476a)](https://app.codacy.com/app/yassine-kr/molr-remote?utm_source=github.com&utm_medium=referral&utm_content=molr/molr-remote&utm_campaign=badger)
-[![Travis Badge](https://travis-ci.org/molr/molr-remote.svg?branch=master)](https://travis-ci.org/molr/molr-remote)
-[![Codecov Badge](https://codecov.io/gh/molr/molr-remote/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr-remote/branch/master)
-
 
 A Modular Remote Execution and Debugging Framework.
 
@@ -17,14 +18,14 @@ mol[e] + mo[dula]r = molr
 
 ### Getting Started
 For the moment, there are no packages released yet. Therefore, the only way to try molr for the moment is to clone 
-this repository. The currently most up-to-date branch is `op-proposal`.
+this repository.
 
 > The current version is heavily under development and not yet stable at all. We hope this to change within a few weeks. 
 > Stay tuned! 
 
 ### Concept & Vision
-The original document about the vision and purpose of molr can be found in a separate repo:
-https://github.com/molr/molr-docs/blob/master/README.md
+The original document about the vision and purpose of molr can be found [here](docs/concepts-and-vision.md). 
+
 
 As this document reflects the actual state of development, here the current definition of the key entities in molr...
 
@@ -48,14 +49,14 @@ defined REST API.
 However, if a mole is implemented in Java, than it can (in addition to the remote usage) also be used embedded in 
 the same jvm as the agency. The responsibilities of a mole are best described by the corresponding java interface:
 
-https://github.com/molr/molr-remote/blob/op-proposal/molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java
+[molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java](molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
  
 #### Agency
 The agency is the central place to manage all available and running missions. The agency keeps track of the existing
 moles and the missions that they can execute. Further it delegates requests from clients to the corresponding moles.
 Its responsibilities are again best described by a look at its interface:
 
-https://github.com/molr/molr-remote/blob/op-proposal/molr-agency-core/src/main/java/org/molr/agency/core/Agency.java
+[molr-agency-core/src/main/java/org/molr/agency/core/Agency.java](molr-agency-core/src/main/java/org/molr/agency/core/Agency.java)
 
 Molr is designed to be completely asynchronous. For this purpose, reactive streams are used. The chosen implementation
 for this is [Project Reactor](https://projectreactor.io/), as can be seen from the used classes in the interfaces
@@ -70,10 +71,9 @@ account while splitting packages is that of dependencies.
 |---------| -----------|
 |molr-commons | No Spring dependency! contains all the elements which shall be used in all other packages. (E.g.: Domain objects, DTOs, Utilities...)|
 |molr-agency-core | contains the all the classes required in agency related packages. (E.g. interfaces)|
-|molr-agency-local | Shall contain the local default implementation (tbd, currently this is in agency-core as it does not really bring additional deps)|
 |molr-agency-remote | The remote implementation of an agency. It uses spring webflux to connect to an agency server|
 |molr-agency-server | This package has dependencies on e.g. tomcat (or similar). It provides a rest service representing an agency |
 |molr-mole-core | Contains the interfaces and default implementation for moles, as well as utility methods.|
-|molr-mole-local | tbd |
 |molr-mole-remote | contains the implementation of a remote mole, which can delegate to any mole reachable through a web API. Depends on spring webflux. |
-|molr-mole-server |    This package has a dep on e.g. tomcat (or similar) to explose any mole as a rest service. |
+|molr-mole-server |    This package has a dep on e.g. tomcat (or similar) to expose any mole as a rest service. |
+|molr-testing |    Contains utility classes for testing molr services. |

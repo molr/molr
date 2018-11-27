@@ -13,11 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.molr.commons.domain.RunState.PAUSED;
 import static org.molr.commons.domain.RunState.RUNNING;
-import static org.molr.commons.domain.StrandCommand.PAUSE;
-import static org.molr.commons.domain.StrandCommand.RESUME;
-import static org.molr.commons.domain.StrandCommand.SKIP;
-import static org.molr.commons.domain.StrandCommand.STEP_INTO;
-import static org.molr.commons.domain.StrandCommand.STEP_OVER;
+import static org.molr.commons.domain.StrandCommand.*;
 
 public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleMissionStrandExecutorTest {
 
@@ -43,7 +39,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("root", root -> {
+                sequential("root", root -> {
                     leafBlock = root.run("leaf", () -> {
                         unlatch(latchLeafStart);
                         await(latchLeafEnd);
@@ -130,7 +126,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
         instructRootStrandSync(STEP_OVER);
 
         await(latchA1Start, latchB1Start);
-        assertThatRootStrandState().isEqualTo(RUNNING);
+        waitUntilRootStrandStateIs(RUNNING);
 
         assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
     }

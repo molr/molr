@@ -39,7 +39,7 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                mission("Root", root -> {
+                sequential("Root", root -> {
                     SEQUENTIAL = root.sequential("Sequential", b -> {
                         SEQUENTIAL_LEAF_A = b.run(log("Sequential A"));
                         SEQUENTIAL_LEAF_B = b.run(log("Sequential B"));

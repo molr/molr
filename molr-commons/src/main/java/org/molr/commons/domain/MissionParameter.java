@@ -18,11 +18,11 @@ public class MissionParameter<T> {
     }
 
     public static <T> MissionParameter<T> required(Placeholder<T> placeholder) {
-        return new MissionParameter<T>(placeholder, null, true);
+        return new MissionParameter<T>(placeholder, placeholder.defaultValue(), true);
     }
 
     public static <T> MissionParameter<T> optional(Placeholder<T> placeholder) {
-        return new MissionParameter<T>(placeholder, null, false);
+        return new MissionParameter<T>(placeholder, placeholder.defaultValue(), false);
     }
 
     public MissionParameter<T> withDefault(T newDefaultValue) {
