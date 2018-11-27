@@ -57,9 +57,9 @@ public class RestRemoteMoleTest {
         when(mole.availableMissions()).thenReturn(missions);
         when(mole.representationOf(any(Mission.class))).thenReturn(ImmutableMissionRepresentation.empty("anEmpty representation"));
 
-        MissionState.Builder builder = MissionState.builder();
+        MissionState.Builder builder = MissionState.builder(Result.SUCCESS);
         builder.add(STRAND1, RunState.PAUSED, BLOCK1, Collections.singleton(StrandCommand.RESUME));
-        builder.add(STRAND2, RunState.FINISHED, BLOCK2, Collections.emptySet());
+        builder.add(STRAND2, RunState.FINISHED, BLOCK2, STRAND1,Collections.emptySet());
         builder.blockResult(BLOCK2, Result.SUCCESS);
         builder.blockRunState(BLOCK2, RunState.FINISHED);
         Flux<MissionState> statesFlux = Flux.fromIterable(Collections.singleton(builder.build()));
