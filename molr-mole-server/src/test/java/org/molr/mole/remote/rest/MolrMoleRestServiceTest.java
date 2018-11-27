@@ -33,12 +33,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class MolrMoleRestServiceTest {
 
 
-    public static final Block BLOCK2 = Block.idAndText("blockId2", "text");
-    public static final Block BLOCK1 = Block.idAndText("blockId1", "text");
-    public static final Strand STRAND1 = Strand.ofId("strandId");
-    public static final Strand STRAND2 = Strand.ofId("strandId2");
-
-
     private final String baseUrl = "http://localhost:8800";
 
     @MockBean
@@ -56,7 +50,7 @@ public class MolrMoleRestServiceTest {
                 .body(BodyInserters.fromObject(params))
                 .exchange()
                 .map(ClientResponse::statusCode).block();
-        assertThat(response).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
