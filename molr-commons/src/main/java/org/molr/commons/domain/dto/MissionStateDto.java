@@ -1,12 +1,7 @@
 package org.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
-import org.molr.commons.domain.Block;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Result;
-import org.molr.commons.domain.RunState;
-import org.molr.commons.domain.Strand;
-import org.molr.commons.domain.StrandCommand;
+import org.molr.commons.domain.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +11,7 @@ import java.util.Set;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 public class MissionStateDto {
 

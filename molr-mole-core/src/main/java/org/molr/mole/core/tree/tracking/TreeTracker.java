@@ -4,12 +4,7 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.MissionRepresentation;
 import reactor.core.publisher.Flux;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;

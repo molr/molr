@@ -2,9 +2,7 @@ package org.molr.mole.remote.rest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.molr.commons.domain.Block;
 import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.dto.MissionRepresentationDto;
 import org.molr.mole.core.api.Mole;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

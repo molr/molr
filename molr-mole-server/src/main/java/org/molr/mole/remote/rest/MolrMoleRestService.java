@@ -1,28 +1,23 @@
 package org.molr.mole.remote.rest;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import org.molr.commons.domain.*;
+import org.molr.commons.domain.Mission;
+import org.molr.commons.domain.MissionHandle;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.dto.*;
 import org.molr.mole.core.api.Mole;
 import org.molr.mole.core.utils.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.codec.DecodingException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import org.springframework.http.HttpStatus;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 /**
  * This is a rest server that expose all the functionality of the mole it contains

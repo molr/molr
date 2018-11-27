@@ -2,7 +2,6 @@ package org.molr.commons.domain;
 
 import com.google.common.collect.ImmutableSet;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 

@@ -1,13 +1,11 @@
 package org.molr.mole.remote.rest;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
-import org.molr.mole.core.tree.BlockOutputCollector;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -16,9 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
 
