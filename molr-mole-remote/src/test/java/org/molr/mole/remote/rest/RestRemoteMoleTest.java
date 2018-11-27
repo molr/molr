@@ -1,4 +1,4 @@
-package org.molr.mole.server.rest;
+package org.molr.mole.remote.rest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +8,8 @@ import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
+import org.molr.mole.remote.rest.RestRemoteMole;
+import org.molr.mole.server.rest.MolrMoleRestService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
