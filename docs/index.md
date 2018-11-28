@@ -1,3 +1,6 @@
+---
+permalink: /
+---
 # Molr home
 
 Welcome to the Molr project!
