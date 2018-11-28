@@ -46,6 +46,11 @@ public abstract class AbstractJavaMole implements Mole {
                 .ifPresent(e -> e.instruct(strand, command));
     }
 
+    public final void instructRoot(MissionHandle handle, StrandCommand command) {
+        Optional.ofNullable(executors.get(handle))
+                .ifPresent(e -> e.instructRoot(command));
+    }
+
     protected abstract MissionExecutor instantiate(Mission mission, Map<String, Object> params);
 
 }

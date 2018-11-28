@@ -65,6 +65,17 @@ public interface Agency {
      */
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
+    /**
+     * Instructs the root strand of the mission identified by the given handle to execute a given command. This is
+     * mainly a convenience method to execute commands without knowing the actual strand structure, as there has to be
+     * always to be a root strand. This is e.g. useful if missions simply have to be run without any GUI interaction.
+     * This can be accomplished by sending a resume command through this method. The rest of the behaviour shall be
+     * identical to the {@link #instruct(MissionHandle, Strand, StrandCommand)} method.
+     *
+     * @param handle  a handle representing the mission instance on which the command shall be executed
+     * @param command the command to execute.
+     */
+    void instructRoot(MissionHandle handle, StrandCommand command);
 
     /**
      * Retrieves the initial (!) representation of a mission, meaning when the mission is not instantiated/running. This
@@ -82,8 +93,8 @@ public interface Agency {
     Mono<MissionRepresentation> representationOf(Mission mission);
 
     /**
-     * Delivers updates of the representation of the mission. Implementations of the agency (and underlying moles)
-     * shall guarantee that the returned stream emits at least once for a newly subscribed client.
+     * Delivers updates of the representation of the mission. Implementations of the agency (and underlying moles) shall
+     * guarantee that the returned stream emits at least once for a newly subscribed client.
      *
      * @param handle the handle of the mission for which to retrieve representation updates
      * @return a stream emitting whenever the representation changes, and at least once on subscription.
@@ -122,25 +133,5 @@ public interface Agency {
      */
     Flux<MissionOutput> outputsFor(MissionHandle handle);
 
-
-
-    default void instructRoot(MissionHandle handle, StrandCommand command) {
-
-    }
-
-
-    default Mono<MissionHandle> start(Mission mission, Map<String, Object> missionParameters) {
-            Mono<MissionHandle> handle = instantiate(mission, missionParameters);
-            handle.subscribe(h -> instructRoot(h, StrandCommand.RESUME));
-            return handle;
-    }
-
-    default Mono<Result> awaitFinished(MissionHandle handle) {
-        return null;
-    }
-
-    default Mono<Result> run(Mission mission, Map<String, Object> missionParameters) {
-        return start(mission, missionParameters).flatMap(this::awaitFinished);
-    }
 
 }

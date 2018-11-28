@@ -88,6 +88,12 @@ public class RestRemoteMole implements Mole {
         post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
+    @Override
+    public void instructRoot(MissionHandle handle, StrandCommand command) {
+        String uri = "instance/" + handle.id() + "/instructRoot/" + command.name();
+        post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
+    }
+
 
     private static final void throwOnErrors(String uri, Mono<ClientResponse> clientResponse) {
         HttpStatus responseStatus = clientResponse.block().statusCode();

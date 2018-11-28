@@ -97,6 +97,7 @@ public class LocalMoleDelegationAgency implements Agency {
     }
 
 
+
     @Override
     public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
         return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
@@ -115,6 +116,11 @@ public class LocalMoleDelegationAgency implements Agency {
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         runOnAgencyExecutorSync(() -> activeMoles.get(handle).instruct(handle, strand, command));
+    }
+
+    @Override
+    public void instructRoot(MissionHandle handle, StrandCommand command) {
+        runOnAgencyExecutorSync(() -> activeMoles.get(handle).instructRoot(handle, command));
     }
 
     private void publishState() {

@@ -103,5 +103,10 @@ public class TreeMissionExecutor implements MissionExecutor {
         executor.instruct(command);
     }
 
+    @Override
+    public void instructRoot(StrandCommand command) {
+        instruct(strandFactory.rootStrand(), command);
+    }
+
 
 }

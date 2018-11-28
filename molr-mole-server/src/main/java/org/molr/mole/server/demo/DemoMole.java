@@ -76,6 +76,11 @@ public class DemoMole implements Mole {
         /* NOOP for the moment */
     }
 
+    @Override
+    public void instructRoot(MissionHandle handle, StrandCommand command) {
+        /* NOOP for the moment */
+    }
+
 
     private MissionRepresentation dummyTree(String rootName) {
         Block root = Block.builder(id(), rootName).build();

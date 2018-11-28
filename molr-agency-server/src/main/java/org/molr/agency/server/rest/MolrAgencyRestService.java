@@ -81,4 +81,10 @@ public class MolrAgencyRestService {
         agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
     }
 
+    @PostMapping(path = "/instance/{missionHandle}/instructRoot/{commandName}")
+    public void instructRoot(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
+        agency.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
+    }
+
+
 }

@@ -13,4 +13,5 @@ public interface MissionExecutor {
 
     void instruct(Strand strand, StrandCommand command);
 
+    void instructRoot(StrandCommand command);
 }

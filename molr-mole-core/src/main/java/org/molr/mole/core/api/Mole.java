@@ -28,4 +28,6 @@ public interface Mole {
 
     void instruct(MissionHandle handle, Strand strand, StrandCommand command);
 
+    void instructRoot(MissionHandle handle, StrandCommand command);
+
 }

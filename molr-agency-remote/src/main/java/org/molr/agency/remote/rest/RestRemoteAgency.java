@@ -66,6 +66,8 @@ public class RestRemoteAgency implements Agency {
                 .doOnError(e -> LOGGER.error("error while retrieving mission outputs for handle '" + handle + "'", e));
     }
 
+
+
     @Override
     public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
         return flux("/instance/" + handle.id() + "/representations", MissionRepresentationDto.class)
@@ -101,6 +103,16 @@ public class RestRemoteAgency implements Agency {
                 .doOnError(e -> LOGGER.error("error while instructing command {} to strand {} on handle {}.", command, strand, handle, e))
                 .subscribe();
     }
+
+    @Override
+    public void instructRoot(MissionHandle handle, StrandCommand command) {
+        client.post()
+                .uri("/instance/" + handle.id() + "/instructRoot/" + command.name())
+                .exchange()
+                .doOnError(e -> LOGGER.error("error while instructing root strand with command {} on handle {}.", command, handle, e))
+                .subscribe();
+    }
+
 
     private <T> Flux<T> flux(String uri, Class<T> type) {
         return exchange(uri).flatMapMany(res -> res.bodyToFlux(type));

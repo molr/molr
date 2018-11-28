@@ -148,6 +148,11 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         }
     }
 
+    @Override
+    public void instructRoot(StrandCommand command) {
+        instruct(singleStrand, command);
+    }
+
 
     @Override
     public Flux<MissionState> states() {
