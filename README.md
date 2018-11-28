@@ -69,11 +69,11 @@ account while splitting packages is that of dependencies.
 
 | package | description|
 |---------| -----------|
-|molr-commons | No Spring dependency! contains all the elements which shall be used in all other packages. (E.g.: Domain objects, DTOs, Utilities...)|
-|molr-agency-core | contains the all the classes required in agency related packages. (E.g. interfaces)|
-|molr-agency-remote | The remote implementation of an agency. It uses spring webflux to connect to an agency server|
-|molr-agency-server | This package has dependencies on e.g. tomcat (or similar). It provides a rest service representing an agency |
-|molr-mole-core | Contains the interfaces and default implementation for moles, as well as utility methods.|
-|molr-mole-remote | contains the implementation of a remote mole, which can delegate to any mole reachable through a web API. Depends on spring webflux. |
-|molr-mole-server |    This package has a dep on e.g. tomcat (or similar) to expose any mole as a rest service. |
-|molr-testing |    Contains utility classes for testing molr services. |
+|molr-commons | Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! |
+|molr-agency-core | Contains all the classes required in molr agency related packages (e.g. interfaces).|
+|molr-agency-remote | The remote implementation of a molr agency. It uses spring webflux to connect to an agency server|
+|molr-agency-server | Provides a REST service representing an agency. This package has Java server dependency (e.g. Tomcat). |
+|molr-mole-core | Contains the interfaces and default implementations for moles, as well as utility methods.|
+|molr-mole-remote | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. |
+|molr-mole-server | Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). |
+|molr-testing | Contains utility classes for testing molr services. |
