@@ -9,6 +9,7 @@ import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -84,6 +85,12 @@ public class MolrAgencyRestService {
     @PostMapping(path = "/instance/{missionHandle}/instructRoot/{commandName}")
     public void instructRoot(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
         agency.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
+    }
+
+    @ExceptionHandler({Exception.class})
+    public @ResponseBody
+    ResponseEntity handleException(Exception e){
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
 
