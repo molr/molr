@@ -1,17 +1,11 @@
 package org.molr.commons.util;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * Utility methods for {@link org.molr.commons.domain.Strand}s
  */
 public final class Strands {
 
     private static final String ROOT_NAME_PLACEHOLDER = "root";
-
-    private Strands() {
-        throw new NotImplementedException();
-    }
 
     /**
      * Does the provided name indicates a root strand?
@@ -28,5 +22,9 @@ public final class Strands {
      */
     public static String rootStrandPlaceholder() {
         return ROOT_NAME_PLACEHOLDER;
+    }
+
+    private Strands() {
+        /* static methods */
     }
 }
