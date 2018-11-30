@@ -1,19 +1,25 @@
 package org.molr.mole.remote.rest;
 
-import org.molr.commons.domain.*;
-import org.molr.commons.domain.dto.*;
+import org.molr.commons.domain.Mission;
+import org.molr.commons.domain.MissionHandle;
+import org.molr.commons.domain.MissionOutput;
+import org.molr.commons.domain.MissionParameterDescription;
+import org.molr.commons.domain.MissionRepresentation;
+import org.molr.commons.domain.MissionState;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
+import org.molr.commons.domain.dto.MissionOutputDto;
+import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import org.molr.commons.domain.dto.MissionRepresentationDto;
+import org.molr.commons.domain.dto.MissionSetDto;
+import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.commons.util.Strands;
 import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +91,12 @@ public class RestRemoteMole implements Mole {
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         String uri = "instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name();
+        clientUtils.post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
+    }
+
+    @Override
+    public void instructRoot(MissionHandle handle, StrandCommand command) {
+        String uri = "instance/" + handle.id() + "/" + Strands.rootStrandPlaceholder() + "/instruct/" + command.name();
         clientUtils.post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 

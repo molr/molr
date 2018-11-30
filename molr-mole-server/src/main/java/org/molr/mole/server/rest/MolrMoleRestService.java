@@ -4,14 +4,26 @@ import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.dto.*;
+import org.molr.commons.domain.dto.MissionOutputDto;
+import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import org.molr.commons.domain.dto.MissionRepresentationDto;
+import org.molr.commons.domain.dto.MissionSetDto;
+import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.commons.domain.dto.TestValueDto;
+import org.molr.commons.util.Strands;
 import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
@@ -38,7 +50,7 @@ public class MolrMoleRestService {
 
     @GetMapping(path = "/mission/{missionName}/representation")
     public MissionRepresentationDto representationOf(@PathVariable("missionName") String missionName) {
-            return MissionRepresentationDto.from(mole.representationOf(new Mission(missionName)));
+        return MissionRepresentationDto.from(mole.representationOf(new Mission(missionName)));
     }
 
     @GetMapping(path = "/mission/{missionName}/parameterDescription")
@@ -65,7 +77,7 @@ public class MolrMoleRestService {
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
                 .take(count)
-                .map(i ->  new TestValueDto("response number " + i));
+                .map(i -> new TestValueDto("response number " + i));
     }
 
     /*
@@ -79,11 +91,16 @@ public class MolrMoleRestService {
 
     @PostMapping(path = "/instance/{missionHandleId}/{strandId}/instruct/{strandCommand}")
     public void instruct(@PathVariable String missionHandleId, @PathVariable String strandId, @PathVariable String strandCommand) {
-        mole.instruct(MissionHandle.ofId(missionHandleId), Strand.ofId(strandId), StrandCommand.valueOf(strandCommand));
+        if (Strands.isRootStrandPlaceholder(strandId)) {
+            mole.instructRoot(MissionHandle.ofId(missionHandleId), StrandCommand.valueOf(strandCommand));
+        } else {
+            mole.instruct(MissionHandle.ofId(missionHandleId), Strand.ofId(strandId), StrandCommand.valueOf(strandCommand));
+        }
     }
 
     @ExceptionHandler({Exception.class})
-    public @ResponseBody ResponseEntity handleException(Exception e){
+    public @ResponseBody
+    ResponseEntity handleException(Exception e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
