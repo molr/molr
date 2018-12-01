@@ -15,61 +15,48 @@ import static java.util.Objects.requireNonNull;
 
 public class WebClientUtils {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(WebClientUtils.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(WebClientUtils.class);
 
-    private final WebClient client;
+	private final WebClient client;
 
-    private WebClientUtils(String baseUrl){
-        requireNonNull(baseUrl, "baseUrl must not be null");
-        client = WebClient.create(baseUrl);
-    }
+	private WebClientUtils(String baseUrl) {
+		requireNonNull(baseUrl, "baseUrl must not be null");
+		client = WebClient.create(baseUrl);
+	}
 
-    public static WebClientUtils withBaseUrl(String baseUrl){
-        return new WebClientUtils(baseUrl);
-    }
+	public static WebClientUtils withBaseUrl(String baseUrl) {
+		return new WebClientUtils(baseUrl);
+	}
 
-    private static final void throwOnErrors(String uri, Mono<ClientResponse> clientResponse) {
-        HttpStatus responseStatus = clientResponse.block().statusCode();
-        if (responseStatus == HttpStatus.NOT_FOUND) {
-            throw new IllegalStateException("Server response = NOT FOUND : may be a uri problem or wrong parameters. Uri was: '" + uri + "'.");
-        } else if (responseStatus.isError()) {
-            String errorMessage = clientResponse.block().bodyToMono(String.class).block();
-            throw new IllegalArgumentException("error when calling " + uri
-                    + " with http status " + responseStatus.name()
-                    + " and error message: \n" + errorMessage);
-        }
-    }
+	private static final Mono<ClientResponse> logErrors(String uri, Mono<ClientResponse> clientResponse) {
+		return clientResponse.doOnNext(response -> {
+			HttpStatus responseStatus = response.statusCode();
+			if (responseStatus == HttpStatus.NOT_FOUND) {
+				LOGGER.error("Server response = NOT FOUND : uri problem or wrong parameters. Uri: '" + uri + "'.");
+			} else if (responseStatus.isError()) {
+				String errorMessage = response.bodyToMono(String.class).block();
+				LOGGER.error("error when calling " + uri + " with http status " + responseStatus.name()
+						+ " and error message: \n" + errorMessage);
+			}
+		}).doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e));
+	}
 
-    public <T> Flux<T> flux(String uri, Class<T> type) {
-        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_STREAM_JSON);
-        throwOnErrors(uri, clientResponse);
-        return clientResponse
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
-                .flatMapMany(response -> response.bodyToFlux(type));
-    }
+	public <T> Flux<T> flux(String uri, Class<T> type) {
+		Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_STREAM_JSON);
+		return logErrors(uri, clientResponse).flatMapMany(response -> response.bodyToFlux(type));
+	}
 
-    public <T> Mono<T> mono(String uri, Class<T> type) {
-        Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_JSON);
-        throwOnErrors(uri, clientResponse);
-        return clientResponse
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
-                .flatMap(response -> response.bodyToMono(type));
-    }
+	public <T> Mono<T> mono(String uri, Class<T> type) {
+		Mono<ClientResponse> clientResponse = clientResponseForGet(uri, MediaType.APPLICATION_JSON);
+		return logErrors(uri, clientResponse).flatMap(response -> response.bodyToMono(type));
+	}
 
-    private Mono<ClientResponse> clientResponseForGet(String uri, MediaType mediaType) {
-        return client.get()
-                .uri(uri)
-                .accept(mediaType)
-                .exchange();
-    }
+	private Mono<ClientResponse> clientResponseForGet(String uri, MediaType mediaType) {
+		return client.get().uri(uri).accept(mediaType).exchange();
+	}
 
-    public void post(String uri, MediaType mediaType, BodyInserter<?, ? super ClientHttpRequest> body) {
-        Mono<ClientResponse> response = client.post()
-                .uri(uri)
-                .accept(mediaType)
-                .body(body)
-                .exchange();
-        throwOnErrors(uri, response);
-        response.doOnError(e -> LOGGER.error("Posting request on URI {}.", uri, e)).subscribe();
-    }
+	public void post(String uri, MediaType mediaType, BodyInserter<?, ? super ClientHttpRequest> body) {
+		Mono<ClientResponse> response = client.post().uri(uri).accept(mediaType).body(body).exchange();
+		logErrors(uri, response).subscribe();
+	}
 }
