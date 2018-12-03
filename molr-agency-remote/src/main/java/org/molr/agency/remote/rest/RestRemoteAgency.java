@@ -7,14 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
 public class RestRemoteAgency implements Agency {
@@ -76,21 +75,18 @@ public class RestRemoteAgency implements Agency {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         String uri = "/mission/" + mission.name() + "/instantiate";
         Mono<MissionHandleDto> responseBody = clientUtils
-                .postAndReturn(uri, MediaType.APPLICATION_STREAM_JSON, MissionHandleDto.class, fromObject(params));
-        Mono<MissionHandle> response = responseBody.map(MissionHandleDto::toMissionHandle).cache();
-        /* This has to be a hot source, in order that the instantiation is executed, even if nobody is subscribed*/
-        response.subscribe();
-        return response;
+                .postMono(uri, APPLICATION_STREAM_JSON, fromObject(params), MissionHandleDto.class);
+        return responseBody.map(MissionHandleDto::toMissionHandle);
     }
 
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
-        clientUtils.post("/instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name(),MediaType.APPLICATION_JSON, BodyInserters.empty());
+        clientUtils.post("/instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name(), MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
     @Override
     public void instructRoot(MissionHandle handle, StrandCommand command) {
-        clientUtils.post("/instance/" + handle.id() + "/instructRoot/" + command.name(),MediaType.APPLICATION_JSON, BodyInserters.empty());
+        clientUtils.post("/instance/" + handle.id() + "/instructRoot/" + command.name(), MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
 }

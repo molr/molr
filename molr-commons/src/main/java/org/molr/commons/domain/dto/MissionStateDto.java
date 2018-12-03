@@ -17,17 +17,17 @@ public class MissionStateDto {
 
     public final String result;
     public final Map<String, Set<String>> strandAllowedCommands;
-    public final Map<String, BlockDto> strandCursorPositions;
+    public final Map<String, String> strandCursorBlockIds;
     public final Map<String, String> strandRunStates;
     public final Map<String, List<String>> parentToChildrenStrands;
     public final Set<StrandDto> strands;
     public final Map<String, String> blockResults;
     public final Map<String, String> blockRunStates;
 
-    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, BlockDto> strandCursorPositions, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates) {
+    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, String> strandCursorBlockIds, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates) {
         this.result = result;
         this.strandAllowedCommands = strandAllowedCommands;
-        this.strandCursorPositions = strandCursorPositions;
+        this.strandCursorBlockIds = strandCursorBlockIds;
         this.strandRunStates = strandRunStates;
         this.strands = strands;
         this.parentToChildrenStrands = parentToChildrenStrands;
@@ -42,9 +42,9 @@ public class MissionStateDto {
     public static final MissionStateDto from(MissionState missionState) {
         Set<Strand> allStrands = missionState.allStrands();
         Set<StrandDto> strandDtos = allStrands.stream().map(StrandDto::from).collect(toSet());
-        Map<String, BlockDto> strandCursors = allStrands.stream()
-                .filter(s -> missionState.cursorPositionIn(s).isPresent())
-                .collect(toMap(Strand::id, s -> missionState.cursorPositionIn(s).map(BlockDto::from).get()));
+        Map<String, String> strandCursors = allStrands.stream()
+                .filter(s -> missionState.cursorBlockIdIn(s).isPresent())
+                .collect(toMap(Strand::id, s -> missionState.cursorBlockIdIn(s).get()));
 
         Map<String, String> runStates = allStrands.stream()
                 .collect(toMap(Strand::id, s -> missionState.runStateOf(s).name()));
@@ -78,7 +78,7 @@ public class MissionStateDto {
         Map<String, String> childrenToParentStrandId = childToParent();
         for (StrandDto strandDto : strands) {
             Strand strand = strandDto.toStrand();
-            Block block = ofNullable(strandCursorPositions.get(strandDto.id)).map(BlockDto::toBlock).orElse(null);
+            String cursorBlock = ofNullable(strandCursorBlockIds.get(strandDto.id)).orElse(null);
             RunState state = RunState.valueOf(strandRunStates.get(strandDto.id));
 
             Set<String> commandNames = ofNullable(strandAllowedCommands.get(strandDto.id)).orElse(emptySet());
@@ -86,7 +86,7 @@ public class MissionStateDto {
 
             String parentStrandId = childrenToParentStrandId.get(strand.id());
             Strand parentStrand = parentStrandId == null ? null : idsToStrand.get(parentStrandId);
-            builder.add(strand, state, block, parentStrand, commands);
+            builder.add(strand, state, cursorBlock, parentStrand, commands);
         }
 
         blockResults.entrySet().forEach(e -> builder.blockResult(e.getKey(), Result.valueOf(e.getValue())));
@@ -111,7 +111,7 @@ public class MissionStateDto {
         return "MissionStateDto{" +
                 "result='" + result + '\'' +
                 ", strandAllowedCommands=" + strandAllowedCommands +
-                ", strandCursorPositions=" + strandCursorPositions +
+                ", strandCursorBlockIds=" + strandCursorBlockIds +
                 ", strandRunStates=" + strandRunStates +
                 ", parentToChildrenStrands=" + parentToChildrenStrands +
                 ", strands=" + strands +

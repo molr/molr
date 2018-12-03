@@ -14,7 +14,7 @@ public class MissionState {
     private final Result result;
     private final Strand rootStrand;
     private final SetMultimap<Strand, StrandCommand> strandAllowedCommands;
-    private final Map<Strand, Block> strandCursorPositions;
+    private final Map<Strand, String> strandCursorBlockIds;
     private final Map<Strand, RunState> strandRunStates;
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
     private final Map<String, Result> blockIdsToResult;
@@ -28,7 +28,7 @@ public class MissionState {
         /* Consider checking that the tree is consistent (everything has to be connected to the root)*/
         this.parentToChildren = builder.parentToChildrenBuilder.build();
         this.strandAllowedCommands = builder.strandAllowedCommandsBuilder.build();
-        this.strandCursorPositions = builder.strandCursorPositionsBuilder.build();
+        this.strandCursorBlockIds = builder.strandCursorBlockIdsBuilder.build();
         this.strandRunStates = builder.strandRunStatesBuilder.build();
         this.blockIdsToResult = builder.blockIdsToResult.build();
         this.blockIdsToRunState = builder.blockIdsToRunState.build();
@@ -38,8 +38,8 @@ public class MissionState {
         return this.strandAllowedCommands.get(strand);
     }
 
-    public Optional<Block> cursorPositionIn(Strand strand) {
-        return Optional.ofNullable(this.strandCursorPositions.get(strand));
+    public Optional<String> cursorBlockIdIn(Strand strand) {
+        return Optional.ofNullable(this.strandCursorBlockIds.get(strand));
     }
 
     public RunState runStateOf(Strand strand) {
@@ -55,7 +55,11 @@ public class MissionState {
     }
 
     public Result resultOf(Block block) {
-        return Optional.ofNullable(blockIdsToResult.get(block.id())).orElse(Result.UNDEFINED);
+        return resultOfBlockId(block.id());
+    }
+
+    public Result resultOfBlockId(String blockId) {
+        return Optional.ofNullable(blockIdsToResult.get(blockId)).orElse(Result.UNDEFINED);
     }
 
     public Result result() {
@@ -63,7 +67,11 @@ public class MissionState {
     }
 
     public RunState runStateOf(Block block) {
-        return Optional.ofNullable(blockIdsToRunState.get(block.id())).orElse(RunState.UNDEFINED);
+        return runStateOfBlockId(block.id());
+    }
+
+    public RunState runStateOfBlockId(String blockId) {
+        return Optional.ofNullable(blockIdsToRunState.get(blockId)).orElse(RunState.UNDEFINED);
     }
 
     public Strand rootStrand() {
@@ -90,7 +98,7 @@ public class MissionState {
         private final Result result;
         private Strand rootStrand;
         private final ImmutableSetMultimap.Builder<Strand, StrandCommand> strandAllowedCommandsBuilder = ImmutableSetMultimap.builder();
-        private final ImmutableMap.Builder<Strand, Block> strandCursorPositionsBuilder = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Strand, String> strandCursorBlockIdsBuilder = ImmutableMap.builder();
         private final ImmutableMap.Builder<Strand, RunState> strandRunStatesBuilder = ImmutableMap.builder();
         private final ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
         private final ImmutableMap.Builder<String, Result> blockIdsToResult = ImmutableMap.builder();
@@ -101,6 +109,11 @@ public class MissionState {
         }
 
         public Builder add(Strand strand, RunState runState, Block cursor, Strand parent, Set<StrandCommand> allowedCommands) {
+            String cursorBlockId = Optional.ofNullable(cursor).map(Block::id).orElse(null);
+            return add(strand, runState, cursorBlockId, parent, allowedCommands);
+        }
+
+        public Builder add(Strand strand, RunState runState, String cursorBlockId, Strand parent, Set<StrandCommand> allowedCommands) {
             requireNonNull(strand, "strand must not be null");
             requireNonNull(runState, "runState must not be null");
             /* cursor might be null! */
@@ -115,8 +128,8 @@ public class MissionState {
                 parentToChildrenBuilder.put(parent, strand);
             }
 
-            if (cursor != null) {
-                strandCursorPositionsBuilder.put(strand, cursor);
+            if (cursorBlockId != null) {
+                strandCursorBlockIdsBuilder.put(strand, cursorBlockId);
             }
 
             strandRunStatesBuilder.put(strand, runState);
