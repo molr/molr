@@ -9,7 +9,6 @@ import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
-import org.molr.mole.remote.rest.RestRemoteMole;
 import org.molr.mole.server.rest.MolrMoleRestService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,11 +135,12 @@ public class RestRemoteMoleTest {
     }
 
     @Test
-    public void instantiate() {
+    public void instantiate() throws InterruptedException {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         Map<String,Object> params = new HashMap<>();
         params.put("paramName" , "param desc");
         remoteMole.instantiate(MissionHandle.ofId("missionId"), new Mission("a mission"), params);
+        TimeUnit.SECONDS.sleep(1);
         Mockito.verify(mole,Mockito.timeout(1000).atLeastOnce()).instantiate(any(),any(),any());
     }
 
