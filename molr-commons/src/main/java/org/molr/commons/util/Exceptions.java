@@ -1,4 +1,4 @@
-package org.molr.mole.core.utils;
+package org.molr.commons.util;
 
 import org.slf4j.helpers.FormattingTuple;
 
@@ -25,6 +25,13 @@ public class Exceptions {
         }
     }
 
+    public static IllegalStateException illegalStateException(String message, Object... args) {
+        return exception(IllegalStateException.class, message, args);
+    }
+
+    public static IllegalArgumentException illegalArgumentException(String message, Object... args) {
+        return exception(IllegalArgumentException.class, message, args);
+    }
 
     public static String stackTraceFrom(Throwable t) {
         StringWriter sw = new StringWriter();

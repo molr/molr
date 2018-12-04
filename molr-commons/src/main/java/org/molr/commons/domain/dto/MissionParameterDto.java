@@ -2,10 +2,16 @@ package org.molr.commons.domain.dto;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.Placeholder;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+
+import static org.molr.commons.util.Exceptions.illegalArgumentException;
+import static org.molr.commons.util.Exceptions.illegalStateException;
 
 public class MissionParameterDto<T> {
 
@@ -14,6 +20,12 @@ public class MissionParameterDto<T> {
             Double.class, "double",
             Integer.class, "integer",
             Boolean.class, "boolean"
+    );
+    private static final Map<Class<?>, Function<String, Placeholder<?>>> TYPE_CREATORS = ImmutableMap.of(
+            String.class, Placeholder::aString,
+            Double.class, Placeholder::aDouble,
+            Integer.class, Placeholder::anInteger,
+            Boolean.class, Placeholder::aBoolean
     );
 
     public final String name;
@@ -37,7 +49,7 @@ public class MissionParameterDto<T> {
 
     public static final <T> MissionParameterDto from(MissionParameter<T> parameter) {
         Placeholder<T> placeholder = parameter.placeholder();
-        return new MissionParameterDto(placeholder.name(), typeStringFrom(placeholder.type()), parameter.isRequired(), parameter.defaultValue());
+        return new MissionParameterDto<>(placeholder.name(), typeStringFrom(placeholder.type()), parameter.isRequired(), parameter.defaultValue());
     }
 
     public MissionParameter<T> toMissionParameter() {
@@ -49,11 +61,15 @@ public class MissionParameterDto<T> {
     }
 
     private Placeholder<T> placeholder() {
-        Class<?> typeClass = TYPE_NAMES.inverse().get(this.type);
-        if (name != null) {
-            return (Placeholder<T>) Placeholder.__do_not_use_externally__create__(typeClass, name);
+        Class<?> typeClass = TYPE_NAMES.inverse().get(type);
+        if (typeClass == null) {
+            throw illegalStateException("Type '{}' cannot be converted into a valid java type.", type);
         }
-        throw new IllegalStateException("Type '" + this.type + "' is cannot be converted into a valid java type.");
+        Function<String, Placeholder<?>> typeSupplier = TYPE_CREATORS.get(typeClass);
+        if(typeSupplier == null) {
+            throw illegalStateException("Type '{}' cannot be converted into a valid java type.", type);
+        }
+        return (Placeholder<T>) typeSupplier.apply(name);
     }
 
     private static final String typeStringFrom(Class<?> type) {
@@ -61,7 +77,7 @@ public class MissionParameterDto<T> {
         if (typeName != null) {
             return typeName;
         }
-        throw new IllegalArgumentException("type '" + type + "' cannot be mapped to a valid json value");
+        throw illegalArgumentException("Type '{}' cannot be mapped to a valid json value.", type);
     }
 
     @Override

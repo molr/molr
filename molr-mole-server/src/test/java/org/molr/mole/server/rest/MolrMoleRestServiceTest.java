@@ -3,6 +3,9 @@ package org.molr.mole.server.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.molr.commons.domain.Mission;
+import org.molr.commons.domain.MissionParameter;
+import org.molr.commons.domain.MissionParameterDescription;
+import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
 import org.molr.commons.domain.dto.MissionRepresentationDto;
 import org.molr.mole.core.api.Mole;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,13 +18,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.molr.commons.domain.MissionParameter.required;
+import static org.molr.commons.domain.Placeholder.anInteger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @RunWith(SpringRunner.class)
@@ -35,6 +42,26 @@ public class MolrMoleRestServiceTest {
 
     @MockBean
     Mole mole;
+
+    @Test
+    public void testTransportedMissionParametersSupportNullOnDefaultValue() {
+        WebClient client = WebClient.create(baseUrl);
+        String uri = "mission/aMission/parameterDescription";
+
+        MissionParameter<Integer> parameter = required(anInteger("test-parameter"));
+        MissionParameterDescription parameterDescription = new MissionParameterDescription(singleton(parameter));
+        when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(parameterDescription);
+
+        Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
+                .uri(uri)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
+
+        MissionParameterDescriptionDto description = remoteParameters.block();
+        assertThat(description.parameters).hasSize(1);
+        assertThat(description.parameters).as("it should have null default value").anyMatch(param -> param.defaultValue == null);
+    }
 
     @Test
     public void instantiateWithInvalidBody() {
