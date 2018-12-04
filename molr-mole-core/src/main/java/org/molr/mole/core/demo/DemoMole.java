@@ -1,12 +1,11 @@
-package org.molr.agency.server.demo;
-
-//import cern.lhc.app.seq.scheduler.domain.execution.demo.SleepBlock;
+package org.molr.mole.core.demo;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,8 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DemoMole implements Mole {
-
     private final AtomicLong ids = new AtomicLong(0);
+
+    private MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory();
 
     private final Set<Mission> dummyMissions = ImmutableSet.of(new Mission("Find Dr No."), new Mission("Conquer Rome"));
 
@@ -28,14 +28,19 @@ public class DemoMole implements Mole {
     private final Map<MissionHandle, MissionRepresentation> instances = new ConcurrentHashMap<>();
 
     private MissionRepresentation linear(String missionName) {
-        Block rootNode = Block.builder(id(), missionName).build();
+        Block rootNode = Block.builder(blockId(), missionName).build();
 
         ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(rootNode);
         for (int i = 0; i < 10; i++) {
-            Block child = Block.idAndText(id(), "Block no " + i + "");
+            Block child = Block.idAndText(blockId(), "Block no " + i + "");
             builder.parentToChild(rootNode, child);
         }
         return builder.build();
+    }
+
+    @Override
+    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
+        return Flux.just(instances.get(handle));
     }
 
 
@@ -56,7 +61,7 @@ public class DemoMole implements Mole {
 
     @Override
     public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        instances.put(handle, representationOf(mission));
+        instances.put(handle, missions.get(mission));
     }
 
     @Override
@@ -67,11 +72,6 @@ public class DemoMole implements Mole {
     @Override
     public Flux<MissionOutput> outputsFor(MissionHandle handle) {
         return Flux.empty();
-    }
-
-    @Override
-    public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
-        return Flux.just(instances.get(handle));
     }
 
     @Override
@@ -86,24 +86,32 @@ public class DemoMole implements Mole {
 
 
     private MissionRepresentation dummyTree(String rootName) {
-        Block root = Block.builder(id(), rootName).build();
+        Block root = Block.builder(blockId(), rootName).build();
         ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(root);
 
-        Block ss1 = Block.idAndText(id(), "subSeq 1");
+        Block ss1 = Block.idAndText(blockId(), "subSeq 1");
         builder.parentToChild(root, ss1);
 
-        builder.parentToChild(ss1, Block.idAndText(id(), "Leaf 1A"));
-        builder.parentToChild(ss1, Block.idAndText(id(), "Leaf 1B"));
+        builder.parentToChild(ss1, Block.idAndText(blockId(), "Leaf 1A"));
+        builder.parentToChild(ss1, Block.idAndText(blockId(), "Leaf 1B"));
 
-        Block ss2 = Block.idAndText(id(), "subSeq 2");
+        Block ss2 = Block.idAndText(blockId(), "subSeq 2");
         builder.parentToChild(root, ss2);
-        builder.parentToChild(ss2, Block.idAndText(id(), "Leaf 2A"));
-        builder.parentToChild(ss2, Block.idAndText(id(), "Leaf 2B"));
+        builder.parentToChild(ss2, Block.idAndText(blockId(), "Leaf 2A"));
+        builder.parentToChild(ss2, Block.idAndText(blockId(), "Leaf 2B"));
 
         return builder.build();
     }
 
-    private String id() {
+    private String blockId() {
         return "" + ids.getAndIncrement();
     }
+
+    @Override
+    public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
+        MissionHandle handle = handleFactory.createHandle();
+        instantiate(handle, mission, params);
+        return Mono.just(handle);
+    }
 }
+

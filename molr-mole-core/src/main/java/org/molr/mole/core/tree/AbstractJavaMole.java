@@ -3,20 +3,42 @@ package org.molr.mole.core.tree;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
 public abstract class AbstractJavaMole implements Mole {
 
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
 
+    private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory();
+
+    private final ExecutorService moleExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-" + uid() + "-%d"));
+
     @Override
+    @Deprecated
     public final void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        executors.put(handle, instantiate(mission, params));
+        executors.put(handle, executorFor(mission, params));
     }
+
+    @Override
+    public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
+        return supplyAsync(() -> {
+            MissionHandle handle = handleFactory.createHandle();
+            instantiate(handle, mission, params);
+            return handle;
+        });
+    }
+
 
     @Override
     public final Flux<MissionState> statesFor(MissionHandle handle) {
@@ -51,6 +73,11 @@ public abstract class AbstractJavaMole implements Mole {
                 .ifPresent(e -> e.instructRoot(command));
     }
 
-    protected abstract MissionExecutor instantiate(Mission mission, Map<String, Object> params);
+    private <T> Mono<T> supplyAsync(Supplier<T> supplier) {
+        return Mono.fromFuture(CompletableFuture.supplyAsync(supplier, moleExecutor));
+    }
+
+    protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);
+
 
 }

@@ -24,13 +24,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.molr.commons.util.Exceptions.illegalArgumentException;
 import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
 /**
- * This is probably the most simple agency possible: it is employing several moles, instantiating a mission on the
- * first one who can do it
+ * This is probably the most simple agency possible: it is employing several moles, instantiating a mission on the first
+ * one who can do it
  * <p>
  * This agency is threadsafe by delegating all the methods execution to a separate thread. All the methods that return
  * {@link Flux} or {@link Mono} are asynchronous.
@@ -41,8 +43,13 @@ public class LocalMoleDelegationAgency implements Agency {
 
     private final Map<Mission, Mole> missionMoles;
     private final MissionHandleFactory missionHandleFactory;
-    private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
+
+
+//    private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
+    /* TODO REMOVE*/
     private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
+
+
     private final ReplayProcessor<AgencyState> statesSink = ReplayProcessor.create(1);
     private final Flux<AgencyState> statesStream = statesSink.publishOn(Schedulers.elastic());
     private final ExecutorService agencyExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-%d"));
@@ -72,55 +79,83 @@ public class LocalMoleDelegationAgency implements Agency {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyOnAgencyExecutorAsync(() -> {
-            MissionHandle handle = missionHandleFactory.createHandle();
             Mole mole = missionMoles.get(mission);
             if (mole == null) {
                 throw new IllegalArgumentException("No mole could be found for mission '" + mission + "'.");
             }
-            mole.instantiate(handle, mission, params);
-            activeMoles.put(handle, mole);
-            MissionInstance instance = new MissionInstance(handle, mission);
-            missionInstances.put(handle, instance);
-            return handle;
-        }).doOnNext(mh -> this.publishState()).cache();
+            return mole;
+        }).flatMap(mole -> mole.instantiate(mission, params).map(moleHandle -> prependHandle(mole, moleHandle))
+                .doOnNext(missionHandle -> missionInstances.put(missionHandle, new MissionInstance(missionHandle, mission))))
+                .doOnNext(mh -> this.publishState()).cache();
     }
 
+    private static MissionHandle prependHandle(Mole mole, MissionHandle moleScopedMissionHandle) {
+        MissionHandle moleHandle = moleHandleFor(mole);
+        String moleScopedMissionId = moleScopedMissionHandle.id();
+        return MissionHandle.ofId(format("%s::%s", moleHandle.id(), moleScopedMissionId));
+    }
+
+    private static MissionHandle moleHandleFor(Mole mole) {
+        String moleClass = mole.getClass().getCanonicalName();
+        String moleUid = mole.uid();
+        return MissionHandle.ofId(format("%s[%s]", moleClass, moleUid));
+    }
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
-        return fromActiveMoleOrError(handle, m -> m.statesFor(handle));
+        return fromActiveMoleOrError(handle, m -> m.statesFor(extractMissionHandle(handle)));
     }
 
     @Override
     public Flux<MissionOutput> outputsFor(MissionHandle handle) {
-        return fromActiveMoleOrError(handle, m -> m.outputsFor(handle));
+        return fromActiveMoleOrError(handle, m -> m.outputsFor(extractMissionHandle(handle)));
     }
-
-
 
     @Override
     public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
-        return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
+        return fromActiveMoleOrError(handle, m -> m.representationsFor(extractMissionHandle(handle)));
+    }
+
+    private static String[] splitHandle(MissionHandle fullHandle) {
+        String[] split = fullHandle.id().split("::");
+        if (split.length < 2) {
+            throw illegalArgumentException("Could not split handle {} into 2 using ::", fullHandle);
+        }
+        return split;
+    }
+
+    private static MissionHandle extractMoleHandle(MissionHandle fullHandle) {
+        return MissionHandle.ofId(splitHandle(fullHandle)[0]);
+    }
+
+    private static MissionHandle extractMissionHandle(MissionHandle fullHandle) {
+        return MissionHandle.ofId(splitHandle(fullHandle)[1]);
+    }
+
+    private Mole getMoleWithId(MissionHandle moleHandle) {
+        return this.missionMoles.values().stream()
+                .filter(mole -> moleHandleFor(mole).equals(moleHandle))
+                .findFirst().orElseThrow(() -> illegalArgumentException("Cannot find mole with handle {}", moleHandle));
     }
 
     private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Mole, Flux<T>> fluxMapper) {
         return supplyOnAgencyExecutorSync(() -> {
-            Mole activeMole = activeMoles.get(handle);
-            if (activeMole == null) {
-                return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?"));
+            try{
+                return fluxMapper.apply(getMoleWithId(extractMoleHandle(handle)));
+            } catch (Exception ex) {
+                return Flux.error(new IllegalStateException("No active mole for mission handle '" + handle + "' found. Probably no mission was instantiated with this id?", ex));
             }
-            return fluxMapper.apply(activeMole);
         });
     }
 
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
-        runOnAgencyExecutorSync(() -> activeMoles.get(handle).instruct(handle, strand, command));
+        runOnAgencyExecutorSync(() -> getMoleWithId(extractMoleHandle(handle)).instruct(extractMissionHandle(handle), strand, command));
     }
 
     @Override
     public void instructRoot(MissionHandle handle, StrandCommand command) {
-        runOnAgencyExecutorSync(() -> activeMoles.get(handle).instructRoot(handle, command));
+        runOnAgencyExecutorSync(() -> getMoleWithId(extractMoleHandle(handle)).instructRoot(extractMissionHandle(handle), command));
     }
 
     private void publishState() {

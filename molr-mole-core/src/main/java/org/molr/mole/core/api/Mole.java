@@ -4,13 +4,14 @@
 
 package org.molr.mole.core.api;
 
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 
 import java.util.Map;
 import java.util.Set;
 
-public interface Mole {
+public interface Mole extends Agent {
 
     /**
      * Has to return a string identifying the instance. It is sufficient that this id is unique within the same

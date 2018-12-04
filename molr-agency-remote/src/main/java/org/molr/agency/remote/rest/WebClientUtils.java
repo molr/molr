@@ -66,7 +66,7 @@ public class WebClientUtils {
 	public <T> Mono<T> postMono(String uri, MediaType mediaType, BodyInserter<?, ? super ClientHttpRequest> body, Class<T> type) {
 		Mono<ClientResponse> response = client.post().uri(uri).accept(mediaType).body(body).exchange();
 		Mono<T> toReturn = logAndFilterErrors(uri, response).flatMap(r -> r.bodyToMono(type));
-		toReturn.subscribe();
+//		toReturn.subscribe();
 		return toReturn;
 	}
 

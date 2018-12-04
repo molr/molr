@@ -68,7 +68,6 @@ public class RestRemoteAgency implements Agency {
                 .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
-
     /* Post requests */
 
     @Override

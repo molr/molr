@@ -44,7 +44,7 @@ public class SingleNodeMole extends AbstractJavaMole {
     }
 
     @Override
-    protected MissionExecutor instantiate(Mission mission, Map<String, Object> params) {
+    protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
         SingleNodeMission<?> singleNodeMission = Optional.ofNullable(missions.get(mission))
                 .orElseThrow(() -> new IllegalArgumentException("Mole cannot handle mission '" + mission + "'."));
         return new SingleNodeMissionExecutor<>(singleNodeMission, params);

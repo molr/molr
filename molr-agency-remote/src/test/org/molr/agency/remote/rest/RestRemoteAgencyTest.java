@@ -6,8 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.molr.agency.core.Agency;
 import org.molr.agency.server.rest.MolrAgencyRestService;
-import org.molr.commons.domain.*;
-import org.molr.mole.core.api.Mole;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

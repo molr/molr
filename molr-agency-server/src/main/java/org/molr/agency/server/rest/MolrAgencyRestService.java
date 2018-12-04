@@ -7,6 +7,8 @@ import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.util.Map;
 
 @RestController
 public class MolrAgencyRestService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MolrAgencyRestService.class);
 
     /**
      * The agency to which the calls shall be delegated
@@ -90,6 +94,7 @@ public class MolrAgencyRestService {
     @ExceptionHandler({Exception.class})
     public @ResponseBody
     ResponseEntity handleException(Exception e){
+        LOGGER.error("Error: {}", e.getMessage(), e);
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 

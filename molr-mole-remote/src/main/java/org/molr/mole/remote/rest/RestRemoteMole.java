@@ -1,18 +1,7 @@
 package org.molr.mole.remote.rest;
 
-import org.molr.commons.domain.Mission;
-import org.molr.commons.domain.MissionHandle;
-import org.molr.commons.domain.MissionOutput;
-import org.molr.commons.domain.MissionParameterDescription;
-import org.molr.commons.domain.MissionRepresentation;
-import org.molr.commons.domain.MissionState;
-import org.molr.commons.domain.Strand;
-import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.dto.MissionOutputDto;
-import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
-import org.molr.commons.domain.dto.MissionRepresentationDto;
-import org.molr.commons.domain.dto.MissionSetDto;
-import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.commons.domain.*;
+import org.molr.commons.domain.dto.*;
 import org.molr.commons.util.Strands;
 import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
@@ -20,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
@@ -100,5 +90,9 @@ public class RestRemoteMole implements Mole {
         clientUtils.post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
+    @Override
+    public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
+        throw new UnsupportedOperationException("Will never be implemented.");
+    }
 }
 
