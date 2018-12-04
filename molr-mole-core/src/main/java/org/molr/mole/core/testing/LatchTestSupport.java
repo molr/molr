@@ -1,4 +1,4 @@
-package org.molr.testing;
+package org.molr.mole.core.testing;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

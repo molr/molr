@@ -1,4 +1,4 @@
-package org.molr.testing.strand;
+package org.molr.mole.core.testing.strand;
 
 import org.molr.mole.core.runnable.lang.Branch;
 import org.slf4j.Logger;

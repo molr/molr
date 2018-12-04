@@ -6,7 +6,7 @@ import org.molr.commons.domain.RunState;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import org.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 
 import static org.molr.commons.domain.Result.FAILED;

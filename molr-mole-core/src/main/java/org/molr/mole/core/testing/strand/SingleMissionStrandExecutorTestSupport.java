@@ -1,4 +1,4 @@
-package org.molr.testing.strand;
+package org.molr.mole.core.testing.strand;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.IterableAssert;

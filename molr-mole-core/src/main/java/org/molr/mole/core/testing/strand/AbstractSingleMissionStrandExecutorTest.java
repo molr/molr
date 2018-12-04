@@ -1,4 +1,4 @@
-package org.molr.testing.strand;
+package org.molr.mole.core.testing.strand;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
@@ -8,9 +8,15 @@ import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.exec.RunnableBlockExecutor;
-import org.molr.mole.core.tree.*;
+import org.molr.mole.core.testing.LatchTestSupport;
+import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
+import org.molr.mole.core.tree.LeafExecutor;
+import org.molr.mole.core.tree.StrandExecutor;
+import org.molr.mole.core.tree.StrandExecutorFactory;
+import org.molr.mole.core.tree.StrandFactory;
+import org.molr.mole.core.tree.StrandFactoryImpl;
+import org.molr.mole.core.tree.TreeStructure;
 import org.molr.mole.core.tree.tracking.TreeTracker;
-import org.molr.testing.LatchTestSupport;
 
 /**
  * Abstract support class for a test against one mission, specified via the {@link #mission()} abstract method.

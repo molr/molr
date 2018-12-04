@@ -6,16 +6,20 @@ import org.molr.commons.domain.Block;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.mole.core.runnable.RunnableLeafsMission;
 import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import org.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import org.molr.mole.core.testing.strand.StrandErrorsRecorder;
 import org.molr.mole.core.tree.exception.RejectedCommandException;
-import org.molr.testing.strand.AbstractSingleMissionStrandExecutorTest;
-import org.molr.testing.strand.StrandErrorsRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.molr.commons.domain.RunState.*;
-import static org.molr.commons.domain.StrandCommand.*;
+import static org.molr.commons.domain.RunState.FINISHED;
+import static org.molr.commons.domain.RunState.PAUSED;
+import static org.molr.commons.domain.RunState.RUNNING;
+import static org.molr.commons.domain.StrandCommand.PAUSE;
+import static org.molr.commons.domain.StrandCommand.RESUME;
+import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 
 @SuppressWarnings("unused")
 public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionStrandExecutorTest {
