@@ -5,5 +5,13 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
 
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
-    testCompile project(':molr-testing')
+}
+
+sourceSets {
+    test {
+        java {
+            /* including test sources directly from testing module */
+            srcDirs = ['src/test/java', '../molr-testing/src/main/java']
+        }
+    }
 }
