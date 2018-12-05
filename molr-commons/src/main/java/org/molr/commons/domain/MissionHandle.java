@@ -8,7 +8,6 @@ import java.util.Objects;
 
 public class MissionHandle {
 
-
     private final String id;
 
     private MissionHandle(String id) {

@@ -8,11 +8,20 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class AtomicIncrementMissionHandleFactory implements MissionHandleFactory {
 
-    private final AtomicLong nextId = new AtomicLong(0);
+    private final AtomicLong nextId;
+    private final Object target;
+
+    public AtomicIncrementMissionHandleFactory(Object target) {
+        this.target = target;
+        nextId = new AtomicLong(0);
+    }
 
     @Override
     public MissionHandle createHandle() {
-        return MissionHandle.ofId("" + nextId.getAndIncrement());
+        String className = target.getClass().getName();
+        String hashCode = "" + System.identityHashCode(target);
+        String nextId = "" + this.nextId.getAndIncrement();
+        return MissionHandle.ofId(String.format("%s::%s::%s", className, hashCode, nextId));
     }
 
 }

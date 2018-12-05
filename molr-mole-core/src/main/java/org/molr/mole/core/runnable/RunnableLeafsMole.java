@@ -26,17 +26,12 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
 
     @Override
-    public Set<Mission> availableMissions() {
-        return missions.keySet();
-    }
-
-    @Override
-    public MissionRepresentation representationOf(Mission mission) {
+    public MissionRepresentation missionRepresentationOf(Mission mission) {
         return getOrThrow(mission).treeStructure().missionRepresentation();
     }
 
     @Override
-    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+    public MissionParameterDescription missionParameterDescriptionOf(Mission mission) {
         return getOrThrow(mission).parameterDescription();
     }
 
@@ -51,7 +46,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
 
     @Override
-    protected MissionExecutor instantiate(Mission mission, Map<String, Object> params) {
+    protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         TreeStructure treeStructure = runnableLeafMission.treeStructure();
         TreeTracker<Result> resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
@@ -62,4 +57,11 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), MissionInput.from(params), outputCollector, runStateTracker);
         return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker);
     }
+
+    @Override
+    protected Set<Mission> availableMissions() {
+        return missions.keySet();
+    }
+
+
 }

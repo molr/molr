@@ -1,5 +1,0 @@
-dependencies {
-    compile project(":molr-commons")
-
-    compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
-}
