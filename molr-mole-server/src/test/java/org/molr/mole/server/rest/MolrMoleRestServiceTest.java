@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,21 +45,21 @@ public class MolrMoleRestServiceTest {
     Mole mole;
 
     @Test
-    public void testTransportedMissionParametersSupportNullOnDefaultValue() {
+    public void testTransportedMissionParametersSupportNullAsDefaultValue() {
         WebClient client = WebClient.create(baseUrl);
         String uri = "mission/aMission/parameterDescription";
 
         MissionParameter<Integer> parameter = required(anInteger("test-parameter"));
         MissionParameterDescription parameterDescription = new MissionParameterDescription(singleton(parameter));
-        when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription).cache());
+        when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription));
 
         Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
                 .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_STREAM_JSON)
                 .exchange()
                 .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
 
-        MissionParameterDescriptionDto description = remoteParameters.block();
+        MissionParameterDescriptionDto description = remoteParameters.block(Duration.ofSeconds(5));
         assertThat(description.parameters).hasSize(1);
         assertThat(description.parameters).as("it should have null default value").anyMatch(param -> param.defaultValue == null);
     }
@@ -67,7 +68,7 @@ public class MolrMoleRestServiceTest {
     public void instantiateWithInvalidBody() {
         Set<String> params = new HashSet<>();
         WebClient client = WebClient.create(baseUrl);
-        String uri = "mission/aMission/instantiate/aHandle";
+        String uri = "mission/aMission/instantiate";
 
         HttpStatus response = client.post()
                 .uri(uri)

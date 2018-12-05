@@ -1,4 +1,3 @@
 include 'molr-commons'
-include "molr-agency-remote", "molr-agency-server", "molr-agency-core"
 include "molr-mole-server",  "molr-mole-core", "molr-mole-remote"
 
