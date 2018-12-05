@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Import;
 public class DemoMolrAgencyServerMain {
 
     public static void main(String... args) {
+        if (System.getProperty("server.port") == null) {
+            System.setProperty("server.port", "8000");
+        }
         SpringApplication.run(DemoMolrAgencyServerMain.class);
     }
 

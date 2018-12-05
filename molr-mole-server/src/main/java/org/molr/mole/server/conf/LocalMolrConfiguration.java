@@ -5,6 +5,7 @@ import org.molr.commons.api.Mole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.Set;
 
@@ -15,6 +16,7 @@ public class LocalMolrConfiguration {
     private Set<Mole> moles;
 
     @Bean
+    @Primary
     public Mole agency() {
         return new LocalMoleDelegationAgency(moles);
     }
