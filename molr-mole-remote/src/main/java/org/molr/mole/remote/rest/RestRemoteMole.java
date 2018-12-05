@@ -73,12 +73,6 @@ public class RestRemoteMole implements Mole {
     }
 
     @Override
-    public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        String uri = "mission/" + mission.name() + "/instantiate/" + handle.id();
-        clientUtils.post(uri, MediaType.APPLICATION_JSON, BodyInserters.fromObject(params));
-    }
-
-    @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
         String uri = "instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name();
         clientUtils.post(uri, MediaType.APPLICATION_JSON, BodyInserters.empty());
@@ -92,7 +86,9 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
-        throw new UnsupportedOperationException("Will never be implemented.");
+        String uri = "mission/" + mission.name() + "/instantiate";
+        return clientUtils.postMono(uri, MediaType.APPLICATION_JSON, BodyInserters.fromObject(params), MissionHandleDto.class)
+                .map(MissionHandleDto::toMissionHandle);
     }
 }
 

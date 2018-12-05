@@ -2,8 +2,6 @@ package org.molr.agency.server.conf;
 
 import org.molr.agency.core.Agency;
 import org.molr.agency.server.local.LocalMoleDelegationAgency;
-import org.molr.commons.domain.AtomicIncrementMissionHandleFactory;
-import org.molr.commons.domain.MissionHandleFactory;
 import org.molr.mole.core.api.Mole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,13 +16,8 @@ public class LocalMolrConfiguration {
     private Set<Mole> moles;
 
     @Bean
-    public MissionHandleFactory missionHandleFactory() {
-        return new AtomicIncrementMissionHandleFactory();
-    }
-
-    @Bean
-    public Agency agency(MissionHandleFactory missionHandleFactory) {
-        return new LocalMoleDelegationAgency(missionHandleFactory, moles);
+    public Agency agency() {
+        return new LocalMoleDelegationAgency(moles);
     }
 
 }

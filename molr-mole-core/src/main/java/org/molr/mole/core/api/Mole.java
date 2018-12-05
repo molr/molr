@@ -13,23 +13,11 @@ import java.util.Set;
 
 public interface Mole extends Agent {
 
-    /**
-     * Has to return a string identifying the instance. It is sufficient that this id is unique within the same
-     * implementations of this interface.
-     *
-     * @return an unique id for the mole
-     */
-    default String uid() {
-        return "" + hashCode();
-    }
-
     Set<Mission> availableMissions();
 
     MissionRepresentation representationOf(Mission mission);
 
     MissionParameterDescription parameterDescriptionOf(Mission mission);
-
-    void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params);
 
     Flux<MissionState> statesFor(MissionHandle handle);
 

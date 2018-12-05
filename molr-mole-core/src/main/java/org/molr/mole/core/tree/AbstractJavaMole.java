@@ -19,22 +19,14 @@ import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 public abstract class AbstractJavaMole implements Mole {
 
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
-
-    private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory();
-
-    private final ExecutorService moleExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-" + uid() + "-%d"));
-
-    @Override
-    @Deprecated
-    public final void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        executors.put(handle, executorFor(mission, params));
-    }
+    private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory(this);
+    private final ExecutorService moleExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-%d"));
 
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
             MissionHandle handle = handleFactory.createHandle();
-            instantiate(handle, mission, params);
+            executors.put(handle, executorFor(mission, params));
             return handle;
         });
     }

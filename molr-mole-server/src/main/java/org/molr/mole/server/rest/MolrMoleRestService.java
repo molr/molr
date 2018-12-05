@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -73,9 +74,9 @@ public class MolrMoleRestService {
         POST mappings
      */
 
-    @PostMapping(path = "/mission/{missionName}/instantiate/{missionHandleId}")
-    public void instantiate(@PathVariable("missionHandleId") String missionHandleId, @PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
-        mole.instantiate(MissionHandle.ofId(missionHandleId), new Mission(missionName), params);
+    @PostMapping(path = "/mission/{missionName}/instantiate")
+    public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
+        return mole.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
     }
 
     @PostMapping(path = "/instance/{missionHandleId}/{strandId}/instruct/{strandCommand}")

@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -73,7 +74,6 @@ public class RestRemoteMoleTest {
         outputCollector.put(BLOCK2,"another example","this is another output example");
         Flux<MissionOutput> outputValue = outputCollector.asStream();
         when(mole.outputsFor(any(MissionHandle.class))).thenReturn(outputValue);
-
     }
 
 
@@ -139,9 +139,9 @@ public class RestRemoteMoleTest {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         Map<String,Object> params = new HashMap<>();
         params.put("paramName" , "param desc");
-        remoteMole.instantiate(MissionHandle.ofId("missionId"), new Mission("a mission"), params);
+        remoteMole.instantiate(new Mission("a mission"), params);
         TimeUnit.SECONDS.sleep(1);
-        Mockito.verify(mole,Mockito.timeout(1000).atLeastOnce()).instantiate(any(),any(),any());
+        Mockito.verify(mole,Mockito.timeout(1000).atLeastOnce()).instantiate(any(),any());
     }
 
     @Ignore
@@ -149,8 +149,8 @@ public class RestRemoteMoleTest {
     public void instantiateReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         doThrow(new IllegalArgumentException("the mole is returning an error"))
-                .when(mole).instantiate(any(),any(),any());
-        remoteMole.instantiate(MissionHandle.ofId("missionId"), new Mission("a mission"), Collections.emptyMap());
+                .when(mole).instantiate(any(),any());
+        remoteMole.instantiate(new Mission("a mission"), Collections.emptyMap());
     }
 
     @Test
@@ -179,10 +179,11 @@ public class RestRemoteMoleTest {
     @Test
     public void outputsFor(){
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        Flux<MissionOutput> outputs = remoteMole.outputsFor(MissionHandle.ofId("missionHandleId"));
+        Flux<MissionOutput> outputs = remoteMole.outputsFor(MissionHandle.ofId("missionHandleId"))
+                .doOnNext(a -> System.out.println("AAAAAAAAAAAAAAAA" + a));
         assertThat(outputs.hasElements().block()).isTrue();
-        System.out.println(outputs.blockFirst().get(BLOCK1, aString("example")));
-        assertThat(outputs.blockFirst().get(BLOCK1, aString("example"))).isEqualTo("this is an output example");
+        System.out.println(outputs.blockFirst(Duration.ofSeconds(1)).get(BLOCK1, aString("example")));
+        assertThat(outputs.blockFirst(Duration.ofSeconds(1)).get(BLOCK1, aString("example"))).isEqualTo("this is an output example");
     }
 
     @Ignore

@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DemoMole implements Mole {
     private final AtomicLong ids = new AtomicLong(0);
 
-    private MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory();
+    private MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory(this);
 
     private final Set<Mission> dummyMissions = ImmutableSet.of(new Mission("Find Dr No."), new Mission("Conquer Rome"));
 
@@ -57,11 +57,6 @@ public class DemoMole implements Mole {
     @Override
     public MissionParameterDescription parameterDescriptionOf(Mission mission) {
         return new MissionParameterDescription(Collections.emptySet());
-    }
-
-    @Override
-    public void instantiate(MissionHandle handle, Mission mission, Map<String, Object> params) {
-        instances.put(handle, missions.get(mission));
     }
 
     @Override
@@ -110,7 +105,7 @@ public class DemoMole implements Mole {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         MissionHandle handle = handleFactory.createHandle();
-        instantiate(handle, mission, params);
+        instances.put(handle, missions.get(mission));
         return Mono.just(handle);
     }
 }

@@ -31,7 +31,8 @@ public class WebClientUtils {
     }
 
     public <T> Flux<T> flux(String uri, Class<T> type) {
-        return clientResponseForGet(uri, APPLICATION_STREAM_JSON).flatMapMany(response -> response.bodyToFlux(type));
+        return clientResponseForGet(uri, APPLICATION_STREAM_JSON).flatMapMany(response -> response.bodyToFlux(type))
+                .cache();
     }
 
     public <T> Mono<T> mono(String uri, Class<T> type) {
