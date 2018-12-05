@@ -1,12 +1,12 @@
 package org.molr.mole.server.rest;
 
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
 import org.molr.commons.domain.dto.*;
 import org.molr.commons.util.Strands;
-import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,21 +31,18 @@ public class MolrMoleRestService {
     private final static Logger LOGGER = LoggerFactory.getLogger(MolrMoleRestService.class);
 
     @Autowired
-    private Mole mole;
-
-    @GetMapping(path = "/mission/availableMissions")
-    public MissionSetDto availableMissions() {
-        return MissionSetDto.from(mole.availableMissions());
-    }
+    private Agent mole;
 
     @GetMapping(path = "/mission/{missionName}/representation")
     public MissionRepresentationDto representationOf(@PathVariable("missionName") String missionName) {
-        return MissionRepresentationDto.from(mole.representationOf(new Mission(missionName)));
+//        return MissionRepresentationDto.from(mole.representationOf(new Mission(missionName)));
+        return null;
     }
 
     @GetMapping(path = "/mission/{missionName}/parameterDescription")
     public MissionParameterDescriptionDto parameterDescriptionOf(@PathVariable("missionName") String missionName) {
-        return MissionParameterDescriptionDto.from(mole.parameterDescriptionOf(new Mission(missionName)));
+//        return MissionParameterDescriptionDto.from(mole.missionParameterDescriptionOf(new Mission(missionName)));
+        return null;
     }
 
     @GetMapping(path = "/instance/{missionHandleId}/states")

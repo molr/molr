@@ -24,12 +24,7 @@ public class SingleNodeMole extends AbstractJavaMole {
     }
 
     @Override
-    public Set<Mission> availableMissions() {
-        return missions.keySet();
-    }
-
-    @Override
-    public MissionRepresentation representationOf(Mission mission) {
+    public MissionRepresentation missionRepresentationOf(Mission mission) {
         return Optional.ofNullable(missions.get(mission))
                 .map(m -> SingleNodeMissions.representationFor(m))
                 .orElseThrow(() -> new IllegalArgumentException("Mole cannot handle mission '" + mission + "'."));
@@ -37,7 +32,7 @@ public class SingleNodeMole extends AbstractJavaMole {
 
 
     @Override
-    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+    public MissionParameterDescription missionParameterDescriptionOf(Mission mission) {
         return Optional.ofNullable(missions.get(mission))
                 .map(m -> m.parameterDescription())
                 .orElseThrow(() -> new IllegalArgumentException("Mole cannot handle mission '" + mission + "'."));
@@ -48,6 +43,11 @@ public class SingleNodeMole extends AbstractJavaMole {
         SingleNodeMission<?> singleNodeMission = Optional.ofNullable(missions.get(mission))
                 .orElseThrow(() -> new IllegalArgumentException("Mole cannot handle mission '" + mission + "'."));
         return new SingleNodeMissionExecutor<>(singleNodeMission, params);
+    }
+
+    @Override
+    protected Set<Mission> availableMissions() {
+        return missions.keySet();
     }
 
 }

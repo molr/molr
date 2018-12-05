@@ -1,9 +1,9 @@
 package org.molr.mole.remote.rest;
 
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
 import org.molr.commons.util.Strands;
-import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -20,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * this mole accesses a remote mole through a REST server
  */
 
-public class RestRemoteMole implements Mole {
+public class RestRemoteMole implements Agent {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RestRemoteMole.class);
 
@@ -32,24 +31,15 @@ public class RestRemoteMole implements Mole {
     }
 
     @Override
-    public Set<Mission> availableMissions() {
-        return clientUtils.mono("mission/availableMissions", MissionSetDto.class)
-                .map(MissionSetDto::toMissionSet)
-                .block();
-    }
-
-    @Override
-    public MissionRepresentation representationOf(Mission mission) {
+    public Mono<MissionRepresentation> representationOf(Mission mission) {
         return clientUtils.mono("mission/" + mission.name() + "/representation", MissionRepresentationDto.class)
-                .map(MissionRepresentationDto::toMissionRepresentation)
-                .block();
+                .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
     @Override
-    public MissionParameterDescription parameterDescriptionOf(Mission mission) {
+    public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
         return clientUtils.mono("mission/" + mission.name() + "/parameterDescription", MissionParameterDescriptionDto.class)
-                .map(MissionParameterDescriptionDto::toMissionParameterDescription)
-                .block();
+                .map(MissionParameterDescriptionDto::toMissionParameterDescription);
     }
 
     @Override
@@ -90,5 +80,10 @@ public class RestRemoteMole implements Mole {
         return clientUtils.postMono(uri, MediaType.APPLICATION_JSON, BodyInserters.fromObject(params), MissionHandleDto.class)
                 .map(MissionHandleDto::toMissionHandle);
     }
-}
 
+    @Override
+    public Flux<AgencyState> states() {
+        return clientUtils.flux("/states", AgencyStateDto.class)
+                .map(AgencyStateDto::toAgencyState);
+    }
+}

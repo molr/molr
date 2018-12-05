@@ -1,7 +1,7 @@
 package org.molr.agency.remote.conf;
 
-import org.molr.agency.core.Agency;
 import org.molr.agency.remote.rest.RestRemoteAgency;
+import org.molr.commons.api.Agent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class LocalhostRestClientConfiguration {
 
     @Bean
-    public Agency agency() {
+    public Agent agency() {
         return new RestRemoteAgency("http://localhost:8000");
     }
 }

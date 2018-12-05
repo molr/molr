@@ -2,10 +2,13 @@ package org.molr.commons.domain;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
 
 public class ImmutableAgencyState implements AgencyState {
 
@@ -23,6 +26,7 @@ public class ImmutableAgencyState implements AgencyState {
         return new ImmutableAgencyState(executableMissions, activeMissions);
     }
 
+
     @Override
     public Set<Mission> executableMissions() {
         return this.executableMissions;
@@ -31,6 +35,12 @@ public class ImmutableAgencyState implements AgencyState {
     @Override
     public Set<MissionInstance> activeMissions() {
         return this.activeMissions;
+    }
+
+    public static final AgencyState combine(Object[] states) {
+        Set<Mission> availableMissions = Arrays.stream(states).map(s -> (AgencyState) s).flatMap(s -> s.executableMissions().stream()).collect(toSet());
+        Set<MissionInstance> instances = Arrays.stream(states).map(s -> (AgencyState) s).flatMap(s -> s.activeMissions().stream()).collect(toSet());
+        return new ImmutableAgencyState(availableMissions, instances);
     }
 
     @Override

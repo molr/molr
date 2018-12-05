@@ -1,5 +1,6 @@
 package org.molr.agency.remote.rest;
 
+import org.molr.commons.exception.MolrRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,9 @@ public class WebClientUtils {
     }
 
     public <T> Flux<T> flux(String uri, Class<T> type) {
-        return clientResponseForGet(uri, APPLICATION_STREAM_JSON).flatMapMany(response -> response.bodyToFlux(type));
+        return clientResponseForGet(uri, APPLICATION_STREAM_JSON)
+                .flatMapMany(response -> response.bodyToFlux(type))
+                .cache();
     }
 
     public <T> Mono<T> mono(String uri, Class<T> type) {
@@ -67,8 +70,12 @@ public class WebClientUtils {
     private static Mono<ClientResponse> logAndFilterErrors(String uri, Mono<ClientResponse> clientResponse) {
         return clientResponse//
                 .doOnNext(response -> logIfHttpErrorStatusCode(uri, response)) //
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e)) //
-                .filter(response -> response.statusCode().is2xxSuccessful());
+                .doOnNext(response -> {
+                    if (!response.statusCode().is2xxSuccessful()) {
+                        throw new MolrRemoteException("Response from '" + uri + "' is not successful: " + response.statusCode());
+                    }
+                })
+                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e));
     }
 
     private static void logIfHttpErrorStatusCode(String uri, ClientResponse response) {

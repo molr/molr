@@ -2,12 +2,12 @@ package org.molr.mole.server.rest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.MissionParameterDescription;
 import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
 import org.molr.commons.domain.dto.MissionRepresentationDto;
-import org.molr.mole.core.api.Mole;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,7 +41,7 @@ public class MolrMoleRestServiceTest {
     private final String baseUrl = "http://localhost:8800";
 
     @MockBean
-    Mole mole;
+    Agent mole;
 
     @Test
     public void testTransportedMissionParametersSupportNullOnDefaultValue() {
@@ -50,7 +50,7 @@ public class MolrMoleRestServiceTest {
 
         MissionParameter<Integer> parameter = required(anInteger("test-parameter"));
         MissionParameterDescription parameterDescription = new MissionParameterDescription(singleton(parameter));
-        when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(parameterDescription);
+        when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription).cache());
 
         Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
                 .uri(uri)

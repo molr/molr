@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import({MolrAgencyRestService.class, LocalMolrConfiguration.class, DemoConfiguration.class})
+@Import({LocalMolrConfiguration.class, DemoConfiguration.class})
 public class DemoMolrAgencyServerMain {
 
     public static void main(String... args) {

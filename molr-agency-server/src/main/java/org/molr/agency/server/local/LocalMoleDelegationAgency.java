@@ -4,25 +4,22 @@
 
 package org.molr.agency.server.local;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
-import org.molr.agency.core.Agency;
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.*;
-import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -39,23 +36,40 @@ import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
  *
  * @author kfuchsbe
  */
-public class LocalMoleDelegationAgency implements Agency {
+public class LocalMoleDelegationAgency implements Agent {
 
-    private final Map<Mission, Mole> missionMoles;
+    private final Map<Mission, Agent> missionMoles = new ConcurrentHashMap<>();
 
     /* TODO REMOVE? */
-    private final ConcurrentMap<MissionHandle, MissionInstance> missionInstances = new ConcurrentHashMap<>();
-    private final ConcurrentMap<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
+    private final Map<MissionHandle, Agent> activeMoles = new ConcurrentHashMap<>();
 
-
-    private final ReplayProcessor<AgencyState> statesSink = ReplayProcessor.create(1);
-    private final Flux<AgencyState> statesStream = statesSink.publishOn(Schedulers.elastic());
+    private final Flux<AgencyState> statesStream;
     private final ExecutorService agencyExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-%d"));
+    private final Scheduler agencyScheduler = Schedulers.fromExecutor(agencyExecutor);
 
-    public LocalMoleDelegationAgency(Iterable<Mole> moles) {
+    private final Scheduler stateScheduler = Schedulers.fromExecutor(newSingleThreadExecutor(namedThreadFactory("delegation-states-%d")));
+
+    public LocalMoleDelegationAgency(Iterable<Agent> moles) {
         requireNonNull(moles, "moles must not be null");
-        this.missionMoles = scanMolesForMissions(moles);
-        publishState();
+        Set<Flux<AgencyState>> stateStreams = StreamSupport.stream(moles.spliterator(), false).map(m -> m.states()).collect(Collectors.toSet());
+
+        for (Agent mole : moles) {
+            mole.states().publishOn(agencyScheduler).subscribe(state -> {
+                Set<Mission> updatedMissions = state.executableMissions();
+
+                for (Mission mission : updatedMissions) {
+                    missionMoles.putIfAbsent(mission, mole);
+                }
+
+                missionMoles.entrySet().stream()
+                        .filter(e -> e.getValue().equals(mole))
+                        .map(Map.Entry::getKey)
+                        .filter(m -> !updatedMissions.contains(m))
+                        .forEach(missionMoles::remove);
+            });
+        }
+
+        this.statesStream = Flux.combineLatest(stateStreams, streams -> ImmutableAgencyState.combine(streams)).publishOn(stateScheduler);
     }
 
     @Override
@@ -65,26 +79,25 @@ public class LocalMoleDelegationAgency implements Agency {
 
     @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return supplyOnAgencyExecutorAsync(() -> missionMoles.get(mission).representationOf(mission));
+        return getMole(mission).flatMap(mole -> mole.representationOf(mission));
     }
 
     @Override
     public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
-        return supplyOnAgencyExecutorAsync(() -> missionMoles.get(mission).parameterDescriptionOf(mission));
+        return getMole(mission).flatMap(mole -> mole.parameterDescriptionOf(mission));
     }
 
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyOnAgencyExecutorAsync(() -> {
-            Mole mole = missionMoles.get(mission);
+            Agent mole = missionMoles.get(mission);
             if (mole == null) {
                 throw new IllegalArgumentException("No mole could be found for mission '" + mission + "'.");
             }
             return mole;
         }).flatMap(mole -> mole.instantiate(mission, params)
-                .doOnNext(missionHandle -> activeMoles.put(missionHandle, mole))
-                .doOnNext(missionHandle -> missionInstances.put(missionHandle, new MissionInstance(missionHandle, mission))))
-                .doOnNext(mh -> this.publishState()).cache();
+                .doOnNext(missionHandle -> activeMoles.put(missionHandle, mole)))
+                .cache();
     }
 
     @Override
@@ -102,7 +115,15 @@ public class LocalMoleDelegationAgency implements Agency {
         return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
     }
 
-    private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Mole, Flux<T>> fluxMapper) {
+    private Mono<Agent> getMole(Mission mission) {
+        Agent mole = missionMoles.get(mission);
+        if (mole == null) {
+            return Mono.error(illegalArgumentException("{} is not handled by any mole", mission));
+        }
+        return Mono.just(mole);
+    }
+
+    private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Agent, Flux<T>> fluxMapper) {
         return supplyOnAgencyExecutorSync(() -> {
             try {
                 return fluxMapper.apply(getMoleWithId(handle));
@@ -112,7 +133,7 @@ public class LocalMoleDelegationAgency implements Agency {
         });
     }
 
-    private Mole getMoleWithId(MissionHandle moleHandle) {
+    private Agent getMoleWithId(MissionHandle moleHandle) {
         return ofNullable(activeMoles.get(moleHandle)).orElseThrow(() -> illegalArgumentException("Cannot find mole with handle {}", moleHandle));
     }
 
@@ -124,20 +145,6 @@ public class LocalMoleDelegationAgency implements Agency {
     @Override
     public void instructRoot(MissionHandle handle, StrandCommand command) {
         runOnAgencyExecutorSync(() -> getMoleWithId(handle).instructRoot(handle, command));
-    }
-
-    private void publishState() {
-        statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(missionMoles.keySet()), ImmutableList.copyOf(missionInstances.values())));
-    }
-
-    private static Map<Mission, Mole> scanMolesForMissions(Iterable<Mole> moles) {
-        Builder<Mission, Mole> builder = ImmutableMap.builder();
-        for (Mole mole : moles) {
-            for (Mission mission : mole.availableMissions()) {
-                builder.put(mission, mole);
-            }
-        }
-        return builder.build();
     }
 
     private void runOnAgencyExecutorSync(Runnable runnable) {

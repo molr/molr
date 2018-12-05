@@ -1,6 +1,6 @@
 package org.molr.mole.remote.conf;
 
-import org.molr.mole.core.api.Mole;
+import org.molr.commons.api.Agent;
 import org.molr.mole.remote.rest.RestRemoteMole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class DemoConfiguration {
 
     @Bean
-    public Mole mole(){
+    public Agent mole(){
         return new RestRemoteMole("http://localhost:8800");
     }
 }

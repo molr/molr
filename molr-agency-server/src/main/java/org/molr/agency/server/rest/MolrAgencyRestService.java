@@ -1,7 +1,7 @@
 package org.molr.agency.server.rest;
 
 
-import org.molr.agency.core.Agency;
+import org.molr.commons.api.Agent;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
@@ -25,11 +25,11 @@ public class MolrAgencyRestService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MolrAgencyRestService.class);
 
-    /**
-     * The agency to which the calls shall be delegated
-     */
-    @Autowired
-    private Agency agency;
+    private final Agent agent;
+
+    public MolrAgencyRestService(Agent agent) {
+        this.agent = agent;
+    }
 
     /*
         GET mappings
@@ -37,32 +37,32 @@ public class MolrAgencyRestService {
 
     @GetMapping(path = "/states",  produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<AgencyStateDto> states() {
-        return agency.states().map(AgencyStateDto::from);
+        return agent.states().map(AgencyStateDto::from);
     }
 
     @GetMapping(path = "/mission/{missionName}/representation")
     public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
-        return agency.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
+        return agent.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
 
     @GetMapping(path = "/mission/{missionName}/parameterDescription")
     public Mono<MissionParameterDescriptionDto> parameterDescriptionOf(@PathVariable("missionName") String missionName) {
-        return agency.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
+        return agent.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
     }
 
     @GetMapping(path = "/instance/{missionHandle}/states", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionStateDto> statesFor(@PathVariable("missionHandle") String missionHandle) {
-        return agency.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
+        return agent.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
     @GetMapping(path = "/instance/{missionHandle}/outputs", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionOutputDto> outputsFor(@PathVariable("missionHandle") String missionHandle) {
-        return agency.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
+        return agent.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
     }
 
     @GetMapping(path = "/instance/{missionHandle}/representations", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<MissionRepresentationDto> representationsFor(@PathVariable("missionHandle") String missionHandle) {
-        return agency.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
+        return agent.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
     }
 
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
@@ -78,17 +78,17 @@ public class MolrAgencyRestService {
 
     @PostMapping(path = "/mission/{missionName}/instantiate")
     public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
-        return agency.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
+        return agent.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
     }
 
     @PostMapping(path = "/instance/{missionHandle}/{strandId}/instruct/{commandName}")
     public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("strandId") String strandId, @PathVariable("commandName") String commandName) {
-        agency.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
+        agent.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
     }
 
     @PostMapping(path = "/instance/{missionHandle}/instructRoot/{commandName}")
     public void instructRoot(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
-        agency.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
+        agent.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
     }
 
     @ExceptionHandler({Exception.class})
