@@ -1,6 +1,6 @@
 package org.molr.agency.core.support;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.StrandCommand;
@@ -16,16 +16,16 @@ import static java.util.Objects.requireNonNull;
  */
 public class AgencyConvenienceSupport {
 
-    private final Agent agent;
+    private final Mole mole;
 
-    public AgencyConvenienceSupport(Agent agent) {
-        this.agent = requireNonNull(agent, "agency must not be null");
+    public AgencyConvenienceSupport(Mole mole) {
+        this.mole = requireNonNull(mole, "agency must not be null");
     }
 
     public OngoingMissionRun start(Mission mission, Map<String, Object> missionParameters) {
-        Mono<MissionHandle> handle = agent.instantiate(mission, missionParameters);
-        handle.subscribe(h -> agent.instructRoot(h, StrandCommand.RESUME));
-        return new OngoingMissionRun(agent, handle);
+        Mono<MissionHandle> handle = mole.instantiate(mission, missionParameters);
+        handle.subscribe(h -> mole.instructRoot(h, StrandCommand.RESUME));
+        return new OngoingMissionRun(mole, handle);
     }
 
 }

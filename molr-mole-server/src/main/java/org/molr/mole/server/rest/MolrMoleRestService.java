@@ -1,6 +1,6 @@
 package org.molr.mole.server.rest;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
@@ -31,7 +31,7 @@ public class MolrMoleRestService {
     private final static Logger LOGGER = LoggerFactory.getLogger(MolrMoleRestService.class);
 
     @Autowired
-    private Agent mole;
+    private Mole mole;
 
     @GetMapping(path = "/mission/{missionName}/representation")
     public MissionRepresentationDto representationOf(@PathVariable("missionName") String missionName) {

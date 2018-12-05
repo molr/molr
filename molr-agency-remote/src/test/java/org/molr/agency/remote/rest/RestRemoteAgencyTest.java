@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.molr.agency.server.rest.MolrAgencyRestService;
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.molr.commons.domain.Placeholder.aString;
@@ -43,7 +42,7 @@ public class RestRemoteAgencyTest {
     private final String baseUrl = "http://localhost:8000";
 
     @MockBean
-    private Agent agency;
+    private Mole agency;
 
     @Before
     public void setUpAgency() {

@@ -18,7 +18,7 @@ import java.util.Map;
  * <p>
  * Note that the full agency is designed in an asynchronous manner!
  */
-public interface Agent {
+public interface Mole {
 
     /**
      * Instantiates the given mission with the given parameters (Currently only string and integer parameters are

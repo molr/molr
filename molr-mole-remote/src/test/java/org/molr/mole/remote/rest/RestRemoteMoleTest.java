@@ -5,7 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import org.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import org.molr.mole.core.tree.MissionOutputCollector;
@@ -46,7 +46,7 @@ public class RestRemoteMoleTest {
     private final String baseUrl = "http://localhost:8800";
 
     @MockBean
-    private Agent mole;
+    private Mole mole;
 
     @Before
     public void setUpMole() {

@@ -4,7 +4,7 @@
 
 package org.molr.agency.server.local;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,12 +36,12 @@ import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
  *
  * @author kfuchsbe
  */
-public class LocalMoleDelegationAgency implements Agent {
+public class LocalMoleDelegationAgency implements Mole {
 
-    private final Map<Mission, Agent> missionMoles = new ConcurrentHashMap<>();
+    private final Map<Mission, Mole> missionMoles = new ConcurrentHashMap<>();
 
     /* TODO REMOVE? */
-    private final Map<MissionHandle, Agent> activeMoles = new ConcurrentHashMap<>();
+    private final Map<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
 
     private final Flux<AgencyState> statesStream;
     private final ExecutorService agencyExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-%d"));
@@ -49,11 +49,11 @@ public class LocalMoleDelegationAgency implements Agent {
 
     private final Scheduler stateScheduler = Schedulers.fromExecutor(newSingleThreadExecutor(namedThreadFactory("delegation-states-%d")));
 
-    public LocalMoleDelegationAgency(Iterable<Agent> moles) {
+    public LocalMoleDelegationAgency(Iterable<Mole> moles) {
         requireNonNull(moles, "moles must not be null");
         Set<Flux<AgencyState>> stateStreams = StreamSupport.stream(moles.spliterator(), false).map(m -> m.states()).collect(Collectors.toSet());
 
-        for (Agent mole : moles) {
+        for (Mole mole : moles) {
             mole.states().publishOn(agencyScheduler).subscribe(state -> {
                 Set<Mission> updatedMissions = state.executableMissions();
 
@@ -90,7 +90,7 @@ public class LocalMoleDelegationAgency implements Agent {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyOnAgencyExecutorAsync(() -> {
-            Agent mole = missionMoles.get(mission);
+            Mole mole = missionMoles.get(mission);
             if (mole == null) {
                 throw new IllegalArgumentException("No mole could be found for mission '" + mission + "'.");
             }
@@ -115,15 +115,15 @@ public class LocalMoleDelegationAgency implements Agent {
         return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
     }
 
-    private Mono<Agent> getMole(Mission mission) {
-        Agent mole = missionMoles.get(mission);
+    private Mono<Mole> getMole(Mission mission) {
+        Mole mole = missionMoles.get(mission);
         if (mole == null) {
             return Mono.error(illegalArgumentException("{} is not handled by any mole", mission));
         }
         return Mono.just(mole);
     }
 
-    private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Agent, Flux<T>> fluxMapper) {
+    private <T> Flux<T> fromActiveMoleOrError(MissionHandle handle, Function<Mole, Flux<T>> fluxMapper) {
         return supplyOnAgencyExecutorSync(() -> {
             try {
                 return fluxMapper.apply(getMoleWithId(handle));
@@ -133,7 +133,7 @@ public class LocalMoleDelegationAgency implements Agent {
         });
     }
 
-    private Agent getMoleWithId(MissionHandle moleHandle) {
+    private Mole getMoleWithId(MissionHandle moleHandle) {
         return ofNullable(activeMoles.get(moleHandle)).orElseThrow(() -> illegalArgumentException("Cannot find mole with handle {}", moleHandle));
     }
 

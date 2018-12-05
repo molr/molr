@@ -1,6 +1,6 @@
 package org.molr.mole.remote.rest;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
 import org.molr.commons.util.Strands;
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * this mole accesses a remote mole through a REST server
  */
 
-public class RestRemoteMole implements Agent {
+public class RestRemoteMole implements Mole {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RestRemoteMole.class);
 

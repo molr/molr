@@ -1,7 +1,7 @@
 package org.molr.agency.server.conf;
 
 import org.molr.agency.server.local.LocalMoleDelegationAgency;
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +12,10 @@ import java.util.Set;
 public class LocalMolrConfiguration {
 
     @Autowired
-    private Set<Agent> moles;
+    private Set<Mole> moles;
 
     @Bean
-    public Agent agency() {
+    public Mole agency() {
         return new LocalMoleDelegationAgency(moles);
     }
 

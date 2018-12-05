@@ -2,7 +2,7 @@ package org.molr.mole.core.tree;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
 
-public abstract class AbstractJavaMole implements Agent {
+public abstract class AbstractJavaMole implements Mole {
 
     private final ReplayProcessor<AgencyState> statesSink = ReplayProcessor.create(1);
     private final Flux<AgencyState> statesStream = statesSink.publishOn(Schedulers.elastic());

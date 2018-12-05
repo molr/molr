@@ -1,6 +1,6 @@
 package org.molr.agency.remote.rest;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.*;
 import org.molr.commons.domain.dto.*;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
-public class RestRemoteAgency implements Agent {
+public class RestRemoteAgency implements Mole {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RestRemoteAgency.class);
 

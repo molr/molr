@@ -2,7 +2,7 @@ package org.molr.mole.server.rest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.MissionParameterDescription;
@@ -41,7 +41,7 @@ public class MolrMoleRestServiceTest {
     private final String baseUrl = "http://localhost:8800";
 
     @MockBean
-    Agent mole;
+    Mole mole;
 
     @Test
     public void testTransportedMissionParametersSupportNullOnDefaultValue() {

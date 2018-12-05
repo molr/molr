@@ -1,6 +1,6 @@
 package org.molr.agency.core.support;
 
-import org.molr.commons.api.Agent;
+import org.molr.commons.api.Mole;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Result;
@@ -13,11 +13,11 @@ import static java.util.Objects.requireNonNull;
 
 public class OngoingMissionRun {
 
-    private final Agent agent;
+    private final Mole mole;
     private final Mono<MissionHandle> handle;
 
-    public OngoingMissionRun(Agent agent, Mono<MissionHandle> handle) {
-        this.agent = requireNonNull(agent, "agency must not be null");
+    public OngoingMissionRun(Mole mole, Mono<MissionHandle> handle) {
+        this.mole = requireNonNull(mole, "agency must not be null");
         this.handle = requireNonNull(handle, "handle must not be null");
     }
 
@@ -35,7 +35,7 @@ public class OngoingMissionRun {
 
     public Mono<Result> awaitFinished() {
         return handle
-                .flatMapMany(agent::statesFor)
+                .flatMapMany(mole::statesFor)
                 .filter(s -> RunState.FINISHED.equals(s.runState()))
                 .elementAt(0)
                 .map(MissionState::result);

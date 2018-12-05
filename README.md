@@ -8,7 +8,7 @@
 
 A Modular Remote Execution and Debugging Framework.
 
-As every connoisseur of spy movies knows, a mole is an agent who works for the other side. 
+As every connoisseur of spy movies knows, a mole is an mole who works for the other side. 
 During the development of molr, we decided that we need fresh words ... so our _agents_ are called _moles_ 
 (Although we hope they are still good guys ;-) and they are coordinated by _agencies_.
 Furthermore the framwork is very modular. This results in the name _molr_:
