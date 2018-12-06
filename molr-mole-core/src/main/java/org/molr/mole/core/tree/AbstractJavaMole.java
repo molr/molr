@@ -46,6 +46,12 @@ public abstract class AbstractJavaMole implements Mole {
     private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory(this);
     private final ExecutorService moleExecutor = newSingleThreadExecutor(namedThreadFactory("java-mole-%d"));
 
+    private final Set<Mission> availableMissions;
+
+    protected AbstractJavaMole(Set<Mission> availableMissions) {
+        this.availableMissions = availableMissions;
+    }
+
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
@@ -110,12 +116,10 @@ public abstract class AbstractJavaMole implements Mole {
 
     @PostConstruct
     private void publishState() {
-        statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions()), ImmutableList.copyOf(instances)));
+        statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
     }
 
     protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);
-
-    protected abstract Set<Mission> availableMissions();
 
     protected abstract MissionRepresentation missionRepresentationOf(Mission mission);
 

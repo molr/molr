@@ -33,11 +33,11 @@ public class RestRemoteMole implements Mole {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RestRemoteMole.class);
 
-    private final WebClientUtils clientUtils;
+    private final MoleWebClient clientUtils;
 
     public RestRemoteMole(String baseUrl) {
         requireNonNull(baseUrl, "baseUrl must not be null");
-        this.clientUtils = WebClientUtils.withBaseUrl(baseUrl);
+        this.clientUtils = MoleWebClient.withBaseUrl(baseUrl);
     }
 
 

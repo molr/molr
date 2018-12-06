@@ -13,22 +13,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static java.util.Objects.requireNonNull;
+import static org.molr.commons.util.Exceptions.exception;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
 
-public class WebClientUtils {
+public class MoleWebClient {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(WebClientUtils.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(MoleWebClient.class);
 
     private final WebClient client;
 
-    private WebClientUtils(String baseUrl) {
+    private MoleWebClient(String baseUrl) {
         requireNonNull(baseUrl, "baseUrl must not be null");
         client = WebClient.create(baseUrl);
     }
 
-    public static WebClientUtils withBaseUrl(String baseUrl) {
-        return new WebClientUtils(baseUrl);
+    public static MoleWebClient withBaseUrl(String baseUrl) {
+        return new MoleWebClient(baseUrl);
     }
 
     public <T> Flux<T> flux(String uri, Class<T> type) {
@@ -71,8 +72,8 @@ public class WebClientUtils {
         return clientResponse//
                 .doOnNext(response -> logIfHttpErrorStatusCode(uri, response)) //
                 .doOnNext(response -> {
-                    if(!response.statusCode().is2xxSuccessful()) {
-                        throw new MolrRemoteException("Response from '" + uri + "' is not successful: " + response.statusCode());
+                    if (!response.statusCode().is2xxSuccessful()) {
+                        throw exception(MolrRemoteException.class, "Response from '{}' is not successful: {}", uri, response.statusCode());
                     }
                 })
                 .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e));

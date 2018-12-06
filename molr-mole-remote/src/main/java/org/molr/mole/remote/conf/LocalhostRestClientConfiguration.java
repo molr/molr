@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class LocalhostRestClientConfiguration {
 
     @Bean
-    public Mole agency() {
+    public Mole localhostRemoteMole() {
         return new RestRemoteMole("http://localhost:8000");
     }
 }
