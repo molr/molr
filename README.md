@@ -42,38 +42,43 @@ interface it has to implement or so. If a mission can finally be used in molr, d
 _mole_ that can execute (run/debug) a given mission.
 
 #### Mole   
-A mole has the responsibility to execute certain type of missions. In principle, a mole is also not bound to be 
-implemented in a certain programming language, as the agency understand to interact with remote moles through a well 
-defined REST API.
- 
+A mole ist the central interface in molr. It has the responsibility to execute certain type of missions. 
+In principle, a mole is also not bound to be 
+implemented in a certain programming language, as the remote moles can be plugged into 
+molr as long as they implement a well defined REST API.
+
 However, if a mole is implemented in Java, than it can (in addition to the remote usage) also be used embedded in 
-the same jvm as the agency. The responsibilities of a mole are best described by the corresponding java interface:
+the same jvm as the client application. The responsibilities of a mole are best described by the corresponding java interface:
 
 [Mole.java](https://github.com/molr/molr/blob/master/molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
 
-#### Agency
-The agency is the central place to manage all available and running missions. The agency keeps track of the existing
-moles and the missions that they can execute. Further it delegates requests from clients to the corresponding moles.
-Its responsibilities are again best described by a look at its interface:
-
-[molr-agency-core/src/main/java/org/molr/agency/core/Agency.java](molr-agency-core/src/main/java/org/molr/agency/core/Agency.java)
+As seen from this interface, the mole also has quite some other responsibilities, like keeping track of running 
+instances and states of the corresponding missions.
 
 Molr is designed to be completely asynchronous. For this purpose, reactive streams are used. The chosen implementation
 for this is [Project Reactor](https://projectreactor.io/), as can be seen from the used classes in the interfaces
 (Flux and Mono).
 
+#### Supermole
+The real power of molr comes from the fact that moles are designed to be chainable and distributed. For different 
+applications it is very useful to have one central place to perform certain missions, while the actual mission execution
+might be better done by remote calls. This way a microservice architecture is possible, which has several advantages 
+over a monolithic solution (where all missions are e.g. executed within the same jvm), of which the most important to 
+mention might be the escape from '[dependency hell](https://en.wikipedia.org/wiki/Dependency_hell)'.
+
+The supermole is nothing else than a mole (also implementing the mole interface), which manages several other moles,
+summarizes their states and delegates mission execution to them.
+
+
+
 ### Package structure
 
-The following is a proposed structure of packages/jars. The main aspect which shall be taken into 
+The following is a proposed structure of packages/jars. The main aspect which is taken into 
 account while splitting packages is that of dependencies. 
 
-| package | description|
-|---------| -----------|
-|molr-commons | Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! |
-|molr-agency-core | Contains all the classes required in molr agency related packages (e.g. interfaces).|
-|molr-agency-remote | The remote implementation of a molr agency. It uses spring webflux to connect to an agency server|
-|molr-agency-server | Provides a REST service representing an agency. This package has Java server dependency (e.g. Tomcat). |
-|molr-mole-core | Contains the interfaces and default implementations for moles, as well as utility methods.|
-|molr-mole-remote | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. |
-|molr-mole-server | Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). |
-|molr-testing | Contains utility classes for testing molr services. |
+| package | description| to be used when |
+|---------| -----------| ----------------|
+|molr-commons | Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
+|molr-mole-core | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
+|molr-mole-remote | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. | using a mole as remote client |
+|molr-mole-server | Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). | exposing a mole as a rest service |
