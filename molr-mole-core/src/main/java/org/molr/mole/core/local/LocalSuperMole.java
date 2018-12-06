@@ -2,7 +2,7 @@
  * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package org.molr.mole.server.local;
+package org.molr.mole.core.local;
 
 import org.molr.commons.domain.AgencyState;
 import org.molr.commons.domain.ImmutableAgencyState;
@@ -45,7 +45,7 @@ import static org.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
  *
  * @author kfuchsbe
  */
-public class LocalMoleDelegationAgency implements Mole {
+public class LocalSuperMole implements Mole {
 
     private final Map<Mission, Mole> missionMoles = new ConcurrentHashMap<>();
 
@@ -58,7 +58,7 @@ public class LocalMoleDelegationAgency implements Mole {
 
     private final Scheduler stateScheduler = Schedulers.fromExecutor(newSingleThreadExecutor(namedThreadFactory("delegation-states-%d")));
 
-    public LocalMoleDelegationAgency(Iterable<Mole> moles) {
+    public LocalSuperMole(Iterable<Mole> moles) {
         requireNonNull(moles, "moles must not be null");
         Set<Flux<AgencyState>> stateStreams = StreamSupport.stream(moles.spliterator(), false).map(m -> m.states()).collect(Collectors.toSet());
 
