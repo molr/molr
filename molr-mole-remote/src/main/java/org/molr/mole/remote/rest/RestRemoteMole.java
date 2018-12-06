@@ -1,8 +1,21 @@
 package org.molr.mole.remote.rest;
 
-import org.molr.commons.api.Mole;
-import org.molr.commons.domain.*;
-import org.molr.commons.domain.dto.*;
+import org.molr.commons.domain.AgencyState;
+import org.molr.commons.domain.Mission;
+import org.molr.commons.domain.MissionHandle;
+import org.molr.commons.domain.MissionOutput;
+import org.molr.commons.domain.MissionParameterDescription;
+import org.molr.commons.domain.MissionRepresentation;
+import org.molr.commons.domain.MissionState;
+import org.molr.commons.domain.Strand;
+import org.molr.commons.domain.StrandCommand;
+import org.molr.commons.domain.dto.AgencyStateDto;
+import org.molr.commons.domain.dto.MissionHandleDto;
+import org.molr.commons.domain.dto.MissionOutputDto;
+import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import org.molr.commons.domain.dto.MissionRepresentationDto;
+import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;

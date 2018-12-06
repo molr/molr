@@ -1,6 +1,7 @@
 package org.molr.commons.exception;
 
 public class MolrRemoteException extends RuntimeException {
+
     public MolrRemoteException() {
     }
 

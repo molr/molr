@@ -1,4 +1,4 @@
-package org.molr.commons.api;
+package org.molr.mole.core.api;
 
 import static java.lang.String.format;
 

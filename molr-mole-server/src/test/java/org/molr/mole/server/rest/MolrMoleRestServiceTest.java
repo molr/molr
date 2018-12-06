@@ -2,12 +2,12 @@ package org.molr.mole.server.rest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionParameter;
 import org.molr.commons.domain.MissionParameterDescription;
 import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
 import org.molr.commons.domain.dto.MissionRepresentationDto;
+import org.molr.mole.core.api.Mole;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;

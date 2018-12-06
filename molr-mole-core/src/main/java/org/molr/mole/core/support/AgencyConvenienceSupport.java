@@ -1,9 +1,9 @@
 package org.molr.mole.core.support;
 
-import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.StrandCommand;
+import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;

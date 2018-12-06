@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.molr.commons.domain.Placeholder.*;
+import static org.molr.commons.domain.Placeholder.aDouble;
+import static org.molr.commons.domain.Placeholder.aString;
+import static org.molr.commons.domain.Placeholder.anInteger;
 
 @Configuration
 public class DemoRunnableLeafsConfiguration {

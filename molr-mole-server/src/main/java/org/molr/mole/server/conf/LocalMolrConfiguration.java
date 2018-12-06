@@ -1,7 +1,7 @@
 package org.molr.mole.server.conf;
 
+import org.molr.mole.core.api.Mole;
 import org.molr.mole.server.local.LocalMoleDelegationAgency;
-import org.molr.commons.api.Mole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

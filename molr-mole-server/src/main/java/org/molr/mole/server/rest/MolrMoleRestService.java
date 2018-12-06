@@ -1,6 +1,5 @@
 package org.molr.mole.server.rest;
 
-import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
@@ -12,6 +11,7 @@ import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
 import org.molr.commons.domain.dto.MissionRepresentationDto;
 import org.molr.commons.domain.dto.MissionStateDto;
 import org.molr.commons.domain.dto.TestValueDto;
+import org.molr.mole.core.api.Mole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -30,8 +30,8 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import static org.molr.commons.api.MoleWebApi.MISSION_REPRESENTATION_MISSION_NAME;
-import static org.molr.commons.api.MoleWebApi.MISSION_REPRESENTATION_PATH;
+import static org.molr.mole.core.api.MoleWebApi.MISSION_REPRESENTATION_MISSION_NAME;
+import static org.molr.mole.core.api.MoleWebApi.MISSION_REPRESENTATION_PATH;
 
 @RestController
 public class MolrMoleRestService {

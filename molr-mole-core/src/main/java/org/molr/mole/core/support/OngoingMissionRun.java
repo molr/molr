@@ -1,10 +1,10 @@
 package org.molr.mole.core.support;
 
-import org.molr.commons.api.Mole;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.MissionState;
 import org.molr.commons.domain.Result;
 import org.molr.commons.domain.RunState;
+import org.molr.mole.core.api.Mole;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
