@@ -3,9 +3,6 @@
 [![codecov](https://codecov.io/gh/molr/molr/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr)
 [![GitHub license](https://img.shields.io/github/license/molr/molr.svg)](https://github.com/molr/molr/blob/master/LICENSE)
 
-
-{% include_relative docs/README.md %}
-
 # molr
 
 A Modular Remote Execution and Debugging Framework.
