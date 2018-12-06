@@ -8,12 +8,13 @@
 
 # molr
 
-A Modular Remote Execution and Debugging Framework.
+A Modular Distributed Execution and Debugging Framework.
 
-As every connoisseur of spy movies knows, a mole is an mole who works for the other side. 
-During the development of molr, we decided that we need fresh words ... so our _agents_ are called _moles_ 
-(Although we hope they are still good guys ;-) and they are coordinated by _agencies_.
-Furthermore the framwork is very modular. This results in the name _molr_:
+As every connoisseur of spy movies knows, a mole is an agent who works for the other side. 
+During the development of molr, we decided that we need fresh words ... so our _agents_ are called __moles__ 
+(Although we hope they are still good guys ;-).
+
+Furthermore the framework is very modular. This results in the name __molr__:
 ```
 mol[e] + mo[dula]r = molr
 ``` 
@@ -51,7 +52,7 @@ defined REST API.
 However, if a mole is implemented in Java, than it can (in addition to the remote usage) also be used embedded in 
 the same jvm as the agency. The responsibilities of a mole are best described by the corresponding java interface:
 
-[molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java](molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
+[Mole.java](https://github.com/molr/molr/blob/master/molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
  
 #### Agency
 The agency is the central place to manage all available and running missions. The agency keeps track of the existing
