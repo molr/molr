@@ -1,23 +1,37 @@
 package org.molr.mole.server.rest;
 
-
 import org.molr.commons.api.Mole;
 import org.molr.commons.domain.Mission;
 import org.molr.commons.domain.MissionHandle;
 import org.molr.commons.domain.Strand;
 import org.molr.commons.domain.StrandCommand;
-import org.molr.commons.domain.dto.*;
+import org.molr.commons.domain.dto.AgencyStateDto;
+import org.molr.commons.domain.dto.MissionHandleDto;
+import org.molr.commons.domain.dto.MissionOutputDto;
+import org.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import org.molr.commons.domain.dto.MissionRepresentationDto;
+import org.molr.commons.domain.dto.MissionStateDto;
+import org.molr.commons.domain.dto.TestValueDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+
+import static org.molr.commons.api.MoleWebApi.MISSION_REPRESENTATION_MISSION_NAME;
+import static org.molr.commons.api.MoleWebApi.MISSION_REPRESENTATION_PATH;
 
 @RestController
 public class MolrMoleRestService {
@@ -39,8 +53,8 @@ public class MolrMoleRestService {
         return mole.states().map(AgencyStateDto::from);
     }
 
-    @GetMapping(path = "/mission/{missionName}/representation")
-    public Mono<MissionRepresentationDto> representationOf(@PathVariable("missionName") String missionName) {
+    @GetMapping(path = MISSION_REPRESENTATION_PATH)
+    public Mono<MissionRepresentationDto> representationOf(@PathVariable(MISSION_REPRESENTATION_MISSION_NAME) String missionName) {
         return mole.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
 
