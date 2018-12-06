@@ -76,7 +76,7 @@ publishing {
 
             pom.withXml {
                 asNode().appendNode('description', project['POM.description'])
-                asNode().appendNode('name', project['POM.artifactId'])
+                asNode().appendNode('name', "${project['POM.groupId']}:${project['POM.artifactId']}")
                 asNode().children().last() + pomExtraInfo
             }
 
