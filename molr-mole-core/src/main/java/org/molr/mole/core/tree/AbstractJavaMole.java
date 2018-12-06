@@ -21,7 +21,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +49,7 @@ public abstract class AbstractJavaMole implements Mole {
 
     protected AbstractJavaMole(Set<Mission> availableMissions) {
         this.availableMissions = availableMissions;
+        publishState();
     }
 
     @Override
@@ -114,7 +114,6 @@ public abstract class AbstractJavaMole implements Mole {
         return Mono.fromFuture(CompletableFuture.supplyAsync(supplier, moleExecutor));
     }
 
-    @PostConstruct
     private void publishState() {
         statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
     }
