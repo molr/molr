@@ -50,7 +50,7 @@ However, if a mole is implemented in Java, than it can (in addition to the remot
 the same jvm as the agency. The responsibilities of a mole are best described by the corresponding java interface:
 
 [Mole.java](https://github.com/molr/molr/blob/master/molr-mole-core/src/main/java/org/molr/mole/core/api/Mole.java)
- 
+
 #### Agency
 The agency is the central place to manage all available and running missions. The agency keeps track of the existing
 moles and the missions that they can execute. Further it delegates requests from clients to the corresponding moles.
