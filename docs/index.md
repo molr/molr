@@ -1,6 +1,9 @@
 ---
 permalink: /
 ---
+
+{% include_relative README.md %}
+
 # Molr home
 
 Welcome to the Molr project!
