@@ -16,12 +16,21 @@ Furthermore the framework is very modular. This results in the name __molr__:
 mol[e] + mo[dula]r = molr
 ``` 
 
-### Getting Started
-For the moment, there are no packages released yet. Therefore, the only way to try molr for the moment is to clone 
-this repository.
+### Packages
 
-> The current version is heavily under development and not yet stable at all. We hope this to change within a few weeks. 
-> Stay tuned! 
+The following is the molr structure of packages/jars. The main aspect which is taken into 
+account while splitting packages is that of dependencies. 
+
+Click on the download badge to get to bintray, where you can find the code snippets to put into your gradle/maven files.
+
+| package | &nbsp;&nbsp;download&nbsp;&nbsp;&nbsp; |description| to be used when |
+|---------| ---------|-----------| ----------------|
+|molr-commons |  [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-commons/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-commons/_latestVersion) |Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
+|molr-mole-core | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-core/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-core/_latestVersion) | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
+|molr-mole-remote | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-remote/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-remote/_latestVersion) | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. | using a mole as remote client |
+|molr-mole-server | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-server/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-server/_latestVersion) |Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). | exposing a mole as a rest service |
+
+
 
 ### Concept & Vision
 The original document about the vision and purpose of molr can be found [here](docs/concepts-and-vision.md). 
@@ -71,14 +80,3 @@ summarizes their states and delegates mission execution to them.
 
 
 
-### Package structure
-
-The following is the molr structure of packages/jars. The main aspect which is taken into 
-account while splitting packages is that of dependencies. 
-
-| package | &nbsp;&nbsp;download&nbsp;&nbsp;&nbsp; |description| to be used when |
-|---------| ---------|-----------| ----------------|
-|molr-commons |  [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-commons/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-commons/_latestVersion) |Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
-|molr-mole-core | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-core/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-core/_latestVersion) | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
-|molr-mole-remote | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-remote/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-remote/_latestVersion) | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. | using a mole as remote client |
-|molr-mole-server | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-server/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-server/_latestVersion) |Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). | exposing a mole as a rest service |
