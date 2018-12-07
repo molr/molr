@@ -76,9 +76,9 @@ summarizes their states and delegates mission execution to them.
 The following is a proposed structure of packages/jars. The main aspect which is taken into 
 account while splitting packages is that of dependencies. 
 
-| package | description| to be used when |
-|---------| -----------| ----------------|
-|molr-commons | Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
-|molr-mole-core | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
-|molr-mole-remote | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. | using a mole as remote client |
-|molr-mole-server | Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). | exposing a mole as a rest service |
+| package | download |description| to be used when |
+|---------| ---------|-----------| ----------------|
+|molr-commons |  [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-commons/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-commons/_latestVersion) |Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
+|molr-mole-core | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-core/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-core/_latestVersion) | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
+|molr-mole-remote | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-remote/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-remote/_latestVersion) | Contains the implementation of a remote mole, which can delegate to any mole reachable through a Web API. Depends on Spring webflux. | using a mole as remote client |
+|molr-mole-server | [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-server/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-server/_latestVersion) |Exposes any mole as a REST service. This package has Java server dependency (e.g. Tomcat). | exposing a mole as a rest service |
