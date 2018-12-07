@@ -23,7 +23,7 @@ account while splitting packages is that of dependencies.
 
 Click on the download badge to get to bintray, where you can find the code snippets to put into your gradle/maven files.
 
-|  &nbsp;&nbsp;&nbsp;&nbsp;package&nbsp;&nbsp;&nbsp;&nbsp; |description| to be used when |
+|  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |description| to be used when |
 |:-------:|:----------|:----------------|
 |molr-commons <br> [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-commons/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-commons/_latestVersion) |Common elements for the molr project (e.g. domain objects and DTOs). No Spring dependency! | always |
 |molr-mole-core <br> [ ![Download](https://api.bintray.com/packages/molr/molr-repo/molr-mole-core/images/download.svg) ](https://bintray.com/molr/molr-repo/molr-mole-core/_latestVersion) | Contains the interfaces and default implementations for moles, as well as utility methods. Depends on spring context only| always (e.g. implementing a mole, using a mole - embedded or as client)|
