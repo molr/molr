@@ -18,7 +18,7 @@ buildscript {
 }
 
 allprojects {
-    group = "org.molr"
+    group = "io.molr"
 }
 
 subprojects {
