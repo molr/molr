@@ -1,5 +1,5 @@
 project.ext.getDeploymentVersion = {
-    if(project['VCS_TAG']== null) {
+    if (project['VCS_TAG'] == null) {
         throw new RuntimeException("VCS_TAG is not set. Cannot detect deployment version")
     }
     String tmpDeploymentVersion = project['VCS_TAG'].replaceFirst("v", "");
