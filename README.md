@@ -32,11 +32,9 @@ Click on the download badge to get to bintray, where you can find the code snipp
 
 
 
-### Concept & Vision
-The original document about the vision and purpose of molr can be found [here](docs/concepts-and-vision.md). 
+### Core Concepts
 
-
-As this document reflects the actual state of development, here the current definition of the key entities in molr...
+The following are the key entities in molr...
 
 #### Mission
 A mission is something that can be run and (in most cases) produces side effects. 
