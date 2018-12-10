@@ -1,3 +1,4 @@
+[![Latest release](https://img.shields.io/github/release/molr/molr.svg?maxAge=1000)](https://github.com/molr/molr/releases)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/78b10d06c5474a908dcf5ad7da08e269)](https://app.codacy.com/app/molr-developers/molr?utm_source=github.com&utm_medium=referral&utm_content=molr/molr&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.com/molr/molr.svg?branch=master)](https://travis-ci.com/molr/molr)
 [![codecov](https://codecov.io/gh/molr/molr/branch/master/graph/badge.svg)](https://codecov.io/gh/molr/molr)
