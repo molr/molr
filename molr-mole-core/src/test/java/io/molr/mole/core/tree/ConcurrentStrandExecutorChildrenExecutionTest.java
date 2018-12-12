@@ -1,20 +1,24 @@
-package io.molr.mole.core.tree;
+package org.molr.mole.core.tree;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.StrandCommand;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.molr.commons.domain.Block;
+import org.molr.commons.domain.StrandCommand;
+import org.molr.mole.core.runnable.RunnableLeafsMission;
+import org.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import org.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
-import static io.molr.commons.domain.RunState.*;
-import static io.molr.commons.domain.StrandCommand.PAUSE;
-import static io.molr.commons.domain.StrandCommand.RESUME;
+import static org.molr.commons.domain.RunState.FINISHED;
+import static org.molr.commons.domain.RunState.PAUSED;
+import static org.molr.commons.domain.RunState.RUNNING;
+import static org.molr.commons.domain.StrandCommand.PAUSE;
+import static org.molr.commons.domain.StrandCommand.RESUME;
+import static org.molr.commons.domain.StrandCommand.STEP_INTO;
+import static org.molr.commons.domain.StrandCommand.STEP_OVER;
 
 public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingleMissionStrandExecutorTest {
 
@@ -74,6 +78,22 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     }
 
     @Test
+    public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() throws InterruptedException {
+        moveRootStrandTo(parallelBlock);
+        instructRootStrandSync(STEP_INTO);
+        rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
+        LOGGER.info("Children paused");
+        unlatch(latchA1End, latchB1End, latchB2End);
+        rootStrandChildren().forEach(se -> instructSync(se, STEP_OVER));
+
+        waitUntilRootStrandBlockIs(lastBlock);
+        waitUntilRootStrandStateIs(PAUSED);
+
+        assertThatRootStrandBlock().isEqualTo(lastBlock);
+        assertThatRootStrandState().isNotEqualTo(FINISHED);
+    }
+
+    @Test
     public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallelBlock);
         instructRootStrandSync(StrandCommand.RESUME);
@@ -88,7 +108,9 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
         rootStrandChildren().forEach(this::waitUntilStrandIsFinished);
 
-        waitUntilRootStrandStateIs(FINISHED);
+        waitUntilRootStrandBlockIs(lastBlock);
+        assertThatRootStrandBlock().isEqualTo(lastBlock);
+        assertThatRootStrandState().isNotEqualTo(FINISHED);
     }
 
     @Test

@@ -70,6 +70,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final AtomicReference<Block> actualBlock;
 
     private Block currentStepOverSource;
+    private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
 
     public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor) {
@@ -94,6 +95,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.actualBlock = new AtomicReference<>();
         this.actualState = new AtomicReference<>();
         this.currentStepOverSource = null;
+        this.lastCommand = null;
 
         updateActualBlock(actualBlock);
         updateState(ExecutorState.IDLE);
@@ -190,10 +192,10 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
                 if (actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
                     if (!hasChildren()) {
-                        if (currentStepOverSource != null) {
-                            updateState(ExecutorState.STEPPING_OVER);
-                        } else {
+                        if (lastCommand == RESUME) {
                             updateState(ExecutorState.RESUMING);
+                        } else {
+                            updateState(ExecutorState.IDLE);
                         }
                         moveNext();
                     }
@@ -233,6 +235,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 }
 
                 if (commandToExecute != null) {
+                    lastCommand = commandToExecute;
                     LOGGER.debug("[{}] consumed command {}", strand, commandToExecute);
                     lastCommandSink.onNext(commandToExecute);
                 }
@@ -248,7 +251,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private void pause() {
         if (hasChildren()) {
             LOGGER.debug("[{}] instructing children to pause", strand);
-            childExecutors.forEach(child -> child.instruct(PAUSE));
+            childExecutors.stream().filter(se -> se.getActualState() != PAUSED).forEach(child -> child.instruct(PAUSE));
         } else {
             LOGGER.debug("[{}] paused", strand);
             updateState(ExecutorState.IDLE);
@@ -262,10 +265,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         }
 
         if (structure.isParallel(actualBlock())) {
-            for (Block childBlock : structure.childrenOf(actualBlock())) {
-                StrandExecutor childExecutor = createChildStrandExecutor(childBlock);
-                childExecutor.instruct(StrandCommand.PAUSE);
-            }
+            structure.childrenOf(actualBlock()).forEach(this::createChildStrandExecutor);
         } else {
             moveIntoFirstChild();
         }
@@ -503,5 +503,12 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         RESUMING,
         FINISHED,
         WAITING_FOR_CHILDREN;
+    }
+
+    @Override
+    public String toString() {
+        return "ConcurrentStrandExecutor{" +
+                "strand=" + strand +
+                '}';
     }
 }
