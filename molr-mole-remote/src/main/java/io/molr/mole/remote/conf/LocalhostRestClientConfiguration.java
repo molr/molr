@@ -10,6 +10,6 @@ public class LocalhostRestClientConfiguration {
 
     @Bean
     public Mole localhostRemoteMole() {
-        return new RestRemoteMole("http://localhost:8000");
+        return new RestRemoteMole("http://localhost:8800");
     }
 }
