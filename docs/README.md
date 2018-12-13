@@ -17,7 +17,7 @@ However, remote interaction is performed through a well defined REST API. This m
 Molr is designed to be completely asynchronous. For this purpose, reactive streams are used. The chosen implementation
 for this in java is [Project Reactor](https://projectreactor.io/).
 
-#### The Name
+## The Name
 
 As every connoisseur of spy movies knows, a mole is an agent who works for the other side. 
 During the development of molr, we decided that we need fresh words ... so our _agents_ are called __moles__ 
@@ -28,7 +28,7 @@ Furthermore the framework is very modular. This results in the name __molr__:
 mol[e] + mo[dula]r = molr
 ``` 
 
-#### Missions
+## Missions
 A mission is something that can be run and (in most cases) produces side effects. 
 
 >This is important to note: 
@@ -40,8 +40,8 @@ This is pretty much the whole definition of a mission. There is no language to w
 interface it has to implement or so. If a mission can finally be used in molr, depends on the fact if there exists a 
 _mole_ that can execute (run/debug) a given mission.
 
-#### Moles   
-A mole ist the central interface in molr. It has the responsibility to execute certain type of missions. 
+## Moles   
+A mole ist the central component in molr. It has the responsibility to execute certain type of missions. 
 In principle, a mole is also not bound to be 
 implemented in a certain programming language, as the remote moles can be plugged into 
 molr as long as they implement a well defined REST API.
@@ -56,18 +56,33 @@ the same jvm as the client application. The responsibilities of a mole include:
 Fur further details, please refer to the 
 [Mole](https://www.javadoc.io/page/io.molr/molr-mole-core/latest/io/molr/mole/core/api/Mole.html) interface. 
 
+### Out-of-the-shelf moles
 
-#### Supermole
-The real power of molr comes from the fact that moles are designed to be chainable and distributed. For different 
-applications it is very useful to have one central place to perform certain missions, while the actual mission execution
-might be better done by remote calls. This way a microservice architecture is possible, which has several advantages 
-over a monolithic solution (where all missions are e.g. executed within the same jvm), of which the most important to 
-mention might be the escape from '[dependency hell](https://en.wikipedia.org/wiki/Dependency_hell)'.
+The following moles are already implemented in the molr-mole-core package and can be used right out of the box:
 
-The supermole is nothing else than a mole (also implementing the mole interface), which manages several other moles,
-summarizes their states and delegates mission execution to them.
+* __[SingleNodeMole](https://www.javadoc.io/page/io.molr/molr-mole-core/latest/io/molr/mole/core/single/SingleNodeMole.html):__ 
+Supports Missions that basically consist of single nodes (e.g. Runnables, Functions) which can only run, but never stepped through.
+* __[RunnableLeafsMole](https://www.javadoc.io/page/io.molr/molr-mole-core/latest/io/molr/mole/core/runnable/RunnableLeafsMole.html):__ 
+This is up to now probably the most complicated java mole; It provides a simple DSL to generate missions that are organized in a 
+tree form, can have sequential or parallel branches and have simple nodes, that execute simple java code, as leafs.
+* __[LocalSuperMole](https://www.javadoc.io/page/io.molr/molr-mole-core/latest/io/molr/mole/core/local/LocalSuperMole.html):__
+Orchestrates a set of other moles, summarizes the available missions and delegates to the underlying moles accordingly. 
+This allows a chaining/composition of moles. If remote moles are used here, then a microservice architecture
+can be created, which can lead out of '[dependency hell](https://en.wikipedia.org/wiki/Dependency_hell)'. 
 
-#### Packages
+### Complementary Moles
+
+Moles, which depend on additional libraries and/or are implemented in different languages are not contained in the 
+core packages, but are organized in different repositories. Currently, the following ones are available:
+
+* __JUnit5Mole:__ A mole implemented in java that can run junit 5 tests. 
+It resides in [https://github.com/molr/molr-mole-junit5](https://github.com/molr/molr-mole-junit5).
+* __Python Mole:__ This mole discovers functions in certain python packages as missions and can run them and 
+even partially step through them. It resides in [https://github.com/molr/molr-pymole](https://github.com/molr/molr-pymole). 
+Since it is implemented in python itself, it only can be used as remote mole and not embedded in java. 
+
+
+## Packages
 
 The following is the molr structure of packages/jars. The main aspect which is taken into 
 account while splitting packages is that of dependencies. 
