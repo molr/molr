@@ -56,7 +56,7 @@ the same jvm as the client application. The responsibilities of a mole include:
 Fur further details, please refer to the 
 [Mole](https://www.javadoc.io/page/io.molr/molr-mole-core/latest/io/molr/mole/core/api/Mole.html) interface. 
 
-### Out-of-the-shelf moles
+### Off-the-shelf Moles
 
 The following moles are already implemented in the molr-mole-core package and can be used right out of the box:
 
