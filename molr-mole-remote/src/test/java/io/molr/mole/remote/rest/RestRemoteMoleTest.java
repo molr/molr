@@ -104,8 +104,8 @@ public class RestRemoteMoleTest {
     @Test
     public void representationsFor() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        Flux<MissionRepresentation> representaions = remoteMole.representationsFor(MissionHandle.ofId("0"));
-        Set<MissionRepresentation> reps = representaions.collect(Collectors.toSet()).block();
+        Flux<MissionRepresentation> representations = remoteMole.representationsFor(MissionHandle.ofId("0"));
+        Set<MissionRepresentation> reps = representations.collect(Collectors.toSet()).block();
         assertThat(reps).containsExactly(AN_EMPTY_REPRESENTATION);
     }
 

@@ -3,6 +3,7 @@ package io.molr.mole.remote.rest;
 import io.molr.commons.domain.*;
 import io.molr.commons.domain.dto.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.api.MoleWebApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -39,32 +40,32 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
-        return clientUtils.mono("/mission/" + mission.name() + "/representation", MissionRepresentationDto.class)
+        return clientUtils.mono(MoleWebApi.missionRepresentationUrl(mission.name()), MissionRepresentationDto.class)
                 .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
     @Override
     public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
-        return clientUtils.mono("/mission/" + mission.name() + "/parameterDescription", MissionParameterDescriptionDto.class)
+        return clientUtils.mono(MoleWebApi.missionParameterDescriptionUrl(mission.name()), MissionParameterDescriptionDto.class)
                 .map(MissionParameterDescriptionDto::toMissionParameterDescription);
     }
 
     @Override
     public Flux<MissionState> statesFor(MissionHandle handle) {
-        return clientUtils.flux("/instance/" + handle.id() + "/states", MissionStateDto.class)
+        return clientUtils.flux(MoleWebApi.instanceStatesUrl(handle.id()), MissionStateDto.class)
                 .map(MissionStateDto::toMissionState);
     }
 
     @Override
     public Flux<MissionOutput> outputsFor(MissionHandle handle) {
-        return clientUtils.flux("/instance/" + handle.id() + "/outputs", MissionOutputDto.class)
+        return clientUtils.flux(MoleWebApi.instanceOutputsUrl(handle.id()), MissionOutputDto.class)
                 .map(MissionOutputDto::toMissionOutput);
     }
 
 
     @Override
     public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
-        return clientUtils.flux("/instance/" + handle.id() + "/representations", MissionRepresentationDto.class)
+        return clientUtils.flux(MoleWebApi.instanceRepresentationsUrl(handle.id()), MissionRepresentationDto.class)
                 .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
@@ -72,7 +73,7 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
-        String uri = "/mission/" + mission.name() + "/instantiate";
+        String uri = MoleWebApi.instantiateMission(mission.name());
         Mono<MissionHandleDto> responseBody = clientUtils
                 .postMono(uri, APPLICATION_STREAM_JSON, fromObject(params), MissionHandleDto.class);
         return responseBody.map(MissionHandleDto::toMissionHandle);
@@ -80,12 +81,12 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public void instruct(MissionHandle handle, Strand strand, StrandCommand command) {
-        clientUtils.post("/instance/" + handle.id() + "/" + strand.id() + "/instruct/" + command.name(), MediaType.APPLICATION_JSON, BodyInserters.empty());
+        clientUtils.post(MoleWebApi.instructInstance(handle.id(),strand.id(),command.name()), MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
     @Override
     public void instructRoot(MissionHandle handle, StrandCommand command) {
-        clientUtils.post("/instance/" + handle.id() + "/instructRoot/" + command.name(), MediaType.APPLICATION_JSON, BodyInserters.empty());
+        clientUtils.post(MoleWebApi.instructRootInstance(handle.id(),command.name()), MediaType.APPLICATION_JSON, BodyInserters.empty());
     }
 
 }

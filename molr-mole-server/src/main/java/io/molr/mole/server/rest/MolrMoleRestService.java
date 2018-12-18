@@ -6,6 +6,7 @@ import io.molr.commons.domain.Strand;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.commons.domain.dto.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.api.MoleWebApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -18,8 +19,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import static io.molr.mole.core.api.MoleWebApi.MISSION_REPRESENTATION_MISSION_NAME;
-import static io.molr.mole.core.api.MoleWebApi.MISSION_REPRESENTATION_PATH;
+import static io.molr.mole.core.api.MoleWebApi.*;
 
 @RestController
 public class MolrMoleRestService {
@@ -42,27 +42,27 @@ public class MolrMoleRestService {
     }
 
     @GetMapping(path = MISSION_REPRESENTATION_PATH)
-    public Mono<MissionRepresentationDto> representationOf(@PathVariable(MISSION_REPRESENTATION_MISSION_NAME) String missionName) {
+    public Mono<MissionRepresentationDto> representationOf(@PathVariable(MISSION_NAME) String missionName) {
         return mole.representationOf(new Mission(missionName)).map(MissionRepresentationDto::from);
     }
 
-    @GetMapping(path = "/mission/{missionName}/parameterDescription")
-    public Mono<MissionParameterDescriptionDto> parameterDescriptionOf(@PathVariable("missionName") String missionName) {
+    @GetMapping(path = MISSION_PARAMETER_DESCRIPTION_PATH)
+    public Mono<MissionParameterDescriptionDto> parameterDescriptionOf(@PathVariable(MISSION_NAME) String missionName) {
         return mole.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/states", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<MissionStateDto> statesFor(@PathVariable("missionHandle") String missionHandle) {
+    @GetMapping(path = MoleWebApi.INSTANCE_STATES_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<MissionStateDto> statesFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/outputs", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<MissionOutputDto> outputsFor(@PathVariable("missionHandle") String missionHandle) {
+    @GetMapping(path = INSTANCE_OUTPUTS_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<MissionOutputDto> outputsFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
     }
 
-    @GetMapping(path = "/instance/{missionHandle}/representations", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<MissionRepresentationDto> representationsFor(@PathVariable("missionHandle") String missionHandle) {
+    @GetMapping(path = INSTANCE_REPRESENTATIONS_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<MissionRepresentationDto> representationsFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
     }
 
@@ -77,18 +77,19 @@ public class MolrMoleRestService {
         POST mappings
      */
 
-    @PostMapping(path = "/mission/{missionName}/instantiate")
-    public Mono<MissionHandleDto> instantiate(@PathVariable("missionName") String missionName, @RequestBody Map<String, Object> params) {
+    @PostMapping(path = INSTANTIATE_MISSION_PATH)
+    public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName, @RequestBody Map<String, Object> params) {
         return mole.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
     }
 
-    @PostMapping(path = "/instance/{missionHandle}/{strandId}/instruct/{commandName}")
-    public void instruct(@PathVariable("missionHandle") String missionHandle, @PathVariable("strandId") String strandId, @PathVariable("commandName") String commandName) {
+    @PostMapping(path = INSTANCE_INSTRUCT_PATH)
+    public void instruct(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(STRAND_ID) String strandId, @PathVariable(COMMAND_NAME) String commandName) {
         mole.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
     }
 
-    @PostMapping(path = "/instance/{missionHandle}/instructRoot/{commandName}")
-    public void instructRoot(@PathVariable("missionHandle") String missionHandle, @PathVariable("commandName") String commandName) {
+
+    @PostMapping(path = INSTANCE_INSTRUCT_ROOT_PATH)
+    public void instructRoot(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(COMMAND_NAME) String commandName) {
         mole.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
     }
 
