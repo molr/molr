@@ -13,7 +13,7 @@ public class DemoMolrServerMain {
 
     public static void main(String... args) {
         if (System.getProperty("server.port") == null) {
-            System.setProperty("server.port", "8000");
+            System.setProperty("server.port", "8800");
         }
         SpringApplication.run(DemoMolrServerMain.class);
     }
