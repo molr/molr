@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyMap;
 
-public class MissionOutput {
+public final class MissionOutput {
 
     private final Map<String, Map<String, Object>> blockOutputs;
 

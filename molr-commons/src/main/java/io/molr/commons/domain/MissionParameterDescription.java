@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
-public class MissionParameterDescription {
+public final class MissionParameterDescription {
 
     private final Set<MissionParameter<?>> parameters;
 

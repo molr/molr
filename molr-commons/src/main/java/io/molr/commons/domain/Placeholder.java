@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class Placeholder<T> {
+public final class Placeholder<T> {
 
     private final Class<T> type;
     private final String name;

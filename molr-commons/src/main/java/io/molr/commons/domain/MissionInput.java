@@ -4,7 +4,7 @@ import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 
-public class MissionInput extends AbstractTypedValueContainer implements In {
+public final class MissionInput extends AbstractTypedValueContainer implements In {
 
     private MissionInput(Map<String, Object> values) {
         super(values);

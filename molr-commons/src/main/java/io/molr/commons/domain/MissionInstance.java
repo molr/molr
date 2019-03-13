@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class MissionInstance {
+public final class MissionInstance {
 
     private final MissionHandle handle;
     private final Mission mission;

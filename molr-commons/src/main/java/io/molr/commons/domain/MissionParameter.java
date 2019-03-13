@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class MissionParameter<T> {
+public final class MissionParameter<T> {
 
     private final Placeholder<T> placeholder;
     private final boolean required;

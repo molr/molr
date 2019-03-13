@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author kfuchsbe
  */
-public class Strand {
+public final class Strand {
 
     private final String id;
 

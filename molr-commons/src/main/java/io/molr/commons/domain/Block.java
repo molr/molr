@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class Block {
+public final class Block {
 
     private final String id;
     private final String text;

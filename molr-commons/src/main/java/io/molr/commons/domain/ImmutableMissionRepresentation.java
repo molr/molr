@@ -7,7 +7,7 @@ import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-public class ImmutableMissionRepresentation implements MissionRepresentation {
+public final class ImmutableMissionRepresentation implements MissionRepresentation {
 
     private final Block root;
     private final ListMultimap<Block, Block> children;

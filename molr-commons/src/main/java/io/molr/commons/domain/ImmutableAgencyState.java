@@ -9,7 +9,7 @@ import java.util.Set;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
-public class ImmutableAgencyState implements AgencyState {
+public final class ImmutableAgencyState implements AgencyState {
 
     private final Set<Mission> executableMissions;
     private final Set<MissionInstance> activeMissions;

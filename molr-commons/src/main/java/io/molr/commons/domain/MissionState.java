@@ -10,7 +10,7 @@ import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-public class MissionState {
+public final class MissionState {
     private final Result result;
     private final Strand rootStrand;
     private final SetMultimap<Strand, StrandCommand> strandAllowedCommands;
