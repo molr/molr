@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author kfuchsbe
  */
-public class Mission {
+public final class Mission {
 
     private final String name;
 

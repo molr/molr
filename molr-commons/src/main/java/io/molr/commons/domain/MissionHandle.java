@@ -6,7 +6,7 @@ package io.molr.commons.domain;
 
 import java.util.Objects;
 
-public class MissionHandle {
+public final class MissionHandle {
 
     private final String id;
 
