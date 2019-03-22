@@ -44,13 +44,6 @@ public class TreeMissionExecutor implements MissionExecutor {
                 .cache(1)
                 .sample(Duration.ofMillis(100))
                 .publishOn(Schedulers.elastic());
-
-        Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure);
-
-        if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
-            rootExecutor.instruct(STEP_INTO);
-        }
     }
 
     @Deprecated
