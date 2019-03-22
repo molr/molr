@@ -61,6 +61,10 @@ public class LocalSuperMole implements Mole {
                     missionMoles.putIfAbsent(mission, mole);
                 }
 
+                for (MissionInstance missionInstance : state.activeMissions()) {
+                    activeMoles.putIfAbsent(missionInstance.handle(), mole);
+                }
+
                 missionMoles.entrySet().stream()
                         .filter(e -> e.getValue().equals(mole))
                         .map(Map.Entry::getKey)
