@@ -1,5 +1,7 @@
 package io.molr.mole.core.tree;
 
+import java.util.Collection;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
@@ -31,5 +33,9 @@ public class BlockOutputCollector implements Out {
         collector.put(block, placeholder, value);
     }
 
+    @Override
+    public <T> void emit(Placeholder<T> placeholder, Collection<T> value) {
+        collector.put(block, placeholder, value);
+    }
 
 }

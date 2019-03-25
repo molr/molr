@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,6 +38,11 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     @Override
     public <T> void put(Block block, Placeholder<T> placeholder, T value) {
+        putIt(block, placeholder.name(), value);
+    }
+
+    @Override
+    public <T> void put(Block block, Placeholder<T> placeholder, Collection<T> value) {
         putIt(block, placeholder.name(), value);
     }
 

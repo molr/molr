@@ -1,5 +1,7 @@
 package io.molr.mole.core.tree;
 
+import java.util.Collection;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.Placeholder;
@@ -12,6 +14,8 @@ public interface MissionOutputCollector {
     void put(Block block, String name, String value);
 
     <T> void put(Block block, Placeholder<T> placeholder, T value);
+
+    <T> void put(Block block, Placeholder<T> placeholder, Collection<T> value);
 
     Flux<MissionOutput> asStream();
 }
