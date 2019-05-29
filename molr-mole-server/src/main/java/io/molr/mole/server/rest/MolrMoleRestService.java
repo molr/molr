@@ -6,7 +6,6 @@ import io.molr.commons.domain.Strand;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.commons.domain.dto.*;
 import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.api.MoleWebApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -36,7 +35,7 @@ public class MolrMoleRestService {
         GET mappings
      */
 
-    @GetMapping(path = "/states", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/states", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<AgencyStateDto> states() {
         return mole.states().map(AgencyStateDto::from);
     }
@@ -51,22 +50,22 @@ public class MolrMoleRestService {
         return mole.parameterDescriptionOf(new Mission(missionName)).map(MissionParameterDescriptionDto::from);
     }
 
-    @GetMapping(path = MoleWebApi.INSTANCE_STATES_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = INSTANCE_STATES_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<MissionStateDto> statesFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.statesFor(MissionHandle.ofId(missionHandle)).map(MissionStateDto::from);
     }
 
-    @GetMapping(path = INSTANCE_OUTPUTS_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = INSTANCE_OUTPUTS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<MissionOutputDto> outputsFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.outputsFor(MissionHandle.ofId(missionHandle)).map(MissionOutputDto::from);
     }
 
-    @GetMapping(path = INSTANCE_REPRESENTATIONS_PATH, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = INSTANCE_REPRESENTATIONS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<MissionRepresentationDto> representationsFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
     }
 
-    @GetMapping(path = "/test-stream/{count}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/test-stream/{count}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
                 .take(count)
