@@ -77,6 +77,10 @@ subprojects {
             downloadSources = true
         }
     }
+    
+    jacoco {
+        toolVersion = '0.8.4'
+    }
 
     jacocoTestReport {
         reports {
@@ -93,4 +97,4 @@ subprojects {
     }
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '4.10.2' }
+task wrapper(type: Wrapper) { gradleVersion = '4.10.3' }
