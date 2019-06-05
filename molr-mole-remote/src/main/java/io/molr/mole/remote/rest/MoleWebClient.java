@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import static io.molr.commons.util.Exceptions.exception;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
+import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 
 public class MoleWebClient {
 
@@ -33,7 +33,7 @@ public class MoleWebClient {
     }
 
     public <T> Flux<T> flux(String uri, Class<T> type) {
-        return clientResponseForGet(uri, APPLICATION_STREAM_JSON)
+        return clientResponseForGet(uri, TEXT_EVENT_STREAM)
                 .flatMapMany(response -> response.bodyToFlux(type))
                 .cache();
     }
