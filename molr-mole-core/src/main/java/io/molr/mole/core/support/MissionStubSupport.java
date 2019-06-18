@@ -4,6 +4,10 @@ import io.molr.mole.core.support.domain.MissionStub0;
 import io.molr.mole.core.support.domain.MissionStub1;
 import io.molr.mole.core.support.domain.MissionStub2;
 
+
+/*
+The methods in here might be directly part of MissionControlSupport ... might simplify things...
+ */
 public interface MissionStubSupport {
 
     <R> OngoingReturningMissionRun<R> start(MissionStub0<R> stub);
