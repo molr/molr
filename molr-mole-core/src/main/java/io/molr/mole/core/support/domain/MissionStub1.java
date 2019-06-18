@@ -1,4 +1,4 @@
 package io.molr.mole.core.support.domain;
 
-public interface ReturningMissionStub<R> {
+public interface MissionStub1<P1, R> {
 }
