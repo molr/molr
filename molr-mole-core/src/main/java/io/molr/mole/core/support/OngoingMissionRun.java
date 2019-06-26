@@ -1,11 +1,7 @@
 package io.molr.mole.core.support;
 
 
-import io.molr.commons.domain.MissionHandle;
-import io.molr.commons.domain.MissionState;
-import io.molr.commons.domain.Result;
-import io.molr.commons.domain.RunState;
-import io.molr.commons.domain.StrandCommand;
+import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,16 +11,22 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ *
+ */
 public class OngoingMissionRun {
 
-    private final Mole mole;
-    private final Mono<MissionHandle> handle;
+    protected final Mole mole;
+    protected final Mono<MissionHandle> handle;
 
     public OngoingMissionRun(Mole mole, Mono<MissionHandle> handle) {
-        this.mole = requireNonNull(mole, "agency must not be null");
+        this.mole = requireNonNull(mole, "mole must not be null");
         this.handle = requireNonNull(handle, "handle must not be null");
     }
 
+    /**
+     * @return {@link OngoingMissionRun}
+     */
     public OngoingMissionRun and() {
         return this;
     }
@@ -42,14 +44,6 @@ public class OngoingMissionRun {
                 .filter(s -> RunState.FINISHED.equals(s.runState()))
                 .elementAt(0)
                 .map(MissionState::result);
-    }
-
-    public Result whenFinished(Duration timeout) {
-        return awaitFinished().block(timeout);
-    }
-
-    public Result whenFinished() {
-        return awaitFinished().block();
     }
 
     public Mono<MissionHandle> asyncHandle() {
@@ -80,71 +74,65 @@ public class OngoingMissionRun {
                 .filter(s -> validator.test(s.runState()));
     }
 
-    public ReturnHelper returnResult() {
-        return new ReturnHelper<MissionState, Result>(Result.class);
+    public ReturnHelper<Result> returnResult() {
+        return new ReturnHelper<Result>(new ReturnResult());
     }
 
-    public ReturnHelper returnState() {
-        return new ReturnHelper<MissionState, MissionState>(MissionState.class);
+    public ReturnHelper<MissionState> returnState() {
+        return new ReturnHelper<MissionState>(new ReturnState());
     }
 
     public static RunStateValidator runState(RunState runState) {
         return RunStateValidator.validateState(runState);
     }
 
-    public class ReturnHelper<T, R> {
-        private Function<T, R> function;
+    public class ReturnHelper<T> {
+        private Function<MissionState, T> function;
 
-        public ReturnHelper(Class<R> type) {
-            requireNonNull(type);
-            if (MissionState.class.equals(type)) {
-                function = new ReturnState<T, R>();
-            } else if (Result.class.equals(type)) {
-                function = new ReturnResult<T, R>();
-            }
+        public ReturnHelper(Function<MissionState, T> function) {
+            this.function = requireNonNull(function);
         }
 
-        public R when(RunStateValidator validator) {
-            return (R) returnValue(filterState(validator, handle, mole).blockFirst());
+        public T when(RunStateValidator validator) {
+            return returnValue(filterState(validator, handle, mole).blockFirst());
         }
 
-        public R when(RunStateValidator validator, Duration timeout) {
-            return (R) returnValue(filterState(validator, handle, mole).blockFirst(timeout));
+        public T when(RunStateValidator validator, Duration timeout) {
+            return returnValue(filterState(validator, handle, mole).blockFirst(timeout));
         }
 
-        public R whenFinished() {
+        public T whenFinished() {
             return when(runState(RunState.FINISHED));
         }
 
-        public R whenFinished(Duration timeout) {
+        public T whenFinished(Duration timeout) {
             return when(runState(RunState.FINISHED), timeout);
         }
 
-        public R whenPaused() {
+        public T whenPaused() {
             return when(runState(RunState.PAUSED));
         }
 
-        public R whenPaused(Duration timeout) {
+        public T whenPaused(Duration timeout) {
             return when(runState(RunState.PAUSED), timeout);
         }
 
-        private R returnValue(MissionState missionState) {
-            return (R) function.apply((T) missionState);
+        private T returnValue(MissionState missionState) {
+            return function.apply(missionState);
         }
     }
 
-    private class ReturnState<T, R> implements Function<T, R> {
+    private class ReturnState implements Function<MissionState, MissionState> {
         @Override
-        public R apply(T missionState) {
-            return (R) missionState;
+        public MissionState apply(MissionState missionState) {
+            return missionState;
         }
     }
 
-    private class ReturnResult<T, R> implements Function<T, R> {
+    private class ReturnResult implements Function<MissionState, Result> {
         @Override
-        public R apply(T missionState) {
-            return (R) ((MissionState) missionState).result();
+        public Result apply(MissionState missionState) {
+            return missionState.result();
         }
     }
-
 }

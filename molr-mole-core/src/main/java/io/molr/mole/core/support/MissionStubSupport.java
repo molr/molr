@@ -14,7 +14,7 @@ public interface MissionStubSupport {
 
     <P1, R> OngoingReturningMissionRun<R> start(MissionStub1<P1, R> stub, P1 p1);
 
-    <P1,P2, R> OngoingReturningMissionRun<R> start(MissionStub2<P1, P2, R> stub, P1 p1, P2 p2);
+    <P1, P2, R> OngoingReturningMissionRun<R> start(MissionStub2<P1, P2, R> stub, P1 p1, P2 p2);
 
     /*
     ... probably up to 5?
