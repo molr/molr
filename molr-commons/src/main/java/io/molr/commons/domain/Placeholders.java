@@ -14,10 +14,9 @@ public final class Placeholders {
     public static final Placeholder<Integer> RETURNED_INTEGER = Placeholder.anInteger(RETURN_VALUE_KEY);
     public static final Placeholder<Double> RETURNED_DOUBLE = Placeholder.aDouble(RETURN_VALUE_KEY);
     public static final Placeholder<Boolean> RETURNED_BOOLEAN = Placeholder.aBoolean(RETURN_VALUE_KEY);
-    public static final Placeholder<Void> RETURNED_VOID = Placeholder.aVoid(RETURN_VALUE_KEY);
 
     private static final Set<Placeholder<?>> ALL_RETURN_VALUES = ImmutableSet.of(RETURNED_STRING, RETURNED_INTEGER,
-            RETURNED_DOUBLE, RETURNED_BOOLEAN, RETURNED_VOID);
+            RETURNED_DOUBLE, RETURNED_BOOLEAN);
 
     public static final Placeholder<String> THROWN = Placeholder.aString(THROWABLE_KEY);
 

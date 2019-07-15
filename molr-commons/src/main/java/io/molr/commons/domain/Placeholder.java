@@ -33,10 +33,6 @@ public final class Placeholder<T> {
         return new Placeholder<>(String.class, name);
     }
 
-    public static final Placeholder<Void> aVoid(String name) {
-        return new Placeholder<>(Void.class, name);
-    }
-
     public Class<T> type() {
         return this.type;
     }
