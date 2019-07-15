@@ -39,7 +39,7 @@ public class MissionControlSupport implements MissionStubSupport {
     /**
      * @param mission           the {@link Mission} which has been registered with the {@link Mole}
      * @param missionParameters the mission parameters required by the {@link Mission} during it's execution
-     * @return
+     * @return control to the running {@link Mission}
      */
     public OngoingMissionRun start(Mission mission, Map<String, Object> missionParameters) {
         Mono<MissionHandle> handle = mole.instantiate(mission, missionParameters);
@@ -48,9 +48,9 @@ public class MissionControlSupport implements MissionStubSupport {
     }
 
     /**
-     * @param missionName
+     * @param missionName       the mission name
      * @param missionParameters the mission parameters required by the {@link Mission} during it's execution
-     * @return
+     * @return control to the running {@link Mission}
      */
     public OngoingMissionRun start(String missionName, Map<String, Object> missionParameters) {
         return start(new Mission(missionName), missionParameters);

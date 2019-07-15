@@ -26,7 +26,7 @@ public class MissionPredicates<T> {
      * @param runState the initial value {@link RunState} for predicate function
      * @return a {@link MissionPredicates} for validating {@link RunState}
      */
-    public static MissionPredicates<RunState> runStatePredicate(RunState runState) {
+    public static MissionPredicates<RunState> runStateEqualsTo(RunState runState) {
         return new MissionPredicates<RunState>(runState);
     }
 

@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.function.Function;
 
-import static io.molr.mole.core.support.MissionPredicates.runStatePredicate;
+import static io.molr.mole.core.support.MissionPredicates.runStateEqualsTo;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -165,7 +165,7 @@ public class OngoingMissionRun {
          * {@link MissionPredicates} with a timeout
          *
          * @param runStateValidator a {@link MissionPredicates} for {@link RunState}
-         * @param timeout
+         * @param timeout           the timeout before onNext signal
          * @return the return value {@link T}
          */
         public T when(MissionPredicates<RunState> runStateValidator, Duration timeout) {
@@ -179,18 +179,18 @@ public class OngoingMissionRun {
          * @return the return value {@link T}
          */
         public T whenFinished() {
-            return when(runStatePredicate(RunState.FINISHED));
+            return when(runStateEqualsTo(RunState.FINISHED));
         }
 
         /**
          * Returns the output of {@link Function} applied on {@link MissionState} filtered when {@link RunState} is
          * FINISHED with a timeout
          *
-         * @param timeout
+         * @param timeout the timeout before onNext signal
          * @return the return value {@link T}
          */
         public T whenFinished(Duration timeout) {
-            return when(runStatePredicate(RunState.FINISHED), timeout);
+            return when(runStateEqualsTo(RunState.FINISHED), timeout);
         }
 
         /**
@@ -200,18 +200,18 @@ public class OngoingMissionRun {
          * @return the return value {@link T}
          */
         public T whenPaused() {
-            return when(runStatePredicate(RunState.PAUSED));
+            return when(runStateEqualsTo(RunState.PAUSED));
         }
 
         /**
          * Returns the output of {@link Function} applied on {@link MissionState} filtered when {@link RunState} is
          * PAUSED with a timeout
          *
-         * @param timeout
+         * @param timeout the timeout before onNext signal
          * @return the return value {@link T}
          */
         public T whenPaused(Duration timeout) {
-            return when(runStatePredicate(RunState.PAUSED), timeout);
+            return when(runStateEqualsTo(RunState.PAUSED), timeout);
         }
 
         /**

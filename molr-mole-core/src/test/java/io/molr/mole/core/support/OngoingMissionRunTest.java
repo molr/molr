@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import static io.molr.mole.core.support.MissionPredicates.runStatePredicate;
+import static io.molr.mole.core.support.MissionPredicates.runStateEqualsTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
@@ -78,8 +78,8 @@ public class OngoingMissionRunTest {
 
     @Test
     public void await() {
-        run.await(runStatePredicate(RunState.FINISHED));
-        run.await(runStatePredicate(RunState.FINISHED), Duration.ofMillis(100));
+        run.await(runStateEqualsTo(RunState.FINISHED));
+        run.await(runStateEqualsTo(RunState.FINISHED), Duration.ofMillis(100));
     }
 
     @Test
@@ -94,16 +94,16 @@ public class OngoingMissionRunTest {
         assertThat(resultReturnHelper.whenFinished(Duration.ofMillis(100)), instanceOf(Result.class));
         assertEquals(resultReturnHelper.whenFinished(Duration.ofMillis(100)), Result.SUCCESS);
 
-        assertNotNull(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)));
-        assertThat(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)),
+        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)));
+        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)),
                 instanceOf(Result.class));
-        assertEquals(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)), Result.SUCCESS);
+        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)), Result.SUCCESS);
 
-        assertNotNull(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)));
-        assertThat(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)), instanceOf(Result.class));
-        assertEquals(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)), Result.SUCCESS);
     }
 
@@ -117,13 +117,13 @@ public class OngoingMissionRunTest {
         assertNotNull(stateReturnHelper.whenFinished(Duration.ofMillis(100)));
         assertThat(stateReturnHelper.whenFinished(Duration.ofMillis(100)), instanceOf(MissionState.class));
 
-        assertNotNull(stateReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)));
-        assertThat(stateReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)),
+        assertNotNull(stateReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)));
+        assertThat(stateReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)),
                 instanceOf(MissionState.class));
 
-        assertNotNull(stateReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertNotNull(stateReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)));
-        assertThat(stateReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertThat(stateReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)), instanceOf(MissionState.class));
     }
 }

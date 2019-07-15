@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static io.molr.mole.core.support.MissionPredicates.runStatePredicate;
+import static io.molr.mole.core.support.MissionPredicates.runStateEqualsTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
@@ -53,16 +53,16 @@ public class OngoingReturningMissionRunTest {
         assertThat(resultReturnHelper.whenFinished(Duration.ofMillis(100)), instanceOf(Boolean.class));
         assertEquals(resultReturnHelper.whenFinished(Duration.ofMillis(100)), Boolean.TRUE);
 
-        assertNotNull(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)));
-        assertThat(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)),
+        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)));
+        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)),
                 instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED)), Boolean.TRUE);
+        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)), Boolean.TRUE);
 
-        assertNotNull(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)));
-        assertThat(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)), instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.when(runStatePredicate(RunState.PAUSED).or(RunState.FINISHED),
+        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
                 Duration.ofMillis(100)), Boolean.TRUE);
     }
 
