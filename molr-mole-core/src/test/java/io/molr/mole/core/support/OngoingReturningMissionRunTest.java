@@ -5,6 +5,8 @@ import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.single.SingleNodeMission;
 import io.molr.mole.core.single.SingleNodeMole;
 import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,26 +14,33 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static io.molr.mole.core.support.MissionPredicates.runStateEqualsTo;
+import static io.molr.commons.domain.Placeholder.aDouble;
+import static io.molr.commons.domain.Placeholder.aString;
+import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
+import static java.lang.Boolean.TRUE;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class OngoingReturningMissionRunTest {
 
-    Mole mole;
-    MissionControlSupport support;
-    String booleanMission0;
+    private MissionControlSupport support;
+    private String voidMission0;
+    private String booleanMission2;
     private OngoingReturningMissionRun<Boolean> run;
 
     @Before
     public void setUp() {
-        SingleNodeMission<Boolean> booleanMission0 = SingleNodeMission.from(Boolean.class, () -> {
-            return Boolean.TRUE;
+        SingleNodeMission<Boolean> booleanMission0 = SingleNodeMission.from(Boolean.class, () -> TRUE);
+        SingleNodeMission<Void> voidMission0 = SingleNodeMission.from(() -> {
+            // void return type
         });
-        this.booleanMission0 = booleanMission0.name();
-        mole = new SingleNodeMole(new HashSet<>(Arrays.asList(booleanMission0)));
+        this.voidMission0 = voidMission0.name();
+        SingleNodeMission<Boolean> booleanMission2 = SingleNodeMission.from(Boolean.class, (p1, p2) -> TRUE,
+                aDouble("doubleParam"), aString("stringParam"));
+        this.booleanMission2 = booleanMission2.name();
+        Mole mole = new SingleNodeMole(new HashSet<>(Arrays.asList(booleanMission0, voidMission0, booleanMission2)));
         support = MissionControlSupport.from(mole);
-        MissionStub0<Boolean> missionStub0 = MissionStubs.stub(this.booleanMission0).returning(Boolean.class);
+        MissionStub0<Boolean> missionStub0 = MissionStubs.stub(booleanMission0.name()).returning(Boolean.class);
         run = support.start(missionStub0);
     }
 
@@ -47,29 +56,45 @@ public class OngoingReturningMissionRunTest {
 
         assertNotNull(resultReturnHelper.whenFinished());
         assertThat(resultReturnHelper.whenFinished(), instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.whenFinished(), Boolean.TRUE);
+        assertEquals(TRUE, resultReturnHelper.whenFinished());
 
         assertNotNull(resultReturnHelper.whenFinished(Duration.ofMillis(100)));
         assertThat(resultReturnHelper.whenFinished(Duration.ofMillis(100)), instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.whenFinished(Duration.ofMillis(100)), Boolean.TRUE);
+        assertEquals(TRUE, resultReturnHelper.whenFinished(Duration.ofMillis(100)));
 
-        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)));
-        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)),
+        assertNotNull(resultReturnHelper.when(runStateEquals(RunState.PAUSED).or(runStateEquals(RunState.FINISHED))));
+        assertThat(resultReturnHelper.when(runStateEquals(RunState.PAUSED).or(runStateEquals(RunState.FINISHED))),
                 instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED)), Boolean.TRUE);
+        assertEquals(TRUE, resultReturnHelper.when(runStateEquals(RunState.PAUSED)
+                .or(runStateEquals(RunState.FINISHED))));
 
-        assertNotNull(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
+        assertNotNull(resultReturnHelper.when(runStateEquals(RunState.PAUSED).or(runStateEquals(RunState.FINISHED)),
                 Duration.ofMillis(100)));
-        assertThat(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
+        assertThat(resultReturnHelper.when(runStateEquals(RunState.PAUSED).or(runStateEquals(RunState.FINISHED)),
                 Duration.ofMillis(100)), instanceOf(Boolean.class));
-        assertEquals(resultReturnHelper.when(runStateEqualsTo(RunState.PAUSED).or(RunState.FINISHED),
-                Duration.ofMillis(100)), Boolean.TRUE);
+        assertEquals(TRUE, resultReturnHelper.when(runStateEquals(RunState.PAUSED)
+                .or(runStateEquals(RunState.FINISHED)), Duration.ofMillis(100)));
     }
 
     @Test
     public void awaitOuputValue() {
         assertNotNull(run.awaitOuputValue());
         assertThat(run.awaitOuputValue(), instanceOf(Boolean.class));
-        assertEquals(run.awaitOuputValue(), Boolean.TRUE);
+        assertEquals(TRUE, run.awaitOuputValue());
+    }
+
+    @Test
+    public void startAndAwaitOutputValue() {
+        MissionStub2<Double, String, Boolean> missionStub2 = MissionStubs.stub(booleanMission2).returning(Boolean.class)
+                .withParameters(aDouble("doubleParam"), aString("stringParam"));
+        Boolean success = support.start(missionStub2, 0.1, "We did it!")
+                .and().awaitOuputValue();
+        assertTrue(success);
+    }
+
+    @Test
+    public void startAndForget() {
+        VoidStub0 voidStub0 = MissionStubs.stub(voidMission0);
+        support.start(voidStub0).and().forget();
     }
 }

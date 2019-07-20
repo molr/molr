@@ -22,14 +22,14 @@ import static org.junit.Assert.assertThat;
 
 public class MissionControlSupportTest {
 
-    Mole mole;
-    MissionControlSupport support;
-    String voidMission0;
-    String voidMission1;
-    String voidMission2;
-    String booleanMission0;
-    String integerMission1;
-    String doubleMission2;
+    private Mole mole;
+    private MissionControlSupport support;
+    private String voidMission0;
+    private String voidMission1;
+    private String voidMission2;
+    private String booleanMission0;
+    private String integerMission1;
+    private String doubleMission2;
 
     @Before
     public void setUp() {
@@ -117,7 +117,7 @@ public class MissionControlSupportTest {
 
         MissionStub2<String, Double, Double> missionStub2 = MissionStubs.stub(doubleMission2).returning(Double.class)
                 .withParameters(aString("stringParam"), aDouble("doubleParam"));
-        assertThat((run = support.start(missionStub1, "string parameter")),
+        assertThat((run = support.start(missionStub2, "string parameter", 0.1)),
                 instanceOf(OngoingReturningMissionRun.class));
         assertThat(run.awaitHandle(), instanceOf(MissionHandle.class));
     }
