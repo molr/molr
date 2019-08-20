@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.logging.MissionLogHandler;
+import io.molr.mole.core.logging.MissionLogger;
 import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,7 +46,8 @@ public abstract class AbstractJavaMole implements Mole {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
             MissionHandle handle = handleFactory.createHandle();
-            executors.put(handle, executorFor(mission, params));
+            MissionLogHandler.init(handle);
+            executors.put(handle, executorFor(handle, mission, params));
             instances.add(new MissionInstance(handle, mission));
             publishState();
             return handle;
@@ -81,10 +84,21 @@ public abstract class AbstractJavaMole implements Mole {
         return supplyAsync(() -> missionRepresentationOf(mission));
     }
 
+    @Override
+    public Flux<MissionLog> logsFor(MissionHandle handle) {
+        return fromLoggerOrError(handle, MissionLogger::asStream);
+    }
+
     private <T> Flux<T> fromExecutorOrError(MissionHandle handle, Function<MissionExecutor, Flux<T>> mapper) {
         return Optional.ofNullable(executors.get(handle))
                 .map(mapper)
                 .orElse(Flux.error(new IllegalStateException("No executor for handle '" + handle + "'")));
+    }
+
+    private <T> Flux<T> fromLoggerOrError(MissionHandle handle, Function<MissionLogger, Flux<T>> mapper) {
+        return Optional.ofNullable(MissionLogHandler.get(handle))
+                .map(mapper)
+                .orElse(Flux.error(new IllegalStateException("No logger for handle '" + handle + "'")));
     }
 
     @Override
@@ -106,7 +120,7 @@ public abstract class AbstractJavaMole implements Mole {
         statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
     }
 
-    protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);
+    protected abstract MissionExecutor executorFor(MissionHandle handle, Mission mission, Map<String, Object> params);
 
     protected abstract MissionRepresentation missionRepresentationOf(Mission mission);
 

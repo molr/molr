@@ -119,6 +119,11 @@ public class LocalSuperMole implements Mole {
         return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
     }
 
+    @Override
+    public Flux<MissionLog> logsFor(MissionHandle handle) {
+        return fromActiveMoleOrError(handle, m -> m.logsFor(handle));
+    }
+
     private Mono<Mole> getMole(Mission mission) {
         Mole mole = missionMoles.get(mission);
         if (mole == null) {

@@ -104,6 +104,9 @@ public interface Mole {
      */
     Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission);
 
+    // TODO Add javadoc
+    Flux<MissionLog> logsFor(MissionHandle handle);
+
     /**
      * Instructs the mission instance identified by the given handle to execute the given command on the given strand.
      * The allowed commands can be 'guessed' by using the information from {@link #statesFor(MissionHandle)}. However,
