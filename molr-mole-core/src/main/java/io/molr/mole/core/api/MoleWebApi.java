@@ -18,6 +18,7 @@ public final class MoleWebApi {
     public static final String INSTANCE_STATES_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/states";
     public static final String INSTANCE_OUTPUTS_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/outputs";
     public static final String INSTANCE_REPRESENTATIONS_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/representations";
+    public static final String INSTANCE_LOGS_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/logs";
     public static final String INSTANTIATE_MISSION_PATH = MISSION_HEADER + "{" + MISSION_NAME + "}/instantiate";
     public static final String INSTANCE_INSTRUCT_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/{" + STRAND_ID + "}/instruct/{" + COMMAND_NAME+ "}";
     public static final String INSTANCE_INSTRUCT_ROOT_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/instructRoot/{" + COMMAND_NAME+ "}";
@@ -42,6 +43,10 @@ public final class MoleWebApi {
 
     public static String instanceRepresentationsUrl(String missionHandle){
         return  format(INSTANCE_HEADER + "%s/representations", missionHandle);
+    }
+
+    public static String instanceLogsUrl(String missionHandle){
+        return  format(INSTANCE_HEADER + "%s/logs", missionHandle);
     }
 
     public static String instantiateMission(String missionName){

@@ -6,6 +6,7 @@ dependencies {
 
     compile group: 'io.projectreactor', name: 'reactor-core', version: reactorVersion
     compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: logbackVersion
 
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
 }
