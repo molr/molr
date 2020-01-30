@@ -1,6 +1,7 @@
 dependencies {
     compile project(":molr-commons")
     /* For support test classes */
+    /* NOTE: In generated pom, they have to e set to compile */
     compileOnly group: 'junit', name: 'junit', version: jUnitVersion
     compileOnly group: 'org.assertj', name: 'assertj-core', version: assertJVersion
 
