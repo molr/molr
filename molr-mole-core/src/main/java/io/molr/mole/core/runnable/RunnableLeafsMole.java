@@ -1,68 +1,50 @@
 package io.molr.mole.core.runnable;
 
-import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
-import io.molr.mole.core.tree.*;
-import io.molr.mole.core.tree.tracking.TreeTracker;
-
-import java.util.Map;
-import java.util.Set;
-
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-public class RunnableLeafsMole extends AbstractJavaMole {
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-    private final Map<Mission, RunnableLeafsMission> missions;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.Out;
+import io.molr.mole.core.tree.TreeStructure;
+
+public class RunnableLeafsMole extends RunnableLeafsMoleBase {
 
     public RunnableLeafsMole(Set<RunnableLeafsMission> missions) {
-        super(extractMissions(missions));
-        this.missions = createMissionsMap(missions);
+        super(missions(missions), runnables(missions), treeStructure(missions), parameterDescription(missions));
     }
 
-    private static Set<Mission> extractMissions(Set<RunnableLeafsMission> missions) {
+    private static Set<Mission> missions(Set<RunnableLeafsMission> missions) {
         requireNonNull(missions, "missions must not be null");
         return missions.stream().map(rlm -> new Mission(rlm.name())).collect(toSet());
     }
 
-    private Map<Mission, RunnableLeafsMission> createMissionsMap(Set<RunnableLeafsMission> newMissions) {
-        return newMissions.stream()
-                .collect(toMap(m -> new Mission(m.name()), identity()));
+    private static Function<Mission, TreeStructure> treeStructure(Set<RunnableLeafsMission> newMissions) {
+        return m -> missionMap(newMissions).get(m).treeStructure();
     }
 
-    @Override
-    public MissionRepresentation missionRepresentationOf(Mission mission) {
-        return getOrThrow(mission).treeStructure().missionRepresentation();
+    private static Function<Mission, MissionParameterDescription> parameterDescription(
+            Set<RunnableLeafsMission> newMissions) {
+        return m -> missionMap(newMissions).get(m).parameterDescription();
     }
 
-    @Override
-    public MissionParameterDescription missionParameterDescriptionOf(Mission mission) {
-        return getOrThrow(mission).parameterDescription();
+    private static BiFunction<Mission, Map<String, Object>, Map<Block, BiConsumer<In, Out>>> runnables(
+            Set<RunnableLeafsMission> newMissions) {
+        return (m, p) -> missionMap(newMissions).get(m).runnables();
     }
 
-
-    private RunnableLeafsMission getOrThrow(Mission mission) {
-        RunnableLeafsMission runnableMission = missions.get(mission);
-        if (runnableMission == null) {
-            throw new IllegalArgumentException(mission + " is not a mission of this mole");
-        }
-        return runnableMission;
-    }
-
-
-    @Override
-    protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
-        RunnableLeafsMission runnableLeafMission = missions.get(mission);
-        TreeStructure treeStructure = runnableLeafMission.treeStructure();
-        TreeTracker<Result> resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-        TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
-
-        MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
-
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), MissionInput.from(params), outputCollector, runStateTracker);
-        return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker);
+    private static Map<Mission, RunnableLeafsMission> missionMap(Set<RunnableLeafsMission> newMissions) {
+        return newMissions.stream().collect(toMap(m -> new Mission(m.name()), identity()));
     }
 
 }
