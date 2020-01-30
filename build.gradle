@@ -26,6 +26,7 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+    apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
 
@@ -94,6 +95,48 @@ subprojects {
     if (project['DEPLOYMENT']) {
         println "Applying deployment scripts for ${project.name}"
         apply from: '../gradle/bintray-deploy.gradle'
+    }
+
+
+    task updatePom {
+        doLast {
+            def pomInfo = pom {
+                project {
+                    parent {
+                        groupId 'io.molr'
+                        artifactId 'molr'
+                        version '1.0-SNAPSHOT'
+                    }
+                    inceptionYear '2019'
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+
+            if (project.name == 'demo-commons') {
+                pomInfo = pomInfo.withXml {
+                    def pluginNode = asNode().appendNode("build").appendNode("plugins").appendNode("plugin");
+                    pluginNode.appendNode("groupId", 'org.xolstice.maven.plugins');
+                    pluginNode.appendNode("artifactId", 'protobuf-maven-plugin');
+                    pluginNode.appendNode("version", '0.5.1');
+
+                    def configurationNode = pluginNode.appendNode("configuration");
+                    configurationNode.appendNode("protocArtifact", 'com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}')
+                    configurationNode.appendNode("pluginId", 'grpc-java');
+                    configurationNode.appendNode("pluginArtifact", 'io.grpc:protoc-gen-grpc-java:1.21.0:exe:${os.detected.classifier}');
+
+                    def goalsNode = pluginNode.appendNode("executions").appendNode("execution").appendNode("goals");
+                    goalsNode.appendNode("goal", 'compile');
+                    goalsNode.appendNode("goal", 'compile-custom');
+                }
+            }
+            pomInfo.writeTo("pom-generated.xml")
+        }
     }
 }
 
