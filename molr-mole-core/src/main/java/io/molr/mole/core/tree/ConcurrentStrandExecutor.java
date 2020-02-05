@@ -185,6 +185,15 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                         if (commandToExecute == STEP_OVER) {
                             updateState(ExecutorState.STEPPING_OVER);
                         } else {
+
+                            /*
+                             * Proof of concept only
+                             */
+                            if (actualBlock().isWaitingForResume() && actualBlock().isBreakpointInitialized()) {
+                                LOGGER.debug("Resume after breakpoint has been initialized " + actualBlock().id() + " " + actualBlock().text());
+                                actualBlock().setWaitingForResume(false);
+                            }
+                            
                             updateState(ExecutorState.RESUMING);
                         }
                     }
@@ -213,6 +222,20 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 if (actualState() == ExecutorState.RESUMING || actualState() == ExecutorState.STEPPING_OVER) {
 
                     if (isLeaf(actualBlock())) {
+                        /**
+                         * Proof of concept only
+                         */
+                        if (actualBlock().hasBreakpoint()) {
+                            if (!actualBlock().isBreakpointInitialized()) {
+                                actualBlock().setBreakpointInitialized(true);
+                                actualBlock().setWaitingForResume(true);
+                                LOGGER.debug(
+                                        "Wait on breakpoint at " + actualBlock().id() + " " + actualBlock().text());
+                                updateState(ExecutorState.IDLE);
+                                continue;
+                            }
+                        }
+                        
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
                         Result result = leafExecutor.execute(actualBlock());
                         if (result == Result.SUCCESS) {

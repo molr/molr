@@ -13,6 +13,13 @@ public final class Block {
     private final String id;
     private final String text;
     private final boolean navigable;
+    
+    /*
+     * Proof of concept only 
+     */
+    private boolean breakpoint = false;
+    private boolean waitingForResume = true;
+    private boolean breakpointInitialized = false;
 
     public Block(Builder builder) {
         this.id = builder.id;
@@ -87,5 +94,37 @@ public final class Block {
                 ", text='" + text + '\'' +
                 ", navigable=" + navigable +
                 '}';
+    }
+    /*
+     * Proof of concept only
+     */
+    public void setBreakpoint(final boolean breakpoint) {
+        this.breakpoint = breakpoint;
+    }
+
+    public boolean hasBreakpoint() {
+        return breakpoint;
+    }
+
+    public boolean isWaitingForResume() {
+        return waitingForResume;
+    }
+
+    public void setWaitingForResume(final boolean waitingForResume) {
+        this.waitingForResume = waitingForResume;
+    }
+
+    /**
+     * @return the breakpointInitialized
+     */
+    public boolean isBreakpointInitialized() {
+        return this.breakpointInitialized;
+    }
+
+    /**
+     * @param breakpointInitialized the breakpointInitialized to set
+     */
+    public void setBreakpointInitialized(boolean breakpointInitialized) {
+        this.breakpointInitialized = breakpointInitialized;
     }
 }
