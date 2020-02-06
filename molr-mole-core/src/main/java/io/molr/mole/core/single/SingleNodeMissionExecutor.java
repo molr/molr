@@ -9,6 +9,7 @@ import io.molr.mole.core.tree.MissionExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
@@ -28,6 +29,7 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SingleNodeMissionExecutor.class);
 
+    private final MissionHandle handle;
     private final SingleNodeMission<R> mission;
     private final MissionRepresentation representation;
     private final MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
@@ -47,7 +49,8 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     private final ExecutorService executorService;
 
 
-    public SingleNodeMissionExecutor(SingleNodeMission<R> mission, Map<String, Object> parameters) {
+    public SingleNodeMissionExecutor(MissionHandle handle, SingleNodeMission<R> mission, Map<String, Object> parameters) {
+        this.handle = handle;
         this.mission = requireNonNull(mission, "mission must not be null");
         executorService = Executors.newSingleThreadExecutor();
         this.input = MissionInput.from(parameters);
@@ -59,7 +62,9 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
 
     private void resume() {
         if (started.getAndSet(true)) {
+            setMDC();
             LOGGER.warn("Already Running. Doing nothing.");
+            MDC.clear();
             return;
         }
         this.strandRunState.set(RunState.RUNNING);
@@ -78,7 +83,9 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
             emitReturnValue(returnValue);
         } catch (Exception e) {
             result.set(Result.FAILED);
+            setMDC();
             LOGGER.warn("Mission {} failed with exception. ", mission, e);
+            MDC.clear();
             output.emit(Placeholders.THROWN, Exceptions.stackTraceFrom(e));
         }
     }
@@ -86,14 +93,18 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     private void emitReturnValue(R returnValue) {
         Class<R> returnType = mission.returnType();
         if (Void.class.isAssignableFrom(returnType)) {
+            setMDC();
             LOGGER.debug("Mission {} has a void return type. Emitting no return value.");
+            MDC.clear();
             return;
         }
         Optional<Placeholder<R>> placeholder = Placeholders.returned(returnType);
         if (placeholder.isPresent()) {
             output.emit(placeholder.get(), returnValue);
         } else {
+            setMDC();
             LOGGER.debug("Placeholder for type {} is not supported. Emitting the string representation of the return value instead.");
+            MDC.clear();
             output.emit(Placeholders.RETURNED_STRING, Objects.toString(returnValue));
         }
     }
@@ -138,13 +149,17 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     @Override
     public void instruct(Strand strand, StrandCommand command) {
         if (!singleStrand.equals(strand)) {
+            setMDC();
             LOGGER.warn("given strand {} is not equal to strand {}. Doing nothing.", strand, singleStrand);
+            MDC.clear();
             return;
         }
         if (StrandCommand.RESUME.equals(command)) {
             resume();
         } else {
+            setMDC();
             LOGGER.warn("given command {} is not supported. Doing nothing.", command);
+            MDC.clear();
         }
     }
 
@@ -169,4 +184,9 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         return this.representations;
     }
 
+    private void setMDC() {
+        MDC.put("missionHandle", handle.id());
+        MDC.put("strand", singleStrand.id());
+        MDC.put("block", rootBlock().toString());
+    }
 }

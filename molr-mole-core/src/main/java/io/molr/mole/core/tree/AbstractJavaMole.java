@@ -4,16 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.logging.consumer.LogConsumer;
+import io.molr.mole.core.logging.consumer.LogConsumerFactory;
+import io.molr.mole.core.logging.consumer.RunningMissionLogConsumer;
 import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +44,7 @@ public abstract class AbstractJavaMole implements Mole {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
             MissionHandle handle = handleFactory.createHandle();
-            executors.put(handle, executorFor(mission, params));
+            executors.put(handle, executorFor(handle, mission, params));
             instances.add(new MissionInstance(handle, mission));
             publishState();
             return handle;
@@ -77,6 +77,29 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     @Override
+    public final Flux<MissionLog> logsFor(MissionHandle handle) {
+        LogConsumer consumers = getConsumer(RunningMissionLogConsumer.class);
+        if (consumers == null) {
+            return Flux.error(new IllegalStateException("Could not get consumer for '" + RunningMissionLogConsumer.class + "'"));
+        }
+        return fromConsumerOrError(consumers, handle);
+    }
+
+    private LogConsumer getConsumer(Class<?> clz) {
+        try {
+            return LogConsumerFactory.consumer(clz);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private <T> Flux<T> fromConsumerOrError(LogConsumer consumer, MissionHandle handle) {
+        return Optional.ofNullable(consumer.asStream(handle))
+                .orElse(Flux.error(new IllegalStateException("No log producer for handle '" + handle + "'")));
+    }
+
+
+    @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
         return supplyAsync(() -> missionRepresentationOf(mission));
     }
@@ -106,7 +129,7 @@ public abstract class AbstractJavaMole implements Mole {
         statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
     }
 
-    protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);
+    protected abstract MissionExecutor executorFor(MissionHandle handle, Mission mission, Map<String, Object> params);
 
     protected abstract MissionRepresentation missionRepresentationOf(Mission mission);
 

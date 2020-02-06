@@ -1,8 +1,6 @@
 package io.molr.mole.core.single;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionParameterDescription;
-import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.*;
 import io.molr.mole.core.tree.AbstractJavaMole;
 import io.molr.mole.core.tree.MissionExecutor;
 
@@ -45,10 +43,9 @@ public class SingleNodeMole extends AbstractJavaMole {
     }
 
     @Override
-    protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
+    protected MissionExecutor executorFor(MissionHandle handle, Mission mission, Map<String, Object> params) {
         SingleNodeMission<?> singleNodeMission = Optional.ofNullable(missions.get(mission))
                 .orElseThrow(() -> new IllegalArgumentException("Mole cannot handle mission '" + mission + "'."));
-        return new SingleNodeMissionExecutor<>(singleNodeMission, params);
+        return new SingleNodeMissionExecutor<>(handle, singleNodeMission, params);
     }
-
 }

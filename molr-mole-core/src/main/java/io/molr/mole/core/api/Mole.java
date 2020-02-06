@@ -79,6 +79,9 @@ public interface Mole {
      */
     Flux<MissionRepresentation> representationsFor(MissionHandle handle);
 
+    // TODO Add javadoc
+    Flux<MissionLog> logsFor(MissionHandle handle);
+
     /**
      * Retrieves the initial (!) representation of a mission, meaning when the mission is not instantiated/running. This
      * representation contains for example the tree structure of the mission. In many (or even most) cases, this
