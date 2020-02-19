@@ -20,23 +20,28 @@ public class MissionRepresentationDto {
     public final String rootBlockId;
     public final Set<BlockDto> blocks;
     public final Map<String, List<String>> childrenBlockIds;
+    public final Set<String> breakpointBlockIds;
+    
 
-    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds) {
+    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds, Set<String> breakpointBlockIds) {
         this.rootBlockId = rootBlockId;
         this.blocks = blocks;
         this.childrenBlockIds = childrenBlockIds;
+        this.breakpointBlockIds = breakpointBlockIds;
     }
 
     public MissionRepresentationDto() {
         this.rootBlockId = null;
         this.blocks = Collections.emptySet();
         this.childrenBlockIds = Collections.emptyMap();
+        this.breakpointBlockIds = Collections.emptySet();
     }
 
     public static final MissionRepresentationDto from(MissionRepresentation representation) {
         Set<Block> allBlocks = representation.allBlocks();
         Set<BlockDto> blockDtos = allBlocks.stream().map(BlockDto::from).collect(toSet());
-
+        Set<String> breakpointIds = representation.breakpoints().stream().map(block -> block.id()).collect(Collectors.toSet());
+        
         ImmutableMap.Builder<String, List<String>> builder = ImmutableMap.builder();
         for (Block block : allBlocks) {
             List<Block> children = representation.childrenOf(block);
@@ -45,12 +50,12 @@ public class MissionRepresentationDto {
                 builder.put(block.id(), childrenIds);
             }
         }
-        return new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build());
+        return new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build(), breakpointIds);
     }
 
     public MissionRepresentation toMissionRepresentation() {
         Map<String, Block> blockMap = blocks.stream().map(BlockDto::toBlock).collect(Collectors.toMap(Block::id, identity()));
-
+        
         ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(blockMap.get(rootBlockId));
         for (Block block : blockMap.values()) {
             List<String> childrenIds = childrenBlockIds.get(block.id());
@@ -60,6 +65,8 @@ public class MissionRepresentationDto {
                         .forEach(child -> builder.parentToChild(block, child));
             }
         }
+        
+        breakpointBlockIds.stream().map(blockId -> blockMap.get(blockId)).forEach(builder::addBreakpoint);
         return builder.build();
     }
 

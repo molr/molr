@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
 
@@ -11,10 +12,12 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
     private final Block root;
     private final ListMultimap<Block, Block> children;
+    private Set<Block> breakpoints;
 
     public ImmutableMissionRepresentation(Builder builder) {
         this.root = builder.rootBlock;
         this.children = builder.treeBuilder.build();
+        this.breakpoints = builder.breakpoints;
     }
 
     @Override
@@ -87,7 +90,12 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
         private final Block rootBlock;
         private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
-
+        private final Set<Block> breakpoints = Collections.newSetFromMap(new ConcurrentHashMap<Block, Boolean>());
+        
+        public void addBreakpoint(Block block) {
+            this.breakpoints.add(block);
+        }
+        
         private Builder(Block rootBlock) {
             this.rootBlock = requireNonNull(rootBlock, "rootBlock must not be null");
         }
@@ -109,6 +117,11 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         public MissionRepresentation build() {
             return new ImmutableMissionRepresentation(this);
         }
+    }
+
+    @Override
+    public Set<Block> breakpoints() {
+        return breakpoints;
     }
 
 

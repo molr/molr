@@ -28,4 +28,9 @@ public interface MissionRepresentation {
     default Optional<Block> blockOfId(String id) {
         return allBlocks().stream().filter(b -> Objects.equals(id, b.id())).findAny();
     }
+
+    /**
+     * @return set of blocks that are instantiated as breakpoints for each mission instance
+     */
+    Set<Block> breakpoints();
 }

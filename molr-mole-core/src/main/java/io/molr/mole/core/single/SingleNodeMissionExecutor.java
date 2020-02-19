@@ -158,6 +158,11 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     public Flux<MissionState> states() {
         return stateStream;
     }
+    
+    @Override
+    public void instructBlock(String blockID, BlockCommand command) {
+        throw new IllegalStateException("Block commands not supported by SingleNodeMissionExectuor");
+    }
 
     @Override
     public Flux<MissionOutput> outputs() {

@@ -7,6 +7,7 @@ package io.molr.commons.domain;
 import com.google.common.collect.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -19,6 +20,8 @@ public final class MissionState {
     private final ImmutableListMultimap<Strand, Strand> parentToChildren;
     private final Map<String, Result> blockIdsToResult;
     private final Map<String, RunState> blockIdsToRunState;
+    private final Set<String> breakpointBlockIds;
+    private final SetMultimap<String, BlockCommand> allowedBlockCommands;
 
 
     private MissionState(Builder builder) {
@@ -32,6 +35,8 @@ public final class MissionState {
         this.strandRunStates = builder.strandRunStatesBuilder.build();
         this.blockIdsToResult = builder.blockIdsToResult.build();
         this.blockIdsToRunState = builder.blockIdsToRunState.build();
+        this.breakpointBlockIds = builder.breakpointBlockIds.build();
+        this.allowedBlockCommands = builder.blocksToAllowedCommandsBuilder.build();
     }
 
     public Set<StrandCommand> allowedCommandsFor(Strand strand) {
@@ -90,6 +95,18 @@ public final class MissionState {
         return strandRunStates.keySet();
     }
 
+    public Set<String> getBreakpointBlockIds() {
+        return this.breakpointBlockIds;
+    }
+    
+    public Map<String, Set<String>> getAllowedBlockCommandNamesById(){
+        Map<String, Set<String>> tmp = new HashMap<>();
+        allowedBlockCommands.asMap().forEach((blockId, commands)->{
+            tmp.put(blockId, commands.stream().map(BlockCommand::name).collect(Collectors.toSet()));
+        });
+        return tmp;
+    }
+
     public static final Builder builder(Result result) {
         return new Builder(result);
     }
@@ -103,6 +120,8 @@ public final class MissionState {
         private final ImmutableListMultimap.Builder<Strand, Strand> parentToChildrenBuilder = ImmutableListMultimap.builder();
         private final ImmutableMap.Builder<String, Result> blockIdsToResult = ImmutableMap.builder();
         private final ImmutableMap.Builder<String, RunState> blockIdsToRunState = ImmutableMap.builder();
+        private final ImmutableSet.Builder<String> breakpointBlockIds = ImmutableSet.builder();
+        private final ImmutableSetMultimap.Builder<String, BlockCommand> blocksToAllowedCommandsBuilder = ImmutableSetMultimap.builder();
 
         private Builder(Result result) {
             this.result = Objects.requireNonNull(result, "overall result must not be null");
@@ -163,6 +182,26 @@ public final class MissionState {
             return blockRunState(block.id(), runState);
         }
 
+        public Builder addBreakpoint(Block block) {
+            this.breakpointBlockIds.add(block.id());
+            return this;
+        }
+        
+        public Builder addAllowedCommand(Block block, BlockCommand command) {
+            this.blocksToAllowedCommandsBuilder.put(block.id(), command);
+            return this;
+        }
+        
+        public Builder addBreakpoint(String blockId) {
+            this.breakpointBlockIds.add(blockId);
+            return this;
+        }
+        
+        public Builder addAllowedCommand(String blockId, BlockCommand command) {
+            this.blocksToAllowedCommandsBuilder.put(blockId, command);
+            return this;
+        }
+        
         public MissionState build() {
             return new MissionState(this);
         }

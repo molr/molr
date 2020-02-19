@@ -23,8 +23,11 @@ public class MissionStateDto {
     public final Set<StrandDto> strands;
     public final Map<String, String> blockResults;
     public final Map<String, String> blockRunStates;
+    
+    public final Map<String, Set<String>> blockIdAllowedCommands;
+    public final Set<String> breakpoints;
 
-    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, String> strandCursorBlockIds, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates) {
+    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, String> strandCursorBlockIds, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates, Map<String, Set<String>> blockIdAllowedCommands, Set<String> breakpoints) {
         this.result = result;
         this.strandAllowedCommands = strandAllowedCommands;
         this.strandCursorBlockIds = strandCursorBlockIds;
@@ -33,10 +36,12 @@ public class MissionStateDto {
         this.parentToChildrenStrands = parentToChildrenStrands;
         this.blockResults = blockResults;
         this.blockRunStates = blockRunStates;
+        this.blockIdAllowedCommands = blockIdAllowedCommands;
+        this.breakpoints = breakpoints;
     }
 
     public MissionStateDto() {
-        this(null, emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap());
+        this(null, emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptySet());
     }
 
     public static final MissionStateDto from(MissionState missionState) {
@@ -63,7 +68,12 @@ public class MissionStateDto {
             }
         }
 
-        return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()));
+
+        Map<String, Set<String>> blockIdAllowedCommands = missionState.getAllowedBlockCommandNamesById();
+        Set<String> breakpointBlockIds = missionState.getBreakpointBlockIds();
+        
+        
+        return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()), blockIdAllowedCommands, breakpointBlockIds);
     }
 
     private static <T extends Enum<T>> Map<String, String> toNameMap(Map<String, T> inMap) {
@@ -91,6 +101,12 @@ public class MissionStateDto {
 
         blockResults.entrySet().forEach(e -> builder.blockResult(e.getKey(), Result.valueOf(e.getValue())));
         blockRunStates.entrySet().forEach(e -> builder.blockRunState(e.getKey(), RunState.valueOf(e.getValue())));
+        
+        breakpoints.forEach(breakpoint -> builder.addBreakpoint(breakpoint));
+        blockIdAllowedCommands.forEach((blockId, commands) ->{
+            commands.stream().forEach(command -> builder.addAllowedCommand(blockId, BlockCommand.valueOf(command)));
+        });
+        
         return builder.build();
     }
 
@@ -117,6 +133,8 @@ public class MissionStateDto {
                 ", strands=" + strands +
                 ", blockResults=" + blockResults +
                 ", blockRunStates=" + blockRunStates +
+                ", allowedBlockCommands=" + blockIdAllowedCommands +
+                ", breakpoints=" + breakpoints + 
                 '}';
     }
 }

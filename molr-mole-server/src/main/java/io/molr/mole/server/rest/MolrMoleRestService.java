@@ -1,5 +1,6 @@
 package io.molr.mole.server.rest;
 
+import io.molr.commons.domain.BlockCommand;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.Strand;
@@ -90,6 +91,11 @@ public class MolrMoleRestService {
     @PostMapping(path = INSTANCE_INSTRUCT_ROOT_PATH)
     public void instructRoot(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(COMMAND_NAME) String commandName) {
         mole.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
+    }
+    
+    @PostMapping(path = INSTANCE_INSTRUCT_BLOCK_PATH)
+    public void instructBlock(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(BLOCK_ID) String blockId, @PathVariable(COMMAND_NAME) String commandName) {
+        mole.instructBlock(MissionHandle.ofId(missionHandle), blockId, BlockCommand.valueOf(commandName));
     }
 
     @ExceptionHandler({Exception.class})

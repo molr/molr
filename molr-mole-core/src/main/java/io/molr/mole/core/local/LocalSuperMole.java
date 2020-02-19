@@ -150,6 +150,11 @@ public class LocalSuperMole implements Mole {
     public void instructRoot(MissionHandle handle, StrandCommand command) {
         runOnAgencyExecutorSync(() -> getMoleWithId(handle).instructRoot(handle, command));
     }
+    
+    @Override
+    public void instructBlock(MissionHandle handle, String blockId, BlockCommand command) {
+        runOnAgencyExecutorSync(() -> getMoleWithId(handle).instructBlock(handle, blockId, command));
+    }
 
     private void runOnAgencyExecutorSync(Runnable runnable) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(runnable, agencyExecutor);

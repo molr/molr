@@ -8,6 +8,9 @@ import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.testing.LatchTestSupport;
 import io.molr.mole.core.tree.*;
 import io.molr.mole.core.tree.tracking.TreeTracker;
+
+import java.util.HashSet;
+
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -38,7 +41,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector(), runStateTracker);
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
-        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure);
+        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>());
     }
 
     @Override

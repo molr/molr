@@ -97,6 +97,11 @@ public abstract class AbstractJavaMole implements Mole {
         Optional.ofNullable(executors.get(handle))
                 .ifPresent(e -> e.instructRoot(command));
     }
+    
+    @Override
+    public final void instructBlock(MissionHandle handle, String blockId, BlockCommand command) {
+        Optional.ofNullable(executors.get(handle)).ifPresent(e-> e.instructBlock(blockId, command));
+    }
 
     private <T> Mono<T> supplyAsync(Supplier<T> supplier) {
         return Mono.fromFuture(CompletableFuture.supplyAsync(supplier, moleExecutor));
