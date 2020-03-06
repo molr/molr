@@ -40,7 +40,7 @@ public class MissionRepresentationDto {
     public static final MissionRepresentationDto from(MissionRepresentation representation) {
         Set<Block> allBlocks = representation.allBlocks();
         Set<BlockDto> blockDtos = allBlocks.stream().map(BlockDto::from).collect(toSet());
-        Set<String> breakpointIds = representation.breakpoints().stream().map(block -> block.id()).collect(Collectors.toSet());
+        Set<String> breakpointIds = representation.defaultBreakpoints().stream().map(block -> block.id()).collect(Collectors.toSet());
         
         ImmutableMap.Builder<String, List<String>> builder = ImmutableMap.builder();
         for (Block block : allBlocks) {
@@ -66,7 +66,7 @@ public class MissionRepresentationDto {
             }
         }
         
-        breakpointBlockIds.stream().map(blockId -> blockMap.get(blockId)).forEach(builder::addBreakpoint);
+        breakpointBlockIds.stream().map(blockId -> blockMap.get(blockId)).forEach(builder::addDefaultBreakpoint);
         return builder.build();
     }
 

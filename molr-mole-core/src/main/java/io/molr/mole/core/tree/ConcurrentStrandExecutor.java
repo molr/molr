@@ -31,8 +31,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import java.text.MessageFormat;
-
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
  * thread avoiding to block the {@link #instruct(StrandCommand)} method (or any other for that matter).

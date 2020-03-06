@@ -97,7 +97,7 @@ public class RunnableLeafsMission {
         }
         
         public void breakOn(Block block) {
-            representationBuilder.addBreakpoint(block);
+            representationBuilder.addDefaultBreakpoint(block);
         }
     }
 }

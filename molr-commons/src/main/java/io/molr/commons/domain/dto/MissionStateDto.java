@@ -1,12 +1,15 @@
 package io.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import io.molr.commons.domain.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -68,9 +71,11 @@ public class MissionStateDto {
             }
         }
 
-
-        Map<String, Set<String>> blockIdAllowedCommands = missionState.getAllowedBlockCommandNamesById();
-        Set<String> breakpointBlockIds = missionState.getBreakpointBlockIds();
+        Map<String, Set<String>> blockIdAllowedCommands = new HashMap<>();
+        missionState.blockIdsToAllowedCommands().forEach((id, allowedCmds)->{
+            blockIdAllowedCommands.put(id, ImmutableSet.copyOf(allowedCmds.stream().map(cmd -> cmd.name()).collect(Collectors.toSet())));
+        });
+        Set<String> breakpointBlockIds = missionState.breakpointBlockIds();
         
         
         return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()), blockIdAllowedCommands, breakpointBlockIds);
@@ -133,7 +138,7 @@ public class MissionStateDto {
                 ", strands=" + strands +
                 ", blockResults=" + blockResults +
                 ", blockRunStates=" + blockRunStates +
-                ", allowedBlockCommands=" + blockIdAllowedCommands +
+                ", blockIdAllowedCommands=" + blockIdAllowedCommands +
                 ", breakpoints=" + breakpoints + 
                 '}';
     }

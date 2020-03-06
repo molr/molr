@@ -30,7 +30,9 @@ public interface MissionRepresentation {
     }
 
     /**
-     * @return set of blocks that are instantiated as breakpoints for each mission instance
+     * Default breakpoints determine the default configuration of breakpoints for each mission instance.
+     *   
+     * @return immutable set of blocks that represent default breakpoints
      */
-    Set<Block> breakpoints();
+    Set<Block> defaultBreakpoints();
 }

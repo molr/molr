@@ -12,6 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static io.molr.commons.domain.StrandCommand.STEP_INTO;
 
 
@@ -21,6 +24,8 @@ import static io.molr.commons.domain.StrandCommand.STEP_INTO;
  */
 public class TreeMissionExecutor implements MissionExecutor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeMissionExecutor.class);
+    
     private final Flux<MissionState> states;
     private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
@@ -33,7 +38,7 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
-        breakpoints.addAll(treeStructure.missionRepresentation().breakpoints());
+        breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
         
         this.runStateTracker = runStateTracker;
         strandFactory = new StrandFactoryImpl();
@@ -106,8 +111,13 @@ public class TreeMissionExecutor implements MissionExecutor {
         
         breakpoints.forEach(builder::addBreakpoint);
         representation.allBlocks().forEach(block -> {
-            builder.addAllowedCommand(block, BlockCommand.UNSET_BREAKPOINT);
-            builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);
+            boolean isBreakpoint = breakpoints.contains(block);
+            if(isBreakpoint) {
+                builder.addAllowedCommand(block, BlockCommand.UNSET_BREAKPOINT);
+            }
+            else {
+                builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);                
+            }
         });
         
         return builder.build();
@@ -126,25 +136,21 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instructBlock(String blockId, BlockCommand command) {
-        System.out.println(this.getClass().getCanonicalName()+" instruct block");
-//        states
+        
+        LOGGER.info(command.name()+" for block="+blockId);
+        
         if(command == BlockCommand.UNSET_BREAKPOINT) {
-            System.out.println("Remove breakpoint");
             boolean breakpointRemoved = breakpoints.removeIf(block -> block.id().equals(blockId));
             if(breakpointRemoved) {
                 statesSink.onNext(new Object());
             }
-            //TODO additional strand command required in order to resume strand. Maybe we should consider to resume if strand is idle and cursor is at breakpoint
         } else if(command == BlockCommand.SET_BREAKPOINT){
-            //find corresponding block and add to activeBreakBlocks
             Block block = representation.blockOfId(blockId).get();
             boolean breakpointAdded = breakpoints.add(block);
             if(breakpointAdded) {
                 statesSink.onNext(new Object());
             }
-        }
-        //Block instructTarget = activeBreakBlocks.stream().filter(block -> block.id().equals(blockId)).findFirst().get();
-        
+        }        
     }
     
 }

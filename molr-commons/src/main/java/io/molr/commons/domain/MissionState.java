@@ -7,7 +7,6 @@ package io.molr.commons.domain;
 import com.google.common.collect.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -95,16 +94,24 @@ public final class MissionState {
         return strandRunStates.keySet();
     }
 
-    public Set<String> getBreakpointBlockIds() {
+    public Set<String> breakpointBlockIds() {
         return this.breakpointBlockIds;
     }
     
-    public Map<String, Set<String>> getAllowedBlockCommandNamesById(){
-        Map<String, Set<String>> tmp = new HashMap<>();
-        allowedBlockCommands.asMap().forEach((blockId, commands)->{
-            tmp.put(blockId, commands.stream().map(BlockCommand::name).collect(Collectors.toSet()));
-        });
-        return tmp;
+    public Set<BlockCommand> allowedBlockCommandsFor(String blockId){
+        return allowedBlockCommands.get(blockId);
+    }
+    
+    public Set<BlockCommand> allowedBlockCommandsFor(Block block){
+        return allowedBlockCommands.get(block.id());
+    }
+    
+    /*
+     * TODO remove comment on merge
+     * the map is not needed necessarily needed by clients, but to build the DTO
+     */
+    public Map<String, Collection<BlockCommand>> blockIdsToAllowedCommands(){
+        return allowedBlockCommands.asMap();
     }
 
     public static final Builder builder(Result result) {
@@ -187,13 +194,13 @@ public final class MissionState {
             return this;
         }
         
-        public Builder addAllowedCommand(Block block, BlockCommand command) {
-            this.blocksToAllowedCommandsBuilder.put(block.id(), command);
-            return this;
-        }
-        
         public Builder addBreakpoint(String blockId) {
             this.breakpointBlockIds.add(blockId);
+            return this;
+        }      
+        
+        public Builder addAllowedCommand(Block block, BlockCommand command) {
+            this.blocksToAllowedCommandsBuilder.put(block.id(), command);
             return this;
         }
         
@@ -201,7 +208,7 @@ public final class MissionState {
             this.blocksToAllowedCommandsBuilder.put(blockId, command);
             return this;
         }
-        
+
         public MissionState build() {
             return new MissionState(this);
         }
