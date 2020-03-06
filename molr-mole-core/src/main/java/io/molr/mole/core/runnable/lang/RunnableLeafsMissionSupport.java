@@ -34,7 +34,7 @@ public abstract class RunnableLeafsMissionSupport {
         root(newName, branchConsumer, RunnableLeafsMission::parallelRoot);
     }
 
-    protected void breakOnBlock(Block block) {
+    protected void breakOn(Block block) {
         builder.breakOn(block);
     }
     
