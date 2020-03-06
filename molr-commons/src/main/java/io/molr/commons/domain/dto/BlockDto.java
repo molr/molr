@@ -6,26 +6,23 @@ public class BlockDto {
 
     public final String id;
     public final String text;
-    public final boolean navigable;
 
-    public BlockDto(String id, String text, boolean navigable) {
+    public BlockDto(String id, String text) {
         this.id = id;
         this.text = text;
-        this.navigable = navigable;
     }
 
     public BlockDto() {
         this.id = null;
         this.text = null;
-        this.navigable = false;
     }
 
     public static final BlockDto from(Block block) {
-        return new BlockDto(block.id(), block.text(), block.isNavigable());
+        return new BlockDto(block.id(), block.text());
     }
 
     public Block toBlock() {
-        return Block.builder(this.id, this.text).navigable(this.navigable).build();
+        return Block.builder(this.id, this.text).build();
     }
 
 
@@ -34,7 +31,6 @@ public class BlockDto {
         return "BlockDto{" +
                 "id='" + id + '\'' +
                 ", text='" + text + '\'' +
-                ", navigable=" + navigable +
                 '}';
     }
 }
