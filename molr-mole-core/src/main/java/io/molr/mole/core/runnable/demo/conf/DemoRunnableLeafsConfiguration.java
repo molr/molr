@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.demo.conf;
 
+import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.Branch;
@@ -23,7 +24,8 @@ public class DemoRunnableLeafsConfiguration {
                 sequential("Executable Leafs Demo Mission", root -> {
 
                     root.sequential("First", b -> {
-                        b.run(log("First A"));
+                        Block firstABlock = b.run(log("First A"));
+                        breakOn(firstABlock);
                         b.run(log("First B"));
                     });
 

@@ -1,6 +1,8 @@
 package io.molr.mole.core.tree;
 
 import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Strand;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
@@ -22,6 +24,7 @@ public class StrandExecutorFactory {
     private final Object strandExecutorLock = new Object();
     private final StrandFactory strandFactory;
     private final LeafExecutor leafExecutor;
+
     // FIXME #1 change to interface!
     private final ConcurrentHashMap<Strand, ConcurrentStrandExecutor> strandExecutors;
     private final EmitterProcessor<StrandExecutor> newStrandsSink;
@@ -36,12 +39,12 @@ public class StrandExecutorFactory {
         newStrandsStream = newStrandsSink.publishOn(Schedulers.elastic());
     }
 
-    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure) {
+    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints) {
         synchronized (strandExecutorLock) {
             if (strandExecutors.containsKey(strand)) {
                 throw new IllegalArgumentException(strand + " is already associated with an executor");
             }
-            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor);
+            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor, breakpoints);
             strandExecutors.put(strand, strandExecutor);
             newStrandsSink.onNext(strandExecutor);
             return strandExecutor;

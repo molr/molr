@@ -28,4 +28,11 @@ public interface MissionRepresentation {
     default Optional<Block> blockOfId(String id) {
         return allBlocks().stream().filter(b -> Objects.equals(id, b.id())).findAny();
     }
+
+    /**
+     * Default breakpoints determine the default configuration of breakpoints for each mission instance.
+     *   
+     * @return immutable set of blocks that represent default breakpoints
+     */
+    Set<Block> defaultBreakpoints();
 }

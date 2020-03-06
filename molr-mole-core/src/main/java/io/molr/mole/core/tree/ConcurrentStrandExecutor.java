@@ -46,6 +46,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private final Object cycleLock = new Object();
 
+    Set<Block> breakpoints;
+    
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
     private final TreeStructure structure;
@@ -73,8 +75,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
 
-    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor) {
+    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
+        this.breakpoints = breakpoints;
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
         this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
@@ -163,6 +166,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     if (hasChildren()) {
                         publishError(new RejectedCommandException(commandToExecute, "[{}] has children so step into is not allowed", strand));
                     } else {
+                        if(breakpoints.contains(actualBlock())) {
+                            LOGGER.debug("block is a breakpoint" + actualBlock);
+                            updateState(ExecutorState.IDLE);
+                            continue;
+                        }
                         stepInto();
                     }
                 }
@@ -212,7 +220,13 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
                 if (actualState() == ExecutorState.RESUMING || actualState() == ExecutorState.STEPPING_OVER) {
 
-                    if (isLeaf(actualBlock())) {
+                    if(breakpoints.contains(actualBlock())) {
+                        LOGGER.debug("{} is breakpoint -> go to idle", actualBlock);
+                        updateState(ExecutorState.IDLE);
+                        continue;
+                    }
+                    
+                    if (isLeaf(actualBlock())) {                     
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
                         Result result = leafExecutor.execute(actualBlock());
                         if (result == Result.SUCCESS) {
@@ -296,7 +310,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock));
+        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints);
         addChildExecutor(childExecutor);
         LOGGER.debug("[{}] created child strand {}", strand, childStrand);
         return childExecutor;

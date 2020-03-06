@@ -1,6 +1,7 @@
 package io.molr.commons.domain;
 
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 
 import java.util.*;
@@ -11,10 +12,12 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
     private final Block root;
     private final ListMultimap<Block, Block> children;
+    private final Set<Block> defaultBreakpoints;
 
     public ImmutableMissionRepresentation(Builder builder) {
         this.root = builder.rootBlock;
         this.children = builder.treeBuilder.build();
+        this.defaultBreakpoints = builder.defaultBreakpointsBuilder.build();
     }
 
     @Override
@@ -56,6 +59,11 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
     public ListMultimap<Block, Block> parentsToChildren() {
         return this.children;
     }
+    
+    @Override
+    public Set<Block> defaultBreakpoints() {
+        return defaultBreakpoints;
+    }
 
     public static Builder builder(Block rootBlock) {
         return new Builder(rootBlock);
@@ -87,7 +95,12 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
         private final Block rootBlock;
         private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
+        ImmutableSet.Builder<Block> defaultBreakpointsBuilder = ImmutableSet.builder();
 
+        public void addDefaultBreakpoint(final Block block) {
+            defaultBreakpointsBuilder.add(block);
+        }
+        
         private Builder(Block rootBlock) {
             this.rootBlock = requireNonNull(rootBlock, "rootBlock must not be null");
         }
@@ -110,6 +123,5 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
             return new ImmutableMissionRepresentation(this);
         }
     }
-
 
 }

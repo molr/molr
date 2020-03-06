@@ -9,6 +9,11 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.molr.commons.domain.StrandCommand.STEP_INTO;
 
@@ -19,6 +24,8 @@ import static io.molr.commons.domain.StrandCommand.STEP_INTO;
  */
 public class TreeMissionExecutor implements MissionExecutor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeMissionExecutor.class);
+    
     private final Flux<MissionState> states;
     private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
@@ -26,8 +33,13 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final Tracker<Result> resultTracker;
     private final TreeTracker<RunState> runStateTracker;
     private final MissionRepresentation representation;
+    private final Set<Block> breakpoints;
+    EmitterProcessor<Object> statesSink;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker) {
+        this.breakpoints = ConcurrentHashMap.newKeySet();
+        breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
+        
         this.runStateTracker = runStateTracker;
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
@@ -35,7 +47,9 @@ public class TreeMissionExecutor implements MissionExecutor {
         this.resultTracker = resultTracker;
         this.representation = treeStructure.missionRepresentation();
 
-        EmitterProcessor<Object> statesSink = EmitterProcessor.create();
+
+        //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
+        statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
             newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> statesSink.onNext(new Object()));
@@ -46,7 +60,7 @@ public class TreeMissionExecutor implements MissionExecutor {
                 .publishOn(Schedulers.elastic());
 
         Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure);
+        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -94,6 +108,18 @@ public class TreeMissionExecutor implements MissionExecutor {
 
         resultTracker.blockResults().entrySet().forEach(e -> builder.blockResult(e.getKey(), e.getValue()));
         runStateTracker.blockResults().entrySet().forEach(e -> builder.blockRunState(e.getKey(), e.getValue()));
+        
+        breakpoints.forEach(builder::addBreakpoint);
+        representation.allBlocks().forEach(block -> {
+            boolean isBreakpoint = breakpoints.contains(block);
+            if(isBreakpoint) {
+                builder.addAllowedCommand(block, BlockCommand.UNSET_BREAKPOINT);
+            }
+            else {
+                builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);                
+            }
+        });
+        
         return builder.build();
     }
 
@@ -108,5 +134,23 @@ public class TreeMissionExecutor implements MissionExecutor {
         instruct(strandFactory.rootStrand(), command);
     }
 
-
+    @Override
+    public void instructBlock(String blockId, BlockCommand command) {
+        
+        LOGGER.info(command.name()+" for block="+blockId);
+        
+        if(command == BlockCommand.UNSET_BREAKPOINT) {
+            boolean breakpointRemoved = breakpoints.removeIf(block -> block.id().equals(blockId));
+            if(breakpointRemoved) {
+                statesSink.onNext(new Object());
+            }
+        } else if(command == BlockCommand.SET_BREAKPOINT){
+            Block block = representation.blockOfId(blockId).get();
+            boolean breakpointAdded = breakpoints.add(block);
+            if(breakpointAdded) {
+                statesSink.onNext(new Object());
+            }
+        }        
+    }
+    
 }

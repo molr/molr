@@ -1,6 +1,8 @@
 package io.molr.mole.core.runnable.lang;
 
 import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
@@ -32,6 +34,10 @@ public abstract class RunnableLeafsMissionSupport {
         root(newName, branchConsumer, RunnableLeafsMission::parallelRoot);
     }
 
+    protected void breakOn(Block block) {
+        builder.breakOn(block);
+    }
+    
     private void root(String newName, Consumer<Branch> branchConsumer, Function<String, RunnableLeafsMission.Builder> builderFactory) {
         if (this.builder != null) {
             throw new IllegalStateException("Root can only be defined once!");

@@ -13,6 +13,7 @@ public final class MoleWebApi {
     public static final String MISSION_HANDLE = "missionHandle";
     public static final String STRAND_ID = "strandId";
     public static final String COMMAND_NAME = "commandName";
+    public static final String BLOCK_ID = "blockId";
     public static final String MISSION_REPRESENTATION_PATH = MISSION_HEADER + "{" + MISSION_NAME + "}/representation";
     public static final String MISSION_PARAMETER_DESCRIPTION_PATH = MISSION_HEADER + "{" + MISSION_NAME + "}/parameterDescription";
     public static final String INSTANCE_STATES_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/states";
@@ -21,6 +22,7 @@ public final class MoleWebApi {
     public static final String INSTANTIATE_MISSION_PATH = MISSION_HEADER + "{" + MISSION_NAME + "}/instantiate";
     public static final String INSTANCE_INSTRUCT_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/{" + STRAND_ID + "}/instruct/{" + COMMAND_NAME+ "}";
     public static final String INSTANCE_INSTRUCT_ROOT_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/instructRoot/{" + COMMAND_NAME+ "}";
+    public static final String INSTANCE_INSTRUCT_BLOCK_PATH = INSTANCE_HEADER + "{" + MISSION_HANDLE + "}/{" + BLOCK_ID + "}/instructBlock/{" + COMMAND_NAME+ "}";
 
 
 
@@ -56,6 +58,9 @@ public final class MoleWebApi {
         return  format(INSTANCE_HEADER + "%s/instructRoot/%s", missionHandle,commandName);
     }
 
+    public static String instructBlockInstance(String missionHandle, String blockId, String commandName){
+        return  format(INSTANCE_HEADER + "%s/%s/instructBlock/%s", missionHandle,blockId,commandName);
+    }
 
 
     private MoleWebApi() {

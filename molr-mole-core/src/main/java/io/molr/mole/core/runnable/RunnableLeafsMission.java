@@ -95,5 +95,9 @@ public class RunnableLeafsMission {
         private Block block(String name) {
             return Block.idAndText("" + nextId.getAndIncrement(), name);
         }
+        
+        public void breakOn(Block block) {
+            representationBuilder.addDefaultBreakpoint(block);
+        }
     }
 }
