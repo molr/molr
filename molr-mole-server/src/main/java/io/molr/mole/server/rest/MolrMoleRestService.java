@@ -86,7 +86,6 @@ public class MolrMoleRestService {
     @PostMapping(path = INSTANCE_INSTRUCT_MISSION_PATH)
     public void instructMission(@PathVariable(MISSION_HANDLE) final String missionHandle,
             @PathVariable(COMMAND_NAME) final String commandName) {
-        System.out.println("instruct mission " + commandName);
         mole.instruct(MissionHandle.ofId(missionHandle), MissionCommand.valueOf(commandName));
     }
 
