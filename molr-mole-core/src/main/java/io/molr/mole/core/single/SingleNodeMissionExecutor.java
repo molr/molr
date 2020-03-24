@@ -174,4 +174,13 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         return this.representations;
     }
 
+    @Override
+    public boolean dispose() {
+        if(!this.result.get().equals(Result.UNDEFINED)) {
+            stateSink.onComplete();
+            return true;
+        }
+        return false;
+    }
+
 }

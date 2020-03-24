@@ -14,4 +14,6 @@ public interface MissionOutputCollector {
     <T> void put(Block block, Placeholder<T> placeholder, T value);
 
     Flux<MissionOutput> asStream();
+    
+    void onComplete();
 }

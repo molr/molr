@@ -58,5 +58,10 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
         return this.outputStream;
     }
 
+    @Override
+    public void onComplete() {
+        outputSink.onComplete();        
+    }
+
 
 }

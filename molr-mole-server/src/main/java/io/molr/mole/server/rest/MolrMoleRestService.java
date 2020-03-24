@@ -2,6 +2,7 @@ package io.molr.mole.server.rest;
 
 import io.molr.commons.domain.BlockCommand;
 import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionCommand;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.Strand;
 import io.molr.commons.domain.StrandCommand;
@@ -80,6 +81,13 @@ public class MolrMoleRestService {
     @PostMapping(path = INSTANTIATE_MISSION_PATH)
     public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName, @RequestBody Map<String, Object> params) {
         return mole.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
+    }
+
+    @PostMapping(path = INSTANCE_INSTRUCT_MISSION_PATH)
+    public void instructMission(@PathVariable(MISSION_HANDLE) final String missionHandle,
+            @PathVariable(COMMAND_NAME) final String commandName) {
+        System.out.println("instruct mission " + commandName);
+        mole.instruct(MissionHandle.ofId(missionHandle), MissionCommand.valueOf(commandName));
     }
 
     @PostMapping(path = INSTANCE_INSTRUCT_PATH)

@@ -120,6 +120,11 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
         });
         
+        //TODO we might need to define another criterion when a mission should become disposable
+        if(isDisposable()) {
+            builder.addAllowedCommand(MissionCommand.DISPOSE);
+        }
+        
         return builder.build();
     }
 
@@ -151,6 +156,21 @@ public class TreeMissionExecutor implements MissionExecutor {
                 statesSink.onNext(new Object());
             }
         }        
+    }
+
+    @Override
+    public boolean dispose() {
+        if(isDisposable()) {
+            statesSink.onComplete();
+            outputCollector.onComplete();
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean isDisposable() {
+        Result rootResult = resultTracker.resultFor(representation.rootBlock());
+        return !rootResult.equals(Result.UNDEFINED);
     }
     
 }
