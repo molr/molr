@@ -69,6 +69,12 @@ public class RestRemoteMole implements Mole {
                 .map(MissionRepresentationDto::toMissionRepresentation);
     }
 
+    @Override
+    public Flux<MissionLog> logsFor(MissionHandle handle) {
+        return clientUtils.flux(MoleWebApi.instanceLogsUrl(handle.id()), MissionLogDto.class)
+                .map(MissionLogDto::toMissionLog);
+    }
+
     /* Post requests */
 
     @Override

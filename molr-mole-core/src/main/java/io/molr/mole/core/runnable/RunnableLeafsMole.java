@@ -53,7 +53,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
 
     @Override
-    protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
+    protected MissionExecutor executorFor(MissionHandle handle, Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         TreeStructure treeStructure = runnableLeafMission.treeStructure();
         TreeTracker<Result> resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
