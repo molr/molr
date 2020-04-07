@@ -1,6 +1,7 @@
 package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.*;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import reactor.core.publisher.EmitterProcessor;
@@ -159,13 +160,12 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
 
     @Override
-    public boolean dispose() {
-        if(isDisposable()) {
-            statesSink.onComplete();
-            outputCollector.onComplete();
-            return true;
+    public void dispose() {
+        if(!isDisposable()) {
+            throw new MissionDisposeException();            
         }
-        return false;
+        statesSink.onComplete();
+        outputCollector.onComplete();
     }
     
     private boolean isDisposable() {

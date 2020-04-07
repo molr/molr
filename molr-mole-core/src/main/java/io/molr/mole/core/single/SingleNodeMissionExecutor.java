@@ -7,6 +7,8 @@ import io.molr.mole.core.tree.BlockOutputCollector;
 import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import io.molr.mole.core.tree.MissionExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -175,12 +177,11 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     }
 
     @Override
-    public boolean dispose() {
-        if(!this.result.get().equals(Result.UNDEFINED)) {
-            stateSink.onComplete();
-            return true;
+    public void dispose() {
+        if(this.result.get().equals(Result.UNDEFINED)) {
+            throw new MissionDisposeException();
         }
-        return false;
+        stateSink.onComplete();
     }
 
 }

@@ -17,9 +17,6 @@ public interface MissionExecutor {
     
     void instructBlock(String blockID, BlockCommand command);
     
-    /*
-     * TODO maybe we should rename and stick to the instruct name scheme. But we would need to forward MissionCommand parameters
-     */
-    boolean dispose();
+    void dispose();
 
 }

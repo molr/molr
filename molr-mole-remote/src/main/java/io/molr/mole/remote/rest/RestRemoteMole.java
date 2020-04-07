@@ -97,7 +97,7 @@ public class RestRemoteMole implements Mole {
     
     @Override
     public void instruct(final MissionHandle handle, final MissionCommand command) {
-        clientUtils.post(MoleWebApi.instructMission(handle.id(), command.name()), APPLICATION_STREAM_JSON,
+        clientUtils.post(MoleWebApi.instructMission(handle.id(), command.name()), MediaType.APPLICATION_JSON,
                 BodyInserters.empty());
     }
 

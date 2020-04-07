@@ -1,9 +1,6 @@
 package io.molr.mole.core.tree;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Set;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,20 +23,18 @@ import io.molr.mole.core.runnable.RunnableLeafsMole;
 import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 
-public class DisposeMissionsTests {
+public class DisposeMissionsTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DisposeMissionsTests.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DisposeMissionsTest.class);
     
     Mole mole;
     Mission demoMission = new Mission(demoMission().name());
 
     @Before
     public void prepareMoleAndMissions() {
-        Set<RunnableLeafsMission> missions = Sets.newHashSet();
-        missions.add(demoMission());
-        mole = new RunnableLeafsMole(missions);
+        mole = new RunnableLeafsMole(Sets.newHashSet(demoMission()));
     }
-
+    
     @Test
     public void ckeckThatDisposeCommandIsAllowedIffMissionIsCompleted() {
         MissionHandle instance1Handle = mole.instantiate(demoMission, Maps.newHashMap()).block();
@@ -48,16 +43,16 @@ public class DisposeMissionsTests {
         sleepUnchecked(1000);
 
         MissionState instance1StateAfterInstantiating = mole.statesFor(instance1Handle).blockFirst();
-        assertFalse(instance1StateAfterInstantiating.allowedMissionCommands().contains(MissionCommand.DISPOSE));
+        assertThat(instance1StateAfterInstantiating.allowedMissionCommands()).isEmpty();
 
         MissionState instance2StateAfterInstantiating = mole.statesFor(instance2Handle).blockFirst();
-        assertFalse(instance2StateAfterInstantiating.allowedMissionCommands().contains(MissionCommand.DISPOSE));
+        assertThat(instance2StateAfterInstantiating.allowedMissionCommands()).isEmpty();
 
         mole.instructRoot(instance1Handle, StrandCommand.RESUME);
         sleepUnchecked(1000);
 
         MissionState instance1StateAfterMissionCompleted = mole.statesFor(instance1Handle).blockFirst();
-        assertTrue(instance1StateAfterMissionCompleted.allowedMissionCommands().contains(MissionCommand.DISPOSE));
+        assertThat(instance1StateAfterMissionCompleted.allowedMissionCommands()).containsExactly(MissionCommand.DISPOSE);
     }
 
     @Test
@@ -70,8 +65,7 @@ public class DisposeMissionsTests {
         MissionInstance instance2 = new MissionInstance(instance2Handle, demoMission);
 
         AgencyState agencyState = mole.states().blockFirst();
-        assertTrue(agencyState.activeMissions().contains(instance1));
-        assertTrue(agencyState.activeMissions().contains(instance2));
+        assertThat(agencyState.activeMissions()).containsExactlyInAnyOrder(instance1, instance2);
 
         mole.instructRoot(instance1Handle, StrandCommand.RESUME);
         mole.instructRoot(instance2Handle, StrandCommand.RESUME);
@@ -80,14 +74,12 @@ public class DisposeMissionsTests {
         mole.instruct(instance2Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
         agencyState = mole.states().blockFirst();
-        assertTrue(agencyState.activeMissions().contains(instance1));
-        assertFalse(agencyState.activeMissions().contains(instance2));
+        assertThat(agencyState.activeMissions()).containsExactly(instance1);
         
         mole.instruct(instance1Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
         agencyState = mole.states().blockFirst();
-        assertFalse(agencyState.activeMissions().contains(instance1));
-        assertFalse(agencyState.activeMissions().contains(instance2));
+        assertThat(agencyState.activeMissions()).isEmpty();
     }
 
     private static void sleepUnchecked(long millis) {

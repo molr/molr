@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -106,21 +107,22 @@ public abstract class AbstractJavaMole implements Mole {
     @Override
     public void instruct(MissionHandle handle, MissionCommand command) {
         if(command.equals(MissionCommand.DISPOSE)) {
-            Optional.ofNullable(executors.get(handle)).ifPresent(e -> {
-                boolean executorDisposed = e.dispose();
-                if(executorDisposed) {
-                    executors.remove(handle);
-                    instances.removeIf(missionInstance -> {
-                        return missionInstance.handle().equals(handle);
-                    });
-                    publishState();
-                    LOGGER.debug("Successfully disposed mission instance: "+handle.id());
-                }
-                else {
-                    LOGGER.error("Executor is not disposable");
-                }
+            moleExecutor.submit(()->{
+                Optional.ofNullable(executors.get(handle)).ifPresent(e -> {
+                    try{
+                        e.dispose();
+                        executors.remove(handle);
+                        instances.removeIf(missionInstance -> {
+                            return missionInstance.handle().equals(handle);
+                        });
+                        publishState();
+                        LOGGER.debug("Successfully disposed mission instance: "+handle.id());
+                    }
+                    catch(MissionDisposeException missionDisposeException) {
+                        LOGGER.error("Error while trying to dispose mission instance: "+handle.id());
+                    }
+                });
             });
-
         }
     }
     
