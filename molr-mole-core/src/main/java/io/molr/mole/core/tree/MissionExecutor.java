@@ -16,4 +16,7 @@ public interface MissionExecutor {
     void instructRoot(StrandCommand command);
     
     void instructBlock(String blockID, BlockCommand command);
+    
+    void dispose();
+
 }

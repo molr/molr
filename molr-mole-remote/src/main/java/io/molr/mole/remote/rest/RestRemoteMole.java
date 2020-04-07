@@ -94,5 +94,11 @@ public class RestRemoteMole implements Mole {
     public void instructBlock(MissionHandle handle, String blockId, BlockCommand command) {
         clientUtils.post(MoleWebApi.instructBlockInstance(handle.id(), blockId, command.name()), MediaType.APPLICATION_JSON, BodyInserters.empty());        
     }
+    
+    @Override
+    public void instruct(final MissionHandle handle, final MissionCommand command) {
+        clientUtils.post(MoleWebApi.instructMission(handle.id(), command.name()), MediaType.APPLICATION_JSON,
+                BodyInserters.empty());
+    }
 
 }

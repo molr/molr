@@ -21,6 +21,7 @@ public final class MissionState {
     private final Map<String, RunState> blockIdsToRunState;
     private final Set<String> breakpointBlockIds;
     private final SetMultimap<String, BlockCommand> allowedBlockCommands;
+    private final Set<MissionCommand> allowedMissionCommands;
 
 
     private MissionState(Builder builder) {
@@ -36,6 +37,7 @@ public final class MissionState {
         this.blockIdsToRunState = builder.blockIdsToRunState.build();
         this.breakpointBlockIds = builder.breakpointBlockIds.build();
         this.allowedBlockCommands = builder.blocksToAllowedCommandsBuilder.build();
+        this.allowedMissionCommands = builder.allowedMissionCommands.build();
     }
 
     public Set<StrandCommand> allowedCommandsFor(Strand strand) {
@@ -106,10 +108,10 @@ public final class MissionState {
         return allowedBlockCommands.get(block.id());
     }
     
-    /*
-     * TODO remove comment on merge
-     * the map is not needed necessarily needed by clients, but to build the DTO
-     */
+    public Set<MissionCommand> allowedMissionCommands(){
+        return allowedMissionCommands;
+    }
+    
     public Map<String, Collection<BlockCommand>> blockIdsToAllowedCommands(){
         return allowedBlockCommands.asMap();
     }
@@ -129,6 +131,7 @@ public final class MissionState {
         private final ImmutableMap.Builder<String, RunState> blockIdsToRunState = ImmutableMap.builder();
         private final ImmutableSet.Builder<String> breakpointBlockIds = ImmutableSet.builder();
         private final ImmutableSetMultimap.Builder<String, BlockCommand> blocksToAllowedCommandsBuilder = ImmutableSetMultimap.builder();
+        private final ImmutableSet.Builder<MissionCommand> allowedMissionCommands = ImmutableSet.builder();
 
         private Builder(Result result) {
             this.result = Objects.requireNonNull(result, "overall result must not be null");
@@ -206,6 +209,11 @@ public final class MissionState {
         
         public Builder addAllowedCommand(String blockId, BlockCommand command) {
             this.blocksToAllowedCommandsBuilder.put(blockId, command);
+            return this;
+        }
+        
+        public Builder addAllowedCommand(MissionCommand command) {
+            this.allowedMissionCommands.add(command);
             return this;
         }
 

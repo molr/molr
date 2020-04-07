@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,10 +21,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public abstract class AbstractJavaMole implements Mole {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaMole.class);
+    
     private final ReplayProcessor<AgencyState> statesSink = ReplayProcessor.create(1);
     private final Flux<AgencyState> statesStream = statesSink.publishOn(Schedulers.elastic());
 
@@ -50,7 +56,7 @@ public abstract class AbstractJavaMole implements Mole {
             return handle;
         });
     }
-
+        
     @Override
     public Mono<MissionParameterDescription> parameterDescriptionOf(Mission mission) {
         return supplyAsync(() -> missionParameterDescriptionOf(mission));
@@ -96,6 +102,28 @@ public abstract class AbstractJavaMole implements Mole {
     public final void instructRoot(MissionHandle handle, StrandCommand command) {
         Optional.ofNullable(executors.get(handle))
                 .ifPresent(e -> e.instructRoot(command));
+    }
+    
+    @Override
+    public void instruct(MissionHandle handle, MissionCommand command) {
+        if(command.equals(MissionCommand.DISPOSE)) {
+            moleExecutor.submit(()->{
+                Optional.ofNullable(executors.get(handle)).ifPresent(e -> {
+                    try{
+                        e.dispose();
+                        executors.remove(handle);
+                        instances.removeIf(missionInstance -> {
+                            return missionInstance.handle().equals(handle);
+                        });
+                        publishState();
+                        LOGGER.debug("Successfully disposed mission instance: "+handle.id());
+                    }
+                    catch(MissionDisposeException missionDisposeException) {
+                        LOGGER.error("Error while trying to dispose mission instance: "+handle.id());
+                    }
+                });
+            });
+        }
     }
     
     @Override

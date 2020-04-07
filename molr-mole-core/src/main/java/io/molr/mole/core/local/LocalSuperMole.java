@@ -178,4 +178,9 @@ public class LocalSuperMole implements Mole {
         CompletableFuture<T> future = CompletableFuture.supplyAsync(supplier, agencyExecutor);
         return Mono.fromFuture(future);
     }
+
+    @Override
+    public void instruct(MissionHandle handle, MissionCommand command) {
+        runOnAgencyExecutorSync(() -> getMoleWithId(handle).instruct(handle, command));
+    }
 }

@@ -139,4 +139,11 @@ public interface Mole {
      * @param command the command to execute
      */
     void instructBlock(MissionHandle handle, String blockId, BlockCommand command);
+    
+    /**
+     * Instruct the mole to execute a mission related command.
+     * @param handle representing the mission instance
+     * @param command the command to execute
+     */
+    void instruct(MissionHandle handle, MissionCommand command);
 }

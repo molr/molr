@@ -1,6 +1,7 @@
 package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.*;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import reactor.core.publisher.EmitterProcessor;
@@ -120,6 +121,11 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
         });
         
+        //TODO we might need to define another criterion when a mission should become disposable
+        if(isDisposable()) {
+            builder.addAllowedCommand(MissionCommand.DISPOSE);
+        }
+        
         return builder.build();
     }
 
@@ -151,6 +157,20 @@ public class TreeMissionExecutor implements MissionExecutor {
                 statesSink.onNext(new Object());
             }
         }        
+    }
+
+    @Override
+    public void dispose() {
+        if(!isDisposable()) {
+            throw new MissionDisposeException();            
+        }
+        statesSink.onComplete();
+        outputCollector.onComplete();
+    }
+    
+    private boolean isDisposable() {
+        Result rootResult = resultTracker.resultFor(representation.rootBlock());
+        return !rootResult.equals(Result.UNDEFINED);
     }
     
 }
