@@ -24,8 +24,9 @@ public class DemoRunnableLeafsConfiguration {
                 sequential("Executable Leafs Demo Mission", root -> {
 
                     root.sequential("First", b -> {
-                        Block firstABlock = b.run(log("First A"));
-                        breakOn(firstABlock);
+                        b.run(log("First A"));
+                        //Block firstABlock = b.run(log("First A"));
+                        //breakOn(firstABlock);
                         b.run(log("First B"));
                     });
 
