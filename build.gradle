@@ -6,6 +6,9 @@ buildscript {
     project.ext['BINTRAY.userName'] = System.getProperty('BINTRAY_USER') ?: System.getenv('BINTRAY_USER')
     project.ext['BINTRAY.apiToken'] = System.getProperty('BINTRAY_API_TOKEN') ?: System.getenv('BINTRAY_API_TOKEN')
 
+    project.ext['SONATYPE.userName'] = System.getProperty('SONATYPE_USER') ?: System.getenv('SONATYPE_USER')
+    project.ext['SONATYPE.password'] = System.getProperty('SONATYPE_PASSWORD') ?: System.getenv('SONATYPE_PASSWORD')
+
     repositories {
         if (project['CERN_VM']) {
             maven { url 'http://artifactory.cern.ch/ds-jcenter' }
@@ -27,8 +30,6 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
     apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -93,8 +94,10 @@ subprojects {
     }
 
     if (project['DEPLOYMENT']) {
-        println "Applying deployment scripts for ${project.name}"
-        apply from: '../gradle/bintray-deploy.gradle'
+        println "Applying deployment for ${project.name}"
+        apply plugin: 'maven-publish'
+        apply plugin: 'com.jfrog.bintray'
+        apply from: 'https://raw.githubusercontent.com/ossgang/gradle-scripts/master/deployment/bintray-deploy.gradle'
     }
 
 

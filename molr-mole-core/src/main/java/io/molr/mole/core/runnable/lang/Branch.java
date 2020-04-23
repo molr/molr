@@ -26,44 +26,42 @@ public class Branch {
         return new Branch(builder, parent);
     }
 
-    public Block run(String name, Runnable runnable) {
-        return run(name, (in, out) -> runnable.run());
+    public void run(String name, Runnable runnable) {
+         run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
-        return run(name, (in, out) -> runnable.run());
+    public void run(String name, Checkeds.CheckedThrowingRunnable runnable) {
+        run(name, (in, out) -> runnable.run());
     }
 
-    public Block run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
-        return run(name, (in, out) -> runnable.accept(in));
+    public void run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
+        run(name, (in, out) -> runnable.accept(in));
     }
 
-    public Block run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-        return builder.leafChild(parent, name, runnable);
+    public void run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+        builder.leafChild(parent, name, runnable);
     }
 
-    public Block sequential(String name, Consumer<Branch> branchDefiner) {
+    public void sequential(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.sequentialChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
-        return node;
     }
 
-    public Block parallel(String name, Consumer<Branch> branchDefiner) {
+    public void parallel(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.parallelChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
-        return node;
     }
 
-    public Block run(Task task) {
-        return run(task.name, task.runnable);
+    public void run(Task task) {
+         run(task.name, task.runnable);
     }
 
-    public Block println(Object object) {
-        return run("println(\"" + object + "\");", () -> System.out.println(object));
+    public void println(Object object) {
+         run("println(\"" + object + "\");", () -> System.out.println(object));
     }
 
-    public Block sleep(long time, TimeUnit unit) {
-        return run("Sleep " + time + " " + unit, () -> unit.sleep(time));
+    public void sleep(long time, TimeUnit unit) {
+         run("Sleep " + time + " " + unit, () -> unit.sleep(time));
     }
 
     public static class Task {
