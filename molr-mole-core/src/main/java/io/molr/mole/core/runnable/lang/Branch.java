@@ -30,30 +30,32 @@ public class Branch {
          run(name, (in, out) -> runnable.run());
     }
 
-    public void run(String name, Checkeds.CheckedThrowingRunnable runnable) {
-        run(name, (in, out) -> runnable.run());
+    public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
+        return run(name, (in, out) -> runnable.run());
     }
 
-    public void run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
-        run(name, (in, out) -> runnable.accept(in));
+    public Block run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
+        return run(name, (in, out) -> runnable.accept(in));
     }
 
-    public void run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-        builder.leafChild(parent, name, runnable);
+    public Block run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+        return builder.leafChild(parent, name, runnable);
     }
 
-    public void sequential(String name, Consumer<Branch> branchDefiner) {
+    public Block sequential(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.sequentialChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
+        return node;
     }
 
-    public void parallel(String name, Consumer<Branch> branchDefiner) {
+    public Block parallel(String name, Consumer<Branch> branchDefiner) {
         Block node = builder.parallelChild(parent, name);
         branchDefiner.accept(Branch.withParent(builder, node));
+        return node;
     }
 
-    public void run(Task task) {
-         run(task.name, task.runnable);
+    public Block run(Task task) {
+         return run(task.name, task.runnable);
     }
 
     public void println(Object object) {

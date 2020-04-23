@@ -24,9 +24,8 @@ public class DemoRunnableLeafsConfiguration {
                 sequential("Executable Leafs Demo Mission", root -> {
 
                     root.sequential("First", b -> {
-                        b.run(log("First A"));
-                        //Block firstABlock = b.run(log("First A"));
-                        //breakOn(firstABlock);
+                        Block firstABlock = b.run(log("First A"));
+                        breakOn(firstABlock);
                         b.run(log("First B"));
                     });
 
@@ -131,7 +130,7 @@ public class DemoRunnableLeafsConfiguration {
         return new Branch.Task(text, (in, out) -> LOGGER.info("{} executed", text));
     }
 
-    private static final void sleepUnchecked(long millis) {
+    private static void sleepUnchecked(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
