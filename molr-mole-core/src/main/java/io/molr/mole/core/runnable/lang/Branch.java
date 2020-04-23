@@ -26,8 +26,8 @@ public class Branch {
         return new Branch(builder, parent);
     }
 
-    public void run(String name, Runnable runnable) {
-         run(name, (in, out) -> runnable.run());
+    public Block run(String name, Runnable runnable) {
+         return run(name, (in, out) -> runnable.run());
     }
 
     public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
