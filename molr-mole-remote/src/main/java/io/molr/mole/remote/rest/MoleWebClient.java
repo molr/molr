@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.PrematureCloseException;
 
 import static io.molr.commons.util.Exceptions.exception;
 import static java.util.Objects.requireNonNull;
@@ -35,7 +36,17 @@ public class MoleWebClient {
     public <T> Flux<T> flux(String uri, Class<T> type) {
         return clientResponseForGet(uri, TEXT_EVENT_STREAM)
                 .flatMapMany(response -> response.bodyToFlux(type))
-                .cache();
+                .cache()
+                .onErrorMap(throwable -> {
+                	//TODO consider not depending on netty exceptions
+                	//however clients may need to detect disconnect events and pushing the dependency upwards would be even worse
+                	//one alternative could be an offline flag located in a wrapper around items pushed through the flux
+                	if(throwable instanceof PrematureCloseException) {
+                		return new ConnectException("Connection prematurely closed "+uri);
+                	}
+                	else
+                		return throwable;
+                });
     }
 
     public <T> Mono<T> mono(String uri, Class<T> type) {
@@ -62,8 +73,10 @@ public class MoleWebClient {
 
     private static Mono<ClientResponse> triggerRequest(String uri, Mono<ClientResponse> preparedRequest) {
         /* caching will prevent the re-trigger of the http request */
+    	//but retriggering might be useful in reconnect scenarios
         Mono<ClientResponse> cachedRequest = logAndFilterErrors(uri, preparedRequest).cache();
         /* subscribing here makes sure that the http call is initiated immediately */
+        //Stefan what's the benefit?
         cachedRequest.subscribe();
         return cachedRequest;
     }
@@ -76,7 +89,10 @@ public class MoleWebClient {
                         throw exception(MolrRemoteException.class, "Response from '{}' is not successful: {}", uri, response.statusCode());
                     }
                 })
-                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e));
+                .doOnError(e -> LOGGER.error("Error while retrieving uri {}.", uri, e))
+                .onErrorMap(t -> {
+                	return new ConnectException("Could not establish connection to "+uri);
+                });
     }
 
     private static void logIfHttpErrorStatusCode(String uri, ClientResponse response) {
