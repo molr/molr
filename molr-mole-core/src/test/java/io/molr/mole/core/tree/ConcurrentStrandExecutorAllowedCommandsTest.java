@@ -42,17 +42,21 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
         return new RunnableLeafsMissionSupport() {
             {
                 root("root").sequential().as(root -> {
-                    leafBlock = root.leaf("leaf").run(() -> {
+                    root.leaf("leaf").run(() -> {
                         unlatch(latchLeafStart);
                         await(latchLeafEnd);
                     });
+                    leafBlock = latestBlock();
 
-                    sequentialBlock = root.branch("sequential-block").sequential().as(seq -> {
+                    root.branch("sequential-block").sequential().as(seq -> {
+                        sequentialBlock = latestBlock();
                         seq.leaf("sequence-leaf").run(() -> {
                         });
                     });
 
-                    parallelBlock = root.branch("parallel").parallel().as(b -> {
+                    root.branch("parallel").parallel().as(b -> {
+                        parallelBlock = latestBlock();
+
                         b.branch("sequential branch A").sequential().as((Consumer<Branch>) bA -> {
                             bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
@@ -67,10 +71,12 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            blockB2 = bB.leaf("B.2").run(() -> {
+
+                            bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
+                            blockB2 = latestBlock();
                         });
                     });
                     log(root, "After");

@@ -33,7 +33,7 @@ public class OngoingBranch extends OngoingNode<OngoingBranch> {
         return this;
     }
 
-    public Block as(Consumer<Branch> branchDescription) {
+    public void as(Consumer<Branch> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
@@ -42,7 +42,6 @@ public class OngoingBranch extends OngoingNode<OngoingBranch> {
         Block block = block();
         Branch branch = Branch.withParent(builder(), block);
         branchDescription.accept(branch);
-        return block;
     }
 
     private Block block() {

@@ -51,13 +51,13 @@ public class Branch {
     }
 
     @Deprecated
-    public Block sequential(String name, Consumer<Branch> branchDefiner) {
-        return this.branch(name).sequential().as(branchDefiner);
+    public void sequential(String name, Consumer<Branch> branchDefiner) {
+        this.branch(name).sequential().as(branchDefiner);
     }
 
     @Deprecated
-    public Block parallel(String name, Consumer<Branch> branchDefiner) {
-        return branch(name).parallel().as(branchDefiner);
+    public void parallel(String name, Consumer<Branch> branchDefiner) {
+        branch(name).parallel().as(branchDefiner);
     }
 
     public OngoingBranch branch(String name) {
