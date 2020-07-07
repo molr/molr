@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DisposeMissionsTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DisposeMissionsTest.class);
-    
+
     Mole mole;
     Mission demoMission = new Mission(demoMission().name());
 
@@ -26,7 +26,7 @@ public class DisposeMissionsTest {
     public void prepareMoleAndMissions() {
         mole = new RunnableLeafsMole(Sets.newHashSet(demoMission()));
     }
-    
+
     @Test
     public void ckeckThatDisposeCommandIsAllowedIffMissionIsCompleted() {
         MissionHandle instance1Handle = mole.instantiate(demoMission, Maps.newHashMap()).block();
@@ -62,12 +62,12 @@ public class DisposeMissionsTest {
         mole.instructRoot(instance1Handle, StrandCommand.RESUME);
         mole.instructRoot(instance2Handle, StrandCommand.RESUME);
         sleepUnchecked(1000);
-        
+
         mole.instruct(instance2Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
         agencyState = mole.states().blockFirst();
         assertThat(agencyState.activeMissions()).containsExactly(instance1);
-        
+
         mole.instruct(instance1Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
         agencyState = mole.states().blockFirst();
@@ -82,29 +82,26 @@ public class DisposeMissionsTest {
         }
     }
 
-    /*
-     * 
-     */
     private static RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Executable Leafs Demo Mission", root -> {
+                root("Executable Leafs Demo Mission").sequential().as(root -> {
 
-                    root.sequential("First", b -> {
-                        b.run(log("First A"));
-                        b.run(log("First B"));
+                    root.branch("First").sequential().as(b1 -> {
+                        log(b1, "First A");
+                        log(b1, "First B");
                     });
 
-                    root.sequential("Second", b -> {
-                        b.run(log("second A"));
-                        b.run(log("second B"));
+                    root.branch("Second").sequential().as(b1 -> {
+                        log(b1, "second A");
+                        log(b1, "second B");
                     });
 
-                    root.run(log("Third"));
+                    log(root, "Third");
 
-                    root.parallel("Parallel", b -> {
-                        b.run(log("Parallel A"));
-                        b.run(log("parallel B"));
+                    root.branch("Parallel").parallel().as(b -> {
+                        log(b, "Parallel A");
+                        log(b, "parallel B");
                     });
 
                 });
@@ -113,8 +110,8 @@ public class DisposeMissionsTest {
         }.build();
     }
 
-    private static Branch.Task log(String text) {
-        return new Branch.Task(text, (in, out) -> LOGGER.info(text));
+    private static void log(Branch b, String text) {
+        b.leaf(text).run(() -> LOGGER.info(text));
     }
 
 }

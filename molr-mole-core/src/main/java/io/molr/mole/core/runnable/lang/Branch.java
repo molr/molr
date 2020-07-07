@@ -64,9 +64,6 @@ public class Branch {
         return new OngoingBranch(name, builder, parent);
     }
 
-    public void run(Task task) {
-        leaf(task.name).run(task.runnable);
-    }
 
     public void println(Object object) {
         leaf("println(\"" + object + "\");").run(() -> System.out.println(object));
@@ -75,42 +72,5 @@ public class Branch {
     public void sleep(long time, TimeUnit unit) {
         leaf("Sleep " + time + " " + unit).run(() -> unit.sleep(time));
     }
-
-    public static class Task {
-        private final String name;
-        private final Checkeds.CheckedThrowingBiConsumer<In, Out> runnable;
-
-        public Task(String name, Runnable runnable) {
-            this(name, (in, out) -> runnable.run());
-        }
-
-        public Task(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-            this.name = requireNonNull(name, "name must not be null.");
-            this.runnable = requireNonNull(runnable, "runnable must not be null");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Task task = (Task) o;
-            return Objects.equals(name, task.name) &&
-                    Objects.equals(runnable, task.runnable);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, runnable);
-        }
-
-        @Override
-        public String toString() {
-            return "Task{" +
-                    "name='" + name + '\'' +
-                    ", runnable=" + runnable +
-                    '}';
-        }
-    }
-
 
 }
