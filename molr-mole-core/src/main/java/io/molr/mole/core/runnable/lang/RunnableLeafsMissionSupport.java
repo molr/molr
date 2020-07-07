@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -28,15 +25,7 @@ public abstract class RunnableLeafsMissionSupport {
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
-    protected OngoingBranch sequential(String missionName) {
-        return root(missionName).sequential();
-    }
-
-    protected OngoingBranch parallel(String missionName) {
-        return root(missionName).parallel();
-    }
-
-    private OngoingBranch root(String missionName) {
+    protected OngoingBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
@@ -46,16 +35,12 @@ public abstract class RunnableLeafsMissionSupport {
 
     @Deprecated
     protected void sequential(String newName, Consumer<Branch> branchConsumer) {
-        sequential(newName).as(branchConsumer);
+        root(newName).sequential().as(branchConsumer);
     }
 
     @Deprecated
     protected void parallel(String newName, Consumer<Branch> branchConsumer) {
-        parallel(newName).as(branchConsumer);
-    }
-
-    protected void breakOn(Block block) {
-        builder.breakOn(block);
+        root(newName).parallel().as(branchConsumer);
     }
 
     private void assertNoBuilderYet() {

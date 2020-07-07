@@ -3,10 +3,12 @@ package io.molr.mole.core.runnable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
+import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.tree.TreeStructure;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -56,10 +58,10 @@ public class RunnableLeafsMission {
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
         private Builder() {
-
+            /* use static factory method */
         }
 
-        public Block rootBranchNode(String rootName, BranchMode branchMode) {
+        public Block rootBranchNode(String rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
@@ -69,20 +71,21 @@ public class RunnableLeafsMission {
                 parallelBlocksBuilder.add(root);
             }
             this.representationBuilder = ImmutableMissionRepresentation.builder(root);
+            apply(root, blockAttributes);
             this.latest.set(root);
             return root;
         }
 
-        public Block childBranchNode(Block parent, String name, BranchMode mode) {
-            Block child = addChild(parent, name);
+        public Block childBranchNode(Block parent, String name, BranchMode mode, Set<BlockAttribute> blockAttributes) {
+            Block child = addChild(parent, name, blockAttributes);
             if (mode == PARALLEL) {
                 parallelBlocksBuilder.add(child);
             }
             return child;
         }
 
-        public Block leafChild(Block parent, String childName, BiConsumer<In, Out> runnable) {
-            Block child = addChild(parent, childName);
+        public Block leafChild(Block parent, String childName, BiConsumer<In, Out> runnable, Set<BlockAttribute> blockAttributes) {
+            Block child = addChild(parent, childName, blockAttributes);
             runnables.put(child, runnable);
             return child;
         }
@@ -96,13 +99,20 @@ public class RunnableLeafsMission {
             return new RunnableLeafsMission(this, parameterDescription);
         }
 
-        private Block addChild(Block parent, String childName) {
+        private Block addChild(Block parent, String childName, Set<BlockAttribute> blockAttributes) {
             assertRootDefined();
 
             Block child = block(childName);
             representationBuilder.parentToChild(parent, child);
+            apply(child, blockAttributes);
             latest.set(child);
             return child;
+        }
+
+        private void apply(Block block, Set<BlockAttribute> blockAttributes) {
+            if (blockAttributes.contains(BlockAttribute.BREAK)) {
+                representationBuilder.addDefaultBreakpoint(block);
+            }
         }
 
         private void assertRootDefined() {
@@ -122,10 +132,6 @@ public class RunnableLeafsMission {
 
         private Block block(String name) {
             return Block.idAndText("" + nextId.getAndIncrement(), name);
-        }
-
-        public void breakOn(Block block) {
-            representationBuilder.addDefaultBreakpoint(block);
         }
     }
 }

@@ -10,8 +10,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 public class Branch {
@@ -20,58 +18,62 @@ public class Branch {
     private final Block parent;
 
     private Branch(RunnableLeafsMission.Builder builder, Block parent) {
-        this.builder = builder;
-        this.parent = parent;
+        this.builder = requireNonNull(builder, "builder must not be null");
+        this.parent = requireNonNull(parent, "parent must not be null");
     }
 
     static Branch withParent(RunnableLeafsMission.Builder builder, Block parent) {
         return new Branch(builder, parent);
     }
 
+    @Deprecated
     public Block run(String name, Runnable runnable) {
-        return run(name, (in, out) -> runnable.run());
+        return leaf(name).run(runnable);
     }
 
+    @Deprecated
     public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
-        return run(name, (in, out) -> runnable.run());
+        return leaf(name).run(runnable);
     }
 
+    @Deprecated
     public Block run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
-        return run(name, (in, out) -> runnable.accept(in));
+        return leaf(name).run(runnable);
     }
 
+    @Deprecated
     public Block run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-        return builder.leafChild(parent, name, runnable);
+        return leaf(name).run(runnable);
     }
 
-    public OngoingBranch sequential(String name) {
-        return new OngoingBranch(name, builder, parent).sequential();
-    }
-
-    public OngoingBranch parallel(String name) {
-        return new OngoingBranch(name, builder, parent).parallel();
+    public OngoingLeaf leaf(String name) {
+        return new OngoingLeaf(name, builder, parent);
     }
 
     @Deprecated
     public Block sequential(String name, Consumer<Branch> branchDefiner) {
-        return sequential(name).as(branchDefiner);
+        return this.branch(name).sequential().as(branchDefiner);
     }
 
     @Deprecated
     public Block parallel(String name, Consumer<Branch> branchDefiner) {
-        return parallel(name).as(branchDefiner);
+        return branch(name).parallel().as(branchDefiner);
+    }
+
+    public OngoingBranch branch(String name) {
+        return new OngoingBranch(name, builder, parent);
     }
 
     public Block run(Task task) {
-        return run(task.name, task.runnable);
+        return leaf(task.name).run(task.runnable);
     }
 
     public void println(Object object) {
-        run("println(\"" + object + "\");", () -> System.out.println(object));
+        leaf("println(\"" + object + "\");").run(() -> System.out.println(object));
     }
 
     public void sleep(long time, TimeUnit unit) {
-        run("Sleep " + time + " " + unit, () -> unit.sleep(time));
+        leaf("Sleep " + time + " " + unit).run(() -> unit.sleep(time));
     }
 
     public static class Task {
