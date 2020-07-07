@@ -1,6 +1,5 @@
 package io.molr.mole.core.testing.strand;
 
-import io.molr.commons.domain.Block;
 import io.molr.mole.core.runnable.lang.Branch;
 import org.slf4j.Logger;
 

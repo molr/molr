@@ -63,8 +63,9 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                                 await(latchA1End);
                                 System.out.println();
                             });
-                            blockA2 = bA.leaf("A.2").run(() -> {
+                            bA.leaf("A.2").run(() -> {
                             });
+                            blockA2 = latestBlock();
                         });
                         b.branch("sequential branch B").sequential().as((Consumer<Branch>) bB -> {
                             bB.leaf("B.1").run(() -> {

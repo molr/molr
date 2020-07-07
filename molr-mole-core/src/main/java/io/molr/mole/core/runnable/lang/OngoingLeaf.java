@@ -18,20 +18,20 @@ public class OngoingLeaf extends OngoingNode<OngoingLeaf> {
         );
     }
 
-    public Block run(Runnable runnable) {
-        return run((in, out) -> runnable.run());
+    public void run(Runnable runnable) {
+        run((in, out) -> runnable.run());
     }
 
-    public Block run(Checkeds.CheckedThrowingRunnable runnable) {
-        return run((in, out) -> runnable.run());
+    public void run(Checkeds.CheckedThrowingRunnable runnable) {
+        run((in, out) -> runnable.run());
     }
 
-    public Block run(Checkeds.CheckedThrowingConsumer<In> runnable) {
-        return run((in, out) -> runnable.accept(in));
+    public void run(Checkeds.CheckedThrowingConsumer<In> runnable) {
+        run((in, out) -> runnable.accept(in));
     }
 
-    public Block run(Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-        return builder().leafChild(parent(), name(), runnable, blockAttributes());
+    public void run(Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+        builder().leafChild(parent(), name(), runnable, blockAttributes());
     }
 
 }

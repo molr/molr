@@ -27,23 +27,23 @@ public class Branch {
     }
 
     @Deprecated
-    public Block run(String name, Runnable runnable) {
-        return leaf(name).run(runnable);
+    public void run(String name, Runnable runnable) {
+        leaf(name).run(runnable);
     }
 
     @Deprecated
-    public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
-        return leaf(name).run(runnable);
+    public void run(String name, Checkeds.CheckedThrowingRunnable runnable) {
+        leaf(name).run(runnable);
     }
 
     @Deprecated
-    public Block run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
-        return leaf(name).run(runnable);
+    public void run(String name, Checkeds.CheckedThrowingConsumer<In> runnable) {
+        leaf(name).run(runnable);
     }
 
     @Deprecated
-    public Block run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
-        return leaf(name).run(runnable);
+    public void run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
+        leaf(name).run(runnable);
     }
 
     public OngoingLeaf leaf(String name) {
@@ -64,8 +64,8 @@ public class Branch {
         return new OngoingBranch(name, builder, parent);
     }
 
-    public Block run(Task task) {
-        return leaf(task.name).run(task.runnable);
+    public void run(Task task) {
+        leaf(task.name).run(task.runnable);
     }
 
     public void println(Object object) {
