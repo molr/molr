@@ -25,10 +25,10 @@ public class ConcurrentStrandExecutorLeafExecutionTest extends AbstractSingleMis
                     root.leaf("failing").run(() -> {
                         throw new RuntimeException("test");
                     });
-                    failingBlock = latest();
+                    failingBlock = latestBlock();
 
                     log(root, "another task");
-                    anotherBlock = latest();
+                    anotherBlock = latestBlock();
                 });
             }
         }.build();

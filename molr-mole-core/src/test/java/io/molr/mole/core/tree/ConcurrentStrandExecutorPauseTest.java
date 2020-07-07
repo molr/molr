@@ -36,17 +36,17 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
                         unlatch(task1Start);
                         await(task1Finish);
                     });
-                    TASK_1 = latest();
+                    TASK_1 = latestBlock();
 
                     root.leaf("Long task2").run(() -> {
                         unlatch(task2Start);
                         await(task2Finish);
                     });
-                    TASK_2 = latest();
+                    TASK_2 = latestBlock();
 
                     root.leaf("NOOP").run(() -> {
                     });
-                    TASK_3 = latest();
+                    TASK_3 = latestBlock();
                 });
             }
         }.build();

@@ -37,7 +37,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
             {
                 root("step-over").sequential().as(root -> {
                     root.branch("parallel").parallel().as(b -> {
-                        parallelBlock = latest();
+                        parallelBlock = latestBlock();
 
                         b.branch("sequential branch A").sequential().as(bA -> {
                             bA.leaf("A.1").run(() -> {
@@ -46,7 +46,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
                             });
                             bA.leaf("A.2").run(() -> {
                             });
-                            blockA2 = latest();
+                            blockA2 = latestBlock();
                         });
                         b.branch("sequential branch B").sequential().as(bB -> {
                             bB.leaf("B.1").run(() -> {
@@ -57,10 +57,11 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
-                            blockB2 = latest();
+                            blockB2 = latestBlock();
                         });
                     });
-                    lastBlock = log(root, "After");
+                    log(root, "After");
+                    lastBlock = latestBlock();
                 });
             }
         }.build();

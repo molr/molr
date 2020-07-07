@@ -44,27 +44,27 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
             {
                 root("Root").sequential().as(root -> {
                     root.branch("Parallel").parallel().as(p -> {
-                        blockParallel = latest();
+                        blockParallel = latestBlock();
 
                         p.branch("Sequence A").sequential().as((Consumer<Branch>) seqA -> {
                             seqA.leaf("A.1").run(() -> {
                                 unlatch(latchAStart);
                                 await(latchAEnd);
                             });
-                            blockA1 = latest();
+                            blockA1 = latestBlock();
 
                             seqA.leaf("A.2").run(NOOP);
-                            blockA2 = latest();
+                            blockA2 = latestBlock();
                         });
                         p.branch("Sequence B").sequential().as((Consumer<Branch>) seqB -> {
                             seqB.leaf("B.1").run(() -> {
                                 unlatch(latchBStart);
                                 await(latchBEnd);
                             });
-                            blockB1 = latest();
+                            blockB1 = latestBlock();
 
                             seqB.leaf("B.2").run(NOOP);
-                            blockB2 = latest();
+                            blockB2 = latestBlock();
                         });
                     });
                 });

@@ -73,7 +73,9 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                             });
                         });
                     });
-                    lastBlock = log(root, "After");
+                    log(root, "After");
+                    lastBlock = latestBlock();
+
                 });
             }
         }.build();

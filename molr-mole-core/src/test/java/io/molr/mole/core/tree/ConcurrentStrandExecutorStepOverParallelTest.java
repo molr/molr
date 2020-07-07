@@ -41,33 +41,33 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
             {
                 root("step-over").sequential().as(root -> {
                     root.branch("parallel").parallel().as(b -> {
-                        parallel = latest();
+                        parallel = latestBlock();
 
                         b.branch("sequential branch A").sequential().as((Consumer<Branch>) bA -> {
                             bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
                             });
-                            parallelA1 = latest();
+                            parallelA1 = latestBlock();
 
                             bA.leaf("A.2").run(() -> {
                                 unlatch(latchA2Start);
                                 await(latchA2End);
                             });
-                            parallelA2 = latest();
+                            parallelA2 = latestBlock();
                         });
                         b.branch("sequential branch B").sequential().as((Consumer<Branch>) bB -> {
                             bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            parallelB1 = latest();
+                            parallelB1 = latestBlock();
 
                             bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
-                            parallelB2 = latest();
+                            parallelB2 = latestBlock();
                         });
                     });
                 });

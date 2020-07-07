@@ -44,42 +44,43 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
             {
                 root("Root").sequential().as(root -> {
                     root.branch("First").sequential().as(b1 -> {
-                        FIRST = latest();
+                        FIRST = latestBlock();
 
                         log(b1, "First A");
-                        FIRST_A = latest();
+                        FIRST_A = latestBlock();
 
                         log(b1, "First B");
-                        FIRST_B = latest();
+                        FIRST_B = latestBlock();
                     });
 
                     root.branch("Second").sequential().as(b1 -> {
-                        SECOND = latest();
+                        SECOND = latestBlock();
 
                         log(b1, "second A");
-                        SECOND_A = latest();
+                        SECOND_A = latestBlock();
 
                         log(b1, "second B");
-                        SECOND_B = latest();
+                        SECOND_B = latestBlock();
                     });
 
-                    THIRD = log(root, "Third");
+                    log(root, "Third");
+                    THIRD = latestBlock();
 
                     root.branch("Parallel").parallel().as(b1 -> {
-                        PARALLEL = latest();
+                        PARALLEL = latestBlock();
 
                         log(b1, "parallel A");
-                        PARALLEL_A = latest();
+                        PARALLEL_A = latestBlock();
 
                         log(b1, "parallel B");
-                        PARALLEL_B = latest();
+                        PARALLEL_B = latestBlock();
                     });
 
                     root.branch("Fourth").sequential().as(b -> {
-                        FOURTH = latest();
+                        FOURTH = latestBlock();
 
                         log(b, "Fourth A");
-                        FOURTH_A = latest();
+                        FOURTH_A = latestBlock();
                     });
                 });
             }

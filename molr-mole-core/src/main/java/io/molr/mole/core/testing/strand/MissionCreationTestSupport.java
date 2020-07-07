@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 
 public interface MissionCreationTestSupport {
 
-    default Block log(Branch b, String text) {
-        return b.leaf(text).run(() -> logger().info("{} executed", text));
+    default void log(Branch b, String text) {
+        b.leaf(text).run(() -> logger().info("{} executed", text));
     }
 
     Logger logger();

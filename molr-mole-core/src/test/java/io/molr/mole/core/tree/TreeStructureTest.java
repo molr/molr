@@ -34,43 +34,43 @@ public class TreeStructureTest {
             root("Root").sequential().as(root -> {
 
                 root.branch("First").sequential().as(b1 -> {
-                    FIRST = latest();
+                    FIRST = latestBlock();
 
                     b1.leaf("First A").run(NOOP);
-                    FIRST_A = latest();
+                    FIRST_A = latestBlock();
 
                     b1.leaf("First B").run(NOOP);
-                    FIRST_B = latest();
+                    FIRST_B = latestBlock();
                 });
 
                 root.branch("Second").sequential().as(b1 -> {
-                    SECOND = latest();
+                    SECOND = latestBlock();
 
                     b1.leaf("second A").run(NOOP);
-                    SECOND_A = latest();
+                    SECOND_A = latestBlock();
 
                     b1.leaf("second B").run(NOOP);
-                    SECOND_B = latest();
+                    SECOND_B = latestBlock();
                 });
 
                 root.leaf("Third").run(NOOP);
-                THIRD = latest();
+                THIRD = latestBlock();
 
                 root.branch("Parallel").parallel().as(b1 -> {
-                    PARALLEL = latest();
+                    PARALLEL = latestBlock();
 
                     b1.leaf("parallel A").run(NOOP);
-                    PARALLEL_A = latest();
+                    PARALLEL_A = latestBlock();
 
                     b1.leaf("parallel B").run(NOOP);
-                    PARALLEL_B = latest();
+                    PARALLEL_B = latestBlock();
                 });
 
                 root.branch("Fourth").sequential().as(b -> {
-                    FOURTH = latest();
+                    FOURTH = latestBlock();
 
                     b.leaf("Fourth").run(NOOP);
-                    FOURTH_A = latest();
+                    FOURTH_A = latestBlock();
                 });
             });
 

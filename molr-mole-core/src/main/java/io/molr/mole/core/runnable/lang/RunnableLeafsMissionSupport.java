@@ -73,7 +73,7 @@ public abstract class RunnableLeafsMissionSupport {
      *
      * @return the most recently added block.
      */
-    protected Block latest() {
+    protected Block latestBlock() {
         return builder.latest();
     }
 

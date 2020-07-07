@@ -41,30 +41,30 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
             {
                 sequential("Root", root -> {
                     root.sequential("Sequential", b -> {
-                        SEQUENTIAL = latest();
+                        SEQUENTIAL = latestBlock();
 
                         log(b, "Sequential A");
-                        SEQUENTIAL_LEAF_A = latest();
+                        SEQUENTIAL_LEAF_A = latestBlock();
 
                         log(b, "Sequential B");
-                        SEQUENTIAL_LEAF_B = latest();
+                        SEQUENTIAL_LEAF_B = latestBlock();
                     });
 
                     root.parallel("Parallel", b -> {
-                        PARALLEL = latest();
+                        PARALLEL = latestBlock();
 
                         b.run("Parallel A", () -> {
                             unlatch(latchStart);
                             await(latchEnd);
                         });
-                        PARALLEL_LEAF_A = latest();
+                        PARALLEL_LEAF_A = latestBlock();
 
                         log(b, "Parallel B");
-                        PARALLEL_LEAF_B = latest();
+                        PARALLEL_LEAF_B = latestBlock();
                     });
 
                     log(root, "Leaf");
-                    LEAF = latest();
+                    LEAF = latestBlock();
                 });
             }
         }.build();
