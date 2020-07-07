@@ -5,6 +5,7 @@ import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingleMissionStrandExecutorTest {
 
@@ -37,27 +39,35 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("step-over", root -> {
-                    parallel = root.parallel("parallel", b -> {
-                        b.sequential("sequential branch A", bA -> {
-                            parallelA1 = bA.run("A.1", () -> {
+                root("step-over").sequential().as(root -> {
+                    root.branch("parallel").parallel().as(b -> {
+                        parallel = latest();
+
+                        b.branch("sequential branch A").sequential().as((Consumer<Branch>) bA -> {
+                            bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
                             });
-                            parallelA2 = bA.run("A.2", () -> {
+                            parallelA1 = latest();
+
+                            bA.leaf("A.2").run(() -> {
                                 unlatch(latchA2Start);
                                 await(latchA2End);
                             });
+                            parallelA2 = latest();
                         });
-                        b.sequential("sequential branch B", bB -> {
-                            parallelB1 = bB.run("B.1", () -> {
+                        b.branch("sequential branch B").sequential().as((Consumer<Branch>) bB -> {
+                            bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            parallelB2 = bB.run("B.2", () -> {
+                            parallelB1 = latest();
+
+                            bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
+                            parallelB2 = latest();
                         });
                     });
                 });

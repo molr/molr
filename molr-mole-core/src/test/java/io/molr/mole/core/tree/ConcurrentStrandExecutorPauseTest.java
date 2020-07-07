@@ -7,6 +7,7 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import io.molr.mole.core.utils.Checkeds;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,17 +32,22 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Pausing test", root -> {
-                    TASK_1 = root.run("Long task1", () -> {
+                root("Pausing test").sequential().as(root -> {
+                    root.leaf("Long task1").run(() -> {
                         unlatch(task1Start);
                         await(task1Finish);
                     });
-                    TASK_2 = root.run("Long task2", () -> {
+                    TASK_1 = latest();
+
+                    root.leaf("Long task2").run(() -> {
                         unlatch(task2Start);
                         await(task2Finish);
                     });
-                    TASK_3 = root.run("NOOP", () -> {
+                    TASK_2 = latest();
+
+                    root.leaf("NOOP").run(() -> {
                     });
+                    TASK_3 = latest();
                 });
             }
         }.build();

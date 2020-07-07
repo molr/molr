@@ -2,6 +2,7 @@ package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.Block;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.junit.Before;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import static io.molr.commons.domain.RunState.PAUSED;
 import static io.molr.commons.domain.RunState.RUNNING;
@@ -39,39 +41,39 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("root", root -> {
-                    leafBlock = root.run("leaf", () -> {
+                root("root").sequential().as(root -> {
+                    leafBlock = root.leaf("leaf").run(() -> {
                         unlatch(latchLeafStart);
                         await(latchLeafEnd);
                     });
 
-                    sequentialBlock = root.sequential("sequential-block", seq -> {
-                        seq.run("sequence-leaf", () -> {
+                    sequentialBlock = root.branch("sequential-block").sequential().as(seq -> {
+                        seq.leaf("sequence-leaf").run(() -> {
                         });
                     });
 
-                    parallelBlock = root.parallel("parallel", b -> {
-                        b.sequential("sequential branch A", bA -> {
-                            bA.run("A.1", () -> {
+                    parallelBlock = root.branch("parallel").parallel().as(b -> {
+                        b.branch("sequential branch A").sequential().as((Consumer<Branch>) bA -> {
+                            bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
                                 System.out.println();
                             });
-                            blockA2 = bA.run("A.2", () -> {
+                            blockA2 = bA.leaf("A.2").run(() -> {
                             });
                         });
-                        b.sequential("sequential branch B", bB -> {
-                            bB.run("B.1", () -> {
+                        b.branch("sequential branch B").sequential().as((Consumer<Branch>) bB -> {
+                            bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            blockB2 = bB.run("B.2", () -> {
+                            blockB2 = bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
                         });
                     });
-                    lastBlock = root.run(log("After"));
+                    lastBlock = log(root, "After");
                 });
             }
         }.build();

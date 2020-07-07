@@ -40,20 +40,31 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
         return new RunnableLeafsMissionSupport() {
             {
                 sequential("Root", root -> {
-                    SEQUENTIAL = root.sequential("Sequential", b -> {
-                        SEQUENTIAL_LEAF_A = b.run(log("Sequential A"));
-                        SEQUENTIAL_LEAF_B = b.run(log("Sequential B"));
+                    root.sequential("Sequential", b -> {
+                        SEQUENTIAL = latest();
+
+                        log(b, "Sequential A");
+                        SEQUENTIAL_LEAF_A = latest();
+
+                        log(b, "Sequential B");
+                        SEQUENTIAL_LEAF_B = latest();
                     });
 
-                    PARALLEL = root.parallel("Parallel", b -> {
-                        PARALLEL_LEAF_A = b.run("Parallel A", () -> {
+                    root.parallel("Parallel", b -> {
+                        PARALLEL = latest();
+
+                        b.run("Parallel A", () -> {
                             unlatch(latchStart);
                             await(latchEnd);
                         });
-                        PARALLEL_LEAF_B = b.run(log("Parallel B"));
+                        PARALLEL_LEAF_A = latest();
+
+                        log(b, "Parallel B");
+                        PARALLEL_LEAF_B = latest();
                     });
 
-                    LEAF = root.run(log("Leaf"));
+                    log(root, "Leaf");
+                    LEAF = latest();
                 });
             }
         }.build();

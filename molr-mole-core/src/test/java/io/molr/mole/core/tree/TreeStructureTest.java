@@ -2,12 +2,14 @@ package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.Block;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.utils.Trees;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,45 +33,45 @@ public class TreeStructureTest {
 
     private final static RunnableLeafsMission DATA = new RunnableLeafsMissionSupport() {
         {
-            sequential("Root", root -> {
+            root("Root").sequential().as(root -> {
 
-                root.sequential("First", b -> {
+                root.branch("First").sequential().as((Consumer<Branch>) b1 -> {
                     FIRST = latest();
 
-                    b.run("First A", NOOP);
+                    b1.leaf("First A").run(NOOP);
                     FIRST_A = latest();
 
-                    b.run("First B", NOOP);
+                    b1.leaf("First B").run(NOOP);
                     FIRST_B = latest();
                 });
 
-                root.sequential("Second", b -> {
+                root.branch("Second").sequential().as((Consumer<Branch>) b1 -> {
                     SECOND = latest();
 
-                    b.run("second A", NOOP);
+                    b1.leaf("second A").run(NOOP);
                     SECOND_A = latest();
 
-                    b.run("second B", NOOP);
+                    b1.leaf("second B").run(NOOP);
                     SECOND_B = latest();
                 });
 
-                root.run("Third", NOOP);
+                root.leaf("Third").run(NOOP);
                 THIRD = latest();
 
-                root.parallel("Parallel", b -> {
+                root.branch("Parallel").parallel().as((Consumer<Branch>) b1 -> {
                     PARALLEL = latest();
 
-                    b.run("parallel A", NOOP);
+                    b1.leaf("parallel A").run(NOOP);
                     PARALLEL_A = latest();
 
-                    b.run("parallel B", NOOP);
+                    b1.leaf("parallel B").run(NOOP);
                     PARALLEL_B = latest();
                 });
 
-                root.sequential("Fourth", b -> {
+                root.branch("Fourth").sequential().as((Consumer<Branch>) b -> {
                     FOURTH = latest();
 
-                    b.run("Fourth", NOOP);
+                    b.leaf("Fourth").run(NOOP);
                     FOURTH_A = latest();
                 });
             });

@@ -21,11 +21,14 @@ public class ConcurrentStrandExecutorLeafExecutionTest extends AbstractSingleMis
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("test", root -> {
-                    failingBlock = root.run("failing", () -> {
+                root("test").sequential().as(root -> {
+                    root.leaf("failing").run(() -> {
                         throw new RuntimeException("test");
                     });
-                    anotherBlock = root.run(log("another task"));
+                    failingBlock = latest();
+
+                    log(root, "another task");
+                    anotherBlock = latest();
                 });
             }
         }.build();
