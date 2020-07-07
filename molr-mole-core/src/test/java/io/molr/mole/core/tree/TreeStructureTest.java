@@ -33,25 +33,44 @@ public class TreeStructureTest {
         {
             sequential("Root", root -> {
 
-                FIRST = root.sequential("First", b -> {
-                    FIRST_A = b.run("First A", NOOP);
-                    FIRST_B = b.run("First B", NOOP);
+                root.sequential("First", b -> {
+                    FIRST = latest();
+
+                    b.run("First A", NOOP);
+                    FIRST_A = latest();
+
+                    b.run("First B", NOOP);
+                    FIRST_B = latest();
                 });
 
-                SECOND = root.sequential("Second", b -> {
-                    SECOND_A = b.run("second A", NOOP);
-                    SECOND_B = b.run("second B", NOOP);
+                root.sequential("Second", b -> {
+                    SECOND = latest();
+
+                    b.run("second A", NOOP);
+                    SECOND_A = latest();
+
+                    b.run("second B", NOOP);
+                    SECOND_B = latest();
                 });
 
-                THIRD = root.run("Third", NOOP);
+                root.run("Third", NOOP);
+                THIRD = latest();
 
-                PARALLEL = root.parallel("Parallel", b -> {
-                    PARALLEL_A = b.run("parallel A", NOOP);
-                    PARALLEL_B = b.run("parallel B", NOOP);
+                root.parallel("Parallel", b -> {
+                    PARALLEL = latest();
+
+                    b.run("parallel A", NOOP);
+                    PARALLEL_A = latest();
+
+                    b.run("parallel B", NOOP);
+                    PARALLEL_B = latest();
                 });
 
-                FOURTH = root.sequential("Fourth", b -> {
-                    FOURTH_A = b.run("Fourth", NOOP);
+                root.sequential("Fourth", b -> {
+                    FOURTH = latest();
+
+                    b.run("Fourth", NOOP);
+                    FOURTH_A = latest();
                 });
             });
 

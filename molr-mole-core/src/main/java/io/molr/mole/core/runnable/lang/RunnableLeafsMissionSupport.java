@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -26,29 +28,38 @@ public abstract class RunnableLeafsMissionSupport {
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
-    protected void sequential(String newName, Consumer<Branch> branchConsumer) {
-        root(newName, branchConsumer, RunnableLeafsMission::sequentialRoot);
+    protected OngoingBranch sequential(String missionName) {
+        requireNonNull(missionName, "name must not be null.");
+        assertNoBuilderYet();
+        this.builder = RunnableLeafsMission.builder();
+        return new OngoingBranch(missionName, builder, null, SEQUENTIAL);
     }
 
+    protected OngoingBranch parallel(String missionName) {
+        requireNonNull(missionName, "name must not be null.");
+        assertNoBuilderYet();
+        this.builder = RunnableLeafsMission.builder();
+        return new OngoingBranch(missionName, builder, null, PARALLEL);
+    }
+
+    @Deprecated
+    protected void sequential(String newName, Consumer<Branch> branchConsumer) {
+        sequential(newName).as(branchConsumer);
+    }
+
+    @Deprecated
     protected void parallel(String newName, Consumer<Branch> branchConsumer) {
-        root(newName, branchConsumer, RunnableLeafsMission::parallelRoot);
+        parallel(newName).as(branchConsumer);
     }
 
     protected void breakOn(Block block) {
         builder.breakOn(block);
     }
-    
-    private void root(String newName, Consumer<Branch> branchConsumer, Function<String, RunnableLeafsMission.Builder> builderFactory) {
+
+    private void assertNoBuilderYet() {
         if (this.builder != null) {
-            throw new IllegalStateException("Root can only be defined once!");
+            throw new IllegalStateException("Root can only be defined once! Use either sequential() or parallel().");
         }
-
-        requireNonNull(newName, "name must not be null.");
-        requireNonNull(branchConsumer, "branchConsumer must not be null.");
-
-        this.builder = builderFactory.apply(newName);
-        Branch rootBranch = Branch.withParent(builder, builder.root());
-        branchConsumer.accept(rootBranch);
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
@@ -69,6 +80,15 @@ public abstract class RunnableLeafsMissionSupport {
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue));
         return placeholder;
+    }
+
+    /**
+     * Retrieves the most recently created block. NOTE: This is only intended for internal testing purposes!
+     *
+     * @return the most recently added block.
+     */
+    protected Block latest() {
+        return builder.latest();
     }
 
     public RunnableLeafsMission build() {

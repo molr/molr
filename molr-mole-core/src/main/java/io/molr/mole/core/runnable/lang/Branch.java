@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 public class Branch {
@@ -27,7 +29,7 @@ public class Branch {
     }
 
     public Block run(String name, Runnable runnable) {
-         return run(name, (in, out) -> runnable.run());
+        return run(name, (in, out) -> runnable.run());
     }
 
     public Block run(String name, Checkeds.CheckedThrowingRunnable runnable) {
@@ -42,28 +44,34 @@ public class Branch {
         return builder.leafChild(parent, name, runnable);
     }
 
-    public Block sequential(String name, Consumer<Branch> branchDefiner) {
-        Block node = builder.sequentialChild(parent, name);
-        branchDefiner.accept(Branch.withParent(builder, node));
-        return node;
+    public OngoingBranch sequential(String name) {
+        return new OngoingBranch(name, builder, parent, SEQUENTIAL);
     }
 
+    public OngoingBranch parallel(String name) {
+        return new OngoingBranch(name, builder, parent, PARALLEL);
+    }
+
+    @Deprecated
+    public Block sequential(String name, Consumer<Branch> branchDefiner) {
+        return sequential(name).as(branchDefiner);
+    }
+
+    @Deprecated
     public Block parallel(String name, Consumer<Branch> branchDefiner) {
-        Block node = builder.parallelChild(parent, name);
-        branchDefiner.accept(Branch.withParent(builder, node));
-        return node;
+        return parallel(name).as(branchDefiner);
     }
 
     public Block run(Task task) {
-         return run(task.name, task.runnable);
+        return run(task.name, task.runnable);
     }
 
     public void println(Object object) {
-         run("println(\"" + object + "\");", () -> System.out.println(object));
+        run("println(\"" + object + "\");", () -> System.out.println(object));
     }
 
     public void sleep(long time, TimeUnit unit) {
-         run("Sleep " + time + " " + unit, () -> unit.sleep(time));
+        run("Sleep " + time + " " + unit, () -> unit.sleep(time));
     }
 
     public static class Task {
