@@ -29,18 +29,20 @@ public abstract class RunnableLeafsMissionSupport {
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
     protected OngoingBranch sequential(String missionName) {
-        requireNonNull(missionName, "name must not be null.");
-        assertNoBuilderYet();
-        this.builder = RunnableLeafsMission.builder();
-        return new OngoingBranch(missionName, builder, null, SEQUENTIAL);
+        return root(missionName).sequential();
     }
 
     protected OngoingBranch parallel(String missionName) {
+        return root(missionName).parallel();
+    }
+
+    private OngoingBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingBranch(missionName, builder, null, PARALLEL);
+        return new OngoingBranch(missionName, builder, null);
     }
+
 
     @Deprecated
     protected void sequential(String newName, Consumer<Branch> branchConsumer) {

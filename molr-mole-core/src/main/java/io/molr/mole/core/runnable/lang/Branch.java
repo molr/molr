@@ -45,11 +45,11 @@ public class Branch {
     }
 
     public OngoingBranch sequential(String name) {
-        return new OngoingBranch(name, builder, parent, SEQUENTIAL);
+        return new OngoingBranch(name, builder, parent).sequential();
     }
 
     public OngoingBranch parallel(String name) {
-        return new OngoingBranch(name, builder, parent, PARALLEL);
+        return new OngoingBranch(name, builder, parent).parallel();
     }
 
     @Deprecated

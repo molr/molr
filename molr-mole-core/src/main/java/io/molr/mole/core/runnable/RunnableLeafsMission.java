@@ -59,7 +59,7 @@ public class RunnableLeafsMission {
 
         }
 
-        public Block createRoot(String rootName, BranchMode branchMode) {
+        public Block rootBranchNode(String rootName, BranchMode branchMode) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
@@ -73,13 +73,11 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block sequentialChild(Block parent, String childName) {
-            return addChild(parent, childName);
-        }
-
-        public Block parallelChild(Block parent, String childName) {
-            Block child = addChild(parent, childName);
-            parallelBlocksBuilder.add(child);
+        public Block childBranchNode(Block parent, String name, BranchMode mode) {
+            Block child = addChild(parent, name);
+            if (mode == PARALLEL) {
+                parallelBlocksBuilder.add(child);
+            }
             return child;
         }
 
