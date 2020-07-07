@@ -2,14 +2,12 @@ package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.Block;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.utils.Trees;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +33,7 @@ public class TreeStructureTest {
         {
             root("Root").sequential().as(root -> {
 
-                root.branch("First").sequential().as((Consumer<Branch>) b1 -> {
+                root.branch("First").sequential().as(b1 -> {
                     FIRST = latest();
 
                     b1.leaf("First A").run(NOOP);
@@ -45,7 +43,7 @@ public class TreeStructureTest {
                     FIRST_B = latest();
                 });
 
-                root.branch("Second").sequential().as((Consumer<Branch>) b1 -> {
+                root.branch("Second").sequential().as(b1 -> {
                     SECOND = latest();
 
                     b1.leaf("second A").run(NOOP);
@@ -58,7 +56,7 @@ public class TreeStructureTest {
                 root.leaf("Third").run(NOOP);
                 THIRD = latest();
 
-                root.branch("Parallel").parallel().as((Consumer<Branch>) b1 -> {
+                root.branch("Parallel").parallel().as(b1 -> {
                     PARALLEL = latest();
 
                     b1.leaf("parallel A").run(NOOP);
@@ -68,7 +66,7 @@ public class TreeStructureTest {
                     PARALLEL_B = latest();
                 });
 
-                root.branch("Fourth").sequential().as((Consumer<Branch>) b -> {
+                root.branch("Fourth").sequential().as(b -> {
                     FOURTH = latest();
 
                     b.leaf("Fourth").run(NOOP);

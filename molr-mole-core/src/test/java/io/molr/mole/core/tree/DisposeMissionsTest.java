@@ -1,27 +1,19 @@
 package io.molr.mole.core.tree;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import io.molr.commons.domain.AgencyState;
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionCommand;
-import io.molr.commons.domain.MissionHandle;
-import io.molr.commons.domain.MissionInstance;
-import io.molr.commons.domain.MissionState;
-import io.molr.commons.domain.StrandCommand;
+import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.RunnableLeafsMole;
 import io.molr.mole.core.runnable.lang.Branch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DisposeMissionsTest {
 

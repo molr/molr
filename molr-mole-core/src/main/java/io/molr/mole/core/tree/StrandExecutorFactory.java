@@ -1,7 +1,6 @@
 package io.molr.mole.core.tree;
 
 import com.google.common.collect.ImmutableSet;
-
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Strand;
 import reactor.core.publisher.EmitterProcessor;
