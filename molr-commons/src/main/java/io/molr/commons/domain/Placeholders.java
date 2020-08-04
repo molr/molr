@@ -9,6 +9,7 @@ public final class Placeholders {
 
     private static final String RETURN_VALUE_KEY = "returnValue";
     private static final String THROWABLE_KEY = "throwable";
+    private static final String CONTEXT_KEY = "context";
 
     public static final Placeholder<String> RETURNED_STRING = Placeholder.aString(RETURN_VALUE_KEY);
     public static final Placeholder<Integer> RETURNED_INTEGER = Placeholder.anInteger(RETURN_VALUE_KEY);

@@ -1,9 +1,12 @@
-package io.molr.mole.core.runnable.lang;
+package io.molr.mole.core.runnable.lang.ctx;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranch;
+import io.molr.mole.core.runnable.lang.Branch;
+import io.molr.mole.core.runnable.lang.BranchMode;
+import io.molr.mole.core.runnable.lang.OngoingBranch;
+import io.molr.mole.core.runnable.lang.OngoingNode;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -13,42 +16,40 @@ import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
-public class OngoingBranch extends OngoingNode<OngoingBranch> {
+public class OngoingContextualBranch<C> extends OngoingNode<OngoingContextualBranch<C>> {
 
+    private final Function<In, C> contextFactory;
     private BranchMode mode;
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
 
-    public OngoingBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public OngoingContextualBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Function<In, C> contextFactory) {
         super(
                 requireNonNull(name, "branchName must not be null"), //
                 requireNonNull(builder, "builder must not be null"), //
                 parent /* parent may be null (special case for root branch)*/
         );
-        this.mode = requireNonNull(mode);
+        this.mode = requireNonNull(mode, "mode must not be null");
+        this.contextFactory = requireNonNull(contextFactory, "contextFactory must not be null.");
     }
 
-    public OngoingBranch parallel() {
+    public OngoingContextualBranch<C> parallel() {
         this.mode = PARALLEL;
         return this;
     }
 
-    public OngoingBranch sequential() {
+    public OngoingContextualBranch<C> sequential() {
         this.mode = SEQUENTIAL;
         return this;
     }
 
-    public <C> OngoingContextualBranch<C> contextual(Function<In, C> contextFactory) {
-        return new OngoingContextualBranch<>(name(), builder(), parent(), mode, contextFactory);
-    }
-
-    public void as(Consumer<Branch> branchDescription) {
+    public void as(Consumer<ContextualBranch<C>> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
         requireNonNull(branchDescription, "branchDescription must not be null.");
 
         Block block = block();
-        Branch branch = Branch.withParent(builder(), block);
+        ContextualBranch<C> branch = new ContextualBranch<>(builder(), block, contextFactory);
         branchDescription.accept(branch);
     }
 
@@ -59,5 +60,6 @@ public class OngoingBranch extends OngoingNode<OngoingBranch> {
             return builder().childBranchNode(parent(), name(), mode, blockAttributes());
         }
     }
+
 
 }

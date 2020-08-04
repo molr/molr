@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -28,7 +29,7 @@ public abstract class RunnableLeafsMissionSupport {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingBranch(missionName, builder, null);
+        return new OngoingBranch(missionName, builder, null, SEQUENTIAL);
     }
 
 
