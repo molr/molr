@@ -15,6 +15,8 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Set;
+
 /**
  * An abstract class which is intended to describe a tree of runnables, which can be used as simple test case for
  * parallel tree execution.
@@ -51,8 +53,19 @@ public abstract class RunnableLeafsMissionSupport {
         branchConsumer.accept(rootBranch);
     }
 
+    /*
+     * TODO We should consider a custom builder for the dsl or use the MissionParameterBuilder to avoid multiple method signatures for
+     * optional and mandatory
+     * we could also discuss a more flexible parameter validator approach instead of allowed values
+     */
+    
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.required(placeholder));
+        return placeholder;
+    }
+    
+    protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, Set<T> allowedValues) {
+        this.parameterBuilder.add(MissionParameter.required(placeholder).withAllowed(allowedValues));
         return placeholder;
     }
 
@@ -60,14 +73,29 @@ public abstract class RunnableLeafsMissionSupport {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue));
         return placeholder;
     }
+    
+    protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
+        this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
+        return placeholder;
+    }
 
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder));
         return placeholder;
     }
+    
+    protected <T> Placeholder<T> optional(Placeholder<T> placeholder, Set<T> allowedValues) {
+        this.parameterBuilder.add(MissionParameter.optional(placeholder).withAllowed(allowedValues));
+        return placeholder;
+    }
 
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue));
+        return placeholder;
+    }
+
+    protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
+        this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
     }
 

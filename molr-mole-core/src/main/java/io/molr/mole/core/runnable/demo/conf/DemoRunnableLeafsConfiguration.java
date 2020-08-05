@@ -10,7 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.common.collect.ImmutableSet;
+
 import static io.molr.commons.domain.Placeholder.*;
+
+import java.util.Set;
 
 @Configuration
 public class DemoRunnableLeafsConfiguration {
@@ -53,8 +57,10 @@ public class DemoRunnableLeafsConfiguration {
         return new RunnableLeafsMissionSupport() {
             {
                 Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
-                Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500);
-                Placeholder<String> message = mandatory(aString("aMessage"), "Hello World");
+                Set<Integer> allowedSleepTimes = ImmutableSet.of(0, 100,200,300, 400, 500);
+                Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500, allowedSleepTimes);
+                Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
+                Placeholder<String> message = mandatory(aString("aMessage"), "Hello World", allowedMessages);
 
                 Placeholder<String> device = optional(aString("deviceName"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);

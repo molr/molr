@@ -49,11 +49,27 @@ public abstract class AbstractJavaMole implements Mole {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
+            // TODO we should discuss where to put parameter validation
+            validateParameterValues(mission, params);
             MissionHandle handle = handleFactory.createHandle();
             executors.put(handle, executorFor(mission, params));
             instances.add(new MissionInstance(handle, mission));
             publishState();
             return handle;
+        });
+    }
+
+    private void validateParameterValues(Mission mission, Map<String, Object> params) {
+        MissionParameterDescription parameterDescription = missionParameterDescriptionOf(mission);
+        parameterDescription.parameters().forEach(parameter -> {
+            String parameterName = parameter.placeholder().name();
+            Object parameterValue = params.get(parameterName);
+            if(parameter.allowedValues() != null && !parameter.allowedValues().isEmpty()) {
+                if(!parameter.allowedValues().contains(parameterValue)) {
+                    throw new IllegalArgumentException("Cannot instantiate mission: Value "+parameterValue
+                            +" is not allowed for parameter "+parameterName);
+                }
+            }
         });
     }
         
