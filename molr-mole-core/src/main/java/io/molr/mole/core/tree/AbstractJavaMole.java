@@ -64,6 +64,12 @@ public abstract class AbstractJavaMole implements Mole {
         parameterDescription.parameters().forEach(parameter -> {
             String parameterName = parameter.placeholder().name();
             Object parameterValue = params.get(parameterName);
+            if(parameterValue == null && !parameter.isRequired()) {
+                /**
+                 * no need to check optional parameter values if no value has been specified
+                 */
+                return;
+            }
             if(parameter.allowedValues() != null && !parameter.allowedValues().isEmpty()) {
                 if(!parameter.allowedValues().contains(parameterValue)) {
                     throw new IllegalArgumentException("Cannot instantiate mission: Value "+parameterValue

@@ -58,11 +58,15 @@ public class DemoRunnableLeafsConfiguration {
             {
                 Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
                 Set<Integer> allowedSleepTimes = ImmutableSet.of(0, 100,200,300, 400, 500);
+                /**
+                 * optionally add a collection of allowed values in order to restrict parameter values to those values
+                 * if allowed parameters is used explicitly, but empty the parameter values are considered to be unrestricted
+                 */
                 Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500, allowedSleepTimes);
                 Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
                 Placeholder<String> message = mandatory(aString("aMessage"), "Hello World", allowedMessages);
 
-                Placeholder<String> device = optional(aString("deviceName"));
+                Placeholder<String> device = optional(aString("deviceName"), ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
                 sequential("Executable Leafs Demo Mission (parametrized)", root -> {

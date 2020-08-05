@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import static java.util.Objects.requireNonNull;
 
@@ -17,23 +16,20 @@ public final class MissionParameter<T> {
     private final T defaultValue;
     private Set<T> allowedValues;
 
-    private MissionParameter(Placeholder<T> placeholder, T defaultValue, boolean required, Collection<T> allowedValues) {
+    private MissionParameter(Placeholder<T> placeholder, T defaultValue, boolean required, Set<T> allowedValues) {
         this.placeholder = requireNonNull(placeholder, "placeholder must not be null");
         this.required = required;
         /* null is allowed for the default value*/
         this.defaultValue = defaultValue;
-        this.allowedValues = Sets.newHashSet();
-        if(allowedValues != null) {
-            this.allowedValues.addAll(allowedValues);
-        }
+        this.allowedValues = requireNonNull(allowedValues, "allowedValues must not be null");
     }
 
     public static <T> MissionParameter<T> required(Placeholder<T> placeholder) {
-        return new MissionParameter<>(placeholder, null, true, null);
+        return new MissionParameter<>(placeholder, null, true, ImmutableSet.of());
     }
 
     public static <T> MissionParameter<T> optional(Placeholder<T> placeholder) {
-        return new MissionParameter<>(placeholder, null, false, null);
+        return new MissionParameter<>(placeholder, null, false, ImmutableSet.of());
     }
 
     public MissionParameter<T> withDefault(T newDefaultValue) {
@@ -41,7 +37,7 @@ public final class MissionParameter<T> {
     }
 
     public MissionParameter<T> withAllowed(Collection<T> newAllowedValues) {
-        return new MissionParameter<>(placeholder, defaultValue, required, newAllowedValues);
+        return new MissionParameter<>(placeholder, defaultValue, required, ImmutableSet.copyOf(newAllowedValues));
     }
     
     public boolean isRequired() {
