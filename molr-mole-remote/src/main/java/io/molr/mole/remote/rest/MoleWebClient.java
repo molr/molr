@@ -38,9 +38,11 @@ public class MoleWebClient {
                 .flatMapMany(response -> response.bodyToFlux(type))
                 .cache()
                 .onErrorMap(throwable -> {
-                	//TODO consider not depending on netty exceptions
-                	//however clients may need to detect disconnect events and pushing the dependency upwards would be even worse
-                	//one alternative could be an offline flag located in a wrapper around items pushed through the flux
+                    /*
+                     * TODO consider not depending on netty exceptions
+                     * however clients may need to detect disconnect events and pushing the dependency upwards would be even worse
+                     * one alternative could be an offline flag located in a wrapper around items pushed through the flux
+                     */
                 	if(throwable instanceof PrematureCloseException) {
                 		return new ConnectException("Connection prematurely closed "+uri);
                 	}

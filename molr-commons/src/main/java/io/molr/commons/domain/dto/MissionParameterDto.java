@@ -4,13 +4,13 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Placeholder;
 
 import java.util.Map;
 import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -43,7 +43,7 @@ public class MissionParameterDto<T> {
         this.type = null;
         this.required = false;
         this.defaultValue = null;
-        this.allowedValues = new ImmutableSet.Builder<T>().build();
+        this.allowedValues = ImmutableSet.of();
     }
 
     public MissionParameterDto(String name, String type, boolean required, T defaultValue, Set<T> allowedValues) {
@@ -51,7 +51,7 @@ public class MissionParameterDto<T> {
         this.type = Objects.requireNonNull(type, "type must not be null");
         this.required = required;
         this.defaultValue = defaultValue;
-        this.allowedValues = new ImmutableSet.Builder<T>().addAll(allowedValues).build();        
+        this.allowedValues = ImmutableSet.copyOf(requireNonNull(allowedValues,"allowedValues must not be null"));        
     }
 
     public static final <T> MissionParameterDto<T> from(MissionParameter<T> parameter) {
