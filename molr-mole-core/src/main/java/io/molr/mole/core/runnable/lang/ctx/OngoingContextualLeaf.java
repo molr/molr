@@ -12,7 +12,7 @@ public class OngoingContextualLeaf<C> extends OngoingLeaf {
         super(name, builder, parent);
     }
 
-    public void ctxRun(Checkeds.CheckedThrowingConsumer<C> runnable) {
+    public void runCtx(Checkeds.CheckedThrowingConsumer<C> runnable) {
         run(in -> {
             C c = in.get(Placeholders.context());
             runnable.accept(c);

@@ -18,7 +18,7 @@ public class OngoingContextualBranch<C> extends GenericOngoingBranch<OngoingCont
         super(name, builder, parent, mode);
     }
 
-    public <D extends Consumer<ContextualBranch<C>>> void as(D branchDescription) {
+    public void as(Consumer<ContextualBranch<C>> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }

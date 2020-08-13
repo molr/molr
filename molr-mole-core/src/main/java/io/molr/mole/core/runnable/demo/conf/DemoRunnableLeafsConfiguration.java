@@ -134,20 +134,20 @@ public class DemoRunnableLeafsConfiguration {
             {
                 Placeholder<String> device = mandatory(aString("deviceName"));
 
-                root("contextual mission").sequential().contextual(SomeDeviceDriver::new, device).as(root -> {
-                    root.leaf("switch on").ctxRun(SomeDeviceDriver::switchOn);
-                    root.leaf("switch off").ctxRun(SomeDeviceDriver::switchOff);
+                root("contextual mission").sequential().contextual(DeviceDriver::new, device).as(root -> {
+                    root.leaf("switch on").runCtx(DeviceDriver::switchOn);
+                    root.leaf("switch off").runCtx(DeviceDriver::switchOff);
                 });
 
             }
         }.build();
     }
 
-    private static class SomeDeviceDriver {
+    private static class DeviceDriver {
 
         private final String deviceName;
 
-        public SomeDeviceDriver(String deviceName) {
+        public DeviceDriver(String deviceName) {
             this.deviceName = deviceName;
         }
 
