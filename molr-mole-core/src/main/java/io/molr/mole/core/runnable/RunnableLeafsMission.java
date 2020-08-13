@@ -12,20 +12,24 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
+import static java.util.Objects.requireNonNull;
 
 public class RunnableLeafsMission {
 
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
+    private final Function<In, ?> contextFactory;
 
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
         this.parameterDescription = parameterDescription;
+        this.contextFactory = builder.contextFactory;
     }
 
     public TreeStructure treeStructure() {
@@ -44,6 +48,10 @@ public class RunnableLeafsMission {
         return this.treeStructure.rootBlock().text();
     }
 
+    public Function<In, ?> contextFactory() {
+        return this.contextFactory;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -56,6 +64,8 @@ public class RunnableLeafsMission {
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
+
+        private Function<In, ?> contextFactory;
 
         private Builder() {
             /* use static factory method */
@@ -119,6 +129,13 @@ public class RunnableLeafsMission {
             if (this.representationBuilder == null) {
                 throw new IllegalStateException("No root node defined yet!");
             }
+        }
+
+        public void contextFactory(Function<In, ?> contextFactory) {
+            if (this.contextFactory != null) {
+                throw new IllegalStateException("contextFactory already set! Only allowed once!");
+            }
+            this.contextFactory = requireNonNull(contextFactory, "contextFactory must not be null");
         }
 
         /**

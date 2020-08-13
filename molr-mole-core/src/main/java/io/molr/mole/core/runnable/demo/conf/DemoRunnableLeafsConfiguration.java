@@ -128,6 +128,39 @@ public class DemoRunnableLeafsConfiguration {
         }.build();
     }
 
+    @Bean
+    public RunnableLeafsMission contextualRunnableLeafsMission() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                Placeholder<String> device = mandatory(aString("deviceName"));
+
+                root("contextual mission").sequential().contextual(SomeDeviceDriver::new, device).as(root -> {
+                    root.leaf("switch on").ctxRun(SomeDeviceDriver::switchOn);
+                    root.leaf("switch off").ctxRun(SomeDeviceDriver::switchOff);
+                });
+
+            }
+        }.build();
+    }
+
+    private static class SomeDeviceDriver {
+
+        private final String deviceName;
+
+        public SomeDeviceDriver(String deviceName) {
+            this.deviceName = deviceName;
+        }
+
+        public void switchOn() {
+            System.out.println("Switched ON device " + deviceName + ".");
+        }
+
+        public void switchOff() {
+            System.out.println("Switched OFF device " + deviceName + ".");
+        }
+
+
+    }
 
     private static void log(Branch b, String text) {
         b.leaf(text).run(() -> LOGGER.info("{} executed", text));

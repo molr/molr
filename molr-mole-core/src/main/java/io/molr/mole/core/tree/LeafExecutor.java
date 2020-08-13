@@ -1,9 +1,6 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.MissionInput;
-import io.molr.commons.domain.Result;
-import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.*;
 import io.molr.mole.core.tree.tracking.Bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +9,7 @@ import static io.molr.commons.domain.Result.FAILED;
 import static io.molr.commons.domain.Result.SUCCESS;
 import static io.molr.commons.domain.RunState.FINISHED;
 import static io.molr.commons.domain.RunState.RUNNING;
+import static io.molr.commons.util.Exceptions.stackTraceFrom;
 
 public abstract class LeafExecutor {
 
@@ -29,7 +27,6 @@ public abstract class LeafExecutor {
         this.output = output;
     }
 
-
     protected MissionInput input() {
         return this.input;
     }
@@ -46,13 +43,13 @@ public abstract class LeafExecutor {
         return result;
     }
 
-
     public final Result tryCatchExecute(Block block) {
         try {
             doExecute(block);
             return SUCCESS;
         } catch (Exception e) {
             LOGGER.warn("Execution of {} threw an exception: {}", block, e.getMessage(), e);
+            outputFor(block).emit(Placeholders.THROWN, stackTraceFrom(e));
             return FAILED;
         }
     }

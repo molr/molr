@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable;
 
+import com.google.common.collect.ImmutableMap;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.tree.*;
@@ -7,6 +8,7 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
@@ -60,9 +62,21 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
 
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
+        MissionInput input = missionInput(runnableLeafMission, params);
 
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), MissionInput.from(params), outputCollector, runStateTracker);
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), input, outputCollector, runStateTracker);
         return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker);
+    }
+
+    private MissionInput missionInput(RunnableLeafsMission mission, Map<String, Object> params) {
+        MissionInput in = MissionInput.from(params);
+
+        Function<In, ?> contextFactory = mission.contextFactory();
+        if (contextFactory == null) {
+            return in;
+        } else {
+            return in.and(Placeholders.context().name(), contextFactory.apply(in));
+        }
     }
 
 }

@@ -41,6 +41,10 @@ public final class Placeholder<T> {
         return this.name;
     }
 
+    public static final <T> Placeholder<T> of(Class<T> type, String name) {
+        return new Placeholder<>(type, name);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
