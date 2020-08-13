@@ -32,7 +32,6 @@ public abstract class RunnableLeafsMissionSupport {
         return new OngoingBranch(missionName, builder, null, SEQUENTIAL);
     }
 
-
     @Deprecated
     protected void sequential(String newName, Consumer<Branch> branchConsumer) {
         root(newName).sequential().as(branchConsumer);

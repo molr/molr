@@ -42,7 +42,13 @@ public class Branch {
         leaf("Sleep " + time + " " + unit).run(() -> unit.sleep(time));
     }
 
+    protected RunnableLeafsMission.Builder builder() {
+        return this.builder;
+    }
 
+    protected Block parent() {
+        return this.parent;
+    }
     /*
     DEPRECATED methods. To be removed asap.
      */
@@ -76,4 +82,6 @@ public class Branch {
     public void parallel(String name, Consumer<Branch> branchDefiner) {
         branch(name).parallel().as(branchDefiner);
     }
+
+
 }
