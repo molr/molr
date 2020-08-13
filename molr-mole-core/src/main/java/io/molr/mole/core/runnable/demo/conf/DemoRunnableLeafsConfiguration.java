@@ -39,7 +39,7 @@ public class DemoRunnableLeafsConfiguration {
 
                     log(root, "Third");
 
-                    root.branch("Parallel").parallel().as((Consumer<Branch>) b -> {
+                    root.branch("Parallel").parallel().as(b -> {
                         log(b, "Parallel A");
                         log(b, "parallel B");
                     });
@@ -112,12 +112,12 @@ public class DemoRunnableLeafsConfiguration {
             {
                 root("Parallel Blocks").sequential().as(root -> {
 
-                    root.branch("Parallel 1").parallel().as((Consumer<Branch>) b1 -> {
+                    root.branch("Parallel 1").parallel().as( b1 -> {
                         log(b1, "Parallel 1A");
                         log(b1, "parallel 1B");
                     });
 
-                    root.branch("Parallel 2").parallel().as((Consumer<Branch>) b -> {
+                    root.branch("Parallel 2").parallel().as( b -> {
                         log(b, "Parallel 2A");
                         log(b, "parallel 2B");
                     });

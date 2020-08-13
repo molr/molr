@@ -57,7 +57,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                     root.branch("parallel").parallel().as(b -> {
                         parallelBlock = latestBlock();
 
-                        b.branch("sequential branch A").sequential().as((Consumer<Branch>) bA -> {
+                        b.branch("sequential branch A").sequential().as(bA -> {
                             bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
@@ -67,7 +67,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                             });
                             blockA2 = latestBlock();
                         });
-                        b.branch("sequential branch B").sequential().as((Consumer<Branch>) bB -> {
+                        b.branch("sequential branch B").sequential().as( bB -> {
                             bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
