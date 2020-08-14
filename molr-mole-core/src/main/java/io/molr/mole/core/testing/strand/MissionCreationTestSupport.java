@@ -1,12 +1,12 @@
 package io.molr.mole.core.testing.strand;
 
-import io.molr.mole.core.runnable.lang.Branch;
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 import org.slf4j.Logger;
 
 public interface MissionCreationTestSupport {
 
-    default Branch.Task log(String text) {
-        return new Branch.Task(text, () -> logger().info("{} executed", text));
+    default void log(SimpleBranch b, String text) {
+        b.leaf(text).run(() -> logger().info("{} executed", text));
     }
 
     Logger logger();

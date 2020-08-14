@@ -37,27 +37,35 @@ public class ConcurrentStrandExecutorStepOverParallelTest extends AbstractSingle
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("step-over", root -> {
-                    parallel = root.parallel("parallel", b -> {
-                        b.sequential("sequential branch A", bA -> {
-                            parallelA1 = bA.run("A.1", () -> {
+                root("step-over").sequential().as(root -> {
+                    root.branch("parallel").parallel().as(b -> {
+                        parallel = latestBlock();
+
+                        b.branch("sequential branch A").sequential().as(bA -> {
+                            bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
                             });
-                            parallelA2 = bA.run("A.2", () -> {
+                            parallelA1 = latestBlock();
+
+                            bA.leaf("A.2").run(() -> {
                                 unlatch(latchA2Start);
                                 await(latchA2End);
                             });
+                            parallelA2 = latestBlock();
                         });
-                        b.sequential("sequential branch B", bB -> {
-                            parallelB1 = bB.run("B.1", () -> {
+                        b.branch("sequential branch B").sequential().as(bB -> {
+                            bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            parallelB2 = bB.run("B.2", () -> {
+                            parallelB1 = latestBlock();
+
+                            bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
+                            parallelB2 = latestBlock();
                         });
                     });
                 });

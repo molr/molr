@@ -2,7 +2,6 @@ package io.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import io.molr.commons.domain.*;
 
 import java.util.HashMap;

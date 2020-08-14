@@ -39,39 +39,48 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("root", root -> {
-                    leafBlock = root.run("leaf", () -> {
+                root("root").sequential().as(root -> {
+                    root.leaf("leaf").run(() -> {
                         unlatch(latchLeafStart);
                         await(latchLeafEnd);
                     });
+                    leafBlock = latestBlock();
 
-                    sequentialBlock = root.sequential("sequential-block", seq -> {
-                        seq.run("sequence-leaf", () -> {
+                    root.branch("sequential-block").sequential().as(seq -> {
+                        sequentialBlock = latestBlock();
+                        seq.leaf("sequence-leaf").run(() -> {
                         });
                     });
 
-                    parallelBlock = root.parallel("parallel", b -> {
-                        b.sequential("sequential branch A", bA -> {
-                            bA.run("A.1", () -> {
+                    root.branch("parallel").parallel().as(b -> {
+                        parallelBlock = latestBlock();
+
+                        b.branch("sequential branch A").sequential().as(bA -> {
+                            bA.leaf("A.1").run(() -> {
                                 unlatch(latchA1Start);
                                 await(latchA1End);
                                 System.out.println();
                             });
-                            blockA2 = bA.run("A.2", () -> {
+                            bA.leaf("A.2").run(() -> {
                             });
+                            blockA2 = latestBlock();
                         });
-                        b.sequential("sequential branch B", bB -> {
-                            bB.run("B.1", () -> {
+                        b.branch("sequential branch B").sequential().as( bB -> {
+                            bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
                             });
-                            blockB2 = bB.run("B.2", () -> {
+
+                            bB.leaf("B.2").run(() -> {
                                 unlatch(latchB2Start);
                                 await(latchB2End);
                             });
+                            blockB2 = latestBlock();
                         });
                     });
-                    lastBlock = root.run(log("After"));
+                    log(root, "After");
+                    lastBlock = latestBlock();
+
                 });
             }
         }.build();

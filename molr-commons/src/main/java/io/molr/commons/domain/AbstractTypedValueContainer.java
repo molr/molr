@@ -21,6 +21,10 @@ public abstract class AbstractTypedValueContainer implements TypedValueContainer
                 .orElse(null);
     }
 
+    protected Map<String, Object> values() {
+        return this.values;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

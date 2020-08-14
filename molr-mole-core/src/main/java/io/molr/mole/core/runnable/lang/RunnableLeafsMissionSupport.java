@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Set;
@@ -28,29 +28,27 @@ public abstract class RunnableLeafsMissionSupport {
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
-    protected void sequential(String newName, Consumer<Branch> branchConsumer) {
-        root(newName, branchConsumer, RunnableLeafsMission::sequentialRoot);
+    protected OngoingRootBranch root(String missionName) {
+        requireNonNull(missionName, "name must not be null.");
+        assertNoBuilderYet();
+        this.builder = RunnableLeafsMission.builder();
+        return new OngoingRootBranch(missionName, builder, null, SEQUENTIAL);
     }
 
-    protected void parallel(String newName, Consumer<Branch> branchConsumer) {
-        root(newName, branchConsumer, RunnableLeafsMission::parallelRoot);
+    @Deprecated
+    protected void sequential(String newName, Consumer<SimpleBranch> branchConsumer) {
+        root(newName).sequential().as(branchConsumer);
     }
 
-    protected void breakOn(Block block) {
-        builder.breakOn(block);
+    @Deprecated
+    protected void parallel(String newName, Consumer<SimpleBranch> branchConsumer) {
+        root(newName).parallel().as(branchConsumer);
     }
-    
-    private void root(String newName, Consumer<Branch> branchConsumer, Function<String, RunnableLeafsMission.Builder> builderFactory) {
+
+    private void assertNoBuilderYet() {
         if (this.builder != null) {
-            throw new IllegalStateException("Root can only be defined once!");
+            throw new IllegalStateException("Root can only be defined once! Use either sequential() or parallel().");
         }
-
-        requireNonNull(newName, "name must not be null.");
-        requireNonNull(branchConsumer, "branchConsumer must not be null.");
-
-        this.builder = builderFactory.apply(newName);
-        Branch rootBranch = Branch.withParent(builder, builder.root());
-        branchConsumer.accept(rootBranch);
     }
 
     /*
@@ -58,12 +56,12 @@ public abstract class RunnableLeafsMissionSupport {
      * optional and mandatory
      * we could also discuss a more flexible parameter validator approach instead of allowed values
      */
-    
+
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.required(placeholder));
         return placeholder;
     }
-    
+
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, Set<T> allowedValues) {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withAllowed(allowedValues));
         return placeholder;
@@ -73,7 +71,7 @@ public abstract class RunnableLeafsMissionSupport {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue));
         return placeholder;
     }
-    
+
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
@@ -83,7 +81,7 @@ public abstract class RunnableLeafsMissionSupport {
         this.parameterBuilder.add(MissionParameter.optional(placeholder));
         return placeholder;
     }
-    
+
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder, Set<T> allowedValues) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder).withAllowed(allowedValues));
         return placeholder;
@@ -97,6 +95,15 @@ public abstract class RunnableLeafsMissionSupport {
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
+    }
+
+    /**
+     * Retrieves the most recently created block. NOTE: This is only intended for internal testing purposes!
+     *
+     * @return the most recently added block.
+     */
+    protected Block latestBlock() {
+        return builder.latest();
     }
 
     public RunnableLeafsMission build() {

@@ -1,9 +1,8 @@
 package io.molr.mole.core.runnable.demo.conf;
 
-import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.Branch;
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import com.google.common.collect.ImmutableSet;
 
 import static io.molr.commons.domain.Placeholder.*;
+import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
 
 import java.util.Set;
 
@@ -25,24 +25,25 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Executable Leafs Demo Mission", root -> {
+                root("Executable Leafs Demo Mission").sequential().as(root -> {
 
-                    root.sequential("First", b -> {
-                        Block firstABlock = b.run(log("First A"));
-                        breakOn(firstABlock);
-                        b.run(log("First B"));
+                    root.branch("First").sequential().as(b1 -> {
+                        b1.leaf("First A")
+                                .perDefault(BREAK)
+                                .run(() -> LOGGER.info("{} executed", "First A"));
+                        log(b1, "First B");
                     });
 
-                    root.sequential("Second", b -> {
-                        b.run(log("second A"));
-                        b.run(log("second B"));
+                    root.branch("Second").sequential().as(b1 -> {
+                        log(b1, "second A");
+                        log(b1, "second B");
                     });
 
-                    root.run(log("Third"));
+                    log(root, "Third");
 
-                    root.parallel("Parallel", b -> {
-                        b.run(log("Parallel A"));
-                        b.run(log("parallel B"));
+                    root.branch("Parallel").parallel().as(b -> {
+                        log(b, "Parallel A");
+                        log(b, "parallel B");
                     });
 
                 });
@@ -69,17 +70,17 @@ public class DemoRunnableLeafsConfiguration {
                 Placeholder<String> device = optional(aString("deviceName"), ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
-                sequential("Executable Leafs Demo Mission (parametrized)", root -> {
+                root("Executable Leafs Demo Mission (parametrized)").sequential().as(root -> {
 
-                    root.run("print messages", (in, out) -> {
-                        for (int i = 0; i < in.get(iterations); i++) {
-                            LOGGER.info("Iteration=" + i + "; " + in.get(message) + i);
-                            sleepUnchecked(in.get(sleepMilis));
-                            out.emit("iteration-" + i, in.get(message) + i);
+                    root.leaf("print messages").run((in1, out1) -> {
+                        for (int i = 0; i < in1.get(iterations); i++) {
+                            LOGGER.info("Iteration=" + i + "; " + in1.get(message) + i);
+                            sleepUnchecked(in1.get(sleepMilis));
+                            out1.emit("iteration-" + i, in1.get(message) + i);
                         }
                     });
 
-                    root.run("print optionals", (in, out) -> {
+                    root.leaf("print optionals").run((in, out) -> {
                         LOGGER.info("device=" + in.get(device));
                         out.emit("device", in.get(device)); /* Will not be added as null is not allowed */
 
@@ -87,24 +88,24 @@ public class DemoRunnableLeafsConfiguration {
                         out.emit("betax", in.get(betax));
                     });
 
-                    root.sequential("First", b -> {
-                        b.run(log("First A"));
-                        b.run("Failing subtask ", () -> {
+                    root.branch("First").sequential().as(b1 -> {
+                        log(b1, "First A");
+                        b1.run("Failing subtask ", () -> {
                             throw new RuntimeException("Failing on purpose.");
                         });
-                        b.run(log("First B"));
+                        log(b1, "First B");
                     });
 
-                    root.sequential("Second", b -> {
-                        b.run(log("second A"));
-                        b.run(log("second B"));
+                    root.branch("Second").sequential().as(b1 -> {
+                        log(b1, "second A");
+                        log(b1, "second B");
                     });
 
-                    root.run(log("Third"));
+                    log(root, "Third");
 
-                    root.parallel("Parallel", b -> {
-                        b.run(log("Parallel A"));
-                        b.run(log("parallel B"));
+                    root.branch("Parallel").parallel().as(b -> {
+                        log(b, "Parallel A");
+                        log(b, "parallel B");
                     });
 
                 });
@@ -117,16 +118,16 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission parallelBlocksMission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Parallel Blocks", root -> {
+                root("Parallel Blocks").sequential().as(root -> {
 
-                    root.parallel("Parallel 1", b -> {
-                        b.run(log("Parallel 1A"));
-                        b.run(log("parallel 1B"));
+                    root.branch("Parallel 1").parallel().as( b1 -> {
+                        log(b1, "Parallel 1A");
+                        log(b1, "parallel 1B");
                     });
 
-                    root.parallel("Parallel 2", b -> {
-                        b.run(log("Parallel 2A"));
-                        b.run(log("parallel 2B"));
+                    root.branch("Parallel 2").parallel().as( b -> {
+                        log(b, "Parallel 2A");
+                        log(b, "parallel 2B");
                     });
 
                 });
@@ -135,9 +136,42 @@ public class DemoRunnableLeafsConfiguration {
         }.build();
     }
 
+    @Bean
+    public RunnableLeafsMission contextualRunnableLeafsMission() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                Placeholder<String> device = mandatory(aString("deviceName"));
 
-    private static Branch.Task log(String text) {
-        return new Branch.Task(text, (in, out) -> LOGGER.info("{} executed", text));
+                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as(root -> {
+                    root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
+                    root.leaf("switch off").runCtx(DeviceDriver::switchOff);
+                });
+
+            }
+        }.build();
+    }
+
+    private static class DeviceDriver {
+
+        private final String deviceName;
+
+        public DeviceDriver(String deviceName) {
+            this.deviceName = deviceName;
+        }
+
+        public void switchOn() {
+            System.out.println("Switched ON device " + deviceName + ".");
+        }
+
+        public void switchOff() {
+            System.out.println("Switched OFF device " + deviceName + ".");
+        }
+
+
+    }
+
+    private static void log(SimpleBranch b, String text) {
+        b.leaf(text).run(() -> LOGGER.info("{} executed", text));
     }
 
     private static void sleepUnchecked(long millis) {

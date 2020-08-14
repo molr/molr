@@ -40,21 +40,29 @@ public class ConcurrentStrandExecutorChildrenTest extends AbstractSingleMissionS
         LOGGER.info("MISSION CREATED");
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Root", root -> {
-                    blockParallel = root.parallel("Parallel", p -> {
-                        p.sequential("Sequence A", seqA -> {
-                            blockA1 = seqA.run("A.1", () -> {
+                root("Root").sequential().as(root -> {
+                    root.branch("Parallel").parallel().as(p -> {
+                        blockParallel = latestBlock();
+
+                        p.branch("Sequence A").sequential().as( seqA -> {
+                            seqA.leaf("A.1").run(() -> {
                                 unlatch(latchAStart);
                                 await(latchAEnd);
                             });
-                            blockA2 = seqA.run("A.2", NOOP);
+                            blockA1 = latestBlock();
+
+                            seqA.leaf("A.2").run(NOOP);
+                            blockA2 = latestBlock();
                         });
-                        p.sequential("Sequence B", seqB -> {
-                            blockB1 = seqB.run("B.1", () -> {
+                        p.branch("Sequence B").sequential().as( seqB -> {
+                            seqB.leaf("B.1").run(() -> {
                                 unlatch(latchBStart);
                                 await(latchBEnd);
                             });
-                            blockB2 = seqB.run("B.2", NOOP);
+                            blockB1 = latestBlock();
+
+                            seqB.leaf("B.2").run(NOOP);
+                            blockB2 = latestBlock();
                         });
                     });
                 });

@@ -8,12 +8,11 @@ import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.testing.LatchTestSupport;
 import io.molr.mole.core.tree.*;
 import io.molr.mole.core.tree.tracking.TreeTracker;
-
-import java.util.HashSet;
-
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
+
+import java.util.HashSet;
 
 /**
  * Abstract support class for a test against one mission, specified via the {@link #mission()} abstract method.

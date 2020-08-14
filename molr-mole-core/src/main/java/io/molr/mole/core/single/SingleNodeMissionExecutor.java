@@ -8,7 +8,6 @@ import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import io.molr.mole.core.tree.MissionExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;

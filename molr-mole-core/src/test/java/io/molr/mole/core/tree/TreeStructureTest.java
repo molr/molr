@@ -31,27 +31,46 @@ public class TreeStructureTest {
 
     private final static RunnableLeafsMission DATA = new RunnableLeafsMissionSupport() {
         {
-            sequential("Root", root -> {
+            root("Root").sequential().as(root -> {
 
-                FIRST = root.sequential("First", b -> {
-                    FIRST_A = b.run("First A", NOOP);
-                    FIRST_B = b.run("First B", NOOP);
+                root.branch("First").sequential().as(b1 -> {
+                    FIRST = latestBlock();
+
+                    b1.leaf("First A").run(NOOP);
+                    FIRST_A = latestBlock();
+
+                    b1.leaf("First B").run(NOOP);
+                    FIRST_B = latestBlock();
                 });
 
-                SECOND = root.sequential("Second", b -> {
-                    SECOND_A = b.run("second A", NOOP);
-                    SECOND_B = b.run("second B", NOOP);
+                root.branch("Second").sequential().as(b1 -> {
+                    SECOND = latestBlock();
+
+                    b1.leaf("second A").run(NOOP);
+                    SECOND_A = latestBlock();
+
+                    b1.leaf("second B").run(NOOP);
+                    SECOND_B = latestBlock();
                 });
 
-                THIRD = root.run("Third", NOOP);
+                root.leaf("Third").run(NOOP);
+                THIRD = latestBlock();
 
-                PARALLEL = root.parallel("Parallel", b -> {
-                    PARALLEL_A = b.run("parallel A", NOOP);
-                    PARALLEL_B = b.run("parallel B", NOOP);
+                root.branch("Parallel").parallel().as(b1 -> {
+                    PARALLEL = latestBlock();
+
+                    b1.leaf("parallel A").run(NOOP);
+                    PARALLEL_A = latestBlock();
+
+                    b1.leaf("parallel B").run(NOOP);
+                    PARALLEL_B = latestBlock();
                 });
 
-                FOURTH = root.sequential("Fourth", b -> {
-                    FOURTH_A = b.run("Fourth", NOOP);
+                root.branch("Fourth").sequential().as(b -> {
+                    FOURTH = latestBlock();
+
+                    b.leaf("Fourth").run(NOOP);
+                    FOURTH_A = latestBlock();
                 });
             });
 

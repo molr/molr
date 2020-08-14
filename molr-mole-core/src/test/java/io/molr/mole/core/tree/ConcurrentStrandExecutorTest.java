@@ -42,26 +42,45 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {
             {
-                sequential("Root", root -> {
-                    FIRST = root.sequential("First", b -> {
-                        FIRST_A = b.run(log("First A"));
-                        FIRST_B = b.run(log("First B"));
+                root("Root").sequential().as(root -> {
+                    root.branch("First").sequential().as(b1 -> {
+                        FIRST = latestBlock();
+
+                        log(b1, "First A");
+                        FIRST_A = latestBlock();
+
+                        log(b1, "First B");
+                        FIRST_B = latestBlock();
                     });
 
-                    SECOND = root.sequential("Second", b -> {
-                        SECOND_A = b.run(log("second A"));
-                        SECOND_B = b.run(log("second B"));
+                    root.branch("Second").sequential().as(b1 -> {
+                        SECOND = latestBlock();
+
+                        log(b1, "second A");
+                        SECOND_A = latestBlock();
+
+                        log(b1, "second B");
+                        SECOND_B = latestBlock();
                     });
 
-                    THIRD = root.run(log("Third"));
+                    log(root, "Third");
+                    THIRD = latestBlock();
 
-                    PARALLEL = root.parallel("Parallel", b -> {
-                        PARALLEL_A = b.run(log("parallel A"));
-                        PARALLEL_B = b.run(log("parallel B"));
+                    root.branch("Parallel").parallel().as(b1 -> {
+                        PARALLEL = latestBlock();
+
+                        log(b1, "parallel A");
+                        PARALLEL_A = latestBlock();
+
+                        log(b1, "parallel B");
+                        PARALLEL_B = latestBlock();
                     });
 
-                    FOURTH = root.sequential("Fourth", b -> {
-                        FOURTH_A = b.run(log("Fourth A"));
+                    root.branch("Fourth").sequential().as(b -> {
+                        FOURTH = latestBlock();
+
+                        log(b, "Fourth A");
+                        FOURTH_A = latestBlock();
                     });
                 });
             }
@@ -169,3 +188,4 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
     }
 
 }
+
