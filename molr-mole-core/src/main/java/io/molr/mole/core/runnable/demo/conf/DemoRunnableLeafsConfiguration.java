@@ -2,14 +2,12 @@ package io.molr.mole.core.runnable.demo.conf;
 
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.Branch;
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.function.Consumer;
 
 import static io.molr.commons.domain.Placeholder.*;
 import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
@@ -134,8 +132,8 @@ public class DemoRunnableLeafsConfiguration {
             {
                 Placeholder<String> device = mandatory(aString("deviceName"));
 
-                root("contextual mission").sequential().contextual(DeviceDriver::new, device).as(root -> {
-                    root.leaf("switch on").runCtx(DeviceDriver::switchOn);
+                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as(root -> {
+                    root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
                     root.leaf("switch off").runCtx(DeviceDriver::switchOff);
                 });
 
@@ -162,7 +160,7 @@ public class DemoRunnableLeafsConfiguration {
 
     }
 
-    private static void log(Branch b, String text) {
+    private static void log(SimpleBranch b, String text) {
         b.leaf(text).run(() -> LOGGER.info("{} executed", text));
     }
 

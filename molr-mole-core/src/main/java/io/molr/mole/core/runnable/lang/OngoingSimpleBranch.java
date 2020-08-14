@@ -16,14 +16,18 @@ public class OngoingSimpleBranch extends GenericOngoingBranch<OngoingSimpleBranc
         super(name, builder, parent, mode);
     }
 
-    public void as(Consumer<Branch> branchDescription) {
+    public OngoingSimpleLeaf leaf(String name) {
+        return new OngoingSimpleLeaf(name, builder(), parent());
+    }
+
+    public void as(Consumer<SimpleBranch> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
         requireNonNull(branchDescription, "branchDescription must not be null.");
 
         Block block = block();
-        Branch branch = Branch.withParent(builder(), block);
+        SimpleBranch branch = SimpleBranch.withParent(builder(), block);
         branchDescription.accept(branch);
     }
 }

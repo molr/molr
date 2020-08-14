@@ -8,9 +8,9 @@ import io.molr.mole.core.utils.Checkeds;
 
 import static java.util.Objects.requireNonNull;
 
-public class OngoingLeaf extends OngoingNode<OngoingLeaf> {
+public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extends OngoingNode<L> {
 
-    public OngoingLeaf(String name, RunnableLeafsMission.Builder builder, Block parent) {
+    public GenericOngoingLeaf(String name, RunnableLeafsMission.Builder builder, Block parent) {
         super(
                 requireNonNull(name, "leafName must not be null"), //
                 requireNonNull(builder, "builder must not be null"), //

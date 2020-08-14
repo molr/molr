@@ -7,7 +7,6 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.utils.Checkeds;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
@@ -22,8 +21,16 @@ public abstract class AbstractBranch {
         this.parent = requireNonNull(parent, "parent must not be null");
     }
 
-    public OngoingLeaf leaf(String name) {
-        return new OngoingLeaf(name, builder, parent);
+    public abstract GenericOngoingBranch<? extends GenericOngoingBranch> branch(String name);
+
+    public abstract GenericOngoingLeaf<? extends GenericOngoingLeaf> leaf(String name);
+
+    protected RunnableLeafsMission.Builder builder() {
+        return this.builder;
+    }
+
+    protected Block parent() {
+        return this.parent;
     }
 
     public void println(Object object) {
@@ -34,13 +41,6 @@ public abstract class AbstractBranch {
         leaf("Sleep " + time + " " + unit).run(() -> unit.sleep(time));
     }
 
-    protected RunnableLeafsMission.Builder builder() {
-        return this.builder;
-    }
-
-    protected Block parent() {
-        return this.parent;
-    }
     /*
     DEPRECATED methods. To be removed asap.
      */
@@ -64,6 +64,5 @@ public abstract class AbstractBranch {
     public void run(String name, Checkeds.CheckedThrowingBiConsumer<In, Out> runnable) {
         leaf(name).run(runnable);
     }
-
 
 }

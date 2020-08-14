@@ -33,12 +33,12 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     @Deprecated
-    protected void sequential(String newName, Consumer<Branch> branchConsumer) {
+    protected void sequential(String newName, Consumer<SimpleBranch> branchConsumer) {
         root(newName).sequential().as(branchConsumer);
     }
 
     @Deprecated
-    protected void parallel(String newName, Consumer<Branch> branchConsumer) {
+    protected void parallel(String newName, Consumer<SimpleBranch> branchConsumer) {
         root(newName).parallel().as(branchConsumer);
     }
 

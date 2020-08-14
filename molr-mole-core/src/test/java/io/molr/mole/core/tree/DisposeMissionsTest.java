@@ -6,7 +6,7 @@ import io.molr.commons.domain.*;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.RunnableLeafsMole;
-import io.molr.mole.core.runnable.lang.Branch;
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,7 +110,7 @@ public class DisposeMissionsTest {
         }.build();
     }
 
-    private static void log(Branch b, String text) {
+    private static void log(SimpleBranch b, String text) {
         b.leaf(text).run(() -> LOGGER.info(text));
     }
 

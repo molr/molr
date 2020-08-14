@@ -35,14 +35,14 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
     }
 
 
-    public void as(Consumer<Branch> branchDescription) {
+    public void as(Consumer<SimpleBranch> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
         requireNonNull(branchDescription, "branchDescription must not be null.");
 
         Block block = block();
-        Branch branch = Branch.withParent(builder(), block);
+        SimpleBranch branch = SimpleBranch.withParent(builder(), block);
         branchDescription.accept(branch);
     }
 
