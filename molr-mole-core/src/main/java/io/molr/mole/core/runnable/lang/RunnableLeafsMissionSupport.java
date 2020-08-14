@@ -51,12 +51,6 @@ public abstract class RunnableLeafsMissionSupport {
         }
     }
 
-    /*
-     * TODO We should consider a custom builder for the dsl or use the MissionParameterBuilder to avoid multiple method signatures for
-     * optional and mandatory
-     * we could also discuss a more flexible parameter validator approach instead of allowed values
-     */
-
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.required(placeholder));
         return placeholder;
