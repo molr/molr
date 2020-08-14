@@ -10,7 +10,7 @@ import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
-public class GenericOngoingBranch<B extends GenericOngoingBranch<B>> extends OngoingNode<B> {
+public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> extends OngoingNode<B> {
 
     private BranchMode mode;
 
