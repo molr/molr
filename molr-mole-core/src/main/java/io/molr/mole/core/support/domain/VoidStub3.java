@@ -5,8 +5,8 @@ import io.molr.commons.domain.Placeholder;
 
 public class VoidStub3<P1, P2, P3> extends MissionStub3<P1, P2, P3, Void> {
 
-    VoidStub3(Mission mission, Class<Void> returnType, Placeholder<P1> p1, Placeholder<P2> p2, Placeholder<P3> p3) {
-        super(mission, returnType, p1, p2, p3);
+    VoidStub3(Mission mission, Placeholder<P1> p1, Placeholder<P2> p2, Placeholder<P3> p3) {
+        super(mission, Void.class, p1, p2, p3);
     }
 
     public <R> MissionStub3<P1, P2, P3, R> returning(Class<R> returnType) {

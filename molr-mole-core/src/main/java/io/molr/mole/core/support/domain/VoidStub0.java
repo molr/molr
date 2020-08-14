@@ -59,4 +59,8 @@ public class VoidStub0 extends MissionStub0<Void> {
     public <P1, P2> VoidStub2<P1, P2> withParameters(Placeholder<P1> p1, Placeholder<P2> p2) {
         return new VoidStub2<P1, P2>(mission(), p1, p2);
     }
+
+    public <P1, P2, P3> VoidStub3<P1,P2, P3> withParameters(Placeholder<P1> p1, Placeholder<P2> p2, Placeholder<P3> p3) {
+        return new VoidStub3<>(mission(), p1, p2, p3);
+    }
 }
