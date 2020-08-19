@@ -43,7 +43,7 @@ public abstract class LeafExecutor {
         return result;
     }
 
-    public final Result tryCatchExecute(Block block) {
+    private final Result tryCatchExecute(Block block) {
         try {
             doExecute(block);
             return SUCCESS;
