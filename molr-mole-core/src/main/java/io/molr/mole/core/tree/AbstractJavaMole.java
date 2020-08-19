@@ -69,6 +69,11 @@ public abstract class AbstractJavaMole implements Mole {
                  */
                 return;
             }
+
+            if(parameterValue==null) {
+                throw new IllegalArgumentException("missing mandatory parameter");
+            }
+
             if(parameter.allowedValues() != null && !parameter.allowedValues().isEmpty()) {
                 if(!parameter.allowedValues().contains(parameterValue)) {
                     throw new IllegalArgumentException("Cannot instantiate mission: Value "+parameterValue

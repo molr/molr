@@ -10,6 +10,7 @@ public final class Placeholders {
     private static final String RETURN_VALUE_KEY = "returnValue";
     private static final String THROWABLE_KEY = "throwable";
     private static final String CONTEXT_KEY = "context";
+    private static final String LENIENT_MODE_KEY = "lenientMode";
 
     public static final Placeholder<String> RETURNED_STRING = Placeholder.aString(RETURN_VALUE_KEY);
     public static final Placeholder<Integer> RETURNED_INTEGER = Placeholder.anInteger(RETURN_VALUE_KEY);
@@ -22,6 +23,7 @@ public final class Placeholders {
             RETURNED_DOUBLE, RETURNED_BOOLEAN);
 
     public static final Placeholder<String> THROWN = Placeholder.aString(THROWABLE_KEY);
+    public static final Placeholder<Boolean> LENIENT_MODE = Placeholder.aBoolean(LENIENT_MODE_KEY);
 
     private Placeholders() {
         /* only constants and methods */

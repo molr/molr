@@ -19,6 +19,9 @@ public final class MissionParameterDescription {
         return this.parameters;
     }
 
+    public boolean hasParameterForPlaceholder(Placeholder<?> placeholder) {
+        return parameters.stream().anyMatch(parameter -> parameter.placeholder().equals(placeholder));
+    }
 
     public static final MissionParameterDescription empty() {
         return new MissionParameterDescription(ImmutableSet.of());

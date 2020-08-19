@@ -64,7 +64,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final Flux<Block> blockStream;
     private final EmitterProcessor<Exception> errorSink;
     private final Flux<Exception> errorStream;
-    private final EmitterProcessor<ImmutableList<StrandExecutor>> childExecutorsSink;
 
     /* AtomicReference guarantee read safety while not blocking using cycleLock for the getters */
     private final AtomicReference<Set<StrandCommand>> allowedCommands;
@@ -74,9 +73,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private Block currentStepOverSource;
     private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
+    private boolean lenientMode;
 
-    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints) {
+    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints, boolean lenientMode) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
+        this.lenientMode = lenientMode;
         this.breakpoints = breakpoints;
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
@@ -92,7 +93,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.stateStream = stateSink.publishOn(publishingScheduler("states"));
         this.blockSink = ReplayProcessor.cacheLast();
         this.blockStream = blockSink.publishOn(publishingScheduler("cursor"));
-        this.childExecutorsSink = EmitterProcessor.create();
 
         this.allowedCommands = new AtomicReference<>();
         this.actualBlock = new AtomicReference<>();
@@ -229,10 +229,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     if (isLeaf(actualBlock())) {                     
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
                         Result result = leafExecutor.execute(actualBlock());
-                        if (result == Result.SUCCESS) {
+                        if (result == Result.SUCCESS || lenientMode) {
                             moveNext();
                         } else {
                             LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock(), result);
+                            //TODO introduce other strategies - at least finishOnError
                             updateState(ExecutorState.IDLE);
                         }
                     } else if (structure.isParallel(actualBlock())) {
@@ -260,6 +261,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
         LOGGER.debug("Executor for strand {} is finished", strand);
         executor.shutdown();
+        LOGGER.debug("Close streams for strand {}", strand);
+        stateSink.onComplete();
+        blockSink.onComplete();
+        errorSink.onComplete();
+        lastCommandSink.onComplete();     
     }
 
     private void pause() {
@@ -310,7 +316,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints);
+        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, lenientMode);
         addChildExecutor(childExecutor);
         LOGGER.debug("[{}] created child strand {}", strand, childStrand);
         return childExecutor;
@@ -326,7 +332,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private void updateChildrenExecutors(ImmutableList<StrandExecutor> newChildren) {
         childExecutors = newChildren;
-        childExecutorsSink.onNext(childExecutors);
         updateAllowedCommands();
     }
 

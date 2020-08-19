@@ -38,12 +38,12 @@ public class StrandExecutorFactory {
         newStrandsStream = newStrandsSink.publishOn(Schedulers.elastic());
     }
 
-    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints) {
+    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, boolean lenientMode) {
         synchronized (strandExecutorLock) {
             if (strandExecutors.containsKey(strand)) {
                 throw new IllegalArgumentException(strand + " is already associated with an executor");
             }
-            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor, breakpoints);
+            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor, breakpoints, lenientMode);
             strandExecutors.put(strand, strandExecutor);
             newStrandsSink.onNext(strandExecutor);
             return strandExecutor;

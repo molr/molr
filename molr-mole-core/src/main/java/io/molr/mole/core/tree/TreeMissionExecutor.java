@@ -36,7 +36,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final Set<Block> breakpoints;
     EmitterProcessor<Object> statesSink;
 
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, boolean lenient) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
         breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
         
@@ -52,7 +52,8 @@ public class TreeMissionExecutor implements MissionExecutor {
         statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
             newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
-            newExecutor.getStateStream().subscribe(any -> statesSink.onNext(new Object()));
+            newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
+                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onExecutorStatesStreamComplete);
         });
         states = statesSink.map(signal -> gatherMissionState())
                 .cache(1)
@@ -60,10 +61,16 @@ public class TreeMissionExecutor implements MissionExecutor {
                 .publishOn(Schedulers.elastic());
 
         Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints);
+        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, lenient);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
+        }
+    }
+    
+    private void onExecutorStatesStreamComplete() {
+        if(isComplete()) {
+            statesSink.onComplete();
         }
     }
 
@@ -165,6 +172,15 @@ public class TreeMissionExecutor implements MissionExecutor {
         }
         statesSink.onComplete();
         outputCollector.onComplete();
+    }
+    
+    private boolean isComplete() {
+        RunState rootRunState = runStateTracker.resultFor(representation.rootBlock());
+        if(rootRunState == RunState.FINISHED) {
+            return true;
+        }
+        return false;
+        
     }
     
     private boolean isDisposable() {
