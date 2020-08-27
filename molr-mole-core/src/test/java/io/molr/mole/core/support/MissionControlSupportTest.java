@@ -6,6 +6,8 @@ import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.single.SingleNodeMission;
 import io.molr.mole.core.single.SingleNodeMole;
 import io.molr.mole.core.support.domain.*;
+
+import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
@@ -124,7 +126,7 @@ public class MissionControlSupportTest {
 
     @Test
     public void control() {
-        Mono<MissionHandle> handleMono = support.start(voidMission1, new HashMap<String, Object>()).asyncHandle();
+        Mono<MissionHandle> handleMono = support.start(voidMission1, Maps.newHashMap("stringParam","parameter value")).asyncHandle();
 
         assertThat(support.control(handleMono), instanceOf(OngoingMissionRun.class));
         assertNotNull(support.control(handleMono));

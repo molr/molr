@@ -1,17 +1,33 @@
 package io.molr.commons.domain;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class Placeholder<T> {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(Placeholder.class);
+    
     private final Class<T> type;
     private final String name;
+    private Function<Object, T> converter = null;
 
     private Placeholder(Class<T> type, String name) {
         this.type = requireNonNull(type, "type must not be null");
         this.name = requireNonNull(name, "name must not be null");
+    }
+    
+    private Placeholder(Class<T> type, String name, Function<Object, T> converter) {
+        this.type = requireNonNull(type, "type must not be null");
+        this.name = requireNonNull(name, "name must not be null");
+        this.converter = converter;
     }
 
     public static final Placeholder<Double> aDouble(String name) {
@@ -22,15 +38,67 @@ public final class Placeholder<T> {
         return new Placeholder<>(Boolean.class, name);
     }
 
+    /*
+     * TODO delete comment: see method below. However the used conversion workaround would be unnecessary if types are 
+     * deserialized correctly, which is possible.
+     */
     /* aLong does not work at the moment ... the transport over json always converts into integers
     when numbers fit into integers and then the case fails .. so for the moment we avoid it ;-)*/
+    public static final Placeholder<Long> aLong(String name) {
+        return new Placeholder<>(Long.class, name, longOrInt -> {
+            if(longOrInt.getClass().equals(Integer.class)){
+                //convert the unintentionally used integer to a long value
+                return Long.valueOf((Integer)longOrInt);
+            }
+            return (Long)longOrInt;
+        });
+    }
 
+    /*
+     * TODO remove since placeholder type would be ArrayList
+     */
+    @SuppressWarnings("unchecked")
+    public static final Placeholder<List<String>> aStringListBackedByGenericArrayList(String name){
+        return new Placeholder<>((Class<List<String>>)new ArrayList<String>().getClass(), name);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static final Placeholder<List<Long>> aLongListBackedByGenericArrayList(String name){
+        return new Placeholder<>((Class<List<Long>>)new ArrayList<Long>().getClass(), name);
+    }
+    
     public static final Placeholder<Integer> anInteger(String name) {
         return new Placeholder<>(Integer.class, name);
     }
 
     public static final Placeholder<String> aString(String name) {
         return new Placeholder<>(String.class, name);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static final Placeholder<String[]> aStringArray(String name) {
+        return new Placeholder<>(String[].class, name, o-> {
+            if(o.getClass().equals(ArrayList.class)){
+                LOGGER.warn("Converter needs to convert ArrayList into String[] "+o);
+                ArrayList<String> strings = (ArrayList<String>)o;
+                String[] stringArray = strings.toArray(new String[strings.size()]);
+                return stringArray;
+            }
+            if(o.getClass().equals(String[].class)){
+                return (String[])o;
+            }
+            throw new IllegalArgumentException("object "+o+" of type "+o.getClass()+" cannot be converted to String[]");
+            
+        });
+    }
+    
+    public static final Placeholder<ListOfStrings> aListOfStrings(String name) {
+        return new Placeholder<>(ListOfStrings.class, name, (o) -> {
+            if(o.getClass().equals(ArrayList.class)) {
+                LOGGER.warn("Converter needs to convert ArrayList into list of type ListOfStrings.class: "+o);
+            }
+          return new ListOfStrings((ArrayList<String>)o);  
+        });
     }
 
     public Class<T> type() {
@@ -39,6 +107,17 @@ public final class Placeholder<T> {
 
     public String name() {
         return this.name;
+    }
+    
+    /**
+     * This is just a workaround for types that are not converted at the remote interface
+     * @return a function that converts or casts an object to the type specified by the placeholder
+     */
+    public Function<Object, T> caster(){
+        if(converter != null) {
+            return converter;
+        }
+        return o -> type.cast(o);
     }
 
     public static final <T> Placeholder<T> of(Class<T> type, String name) {
