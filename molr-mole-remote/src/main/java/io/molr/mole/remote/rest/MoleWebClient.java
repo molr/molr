@@ -1,6 +1,8 @@
 package io.molr.mole.remote.rest;
 
 import io.molr.commons.exception.MolrRemoteException;
+import io.molr.mole.server.conf.ObjectMapperConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -26,9 +28,9 @@ public class MoleWebClient {
 
     private MoleWebClient(String baseUrl) {
         requireNonNull(baseUrl, "baseUrl must not be null");
-        client = WebClient.create(baseUrl);
+        client = WebClient.builder().exchangeStrategies(ObjectMapperConfig.createExchangeStrategies()).baseUrl(baseUrl).build();
     }
-
+   
     public static MoleWebClient withBaseUrl(String baseUrl) {
         return new MoleWebClient(baseUrl);
     }

@@ -3,14 +3,22 @@ package io.molr.mole.server.rest;
 import io.molr.commons.domain.*;
 import io.molr.commons.domain.dto.*;
 import io.molr.mole.core.api.Mole;
+import io.molr.mole.server.conf.ParameterValueDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -74,8 +82,31 @@ public class MolrMoleRestService {
      */
 
     @PostMapping(path = INSTANTIATE_MISSION_PATH)
-    public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName, @RequestBody Map<String, Object> params) {
-        return mole.instantiate(new Mission(missionName), params).map(MissionHandleDto::from);
+    public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName, @RequestBody String paramsJson) {
+        LOGGER.info("json: "+paramsJson);
+        
+        Mono<Map<String, Object>> parameterMap = mole.parameterDescriptionOf(new Mission(missionName)).flatMap(parameterDescription -> {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleModule simpleModule = new SimpleModule();
+            simpleModule.addDeserializer(Map.class, ParameterValueDeserializer.with(mapper, parameterDescription));
+            mapper.registerModule(simpleModule);
+            Map<String, Object> parameterValues = null;
+            try {
+                parameterValues = mapper.readValue(paramsJson, Map.class);
+            } catch (JsonParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return Mono.just(parameterValues);
+        });
+        
+        return parameterMap.flatMap(parameterMap1 -> (mole.instantiate(new Mission(missionName), parameterMap1).map(MissionHandleDto::from)));
     }
 
     @PostMapping(path = INSTANCE_INSTRUCT_MISSION_PATH)

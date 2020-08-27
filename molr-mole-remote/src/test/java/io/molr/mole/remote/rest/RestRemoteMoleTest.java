@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.google.common.collect.Lists;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,7 +56,7 @@ public class RestRemoteMoleTest {
         Set<Mission> missions = new HashSet<>();
         missions.add(new Mission("run a Marathon"));
         missions.add(new Mission("swim 10km"));
-        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter");
+        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter").withAllowed(Lists.newArrayList("Test parameter"));
         MissionParameterDescription parameterDescription = new MissionParameterDescription(Collections.singleton(param));
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription).cache());
 
