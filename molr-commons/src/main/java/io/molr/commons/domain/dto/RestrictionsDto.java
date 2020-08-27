@@ -16,6 +16,11 @@ import java.util.Set;
 public class RestrictionsDto<T> {
     
     public Set<T> allowedValues;
+    
+    /**
+     * TO TYPES allowed values
+     * Containing values
+     */
 
     // You can choose a logger (needed imports are given in the import section as comments):
     // for libraries:

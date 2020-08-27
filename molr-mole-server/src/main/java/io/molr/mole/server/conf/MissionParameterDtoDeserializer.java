@@ -6,6 +6,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.BiMap;
@@ -16,9 +17,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.molr.commons.domain.dto.MissionParameterDto;
-import io.molr.commons.domain.ListOfStrings;
 
- import org.slf4j.Logger;
+import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;
 
 /**
@@ -65,53 +65,20 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         boolean required = node.get("required").asBoolean();
         JsonNode defaultValueNode = node.get("defaultValue");
         JsonNode allowedValuesNode = node.get("allowedValues");
-        if (type.equals(MissionParameterDto.TYPE_LIST_OF_STRINGS)) {
-
-            ListOfStrings defaultValue= mapper.treeToValue(defaultValueNode, ListOfStrings.class);
-            TypeReference<Set<ListOfStrings>> typeReference = new TypeReference<Set<ListOfStrings>>() {
-                //  
-              };
-            ObjectReader allowedValuesReader = mapper.readerFor(typeReference);
-            Set<ListOfStrings> allowedValues = allowedValuesReader.readValue(allowedValuesNode);
-            return new MissionParameterDto<>(name, type, required, defaultValue, allowedValues);
-        }
-        if(type.equals(MissionParameterDto.TYPE_STRING_ARRAY)) {
-            TypeReference<String[]> typeReference = new TypeReference<String[]>() {
-              //
-            };
-            ObjectReader stringArrayReader = mapper.readerFor(typeReference);
-            String[] defaultValue = stringArrayReader.readValue(defaultValueNode);         
-
-            Set<String[]> allowedValues = readAllowedValues(allowedValuesNode);//allowedValuesReader.readValue(allowedValuesNode);
-            return new MissionParameterDto<>(name, type, required, defaultValue, allowedValues);            
-        }
-        if(type.equals(MissionParameterDto.TYPE_BOOLEAN)) {
-            Boolean defaultValue = defaultValueNode.asBoolean();
-            Set<Boolean> allowedValues = readAllowedValues(allowedValuesNode);
-            return new MissionParameterDto<>(name, type, required, defaultValue, allowedValues);
-        }
-        if(type.equals(MissionParameterDto.TYPE_DOUBLE)) {
-            Double defaultValue = defaultValueNode.asDouble();
-            return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
-        }
-        if(type.equals(MissionParameterDto.TYPE_STRING)) {
-            String defaultValue = defaultValueNode.asText();
-            Set<String> allowedValues = readAllowedValues(allowedValuesNode);            
-            return new MissionParameterDto<>(name, type, required, defaultValue, allowedValues);
-        }
-        if(type.equals(MissionParameterDto.TYPE_INTEGER)) {
-            Integer defaultValue = defaultValueNode.asInt();
-            return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
-        }
-        if(type.equals(MissionParameterDto.TYPE_LONG)) {
-            Long defaultValue = defaultValueNode.asLong();
-            return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
-        }
         
-        Object defaultValue = mapper.treeToValue(defaultValueNode, MissionParameterDto.TYPE_NAMES.inverse().get(type));
+        Class<?> valueType = MissionParameterDto.TYPE_NAMES.inverse().get(type);
+        if(valueType != null) {
+            Object defaultVal = mapper.treeToValue(defaultValueNode, MissionParameterDto.TYPE_NAMES.inverse().get(type));
+            JavaType javaType= mapper.getTypeFactory().constructCollectionType(Set.class, valueType);
+            ObjectReader allowedValuesReader = mapper.readerFor(javaType);
+            Set<Object> allowedValues = allowedValuesReader.readValue(allowedValuesNode);
+            return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues);
+        }
+
+        Object defaultValue = mapper.treeToValue(defaultValueNode, Object.class);
         return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
 
-        //throw new IllegalStateException("Type cannot be deserialized "+type);
+        // throw new IllegalStateException("Type cannot be deserialized "+type);
     }
     
     public <T> Set<T> readAllowedValues(JsonNode node) throws IOException{
@@ -122,10 +89,4 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         return allowedValuesReader.readValue(node);
     }
 
-    //TODO maybe useful
-//  TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {//
-//  };
-//  JsonNode allowedValuesNode = node.get("allowedValues");
-//  ObjectReader listReader = mapper.readerFor(typeReference);
-//  listReader.readValue(allowedValuesNode);
 }

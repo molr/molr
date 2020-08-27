@@ -20,6 +20,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Mission;
@@ -62,7 +65,9 @@ public class RestRemoteMoleIntegrationTest {
          /*
           * the following assertion fails if custom deserialization is not used since default value would be deserialized to a Map 
           */
-         assertThat(parameterDescription.parameters()).contains(MissionParameter.required(ParameterTestMissions.CUSTOM).withDefault(ParameterTestMissions.CUSTOM_DEFAULT_VALUE));
+         assertThat(parameterDescription.parameters()).contains(MissionParameter.required(ParameterTestMissions.CUSTOM)
+                 .withDefault(ParameterTestMissions.CUSTOM_DEFAULT_VALUE).withAllowed(ImmutableSet.of(
+                         new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world")))));
          assertThat(parameterDescription.parameters()).contains(MissionParameter.required(ParameterTestMissions.SOME_STRING_ARRAY_PLACEHOLDER));
          
          parameterDescription.parameters().forEach(missionParameter -> {
