@@ -37,9 +37,6 @@ public class ParameterTestMissions {
     
     public final static Placeholder<String[]> SOME_STRING_ARRAY_PLACEHOLDER = Placeholder.aStringArray("someStringArray");
     
-    public final static Placeholder<List<String>> GENERIC_STRING_LIST_PLACEHOLDER = Placeholder.aStringListBackedByGenericArrayList("aGenericStringList");
-    public final static Placeholder<List<Long>> GENERIC_LONG_LIST_PLACEHOLDER = Placeholder.aLongListBackedByGenericArrayList("aGenericLongList");
-    
     public final static Placeholder<UnregisteredCustomType> UNREGISTERED_CUSTOM_TYPE_PLACEHOLDER = Placeholder.of(UnregisteredCustomType.class, "name");
     
     @Bean
@@ -51,8 +48,6 @@ public class ParameterTestMissions {
                 Placeholder<Long> longValue = mandatory(SLEEP_TIME, 5000L, Sets.newHashSet(500L, 5000L,3000L,2000L));
                 Placeholder<CustomTestParameter> custom = mandatory(CUSTOM, CUSTOM_DEFAULT_VALUE, Sets.newHashSet(new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world"))));
                 Placeholder<String[]> placeholderSomeStringArray = mandatory(Placeholder.aStringArray("someStringArray"));
-                Placeholder<List<String>> placeholderOfGenericStringList = mandatory(GENERIC_STRING_LIST_PLACEHOLDER);
-                Placeholder<List<Long>> placeholderOfGenericLongList = mandatory(GENERIC_LONG_LIST_PLACEHOLDER);
                 optional(Placeholders.EXECUTION_STRATEGY);//TODO should we make this a default parameter in runnable leafs mission
                 
                 /*
@@ -81,11 +76,7 @@ public class ParameterTestMissions {
                        LOGGER.info("customParameterTyoe: "+customValue.getSomeStrings().getClass());
                        String[] stringArray = in.get(placeholderSomeStringArray);
                        LOGGER.info("aStringArray: "+stringArray);
-                       List<String> aGenericStringList = in.get(placeholderOfGenericStringList);
-                       LOGGER.info("stringList: "+aGenericStringList);
-                       List<Long> aGenericLongList = in.get(placeholderOfGenericLongList);
-                       LOGGER.info("longList "+aGenericLongList);
-//                       LOGGER.info(in.get(strings).toString());
+                       //LOGGER.info(in.get(strings).toString());
                        out.emit(sequenceOut, new ListOfStrings(Lists.newArrayList("out1", "out2", "...")));
                     });
                 });

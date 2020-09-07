@@ -54,19 +54,6 @@ public final class Placeholder<T> {
         });
     }
 
-    /*
-     * TODO remove since placeholder type would be ArrayList
-     */
-    @SuppressWarnings("unchecked")
-    public static final Placeholder<List<String>> aStringListBackedByGenericArrayList(String name){
-        return new Placeholder<>((Class<List<String>>)new ArrayList<String>().getClass(), name);
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static final Placeholder<List<Long>> aLongListBackedByGenericArrayList(String name){
-        return new Placeholder<>((Class<List<Long>>)new ArrayList<Long>().getClass(), name);
-    }
-    
     public static final Placeholder<Integer> anInteger(String name) {
         return new Placeholder<>(Integer.class, name);
     }

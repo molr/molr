@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -49,6 +50,7 @@ import io.molr.mole.server.rest.MolrMoleRestService;
 @Import({ParameterTestMissions.class, RunnableLeafMoleConfiguration.class})
 @ContextConfiguration(classes = MolrMoleRestService.class)
 @EnableAutoConfiguration
+@DirtiesContext
 public class RestRemoteMoleIntegrationTest {
 
      private static final Logger LOGGER = LoggerFactory.getLogger(RestRemoteMoleIntegrationTest.class);
@@ -86,8 +88,6 @@ public class RestRemoteMoleIntegrationTest {
          parameters.put(ParameterTestMissions.SLEEP_TIME.name(), 500);
          parameters.put(ParameterTestMissions.CUSTOM.name(), new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world")));
          parameters.put(ParameterTestMissions.SOME_STRING_ARRAY_PLACEHOLDER.name(), new String[] {"This", "is", "a","test"});
-         parameters.put(ParameterTestMissions.GENERIC_STRING_LIST_PLACEHOLDER.name(), Lists.newArrayList("hello", "world"));
-         parameters.put(ParameterTestMissions.GENERIC_LONG_LIST_PLACEHOLDER.name(), Lists.newArrayList(1, 2));
 
          MissionHandle missionHandle = remoteMole.instantiate(parameterMission, parameters).block();
          Thread.sleep(100);

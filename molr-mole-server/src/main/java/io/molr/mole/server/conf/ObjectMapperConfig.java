@@ -3,7 +3,6 @@ package io.molr.mole.server.conf;
 import io.molr.commons.domain.dto.*;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author krepp
  */
-@Configuration
+//@Configuration
 public class ObjectMapperConfig {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectMapperConfig.class);
@@ -61,7 +60,7 @@ public class ObjectMapperConfig {
         }).build();
         return exchangeStrategies;
     }
-    
+
     public static ExchangeStrategies createExchangeStrategies() {
         ObjectMapper mapper = createObjectMapper();
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder().codecs(clientCodecConfigurer -> {
@@ -81,7 +80,8 @@ public class ObjectMapperConfig {
         LOGGER.info("Registered custom deserializer "+MissionParameterDtoDeserializer.class);
         return mapper;
     }
-    
+
+    /*
     @Bean
     public WebFluxConfigurer configurer(Jackson2JsonDecoder decoder, Jackson2JsonEncoder encoder) {
         return new WebFluxConfigurer() {
@@ -94,5 +94,7 @@ public class ObjectMapperConfig {
             
         };
     }
+    */
+
 }
 

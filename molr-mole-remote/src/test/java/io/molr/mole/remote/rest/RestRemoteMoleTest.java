@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = DEFINED_PORT)
 @ContextConfiguration(classes = MolrMoleRestService.class)
 @EnableAutoConfiguration
+@DirtiesContext
 public class RestRemoteMoleTest {
 
     public static final Block BLOCK2 = Block.idAndText("blockId2", "text");
@@ -142,7 +144,7 @@ public class RestRemoteMoleTest {
     public void instantiate() throws InterruptedException {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         Map<String, Object> params = new HashMap<>();
-        params.put("paramName", "param desc");
+        params.put("testValue", "param desc");
         remoteMole.instantiate(new Mission("a mission"), params);
         TimeUnit.SECONDS.sleep(1);
         Mockito.verify(mole, Mockito.timeout(1000).atLeastOnce()).instantiate(any(), any());
