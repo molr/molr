@@ -10,6 +10,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionRepresentation;
@@ -33,7 +34,7 @@ public class LenientModeIntegrationTest {
         return new RunnableLeafsMissionSupport() {
             {
 
-                optional(Placeholders.LENIENT_MODE, true);
+                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
 
                 root("root1").sequential().as(missionRoot -> {// 0
 
@@ -81,13 +82,13 @@ public class LenientModeIntegrationTest {
     }
 
     @Test
-    public void runMissionInNonLenientMode() throws InterruptedException {
+    public void runMissionAndAbortOnError() throws InterruptedException {
 
         Mission mission = new Mission("root1");
         Mole mole = testMoole();
         MissionRepresentation representation = mole.representationOf(mission).block();
         HashMap<String, Object> params = new HashMap<>();
-        params.put(Placeholders.LENIENT_MODE.name(), false);
+        params.put(Placeholders.EXECUTION_STRATEGY.name(), ExecutionStrategy.ABORT_ON_ERROR.name());
 
         MissionHandle handle = mole.instantiate(mission, params).block();
         Thread.sleep(100);
@@ -114,7 +115,7 @@ public class LenientModeIntegrationTest {
         Assertions.assertThat(latestState.resultOfBlockId("8")).isEqualTo(Result.UNDEFINED);
         Assertions.assertThat(latestState.resultOfBlockId("9")).isEqualTo(Result.UNDEFINED);
 
-        Assertions.assertThat(latestState.runStateOf(latestState.rootStrand())).isEqualTo(RunState.PAUSED);
+        Assertions.assertThat(latestState.runStateOf(latestState.rootStrand())).isEqualTo(RunState.FINISHED);
         /**
          * TODO We cannot rely on runStateOfBlockId - summarizer does not defer the correct runState from children
          */
@@ -132,7 +133,7 @@ public class LenientModeIntegrationTest {
     }
 
     @Test
-    public void test() throws InterruptedException {
+    public void runMissionAndProceedOnError() throws InterruptedException {
 
         Mission mission = new Mission("root1");
         Mole mole = testMoole();
@@ -149,7 +150,7 @@ public class LenientModeIntegrationTest {
         }
         //
         HashMap<String, Object> params = new HashMap<>();
-        params.put(Placeholders.LENIENT_MODE.name(), true);
+        params.put(Placeholders.EXECUTION_STRATEGY.name(), ExecutionStrategy.PROCEED_ON_ERROR.name());
         MissionHandle handle = mole.instantiate(mission, params).block();
         //TODO remove on merge
         mole.statesFor(handle).subscribe(missionState -> {

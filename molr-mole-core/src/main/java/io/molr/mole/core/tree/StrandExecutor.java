@@ -25,5 +25,9 @@ public interface StrandExecutor {
     Set<StrandCommand> getAllowedCommands();
 
     Strand getStrand();
+    
+    void abort();
+    
+    boolean aborted();
 
 }

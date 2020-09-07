@@ -36,7 +36,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final Set<Block> breakpoints;
     EmitterProcessor<Object> statesSink;
 
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, boolean lenient) {
+    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, ExecutionStrategy executionStrategy) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
         breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
         
@@ -61,7 +61,7 @@ public class TreeMissionExecutor implements MissionExecutor {
                 .publishOn(Schedulers.elastic());
 
         Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, lenient);
+        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, executionStrategy);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -176,6 +176,10 @@ public class TreeMissionExecutor implements MissionExecutor {
     
     private boolean isComplete() {
         RunState rootRunState = runStateTracker.resultFor(representation.rootBlock());
+        System.out.println("runStateRoot "+rootRunState);
+        if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState).allMatch(runState -> runState.equals(RunState.FINISHED))){
+            return true;
+        }
         if(rootRunState == RunState.FINISHED) {
             return true;
         }
@@ -188,4 +192,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         return !rootResult.equals(Result.UNDEFINED);
     }
     
+    public void abort() {
+//        strandExecutorFactory.getStrandExecutorFor(getRootStrand()).
+    }
 }

@@ -9,12 +9,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
+    
+    private final static Logger LOGGER = LoggerFactory.getLogger(RunnableLeafsMole.class);
 
     private final Map<Mission, RunnableLeafsMission> missions;
 
@@ -63,9 +68,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
         MissionInput input = missionInput(runnableLeafMission, params);
 
-        boolean lenientMode = inferLenientModeFromParameters(missionParameterDescriptionOf(mission), input);
+        ExecutionStrategy executionStrategy = inferExecutionStrategyFromParameters(missionParameterDescriptionOf(mission), input);
+        LOGGER.info("ExecutionStrategy: "+executionStrategy);
         LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, runnableLeafMission.runnables(), input, outputCollector, runStateTracker);
-        return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker, lenientMode);
+        return new TreeMissionExecutor(treeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker, executionStrategy);
     }
     
     private static MissionInput missionInput(RunnableLeafsMission mission, Map<String, Object> params) {
@@ -78,17 +84,22 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         return in.and(Placeholders.context().name(), contextFactory.apply(in));
     }
     
-    private static boolean inferLenientModeFromParameters(MissionParameterDescription parameterDescription, MissionInput input) {
-        boolean lenientMode = false;
-        if(parameterDescription.hasParameterForPlaceholder(Placeholders.LENIENT_MODE)) {
-            if(input.get(Placeholders.LENIENT_MODE) != null) {
-                lenientMode = input.get(Placeholders.LENIENT_MODE).booleanValue();
+    private static ExecutionStrategy inferExecutionStrategyFromParameters(MissionParameterDescription parameterDescription, MissionInput input) {
+        ExecutionStrategy executionStrategy = ExecutionStrategy.PAUSE_ON_ERROR;
+        if(parameterDescription.hasParameterForPlaceholder(Placeholders.EXECUTION_STRATEGY)) {
+            if(input.get(Placeholders.EXECUTION_STRATEGY) != null) {
+                String executionStrategyString = input.get(Placeholders.EXECUTION_STRATEGY);
+                executionStrategy = ExecutionStrategy.forName(executionStrategyString);
             }
         }
+        else {
+            LOGGER.warn("Selected ExecutionStrategy has been ignored since corresponding parameter is not specified in parameter description");
+        }
+
         /*
          * Exception and/or log entry if lenient mode parameter is provided by params but not defined in mission definition
          */
-        return lenientMode;
+        return executionStrategy;
     }
 
 }

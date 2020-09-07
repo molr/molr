@@ -13,6 +13,7 @@ import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 
@@ -42,7 +43,7 @@ public class ParameterTestMissions {
     public final static Placeholder<UnregisteredCustomType> UNREGISTERED_CUSTOM_TYPE_PLACEHOLDER = Placeholder.of(UnregisteredCustomType.class, "name");
     
     @Bean
-    RunnableLeafsMission parameterMission() {
+    RunnableLeafsMission parameterMissionDemo() {
         return new RunnableLeafsMissionSupport() {
             {
                 //input
@@ -52,10 +53,11 @@ public class ParameterTestMissions {
                 Placeholder<String[]> placeholderSomeStringArray = mandatory(Placeholder.aStringArray("someStringArray"));
                 Placeholder<List<String>> placeholderOfGenericStringList = mandatory(GENERIC_STRING_LIST_PLACEHOLDER);
                 Placeholder<List<Long>> placeholderOfGenericLongList = mandatory(GENERIC_LONG_LIST_PLACEHOLDER);
+                optional(Placeholders.EXECUTION_STRATEGY);//TODO should we make this a default parameter in runnable leafs mission
                 
                 /*
                  * If a type is not registered for remote usage. An exception is thrown while parameters are being retrieved
-                 * However a remote mole could also validate the parameter description before advertising a mission.
+                 * However a remote mole could also validate the parameter description in advance, before advertising a mission.
                  */
                 // Placeholder<UnregisteredCustomType> placeholderSomeUnregisteredType =
                 // mandatory(UNREGISTERED_CUSTOM_TYPE_PLACEHOLDER);
@@ -64,6 +66,13 @@ public class ParameterTestMissions {
                 Placeholder<ListOfStrings> sequenceOut = Placeholder.aListOfStrings("sequenceOut"); 
                 
                 root("parameterMission").as(rootBranch -> {
+                    
+                    rootBranch.branch("seq").sequential().as(seq -> {
+                        seq.leaf("seg.tast1").run(in -> {
+                            throw new IllegalArgumentException("e");
+                        });
+                    });
+                    
                     rootBranch.leaf("simpleTask").run((in, out)-> {
                        LOGGER.info(in.get(devices).toString());
                        LOGGER.info(in.get(longValue).toString());

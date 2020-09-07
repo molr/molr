@@ -21,16 +21,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.MissionParameterDescription;
-import io.molr.commons.domain.MissionParameterTest;
+import io.molr.commons.domain.MissionState;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.conf.RunnableLeafMoleConfiguration;
 import io.molr.mole.server.rest.MolrMoleRestService;
@@ -80,6 +81,7 @@ public class RestRemoteMoleIntegrationTest {
          
          LOGGER.info("Retrieved ParameterDescription: "+parameterDescription);
          Map<String, Object> parameters = new HashMap<>();
+         parameters.put(Placeholders.EXECUTION_STRATEGY.name(), ExecutionStrategy.PROCEED_ON_ERROR);
          parameters.put("devices", Lists.newArrayList("DEVICE_A, DEVICE_B", "DEVICE_C"));
          parameters.put(ParameterTestMissions.SLEEP_TIME.name(), 500);
          parameters.put(ParameterTestMissions.CUSTOM.name(), new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world")));
@@ -92,12 +94,13 @@ public class RestRemoteMoleIntegrationTest {
          remoteMole.instructRoot(missionHandle, StrandCommand.RESUME);
          
          remoteMole.outputsFor(missionHandle).subscribe(missionOutput->{
-            //only works list is deserialized as ArrayList and Placeholder provides converter
+            //only works as list is deserialized as ArrayList and Placeholder provides converter
             ListOfStrings listOfStrings = missionOutput.get(Block.builder("1", "hello").build(), Placeholder.aListOfStrings("sequenceOut"));
             LOGGER.info("output: "+listOfStrings);
          });
          
-         remoteMole.statesFor(missionHandle).blockLast();
+         MissionState finalState = remoteMole.statesFor(missionHandle).blockLast();
+         LOGGER.info(finalState.blockIdsToResult().toString());
          
      }
      

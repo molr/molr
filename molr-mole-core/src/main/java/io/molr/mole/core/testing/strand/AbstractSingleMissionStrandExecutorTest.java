@@ -1,5 +1,6 @@
 package io.molr.mole.core.testing.strand;
 
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.MissionInput;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
@@ -28,9 +29,13 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     private StrandExecutor strandExecutor;
 
     protected abstract RunnableLeafsMission mission();
-
+    
     @Before
     public void setUpAbstract() {
+        setUpAbstract(ExecutionStrategy.PAUSE_ON_ERROR);
+    }
+    
+    public void setUpAbstract(ExecutionStrategy executionStrategy) {
         RunnableLeafsMission mission = mission();
 
         treeStructure = mission.treeStructure();
@@ -40,7 +45,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector(), runStateTracker);
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
-        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), false);
+        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), executionStrategy);
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.molr.commons.domain.RunState.*;
@@ -38,7 +39,7 @@ import static java.util.stream.Collectors.toList;
  * This class is thread safe
  */
 public class ConcurrentStrandExecutor implements StrandExecutor {
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
     private static final int EXECUTOR_SLEEP_MS_IDLE = 50;
     private static final int EXECUTOR_SLEEP_MS_DEFAULT = 10;
@@ -73,11 +74,12 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private Block currentStepOverSource;
     private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
-    private boolean lenientMode;
-
-    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints, boolean lenientMode) {
+    private ExecutionStrategy executionStrategy;
+    private AtomicBoolean aborted = new AtomicBoolean(false);
+    
+    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints, ExecutionStrategy executionStrategy) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
-        this.lenientMode = lenientMode;
+        this.executionStrategy = executionStrategy;
         this.breakpoints = breakpoints;
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
@@ -122,10 +124,24 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         while (!finished) {
 
             synchronized (cycleLock) {
+                if(aborted.get()) {
+                    updateState(ExecutorState.FINISHED);
+                    //TODO cleanup of running/paused children?
+                }
                 if (actualState() == ExecutorState.FINISHED) {
                     finished = true;
                     continue;
                 }
+                
+                if (hasChildren()) {
+                    boolean anyAborted = childExecutors.stream().anyMatch(strandExecutor -> strandExecutor.aborted());
+                    if(anyAborted) {
+                        updateState(ExecutorState.FINISHED);
+                        this.aborted.set(true);
+                        continue;
+                    }
+                }
+                
                 /* remove finished children */
                 if (hasChildren() && actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
                     childExecutors.stream().filter(c -> c.getActualState() == FINISHED).forEach(this::removeChildExecutor);
@@ -229,12 +245,17 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     if (isLeaf(actualBlock())) {                     
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
                         Result result = leafExecutor.execute(actualBlock());
-                        if (result == Result.SUCCESS || lenientMode) {
+                        if (result == Result.SUCCESS || executionStrategy == ExecutionStrategy.PROCEED_ON_ERROR) {
                             moveNext();
                         } else {
-                            LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock(), result);
-                            //TODO introduce other strategies - at least finishOnError
-                            updateState(ExecutorState.IDLE);
+                            if(executionStrategy == ExecutionStrategy.PAUSE_ON_ERROR) {
+                                LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock(), result);
+                                updateState(ExecutorState.IDLE);
+                            }
+                            if(executionStrategy == ExecutionStrategy.ABORT_ON_ERROR) {
+                                aborted.set(true);
+                                updateState(ExecutorState.FINISHED);
+                            }
                         }
                     } else if (structure.isParallel(actualBlock())) {
                         for (Block child : structure.childrenOf(actualBlock())) {
@@ -254,10 +275,10 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     LOGGER.debug("[{}] consumed command {}", strand, commandToExecute);
                     lastCommandSink.onNext(commandToExecute);
                 }
-            }
+            }//cycleLock
 
             cycleSleep();
-        }
+        }//whileNotFinished
 
         LOGGER.debug("Executor for strand {} is finished", strand);
         executor.shutdown();
@@ -316,7 +337,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, lenientMode);
+        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, executionStrategy);
         addChildExecutor(childExecutor);
         LOGGER.debug("[{}] created child strand {}", strand, childStrand);
         return childExecutor;
@@ -529,5 +550,17 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         return "ConcurrentStrandExecutor{" +
                 "strand=" + strand +
                 '}';
+    }
+
+    @Override
+    public void abort() {
+        this.aborted.set(true);
+        getChildrenStrandExecutors().forEach(child->child.abort());
+        
+    }
+
+    @Override
+    public boolean aborted() {
+        return aborted.get();
     }
 }
