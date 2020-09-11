@@ -9,12 +9,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.molr.commons.domain.dto.MissionParameterDto;
 
@@ -32,11 +29,6 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
 
     private ObjectMapper mapper;
 
-    public static final BiMap<Class<?>, String> TYPE_NAMES = HashBiMap.create();
-
-    /**
-     * @param vc
-     */
     protected MissionParameterDtoDeserializer(Class<?> vc) {
         super(vc);
     }
@@ -79,14 +71,6 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
 
         // throw new IllegalStateException("Type cannot be deserialized "+type);
-    }
-    
-    public <T> Set<T> readAllowedValues(JsonNode node) throws IOException{
-        TypeReference<Set<T>> typeRef = new TypeReference<Set<T>>() {
-            //
-        };
-        ObjectReader allowedValuesReader = mapper.readerFor(typeRef);
-        return allowedValuesReader.readValue(node);
     }
 
 }
