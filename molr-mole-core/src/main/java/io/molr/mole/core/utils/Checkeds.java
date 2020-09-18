@@ -25,12 +25,14 @@ public final class Checkeds {
             try {
                 checkedThrowingRun();
             } catch (Exception | AssertionError e) {
-                throw new RuntimeException(e);
+                throw runtimeException(e);
             }
         }
 
         void checkedThrowingRun() throws Exception;
     }
+
+
 
     public static <T> T callUnchecked(CheckedThrowingCallable<T> runnable) {
         return runnable.call();
@@ -42,12 +44,19 @@ public final class Checkeds {
         default T call() {
             try {
                 return checkedThrowingCall();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (Exception | AssertionError e) {
+                throw runtimeException(e);
             }
         }
 
         T checkedThrowingCall() throws Exception;
+    }
+
+    private static RuntimeException runtimeException(Throwable e) {
+        if (e instanceof RuntimeException) {
+            return (RuntimeException) e;
+        }
+        return new RuntimeException(e);
     }
 
     @FunctionalInterface
