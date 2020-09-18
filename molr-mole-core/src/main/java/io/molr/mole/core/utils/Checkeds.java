@@ -6,13 +6,15 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.molr.mole.core.utils.function.Consumer3;
+
 public final class Checkeds {
 
     private Checkeds() {
         /* Only static methods */
     }
 
-    public static final void runUnchecked(CheckedThrowingRunnable runnable) {
+    public static void runUnchecked(CheckedThrowingRunnable runnable) {
         runnable.run();
     }
 
@@ -22,7 +24,7 @@ public final class Checkeds {
         default void run() {
             try {
                 checkedThrowingRun();
-            } catch (Exception e) {
+            } catch (Exception | AssertionError e) {
                 throw new RuntimeException(e);
             }
         }
@@ -30,8 +32,7 @@ public final class Checkeds {
         void checkedThrowingRun() throws Exception;
     }
 
-
-    public static final <T> T callUnchecked(CheckedThrowingCallable<T> runnable) {
+    public static <T> T callUnchecked(CheckedThrowingCallable<T> runnable) {
         return runnable.call();
     }
 
@@ -59,7 +60,7 @@ public final class Checkeds {
         void checkedThrowingAccept(T t) throws Exception;
     }
 
-    public static final <T, U> BiConsumer<T, U> unchecked(CheckedThrowingBiConsumer<T, U> runnable) {
+    public static <T, U> BiConsumer<T, U> unchecked(CheckedThrowingBiConsumer<T, U> runnable) {
         return (t, u) -> runUnchecked(() -> runnable.accept(t, u));
     }
 
@@ -71,6 +72,16 @@ public final class Checkeds {
         }
 
         void checkedThrowingAccept(T t, U u) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface CheckedThrowingConsumer3<P1, P2, P3> extends Consumer3<P1, P2, P3> {
+        @Override
+        default void accept(P1 p1, P2 p2, P3 p3) {
+            runUnchecked(() -> checkedThrowingAccept(p1, p2, p3));
+        }
+
+        void checkedThrowingAccept(P1 p1, P2 p2, P3 p3) throws Exception;
     }
 
     @FunctionalInterface
