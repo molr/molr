@@ -17,7 +17,7 @@ public abstract class AbstractTypedValueContainer implements TypedValueContainer
     @Override
     public <T> T get(Placeholder<T> placeholder) {
         return Optional.ofNullable(values.get(placeholder.name()))
-                .map(placeholder.type()::cast)
+                .map(placeholder.caster()/*.type().::cast*/)
                 .orElse(null);
     }
 

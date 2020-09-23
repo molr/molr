@@ -10,6 +10,10 @@ public enum MissionCommand {
      */
     DISPOSE,
     /*
+     * Abort an ongoing mission. Stops execution of all running strands.
+     */
+    ABORT
+    /*
      * Candidates for future releases:
      * KILL: running mission
      */

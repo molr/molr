@@ -37,10 +37,14 @@ public final class MissionOutput {
         return new MissionOutput(builder.build());
     }
 
+    /*
+     * In order to allow typed return values. Outputs should be emitted with type information or 
+     * output types should be included in parameter description or ... Otherwise clients will only receive
+     */
     public <T> T get(Block block, Placeholder<T> placeholder) {
         return Optional.ofNullable(blockOutputs.get(block.id()))
                 .map(m -> m.get(placeholder.name()))
-                .map(placeholder.type()::cast)
+                .map(placeholder.caster()/*.type()::cast*/)
                 .orElse(null);
     }
 

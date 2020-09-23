@@ -13,8 +13,12 @@ import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.google.common.collect.Lists;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = DEFINED_PORT)
 @ContextConfiguration(classes = MolrMoleRestService.class)
 @EnableAutoConfiguration
+@DirtiesContext
 public class RestRemoteMoleTest {
 
     public static final Block BLOCK2 = Block.idAndText("blockId2", "text");
@@ -53,7 +58,7 @@ public class RestRemoteMoleTest {
         Set<Mission> missions = new HashSet<>();
         missions.add(new Mission("run a Marathon"));
         missions.add(new Mission("swim 10km"));
-        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter");
+        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter").withAllowed(Lists.newArrayList("Test parameter"));
         MissionParameterDescription parameterDescription = new MissionParameterDescription(Collections.singleton(param));
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription).cache());
 
@@ -139,7 +144,7 @@ public class RestRemoteMoleTest {
     public void instantiate() throws InterruptedException {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         Map<String, Object> params = new HashMap<>();
-        params.put("paramName", "param desc");
+        params.put("testValue", "param desc");
         remoteMole.instantiate(new Mission("a mission"), params);
         TimeUnit.SECONDS.sleep(1);
         Mockito.verify(mole, Mockito.timeout(1000).atLeastOnce()).instantiate(any(), any());

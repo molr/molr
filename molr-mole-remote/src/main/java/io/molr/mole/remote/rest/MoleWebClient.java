@@ -1,14 +1,23 @@
 package io.molr.mole.remote.rest;
 
+import io.molr.commons.domain.dto.MissionParameterDto;
 import io.molr.commons.exception.MolrRemoteException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.PrematureCloseException;
@@ -26,9 +35,9 @@ public class MoleWebClient {
 
     private MoleWebClient(String baseUrl) {
         requireNonNull(baseUrl, "baseUrl must not be null");
-        client = WebClient.create(baseUrl);
+        client = WebClient.builder().exchangeStrategies(createExchangeStrategies()).baseUrl(baseUrl).build();
     }
-
+   
     public static MoleWebClient withBaseUrl(String baseUrl) {
         return new MoleWebClient(baseUrl);
     }
@@ -104,6 +113,27 @@ public class MoleWebClient {
         } else if (responseStatus.isError()) {
             LOGGER.error("Error when calling {} with http status {}", uri, responseStatus.name());
         }
+    }
+    
+    
+    public static ExchangeStrategies createExchangeStrategies() {
+        ObjectMapper mapper = createObjectMapper();
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder().codecs(clientCodecConfigurer -> {
+            Jackson2JsonDecoder decoder =  new Jackson2JsonDecoder(mapper);
+            Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(mapper);
+           clientCodecConfigurer.defaultCodecs().jackson2JsonDecoder(decoder);
+           clientCodecConfigurer.defaultCodecs().jackson2JsonEncoder(encoder);
+        }).build();
+        return exchangeStrategies;
+    }
+    
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(MissionParameterDto.class, MissionParameterDtoDeserializer.with(mapper));
+        mapper.registerModule(module);
+        LOGGER.info("Registered custom deserializer "+MissionParameterDtoDeserializer.class);
+        return mapper;
     }
 
 }

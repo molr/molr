@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.demo.conf;
 
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
@@ -63,16 +64,24 @@ public class DemoRunnableLeafsConfiguration {
                  * optionally add a collection of allowed values in order to restrict parameter values to those values
                  * if allowed parameters is used explicitly, but empty the parameter values are considered to be unrestricted
                  */
+                //TODO validate parameter description - duplicate keys?!
                 Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500, allowedSleepTimes);
+                Placeholder<Long> sleepAsLongPlaceholder = mandatory(aLong("sleepMillis2"), 999L);
                 Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
                 Placeholder<String> message = mandatory(aString("aMessage"), "Hello World", allowedMessages);
 
-                Placeholder<String> device = optional(aString("deviceName"), ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
+                Placeholder<ListOfStrings> devices = mandatory(Placeholder.aListOfStrings("devices"));
+                
+                Placeholder<String> device = optional(aString("deviceName"), "TEST_DEVCIE_1", ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
                 root("Executable Leafs Demo Mission (parametrized)").sequential().as(root -> {
 
                     root.leaf("print messages").run((in1, out1) -> {
+                        ListOfStrings deviceNames = in1.get(devices);
+                        Long sleepAsLong = in1.get(sleepAsLongPlaceholder);
+                        LOGGER.info(sleepAsLong.toString());
+                        LOGGER.info(deviceNames.toString());
                         for (int i = 0; i < in1.get(iterations); i++) {
                             LOGGER.info("Iteration=" + i + "; " + in1.get(message) + i);
                             sleepUnchecked(in1.get(sleepMilis));
@@ -90,7 +99,7 @@ public class DemoRunnableLeafsConfiguration {
 
                     root.branch("First").sequential().as(b1 -> {
                         log(b1, "First A");
-                        b1.run("Failing subtask ", () -> {
+                        b1.leaf("Failing subtask ").run(() -> {
                             throw new RuntimeException("Failing on purpose.");
                         });
                         log(b1, "First B");

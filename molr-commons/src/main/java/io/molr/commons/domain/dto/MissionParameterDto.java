@@ -1,16 +1,19 @@
 package io.molr.commons.domain.dto;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Placeholder;
 
 import java.util.Map;
 import java.util.Objects;
 import static java.util.Objects.requireNonNull;
+
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -19,18 +22,45 @@ import static io.molr.commons.util.Exceptions.illegalStateException;
 
 public class MissionParameterDto<T> {
 
-    private static final BiMap<Class<?>, String> TYPE_NAMES = ImmutableBiMap.of(
-            String.class, "string",
-            Double.class, "double",
-            Integer.class, "integer",
-            Boolean.class, "boolean"
-    );
-    private static final Map<Class<?>, Function<String, Placeholder<?>>> TYPE_CREATORS = ImmutableMap.of(
-            String.class, Placeholder::aString,
-            Double.class, Placeholder::aDouble,
-            Integer.class, Placeholder::anInteger,
-            Boolean.class, Placeholder::aBoolean
-    );
+    public static final String TYPE_STRING = "string";
+    public static final String TYPE_DOUBLE = "double";
+    public static final String TYPE_INTEGER = "integer";
+    public static final String TYPE_LONG = "long";
+    public static final String TYPE_BOOLEAN = "boolean";
+    public static final String TYPE_STRING_ARRAY = "string[]";
+    public static final String TYPE_LIST_OF_STRINGS = "listOfStrings";//just as proof of concept
+    /*
+     * custom types can be registered
+     */
+        
+    /*
+     *TODO ?find a better way and or place for type registration?
+     */
+    public static final BiMap<Class<?>, String> TYPE_NAMES = HashBiMap.create();
+    static {
+        TYPE_NAMES.put(String.class, TYPE_STRING);
+        TYPE_NAMES.put(Double.class, TYPE_DOUBLE);
+        TYPE_NAMES.put(Integer.class, TYPE_INTEGER);
+        TYPE_NAMES.put(Long.class, TYPE_LONG);
+        TYPE_NAMES.put(Boolean.class, TYPE_BOOLEAN);
+        TYPE_NAMES.put(String[].class, TYPE_STRING_ARRAY);
+        TYPE_NAMES.put(ListOfStrings.class, TYPE_LIST_OF_STRINGS);
+        TYPE_NAMES.put(ArrayList.class, "list");
+    }
+    
+    public static final Map<Class<?>, Function<String, Placeholder<?>>> TYPE_CREATORS = Maps.newHashMap();
+    static {
+        TYPE_CREATORS.put(String.class, Placeholder::aString);
+        TYPE_CREATORS.put(Double.class, Placeholder::aDouble);
+        TYPE_CREATORS.put(Integer.class, Placeholder::anInteger);
+        TYPE_CREATORS.put(Long.class, Placeholder::aLong);
+        TYPE_CREATORS.put(Boolean.class, Placeholder::aBoolean);
+        TYPE_CREATORS.put(String[].class, Placeholder::aStringArray);
+        TYPE_CREATORS.put(ListOfStrings.class, Placeholder::aListOfStrings);
+        TYPE_CREATORS.put(ArrayList.class, (name)-> {
+                return Placeholder.of(ArrayList.class, name);
+        });
+    }
 
     public final String name;
     public final String type;
@@ -51,10 +81,10 @@ public class MissionParameterDto<T> {
         this.type = Objects.requireNonNull(type, "type must not be null");
         this.required = required;
         this.defaultValue = defaultValue;
-        this.allowedValues = ImmutableSet.copyOf(requireNonNull(allowedValues,"allowedValues must not be null"));        
+        this.allowedValues = ImmutableSet.copyOf(requireNonNull(allowedValues, "allowedValues must not be null"));
     }
 
-    public static final <T> MissionParameterDto<T> from(MissionParameter<T> parameter) {
+    public static final <T> MissionParameterDto from(MissionParameter<T> parameter) {
         Placeholder<T> placeholder = parameter.placeholder();
         MissionParameterDto<T> dto = new MissionParameterDto<>(placeholder.name(), typeStringFrom(placeholder.type()),
                 parameter.isRequired(), parameter.defaultValue(), parameter.allowedValues());
