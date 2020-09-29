@@ -70,6 +70,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     
     private void onExecutorStatesStreamComplete() {
         if(isComplete()) {
+            outputCollector.onComplete();
             statesSink.onComplete();
         }
     }

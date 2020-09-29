@@ -20,12 +20,16 @@ import static java.util.Objects.requireNonNull;
 public class RunnableLeafsMission {
 
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
+    private final ImmutableMap<Block, BiConsumer<In, Out>> forEachRunnables;
+    private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachConfigurations;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
-
+    
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
+        this.forEachRunnables = builder.forEachRunnables.build();
+        this.forEachConfigurations = builder.forEachConfigurations.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
         this.parameterDescription = parameterDescription;
@@ -42,6 +46,15 @@ public class RunnableLeafsMission {
 
     public Map<Block, BiConsumer<In, Out>> runnables() {
         return this.runnables;
+    }
+    
+
+    public Map<Block, BiConsumer<In, Out>> forEachRunnables() {
+        return this.forEachRunnables;
+    }
+    
+    public Map<Block, ForEachConfiguration<?,?>> forEachConfigurations() {
+        return this.forEachConfigurations;
     }
 
     public String name() {
@@ -63,6 +76,8 @@ public class RunnableLeafsMission {
 
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachConfigurations = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
         private Function<In, ?> contextFactory;
@@ -147,8 +162,16 @@ public class RunnableLeafsMission {
             return latest.get();
         }
 
-        private Block block(String name) {
+        //TODO remove public access
+        public Block block(String name) {
             return Block.idAndText("" + nextId.getAndIncrement(), name);
+        }
+
+        public <T,U> void forEach(String name, Block parent, Placeholder<T> devicesPlaceholder, Placeholder<U> itemPlaceholder, BiConsumer<In, Out> itemConsumer) {
+              Block block = addChild(parent, name, ImmutableSet.of());
+              ForEachConfiguration<T, U> config = new ForEachConfiguration<>(devicesPlaceholder, itemPlaceholder, itemConsumer);
+              forEachConfigurations.put(block,config);
+              forEachRunnables.put(block, itemConsumer);
         }
     }
 }

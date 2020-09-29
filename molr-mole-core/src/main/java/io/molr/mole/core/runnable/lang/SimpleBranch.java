@@ -3,10 +3,10 @@ package io.molr.mole.core.runnable.lang;
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Out;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.utils.Checkeds;
 
-import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
@@ -39,6 +39,14 @@ public class SimpleBranch extends AbstractBranch {
     @Deprecated
     public void parallel(String name, Consumer<SimpleBranch> branchDefiner) {
         branch(name).parallel().as(branchDefiner);
+    }
+
+    /*
+     * just for demonstration
+     * TODO rename, restructure, parallel/sequential
+     */
+    public <T,U> void leafForEach(String name, Placeholder<T> devicesPlaceholder, Placeholder<U> itemPlaceholder, BiConsumer<In, Out> itemConsumer) {
+        builder().forEach(name, parent(), devicesPlaceholder,itemPlaceholder,itemConsumer);        
     }
 
 

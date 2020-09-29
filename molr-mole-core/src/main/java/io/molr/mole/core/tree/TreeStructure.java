@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * TODO #1 consider merging with MissionRepresentation
  */
@@ -88,6 +90,10 @@ public class TreeStructure {
         return representation.allBlocks();
     }
 
+    public Set<Block> parallelBlocks(){
+        return ImmutableSet.copyOf(parallelBlocks);
+    }
+    
     public boolean contains(Block block) {
         return allBlocks().contains(block);
     }
