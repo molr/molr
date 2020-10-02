@@ -2,6 +2,7 @@ package io.molr.mole.core.runnable.demo.conf;
 
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
@@ -125,6 +126,9 @@ public class DemoRunnableLeafsConfiguration {
 
     @Bean
     public RunnableLeafsMission parallelBlocksMission() {
+    	
+    	Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("devices");
+    	
         return new RunnableLeafsMissionSupport() {
             {
                 root("Parallel Blocks").sequential().as(root -> {
@@ -137,6 +141,11 @@ public class DemoRunnableLeafsConfiguration {
                     root.branch("Parallel 2").parallel().as( b -> {
                         log(b, "Parallel 2A");
                         log(b, "parallel 2B");
+                        
+                    });
+                    
+                    root.branch("ForEach").forEach(devices, (forEachBranchConsumer, foreachItem) -> {
+                    	
                     });
 
                 });
@@ -150,10 +159,20 @@ public class DemoRunnableLeafsConfiguration {
         return new RunnableLeafsMissionSupport() {
             {
                 Placeholder<String> device = mandatory(aString("deviceName"));
+                Placeholder<String> a = mandatory(aString("a"));
+                Placeholder<String> b = mandatory(aString("b"));
 
                 root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as(root -> {
                     root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
                     root.leaf("switch off").runCtx(DeviceDriver::switchOff);
+                    root.leaf("do").runCtx((DeviceDriver dev, String A, String B) -> {
+
+                    		System.out.println("run");
+
+                    }, a, b);
+//                    root.branch("branch").as(branchDescription->{
+//                    	branchDescription.branch("for").forEach();
+//                    });
                 });
 
             }

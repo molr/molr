@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
@@ -23,6 +25,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
     
@@ -64,12 +67,69 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         return runnableMission;
     }
 
+    private static Block replicatedBlock(Block block, String prefix) {
+    	return Block.idAndText(prefix+block.id(), block.text());
+    }
 
+    private static void traverse(RunnableLeafsMission mission, Block parent, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder) {
+    	MissionRepresentation representation = mission.treeStructure().missionRepresentation();
+    	Map<Block, ForEachConfiguration<?,?>> forEachCOnfigs = mission.getForEachBlocksConfigurations();
+    	System.out.println("goDown: "+parent+" "+url);
+    	//ifForEach add item to block input
+    	if(representation.isLeaf(parent)) {
+
+    	}
+    	if(forEachCOnfigs.containsKey(parent)) {
+    		ForEachConfiguration<?, ?> foreachConfig = forEachCOnfigs.get(parent);
+    		System.out.println("forEach");
+    		Collection<?> forEachItems = (Collection<?>)missionInput.get(foreachConfig.collectionPlaceholder());
+    		for(Object item : forEachItems) {
+    			MissionInput scopedInput = missionInput.and(foreachConfig.itemPlaceholder().name(), item);
+    	    	for(Block child : representation.childrenOf(parent)) {
+    	    		Block replicatedParent=replicatedBlock(parent, url);
+    	    		Block replicatedChild = replicatedBlock(child, url+parent.id()+item);
+    	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
+    	    		if(representation.isLeaf(child)) {
+    	        		scopedInputs.put(replicatedChild, scopedInput);
+    	        		updatedRunnablesAfterTraverseBuilder.put(replicatedChild, mission.runnables().get(child));
+    	        		System.out.println("leaf "+parent + missionInput);
+    	    		}
+    	    		else {
+        	    		traverse(mission, child, scopedInput, url+parent.id()+item, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);    	    			
+    	    		}
+    	    	}
+    		}
+    		System.out.println(forEachItems);
+    	}
+    	else {
+	    	for(Block child : representation.childrenOf(parent)) {
+	    		Block replicatedParent=replicatedBlock(parent, url);
+	    		Block replicatedChild = replicatedBlock(child, url+parent.id());
+	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
+	    		if(representation.isLeaf(child)) {
+	        		scopedInputs.put(replicatedChild, missionInput);
+	        		System.out.println("Runnables "+mission.runnables());
+	        		updatedRunnablesAfterTraverseBuilder.put(replicatedChild, mission.runnables().get(child));
+	        		System.out.println("leaf "+parent + missionInput);
+	    		}
+	    		else {
+		    		traverse(mission, child, missionInput, url+parent.id(), representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);	    			
+	    		}
+	    	}
+    	}
+
+    	System.out.println("goUp"+parent);
+    }
+    
     @Override
     protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         MissionInput input = missionInput(runnableLeafMission, params);
 
+        System.out.println(runnableLeafMission.runnables());
+        System.out.println(runnableLeafMission.treeStructure().missionRepresentation().parentsToChildren());
+        
+        
         /*
          * structural updates for for each loops
          */
@@ -108,8 +168,44 @@ public class RunnableLeafsMole extends AbstractJavaMole {
             });
         }
         final Map<Block, BiConsumer<In, Out>> updatedRunnables = updatedRunnablesBuilder.build();
+        ImmutableMissionRepresentation.Builder newRepresentationBuilder = ImmutableMissionRepresentation.builder(runnableLeafMission.treeStructure().rootBlock());
+        Map<Block, MissionInput> scopedInputs = new HashMap<>();
+        Map<Block, Placeholder<?>> forEachBlocks = runnableLeafMission.getForEachBlocks();
+        final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder = ImmutableMap.builder();
+        traverse(runnableLeafMission, runnableLeafMission.treeStructure().missionRepresentation().rootBlock(), input, "", newRepresentationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);
+        System.out.println(newRepresentationBuilder.build().parentsToChildren());
+        
+        Map<Block, Map<String, Object>> blockInputs = new HashMap<>();
+        forEachBlocks.forEach((forEachBlock, placeholder)->{
+            Collection<?> forEachItems = (Collection<?>)input.get(forEachBlocks.get(forEachBlock));
+            forEachItems.forEach(item -> {
+            	ForEachConfiguration<?,?> forEachConfig = runnableLeafMission.getForEachBlocksConfigurations().get(forEachBlock);
+            	System.out.println(forEachConfig.itemPlaceholder());
+            	System.out.println(item);
+//            	MissionInput.from(params).and(key, value)
+            	TreeStructure subTree = runnableLeafMission.treeStructure().substructure(forEachBlock, item.toString());
+            	//input for all leafs in subtree must be extended by itemPlaceholder 
+            	for(Block block : subTree.allBlocks()) {
+            		if(blockInputs.containsKey(block)) {
+            			blockInputs.get(block).put(forEachConfig.itemPlaceholder().name(), item);
+            		}
+            		else {
+            			blockInputs.put(block, new HashMap<>());
+            			blockInputs.get(block).put(forEachConfig.itemPlaceholder().name(), item);
+            		}
+            	}
+            	System.out.println("p2C"+subTree.missionRepresentation().parentsToChildren());
+                System.out.println(subTree.allBlocks());
+                System.out.println(subTree.missionRepresentation().parentsToChildren());
+            });
+        });
 
-        TreeStructure updatedTreeStructure = new TreeStructure(updatedRepresentationBuilder.build(), runnableLeafMission.treeStructure().parallelBlocks());
+        System.out.println(blockInputs);
+
+        //TreeStructure updatedTreeStructure = new TreeStructure(updatedRepresentationBuilder.build(), runnableLeafMission.treeStructure().parallelBlocks());
+        //TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
+        //TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
+        TreeStructure updatedTreeStructure = new TreeStructure(newRepresentationBuilder.build(), ImmutableSet.of());
         TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
 
@@ -117,7 +213,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
         ExecutionStrategy executionStrategy = inferExecutionStrategyFromParameters(missionParameterDescriptionOf(mission), input);
         LOGGER.info("ExecutionStrategy: "+executionStrategy);
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, updatedRunnables, input, outputCollector, runStateTracker);
+        //LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, updatedRunnables, input, blockInputs, outputCollector, runStateTracker);
+        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, updatedRunnablesAfterTraverseBuilder.build(), input, scopedInputs, outputCollector, runStateTracker);
         return new TreeMissionExecutor(updatedTreeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker, executionStrategy);
     }
     

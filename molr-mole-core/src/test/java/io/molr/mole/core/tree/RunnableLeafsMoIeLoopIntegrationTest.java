@@ -14,11 +14,11 @@ import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
-import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.commons.domain.StrandCommand;
@@ -43,23 +43,48 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         return new RunnableLeafsMissionSupport() {
             {
 
-                Placeholder<ListOfStrings> collectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+                Placeholder<? extends MolrCollection<String>> collectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+                Placeholder<? extends MolrCollection<String>> secondCollectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
                 optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
                                 
                 root("root1").sequential().as(missionRoot -> {// 0
                     
-                    missionRoot.leafForEach("aForEachLoop", collectionPlaceholder, ITEM_PLACEHOLDER, (in, out) -> {
-                        String deviceName = in.get(ITEM_PLACEHOLDER);
-                        System.out.println("deviceName: " + deviceName);
-                        out.emit(ITEM_PLACEHOLDER, deviceName);
-                    });
-                    
-                    missionRoot.leafForEach("a2ndForEachLoop", collectionPlaceholder, ITEM_PLACEHOLDER, (in, out) -> {
-                        String deviceName = in.get(ITEM_PLACEHOLDER);
-                        System.out.println("deviceName: " + deviceName);
-                        out.emit(ITEM_PLACEHOLDER, deviceName);
-                    });
+                	Placeholder<String> returnedItemPlaceholder = missionRoot.branch("test").foreach(collectionPlaceholder).forEach(collectionPlaceholder, (branchDescription, itemPlaceholder) -> {
+                		branchDescription.leaf("hello").run((in, out) -> {
+                			System.out.println("hello"+in.get(itemPlaceholder));
+                		});
+                		
+                		branchDescription.branch("forEachChild").sequential().as(forEachChild ->{
+                			forEachChild.leaf("hello").run((in, out)-> {
+                				System.out.println(in.get(itemPlaceholder));
+                			});
+                		});
+                		
+                		branchDescription.branch("NextForEach").foreach(collectionPlaceholder).forEach(collectionPlaceholder, (nextForEach, nextItemPlaceholder)->{
+                			nextForEach.branch("hello").sequential().as(hello->{
+                				hello.leaf("name").run((in, out)->{
+                					System.out.println(in.get(nextItemPlaceholder));
+                				});
+                			});
+                		});
+                		
+//                		branchDescription.leaf("hello").run((item)->{
+//                			System.out.println("item");
+//                		});
+                	});
+                	
+					/*
+					 * missionRoot.leafForEach("aForEachLoop", collectionPlaceholder,
+					 * ITEM_PLACEHOLDER, (in, out) -> { String deviceName =
+					 * in.get(ITEM_PLACEHOLDER); System.out.println("deviceName: " + deviceName);
+					 * out.emit(ITEM_PLACEHOLDER, deviceName); });
+					 * 
+					 * missionRoot.leafForEach("a2ndForEachLoop", secondCollectionPlaceholder,
+					 * ITEM_PLACEHOLDER, (in, out) -> { String deviceName =
+					 * in.get(ITEM_PLACEHOLDER); System.out.println("deviceName: " + deviceName);
+					 * out.emit(ITEM_PLACEHOLDER, deviceName); });
+					 */
                 });
             }
             
@@ -93,14 +118,16 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
          * root.forEach.iteration0
          * root.main1.sub...
          */
-        List<Block> forEachBlocks = representation.childrenOf(Block.builder("1", "aForEachLoop").build());
+        List<Block> forEachBlocks = representation.childrenOf(Block.builder("3", "aForEachLoop").build());
+        System.out.println("foreachblocks"+forEachBlocks);
         for (int i = 0; i < forEachBlocks.size(); i++) {
             Block block = forEachBlocks.get(i);
             String blockOutput = output.get(block, ITEM_PLACEHOLDER);
             Assertions.assertThat(blockOutput).isEqualTo(ITEM_LIST.get(i));
         }
         
-        List<Block> forEachBlocks2 = representation.childrenOf(Block.builder("2", "aForEachLoop").build());
+        List<Block> forEachBlocks2 = representation.childrenOf(Block.builder("4", "a2ndForEachLoop").build());
+        System.out.println("foreachblocks2"+forEachBlocks2);
         for (int i = 0; i < forEachBlocks2.size(); i++) {
             Block block = forEachBlocks2.get(i);
             String blockOutput = output.get(block, ITEM_PLACEHOLDER);

@@ -22,6 +22,8 @@ public class RunnableLeafsMission {
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
     private final ImmutableMap<Block, BiConsumer<In, Out>> forEachRunnables;
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachConfigurations;
+    private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
+    private final ImmutableMap<Block, Placeholder<?>> forEachBlocks;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
@@ -30,6 +32,8 @@ public class RunnableLeafsMission {
         this.runnables = builder.runnables.build();
         this.forEachRunnables = builder.forEachRunnables.build();
         this.forEachConfigurations = builder.forEachConfigurations.build();
+        this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
+        this.forEachBlocks = builder.forEachBLocks.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
         this.parameterDescription = parameterDescription;
@@ -57,7 +61,11 @@ public class RunnableLeafsMission {
         return this.forEachConfigurations;
     }
 
-    public String name() {
+    public Map<Block, Placeholder<?>> getForEachBlocks() {
+		return forEachBlocks;
+	}
+
+	public String name() {
         return this.treeStructure.rootBlock().text();
     }
 
@@ -69,7 +77,11 @@ public class RunnableLeafsMission {
         return new Builder();
     }
 
-    public static class Builder {
+    public ImmutableMap<Block, ForEachConfiguration<?,?>> getForEachBlocksConfigurations() {
+		return forEachBlocksConfigurations;
+	}
+
+	public static class Builder {
 
         private final AtomicLong nextId = new AtomicLong(0);
         private final AtomicReference<Block> latest = new AtomicReference<>();
@@ -78,6 +90,8 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachConfigurations = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, Placeholder<?>> forEachBLocks = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
         private Function<In, ?> contextFactory;
@@ -173,5 +187,12 @@ public class RunnableLeafsMission {
               forEachConfigurations.put(block,config);
               forEachRunnables.put(block, itemConsumer);
         }
+
+		public <T, U> void forEachBlock(Block block, Placeholder<T> collectionPlaceholder, Placeholder<U> itemPlaceholder) {
+			forEachBLocks.put(block, collectionPlaceholder);
+            ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, null);
+            forEachBlocksConfigurations.put(block, forEachBlockConfiguration);
+            
+		}
     }
 }

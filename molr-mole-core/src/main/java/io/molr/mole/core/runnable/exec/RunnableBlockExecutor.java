@@ -22,14 +22,15 @@ public class RunnableBlockExecutor extends LeafExecutor {
 
     private final Map<Block, BiConsumer<In, Out>> runnables;
 
-    public RunnableBlockExecutor(Bucket<Result> resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, MissionOutputCollector outputCollector, Bucket<RunState> runStateBucket) {
-        super(resultTracker, runStateBucket, input, outputCollector);
+    public RunnableBlockExecutor(Bucket<Result> resultTracker, Map<Block, BiConsumer<In, Out>> runnables, MissionInput input, Map<Block, MissionInput> scopedInputs, MissionOutputCollector outputCollector, Bucket<RunState> runStateBucket) {
+        super(resultTracker, runStateBucket, input, scopedInputs, outputCollector);
         this.runnables = ImmutableMap.copyOf(runnables);
     }
 
     @Override
     protected void doExecute(Block block) {
-        runnables.get(block).accept(input(), outputFor(block));
+    	MissionInput input = combinedMissionInput(block);
+        runnables.get(block).accept(input, outputFor(block));
     }
 
 }

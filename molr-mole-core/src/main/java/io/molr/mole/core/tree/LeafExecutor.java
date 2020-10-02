@@ -11,6 +11,8 @@ import static io.molr.commons.domain.RunState.FINISHED;
 import static io.molr.commons.domain.RunState.RUNNING;
 import static io.molr.commons.util.Exceptions.stackTraceFrom;
 
+import java.util.Map;
+
 public abstract class LeafExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeafExecutor.class);
@@ -18,17 +20,27 @@ public abstract class LeafExecutor {
     private final Bucket<Result> resultBucket;
     private final Bucket<RunState> runStateBucket;
     private final MissionInput input;
+    private final Map<Block, MissionInput> blockInputs;
     private final MissionOutputCollector output;
 
-    protected LeafExecutor(Bucket<Result> resultBucket, Bucket<RunState> runStateBucket, MissionInput input, MissionOutputCollector output) {
+    protected LeafExecutor(Bucket<Result> resultBucket, Bucket<RunState> runStateBucket, MissionInput input, Map<Block, MissionInput> scopedInputs, MissionOutputCollector output) {
         this.resultBucket = resultBucket;
         this.runStateBucket = runStateBucket;
         this.input = input;
+        this.blockInputs = scopedInputs;
         this.output = output;
     }
 
     protected MissionInput input() {
         return this.input;
+    }
+    
+    protected MissionInput combinedMissionInput(Block block) {
+    	if(blockInputs.containsKey(block)) {
+        	return blockInputs.get(block);    		
+    	}
+    	return input();
+
     }
 
     protected BlockOutputCollector outputFor(Block block) {

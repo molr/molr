@@ -1,6 +1,8 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.MolrCollection;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,6 +34,12 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
     public B sequential() {
         this.mode = SEQUENTIAL;
         return (B) this;
+    }
+    
+    public <T> B foreach(Placeholder<? extends MolrCollection<T>> collectionPlaceholder) {
+    	Placeholder<T> item = MolrCollection.itemPlaceholderForCollectionPlaceholder(collectionPlaceholder, "test");
+    	
+    	return (B) this;
     }
 
 

@@ -7,7 +7,7 @@ import java.util.Collection;
  *
  * @author krepp
  */
-public class ListOfStrings extends ArrayList<String>{
+public class ListOfStrings extends ArrayList<String> implements MolrCollection<String>{
 
     private static final long serialVersionUID = 1L;
 
@@ -34,6 +34,18 @@ public class ListOfStrings extends ArrayList<String>{
             return false;
         return true;
     }
+
+	@Override
+	public Placeholder<String> itemPlaceholder(String name) {
+		return Placeholder.aString(name);
+	}
+	
+	/*
+	 * public static Placeholder<String> itemPlaceholderS(String name) { return
+	 * Placeholder.aString(name); }
+	 */
+
+	
 
 }
 
