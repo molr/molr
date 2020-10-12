@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
     
@@ -71,10 +72,11 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     	return Block.idAndText(prefix+block.id(), block.text());
     }
 
-    private static void traverse(RunnableLeafsMission mission, Block parent, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder) {
+    private static void traverse(RunnableLeafsMission mission, Block parent, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder, Set<Block> parallelBlocks) {
     	MissionRepresentation representation = mission.treeStructure().missionRepresentation();
     	Map<Block, ForEachConfiguration<?,?>> forEachCOnfigs = mission.getForEachBlocksConfigurations();
     	System.out.println("goDown: "+parent+" "+url);
+		System.out.println(mission.treeStructure().isParallel(parent));
     	//ifForEach add item to block input
     	if(representation.isLeaf(parent)) {
 
@@ -88,6 +90,9 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     	    	for(Block child : representation.childrenOf(parent)) {
     	    		Block replicatedParent=replicatedBlock(parent, url);
     	    		Block replicatedChild = replicatedBlock(child, url+parent.id()+item);
+    	    		if(mission.treeStructure().isParallel(parent)) {
+    	    			parallelBlocks.add(replicatedParent);
+    	    		}
     	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
     	    		if(representation.isLeaf(child)) {
     	        		scopedInputs.put(replicatedChild, scopedInput);
@@ -95,7 +100,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     	        		System.out.println("leaf "+parent + missionInput);
     	    		}
     	    		else {
-        	    		traverse(mission, child, scopedInput, url+parent.id()+item, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);    	    			
+        	    		traverse(mission, child, scopedInput, url+parent.id()+item, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);    	    			
     	    		}
     	    	}
     		}
@@ -104,6 +109,9 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     	else {
 	    	for(Block child : representation.childrenOf(parent)) {
 	    		Block replicatedParent=replicatedBlock(parent, url);
+	    		if(mission.treeStructure().isParallel(parent)) {
+	    			parallelBlocks.add(replicatedParent);
+	    		}
 	    		Block replicatedChild = replicatedBlock(child, url+parent.id());
 	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
 	    		if(representation.isLeaf(child)) {
@@ -113,7 +121,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 	        		System.out.println("leaf "+parent + missionInput);
 	    		}
 	    		else {
-		    		traverse(mission, child, missionInput, url+parent.id(), representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);	    			
+		    		traverse(mission, child, missionInput, url+parent.id(), representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);	    			
 	    		}
 	    	}
     	}
@@ -172,7 +180,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         Map<Block, MissionInput> scopedInputs = new HashMap<>();
         Map<Block, Placeholder<?>> forEachBlocks = runnableLeafMission.getForEachBlocks();
         final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder = ImmutableMap.builder();
-        traverse(runnableLeafMission, runnableLeafMission.treeStructure().missionRepresentation().rootBlock(), input, "", newRepresentationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder);
+        Set<Block> newParallelBlocks = new HashSet<>();
+        traverse(runnableLeafMission, runnableLeafMission.treeStructure().missionRepresentation().rootBlock(), input, "", newRepresentationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, newParallelBlocks);
         System.out.println(newRepresentationBuilder.build().parentsToChildren());
         
         Map<Block, Map<String, Object>> blockInputs = new HashMap<>();
@@ -205,7 +214,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         //TreeStructure updatedTreeStructure = new TreeStructure(updatedRepresentationBuilder.build(), runnableLeafMission.treeStructure().parallelBlocks());
         //TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         //TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
-        TreeStructure updatedTreeStructure = new TreeStructure(newRepresentationBuilder.build(), ImmutableSet.of());
+        TreeStructure updatedTreeStructure = new TreeStructure(newRepresentationBuilder.build(), ImmutableSet.copyOf(newParallelBlocks));
         TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
 

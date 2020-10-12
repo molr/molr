@@ -2,10 +2,12 @@ package io.molr.mole.core.tree;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 
@@ -103,17 +105,19 @@ public class LenientModeIntegrationTest {
         // .blockFirst();
         Thread.sleep(1000);
         MissionState latestState = mole.statesFor(handle).blockFirst();
+        MissionRepresentation instantiatedRepresentation = mole.representationsFor(handle).blockFirst();
+        Map<String, Block> blocksByText = blocksByText(instantiatedRepresentation); 
 
         Assertions.assertThat(latestState.resultOf(representation.rootBlock())).isEqualTo(Result.FAILED);
-        Assertions.assertThat(latestState.resultOfBlockId("1")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(latestState.resultOfBlockId("2")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(latestState.resultOfBlockId("3")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(latestState.resultOfBlockId("4")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(latestState.resultOfBlockId("5")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(latestState.resultOfBlockId("6")).isEqualTo(Result.UNDEFINED);
-        Assertions.assertThat(latestState.resultOfBlockId("7")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(latestState.resultOfBlockId("8")).isEqualTo(Result.UNDEFINED);
-        Assertions.assertThat(latestState.resultOfBlockId("9")).isEqualTo(Result.UNDEFINED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub1").id())).isEqualTo(Result.SUCCESS);//2"main1Sub1"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2").id())).isEqualTo(Result.FAILED);//3"main1Sub2"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(Result.SUCCESS);//4"main1Sub2Sub1"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(Result.FAILED);//5"main1Sub2Sub2"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(Result.UNDEFINED);//6"main1Sub2Sub3"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub3").id())).isEqualTo(Result.SUCCESS);//7"main1Sub3"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main2").id())).isEqualTo(Result.UNDEFINED);//8"main2"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main3").id())).isEqualTo(Result.UNDEFINED);//9"main3"
 
         Assertions.assertThat(latestState.runStateOf(latestState.rootStrand())).isEqualTo(RunState.FINISHED);
         /**
@@ -123,9 +127,9 @@ public class LenientModeIntegrationTest {
         // Assertions.assertThat(lastState.runStateOfBlockId("1")).isEqualTo(RunState.PAUSED);
         // Assertions.assertThat(lastState.runStateOfBlockId("2")).isEqualTo(RunState.FINISHED);
         // Assertions.assertThat(lastState.runStateOfBlockId("3")).isEqualTo(RunState.PAUSED);
-        Assertions.assertThat(latestState.runStateOfBlockId("4")).isEqualTo(RunState.FINISHED);
-        Assertions.assertThat(latestState.runStateOfBlockId("5")).isEqualTo(RunState.FINISHED);
-        Assertions.assertThat(latestState.runStateOfBlockId("6")).isEqualTo(RunState.UNDEFINED);
+        Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(RunState.FINISHED);
+        Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(RunState.FINISHED);
+        Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(RunState.UNDEFINED);
         // Assertions.assertThat(lastState.runStateOfBlockId("7")).isEqualTo(RunState.UNDEFINED);
         // Assertions.assertThat(lastState.runStateOfBlockId("8")).isEqualTo(RunState.UNDEFINED);
         // Assertions.assertThat(lastState.runStateOfBlockId("9")).isEqualTo(RunState.UNDEFINED);
@@ -174,6 +178,9 @@ public class LenientModeIntegrationTest {
 
 
         Thread.sleep(1000);
+        
+        MissionRepresentation instantiatedRepresentation = mole.representationsFor(handle).blockFirst();
+        instantiatedRepresentation.allBlocks().stream().filter(block->block.text().equals("main1"));
 
         mole.instructRoot(handle, StrandCommand.RESUME);
 
@@ -181,19 +188,32 @@ public class LenientModeIntegrationTest {
         // System.out.println(mole.representationOf(mission).block().parentsToChildren());
 
         MissionState lastState = mole.statesFor(handle).blockLast();
+        Map<String, Block> blocksByText = blocksByText(instantiatedRepresentation); 
 
         Assertions.assertThat(lastState.resultOf(representation.rootBlock())).isEqualTo(Result.FAILED);
-        Assertions.assertThat(lastState.resultOfBlockId("1")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(lastState.resultOfBlockId("2")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(lastState.resultOfBlockId("3")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(lastState.resultOfBlockId("4")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(lastState.resultOfBlockId("5")).isEqualTo(Result.FAILED);
-        Assertions.assertThat(lastState.resultOfBlockId("6")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(lastState.resultOfBlockId("7")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(lastState.resultOfBlockId("8")).isEqualTo(Result.SUCCESS);
-        Assertions.assertThat(lastState.resultOfBlockId("9")).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub1").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub2").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main1Sub3").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main2").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(lastState.resultOfBlockId(blocksByText.get("main3").id())).isEqualTo(Result.SUCCESS);
 
         Assertions.assertThat(lastState.runStateOf(lastState.rootStrand())).isEqualTo(RunState.FINISHED);
+    }
+    
+    private static Map<String, Block> blocksByText(MissionRepresentation represenation){
+    	HashMap<String, Block> textsToBlock = new HashMap<>();
+    	represenation.allBlocks().forEach(block -> {
+    		if(textsToBlock.containsKey(block.text())) {
+    			throw new IllegalArgumentException();
+    		}
+    		textsToBlock.put(block.text(), block);
+    	});
+    	return ImmutableMap.copyOf(textsToBlock);
+
     }
 
 }
