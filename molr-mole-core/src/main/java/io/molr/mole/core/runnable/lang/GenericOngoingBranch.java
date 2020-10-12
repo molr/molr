@@ -35,13 +35,6 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
         this.mode = SEQUENTIAL;
         return (B) this;
     }
-    
-    public <T> B foreach(Placeholder<? extends MolrCollection<T>> collectionPlaceholder) {
-    	Placeholder<T> item = MolrCollection.itemPlaceholderForCollectionPlaceholder(collectionPlaceholder, "test");
-    	
-    	return (B) this;
-    }
-
 
     protected Block block() {
         if (parent() == null) {

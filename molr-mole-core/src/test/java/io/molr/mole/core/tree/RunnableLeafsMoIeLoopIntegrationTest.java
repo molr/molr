@@ -49,8 +49,22 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
                                 
                 root("root1").sequential().as(missionRoot -> {// 0
+                	
+                	//alternative 1
+                	missionRoot.branch("newForEach").parallel().foreachItem(collectionPlaceholder).branch("forDevice").as((foreachBranch, itemPlaceholder)->{
+                		foreachBranch.leaf("hel").run(in->{
+                			System.out.println("hello each"+in.get(itemPlaceholder));
+                		});
+                		foreachBranch.branch("anotherFor").sequential().foreachItem(secondCollectionPlaceholder).branch("sec").as((nestedForeachBranch, foreachItem2)-> {
+                    		nestedForeachBranch.leaf("hel").run(in->{
+                    			System.out.println("hello each"+in.get(foreachItem2) + in.get(itemPlaceholder));
+                    		});
+                		});
+                		
+                	});
                     
-                	Placeholder<String> returnedItemPlaceholder = missionRoot.branch("test").foreach(collectionPlaceholder).forEach(collectionPlaceholder, (branchDescription, itemPlaceholder) -> {
+                	//alternative 2
+                	Placeholder<String> returnedItemPlaceholder = missionRoot.branch("test").forEach(collectionPlaceholder, (branchDescription, itemPlaceholder) -> {
                 		branchDescription.leaf("hello").run((in, out) -> {
                 			System.out.println("hello"+in.get(itemPlaceholder));
                 		});
@@ -61,7 +75,11 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 			});
                 		});
                 		
-                		branchDescription.branch("NextForEach").foreach(collectionPlaceholder).forEach(collectionPlaceholder, (nextForEach, nextItemPlaceholder)->{
+                		//other alternatives
+                		//branchDescription.foreach("ConfigureCollectionOfItems").of(collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").run((item, in, out)-> {})|mission(...);
+                		//branchDescription.foreach("ConfigureMagnets").of(collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").run((item, in, out)-> {})
+                		
+                		branchDescription.branch("NextForEach").forEach(collectionPlaceholder, (nextForEach, nextItemPlaceholder)->{
                 			nextForEach.branch("hello").sequential().as(hello->{
                 				hello.leaf("name").run((in, out)->{
                 					System.out.println(in.get(nextItemPlaceholder));

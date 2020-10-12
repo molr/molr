@@ -55,5 +55,13 @@ public class OngoingSimpleBranch extends GenericOngoingBranch<OngoingSimpleBranc
         
         return itemPlaceholder;
     }
+    
+    public <T> ForeachBranchRoot<T> foreachItem(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+        if (asCalled.getAndSet(true)) {
+            throw new IllegalStateException("as() method must only be called once!");
+        }
+        return new ForeachBranchRoot<>(name(), builder(), parent(), mode(), itemsPlaceholder);
+    }
+
 
 }
