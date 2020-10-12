@@ -50,6 +50,10 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                                 
                 root("root1").sequential().as(missionRoot -> {// 0
                 	
+                	missionRoot.foreach(collectionPlaceholder, "configCollection").parallel().leaf("switchOn").runFor((String item)-> {
+                		System.out.println("foreach: "+item);
+                	});
+                	
                 	//alternative 1
                 	missionRoot.branch("newForEach").parallel().foreachItem(collectionPlaceholder).branch("forDevice").as((foreachBranch, itemPlaceholder)->{
                 		foreachBranch.leaf("hel").run(in->{

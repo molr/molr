@@ -16,9 +16,6 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		super(name, builder, parent, mode);
 
        this.itemPlaceholder = MolrCollection.itemPlaceholderForCollectionPlaceholder(itemsPlaceholder, UUID.randomUUID().toString());
-        System.out.println(itemPlaceholder);
-
-
        this.block = block();
         builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
@@ -27,8 +24,8 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		return new OngoingForeachBranch<>(name, builder(), block, mode(), itemPlaceholder);
 	}
 	
-	public OngoingForeachLeaf leaf(String name) {
-		return new OngoingForeachLeaf(name, builder(), block);
+	public OngoingForeachLeaf<T> leaf(String name) {
+		return new OngoingForeachLeaf<T>(name, builder(), block, itemPlaceholder);
 	}
 
 }

@@ -18,8 +18,6 @@ public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extend
         );
     }
     
-    String test = "hello";
-    
     public void run(Runnable runnable) {
         run((in, out) -> runnable.run());
     }

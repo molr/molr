@@ -2,6 +2,7 @@ package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
+import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -47,6 +48,11 @@ public class SimpleBranch extends AbstractBranch {
      */
     public <T,U> void leafForEach(String name, Placeholder<T> devicesPlaceholder, Placeholder<U> itemPlaceholder, BiConsumer<In, Out> itemConsumer) {
         builder().forEach(name, parent(), devicesPlaceholder,itemPlaceholder,itemConsumer);        
+    }
+    
+    
+    public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, String name) {
+        return new ForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 
 
