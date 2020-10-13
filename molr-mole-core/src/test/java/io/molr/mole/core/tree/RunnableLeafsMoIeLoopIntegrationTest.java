@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
@@ -142,9 +143,65 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         }.build();
 
     }
+    
+    RunnableLeafsMission contextualMission() {
+
+        return new RunnableLeafsMissionSupport() {
+            {
+
+            	Placeholder<String> device = Placeholder.aString("textToBePrinted");
+            	
+                Placeholder<ListOfStrings> collectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+                Placeholder<ListOfStrings> secondCollectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+
+                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
+                                
+                root("root1").contextual(String::new, device).sequential().as(missionRoot -> {// 0
+                	
+                	missionRoot.foreach(collectionPlaceholder, "configCollection").parallel().leaf("switchOn").runFor((String item)-> {
+                		System.out.println("foreach: "+item);
+                	});
+                	
+                	missionRoot.foreach(collectionPlaceholder, "configCollection2").parallel().branch("switchOnBranch").sequential().as((branchDescription, itemPlaceholder)-> {
+                		branchDescription.leaf("powerOn").runForCtx((context, item) -> {
+                			
+                			System.out.println("powerOn"+item+" " + context);
+                			try {
+                    			Thread.sleep(2000);
+                			}
+                			catch(Exception e) {
+                				e.printStackTrace();
+                			}
+                			System.out.println("slept");
+                			
+
+                		});
+                		
+                		branchDescription.foreach(collectionPlaceholder, "nested").leaf("nestedLeaf").runFor((String item)->{
+                			System.out.println("itemNested "+item);
+                		});
+                		
+                		branchDescription.leaf("set").runFor((String item) -> {
+                			System.out.println("set"+item);
+                			Thread.sleep(1000);
+                		});
+                		
+                		branchDescription.leaf("switchOff").runFor((String item) -> {
+                			System.out.println("switchOff"+item);
+                			Thread.sleep(1000);
+                		});
+                	});
+                });
+            }
+            
+        }.build();
+
+    }
+    
 
     Mole testMole() {
-        return new RunnableLeafsMole(Sets.newHashSet(mission()));
+        //return new RunnableLeafsMole(Sets.newHashSet(mission()));
+        return new RunnableLeafsMole(Sets.newHashSet(contextualMission()));
     }
     
     @Test
@@ -153,6 +210,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         Map<String, Object> params = new HashMap<>();
         params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
         params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+        params.put("textToBePrinted", "SomeText");
 
         MissionHandle handle = mole.instantiate(new Mission("root1"), params).block(Duration.ofMillis(500));
         /*

@@ -4,9 +4,8 @@ import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
 import io.molr.commons.domain.Block;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.AbstractBranch;
 
-public class ContextualBranch<C> extends AbstractBranch {
+public class ContextualBranch<C> extends ContextualForeachBranchProvidingAbstractBranch {
 
     protected ContextualBranch(RunnableLeafsMission.Builder builder, Block parent) {
         super(builder, parent);
