@@ -54,47 +54,76 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 		System.out.println("foreach: "+item);
                 	});
                 	
-                	//alternative 1
-                	missionRoot.branch("newForEach").parallel().foreachItem(collectionPlaceholder).branch("forDevice").as((foreachBranch, itemPlaceholder)->{
-                		foreachBranch.leaf("hel").run(in->{
-                			System.out.println("hello each"+in.get(itemPlaceholder));
-                		});
-                		foreachBranch.branch("anotherFor").sequential().foreachItem(secondCollectionPlaceholder).branch("sec").as((nestedForeachBranch, foreachItem2)-> {
-                    		nestedForeachBranch.leaf("hel").run(in->{
-                    			System.out.println("hello each"+in.get(foreachItem2) + in.get(itemPlaceholder));
-                    		});
+                	missionRoot.foreach(collectionPlaceholder, "configCollection2").parallel().branch("switchOnBranch").sequential().as((branchDescription, itemPlaceholder)-> {
+                		branchDescription.leaf("powerOn").runFor((String item) -> {
+                			
+                			System.out.println("powerOn"+item);
+                			try {
+                    			Thread.sleep(2000);
+                			}
+                			catch(Exception e) {
+                				e.printStackTrace();
+                			}
+                			System.out.println("slept");
+                			
+
                 		});
                 		
+                		branchDescription.foreach(collectionPlaceholder, "nested").leaf("nestedLeaf").runFor((String item)->{
+                			System.out.println("itemNested "+item);
+                		});
+                		
+                		branchDescription.leaf("set").runFor((String item) -> {
+                			System.out.println("set"+item);
+                			Thread.sleep(1000);
+                		});
+                		
+                		branchDescription.leaf("switchOff").runFor((String item) -> {
+                			System.out.println("switchOff"+item);
+                			Thread.sleep(1000);
+                		});
                 	});
-                    
-                	//alternative 2
-                	Placeholder<String> returnedItemPlaceholder = missionRoot.branch("test").forEach(collectionPlaceholder, (branchDescription, itemPlaceholder) -> {
-                		branchDescription.leaf("hello").run((in, out) -> {
-                			System.out.println("hello"+in.get(itemPlaceholder));
-                		});
-                		
-                		branchDescription.branch("forEachChild").sequential().as(forEachChild ->{
-                			forEachChild.leaf("hello").run((in, out)-> {
-                				System.out.println(in.get(itemPlaceholder));
-                			});
-                		});
-                		
-                		//other alternatives
-                		//branchDescription.foreach("ConfigureCollectionOfItems").of(collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").run((item, in, out)-> {})|mission(...);
-                		//branchDescription.foreach("ConfigureMagnets").of(collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").run((item, in, out)-> {})
-                		
-                		branchDescription.branch("NextForEach").forEach(collectionPlaceholder, (nextForEach, nextItemPlaceholder)->{
-                			nextForEach.branch("hello").sequential().as(hello->{
-                				hello.leaf("name").run((in, out)->{
-                					System.out.println(in.get(nextItemPlaceholder));
-                				});
-                			});
-                		});
-                		
-//                		branchDescription.leaf("hello").run((item)->{
-//                			System.out.println("item");
-//                		});
-                	});
+                	
+					/*
+					 * //alternative 1
+					 * missionRoot.branch("newForEach").parallel().foreachItem(collectionPlaceholder
+					 * ).branch("forDevice").as((foreachBranch, itemPlaceholder)->{
+					 * foreachBranch.leaf("hel").run(in->{
+					 * System.out.println("hello each"+in.get(itemPlaceholder)); }); //
+					 * foreachBranch.branch("anotherFor").sequential().foreachItem(
+					 * secondCollectionPlaceholder).branch("sec").as((nestedForeachBranch,
+					 * foreachItem2)-> { // nestedForeachBranch.leaf("hel").run(in->{ //
+					 * System.out.println("hello each"+in.get(foreachItem2) +
+					 * in.get(itemPlaceholder)); // }); // });
+					 * 
+					 * });
+					 * 
+					 * //alternative 2 Placeholder<String> returnedItemPlaceholder =
+					 * missionRoot.branch("test").forEach(collectionPlaceholder, (branchDescription,
+					 * itemPlaceholder) -> { branchDescription.leaf("hello").run((in, out) -> {
+					 * System.out.println("hello"+in.get(itemPlaceholder)); });
+					 * 
+					 * branchDescription.branch("forEachChild").sequential().as(forEachChild ->{
+					 * forEachChild.leaf("hello").run((in, out)-> {
+					 * System.out.println(in.get(itemPlaceholder)); }); });
+					 * 
+					 * //other alternatives
+					 * //branchDescription.foreach("ConfigureCollectionOfItems").of(
+					 * collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|
+					 * leaf("switchOnMagnet").run((item, in, out)-> {})|mission(...);
+					 * //branchDescription.foreach("ConfigureMagnets").of(collectionPlaceholder).
+					 * parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").
+					 * run((item, in, out)-> {})
+					 * 
+					 * branchDescription.branch("NextForEach").forEach(collectionPlaceholder,
+					 * (nextForEach, nextItemPlaceholder)->{
+					 * nextForEach.branch("hello").sequential().as(hello->{
+					 * hello.leaf("name").run((in, out)->{
+					 * System.out.println(in.get(nextItemPlaceholder)); }); }); });
+					 * 
+					 * // branchDescription.leaf("hello").run((item)->{ //
+					 * System.out.println("item"); // }); });
+					 */
                 	
 					/*
 					 * missionRoot.leafForEach("aForEachLoop", collectionPlaceholder,

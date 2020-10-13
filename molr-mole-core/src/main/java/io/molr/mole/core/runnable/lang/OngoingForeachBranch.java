@@ -15,9 +15,9 @@ public class OngoingForeachBranch<T> extends GenericOngoingBranch<OngoingForeach
 		this.itemPlaceholder = itemPlaceholder;
 	}
 
-	public void as(BiConsumer<ForeachBranch, Placeholder<T>> branchDescription) {
+	public void as(BiConsumer<ForeachBranch<T>, Placeholder<T>> branchDescription) {
         Block block = block();
-        ForeachBranch branch = new ForeachBranch(builder(), block);
+        ForeachBranch<T> branch = new ForeachBranch<T>(builder(), block, itemPlaceholder);
         branchDescription.accept(branch, itemPlaceholder);	
 	}
 	
