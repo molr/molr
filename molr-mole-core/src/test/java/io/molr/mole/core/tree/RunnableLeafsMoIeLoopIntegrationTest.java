@@ -149,14 +149,14 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         return new RunnableLeafsMissionSupport() {
             {
 
-            	Placeholder<String> device = Placeholder.aString("textToBePrinted");
+            	Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
             	
                 Placeholder<ListOfStrings> collectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
                 Placeholder<ListOfStrings> secondCollectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
                 optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
                                 
-                root("root1").contextual(String::new, device).sequential().as(missionRoot -> {// 0
+                root("root1").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as(missionRoot -> {// 0
                 	
                 	missionRoot.foreach(collectionPlaceholder, "configCollection").parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("foreach: "+item);
@@ -165,7 +165,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 	missionRoot.foreach(collectionPlaceholder, "configCollection2").parallel().branch("switchOnBranch").sequential().as((branchDescription, itemPlaceholder)-> {
                 		branchDescription.leaf("powerOn").runForCtx((context, item) -> {
                 			
-                			System.out.println("powerOn"+item+" " + context);
+                			System.out.println("powerOn "+item+" " + context);
                 			try {
                     			Thread.sleep(2000);
                 			}
@@ -177,7 +177,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(collectionPlaceholder, "nested").leaf("nestedLeaf").runFor((String item)->{
+                		branchDescription.foreach(secondCollectionPlaceholder, "nested").leaf("nestedLeaf").runFor((item)->{
                 			System.out.println("itemNested "+item);
                 		});
                 		
@@ -197,7 +197,6 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         }.build();
 
     }
-    
 
     Mole testMole() {
         //return new RunnableLeafsMole(Sets.newHashSet(mission()));
@@ -210,7 +209,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         Map<String, Object> params = new HashMap<>();
         params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
         params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
-        params.put("textToBePrinted", "SomeText");
+        params.put("demoContextParameter", "SomeText");
 
         MissionHandle handle = mole.instantiate(new Mission("root1"), params).block(Duration.ofMillis(500));
         /*
@@ -246,5 +245,21 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         System.out.println(output);
         mole.statesFor(handle).blockLast();
     }
-
+    
+    private static class DemoContext {
+    	
+    	private String text;
+    	
+    	public DemoContext(String text) {
+    		System.out.println(text);
+    		this.text = text;
+    	}
+    	
+    	@Override
+    	public String toString() {
+    		System.out.println(" toString " + text);
+    		return text;
+    	}
+    }
+    
 }

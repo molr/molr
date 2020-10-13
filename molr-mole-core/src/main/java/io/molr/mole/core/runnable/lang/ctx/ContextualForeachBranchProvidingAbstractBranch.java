@@ -7,15 +7,15 @@ import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.AbstractBranch;
 import io.molr.mole.core.runnable.lang.BranchMode;
 
-public abstract class ContextualForeachBranchProvidingAbstractBranch extends AbstractBranch{
+public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends AbstractBranch{
 
 	protected ContextualForeachBranchProvidingAbstractBranch(Builder builder, Block parent) {
 		super(builder, parent);
 		// TODO Auto-generated constructor stub
 	}
 	
-    public <C, T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, String name) {
-        return new ContextualForeachBranchRoot<C, T>(name, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
+    public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, String name) {
+        return new ContextualForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 
 
