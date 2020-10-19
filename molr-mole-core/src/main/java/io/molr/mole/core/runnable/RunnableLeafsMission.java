@@ -2,6 +2,9 @@ package io.molr.mole.core.runnable;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+
 import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.BranchMode;
@@ -9,7 +12,6 @@ import io.molr.mole.core.tree.TreeStructure;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -19,6 +21,8 @@ import static java.util.Objects.requireNonNull;
 
 public class RunnableLeafsMission {
 
+	private final static String ROOT_BLOCK_ID = "0";
+	
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
     private final ImmutableMap<Block, BiConsumer<In, Out>> forEachRunnables;
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachConfigurations;
@@ -83,9 +87,9 @@ public class RunnableLeafsMission {
 
 	public static class Builder {
 
-        private final AtomicLong nextId = new AtomicLong(0);
         private final AtomicReference<Block> latest = new AtomicReference<>();
 
+        private final ListMultimap<Block, Block> parentToChildren = LinkedListMultimap.create();
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
@@ -105,7 +109,7 @@ public class RunnableLeafsMission {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
 
-            Block root = block(rootName);
+            Block root = block(ROOT_BLOCK_ID, rootName);
             if (PARALLEL == branchMode) {
                 parallelBlocksBuilder.add(root);
             }
@@ -141,7 +145,9 @@ public class RunnableLeafsMission {
         private Block addChild(Block parent, String childName, Set<BlockAttribute> blockAttributes) {
             assertRootDefined();
 
-            Block child = block(childName);
+            int childId = parentToChildren.get(parent).size();
+            Block child = block(parent.id()+"."+childId, parent.text()+"_"+childName);
+            parentToChildren.put(parent, child);
             representationBuilder.parentToChild(parent, child);
             apply(child, blockAttributes);
             latest.set(child);
@@ -177,8 +183,8 @@ public class RunnableLeafsMission {
         }
 
         //TODO remove public access
-        public Block block(String name) {
-            return Block.idAndText("" + nextId.getAndIncrement(), name);
+        public Block block(String id, String name) {
+            return Block.idAndText(id, name);
         }
 
         public <T,U> void forEach(String name, Block parent, Placeholder<T> devicesPlaceholder, Placeholder<U> itemPlaceholder, BiConsumer<In, Out> itemConsumer) {
