@@ -12,7 +12,8 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
 
 	}
 	
-    public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, String name) {
+    public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+    	String name = "forEachItemIn:"+itemsPlaceholder.name();
         return new ForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 
