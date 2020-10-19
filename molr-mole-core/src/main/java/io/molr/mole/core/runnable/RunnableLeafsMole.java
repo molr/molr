@@ -7,8 +7,6 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -68,152 +66,69 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         return runnableMission;
     }
 
-    private static Block replicatedBlock(Block block, String prefix) {
-    	return Block.idAndText(prefix+block.id(), block.text());
-    }
-
-    private static void traverse(RunnableLeafsMission mission, Block parent, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder, Set<Block> parallelBlocks) {
+    private static void createExpandedMission(RunnableLeafsMission mission, Block block, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder, Set<Block> parallelBlocks) {
     	MissionRepresentation representation = mission.treeStructure().missionRepresentation();
-    	Map<Block, ForEachConfiguration<?,?>> forEachCOnfigs = mission.getForEachBlocksConfigurations();
-    	System.out.println("goDown: "+parent+" "+url);
-		System.out.println(mission.treeStructure().isParallel(parent));
-    	//ifForEach add item to block input
-    	if(representation.isLeaf(parent)) {
+    	Map<Block, ForEachConfiguration<?,?>> forEachConfigs = mission.getForEachBlocksConfigurations();
 
-    	}
-    	if(forEachCOnfigs.containsKey(parent)) {
-    		ForEachConfiguration<?, ?> foreachConfig = forEachCOnfigs.get(parent);
-    		System.out.println("forEach");
+
+		Block replicatedSubtree=Block.idAndText(url, block.text());
+		if(mission.treeStructure().isParallel(block)) {
+			parallelBlocks.add(replicatedSubtree);
+		}
+    	
+    	if(forEachConfigs.containsKey(block)) {
+    		ForEachConfiguration<?, ?> foreachConfig = forEachConfigs.get(block);
     		Collection<?> forEachItems = (Collection<?>)missionInput.get(foreachConfig.collectionPlaceholder());
+    		int i=0;
     		for(Object item : forEachItems) {
     			MissionInput scopedInput = missionInput.and(foreachConfig.itemPlaceholder().name(), item);
-    	    	for(Block child : representation.childrenOf(parent)) {
-    	    		Block replicatedParent=replicatedBlock(parent, url);
-    	    		Block replicatedChild = replicatedBlock(child, url+parent.id()+item);
-    	    		if(mission.treeStructure().isParallel(parent)) {
-    	    			parallelBlocks.add(replicatedParent);
-    	    		}
-    	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
+    	    	for(Block child : representation.childrenOf(block)) {
+    	    		String childUrl = url+"."+i++;
+    	    		Block replicatedChild = Block.idAndText(childUrl, child.text());
+
+    	    		representationBuilder.parentToChild(replicatedSubtree, replicatedChild);
     	    		if(representation.isLeaf(child)) {
     	        		scopedInputs.put(replicatedChild, scopedInput);
     	        		updatedRunnablesAfterTraverseBuilder.put(replicatedChild, mission.runnables().get(child));
-    	        		System.out.println("leaf "+parent + missionInput);
     	    		}
     	    		else {
-        	    		traverse(mission, child, scopedInput, url+parent.id()+item, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);    	    			
+        	    		createExpandedMission(mission, child, scopedInput, childUrl, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);    	    			
     	    		}
     	    	}
     		}
-    		System.out.println(forEachItems);
     	}
     	else {
-	    	for(Block child : representation.childrenOf(parent)) {
-	    		Block replicatedParent=replicatedBlock(parent, url);
-	    		if(mission.treeStructure().isParallel(parent)) {
-	    			parallelBlocks.add(replicatedParent);
-	    		}
-	    		Block replicatedChild = replicatedBlock(child, url+parent.id());
-	    		representationBuilder.parentToChild(replicatedParent, replicatedChild);
+    		int i=0;
+	    	for(Block child : representation.childrenOf(block)) {
+	    		String childUrl = url+"."+i++;
+	    		Block replicatedChild = Block.idAndText(childUrl, child.text());//replicatedBlock(child, url+subtree.id());
+	    		representationBuilder.parentToChild(replicatedSubtree, replicatedChild);
 	    		if(representation.isLeaf(child)) {
-	        		scopedInputs.put(replicatedChild, missionInput);
-	        		System.out.println("Runnables "+mission.runnables());
+	        		scopedInputs.put(replicatedChild, missionInput);	
 	        		updatedRunnablesAfterTraverseBuilder.put(replicatedChild, mission.runnables().get(child));
-	        		System.out.println("leaf "+parent + missionInput);
 	    		}
 	    		else {
-		    		traverse(mission, child, missionInput, url+parent.id(), representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);	    			
+		    		createExpandedMission(mission, child, missionInput, childUrl, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);	    			
 	    		}
 	    	}
     	}
-
-    	System.out.println("goUp"+parent);
     }
     
     @Override
     protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
         MissionInput input = missionInput(runnableLeafMission, params);
-
-        System.out.println(runnableLeafMission.runnables());
-        System.out.println(runnableLeafMission.treeStructure().missionRepresentation().parentsToChildren());
-        
         
         /*
-         * structural updates for for each loops
-         */
-        ImmutableMissionRepresentation.Builder updatedRepresentationBuilder = ImmutableMissionRepresentation.builder(runnableLeafMission.treeStructure().missionRepresentation());
-        final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesBuilder = ImmutableMap.builder();
-        updatedRunnablesBuilder.putAll(runnableLeafMission.runnables());
-
-        /*
-         * building of block id should be refactored 
-         */
-        long maxId = Long.MIN_VALUE;
-        for(Block block : runnableLeafMission.treeStructure().allBlocks()){
-            long blockId = Long.valueOf(block.id());
-            maxId = Long.max(maxId, blockId);
-        }
-        AtomicLong blockIdTracker = new AtomicLong(maxId+1);//IDs are originally generated by RunnableLeafsMission.Builder
-        AtomicInteger forEachCounter = new AtomicInteger(0);
-        if (!runnableLeafMission.forEachConfigurations().isEmpty()) {
-            runnableLeafMission.forEachConfigurations().forEach((block, configuration) -> {
-
-
-                Collection<?> devices = (Collection<?>) input.get(configuration.collectionPlaceholder());
-                devices.forEach(devcie -> {
-                    long blockId = blockIdTracker.getAndIncrement();
-                    Block forEachBlock = Block.idAndText("" + (blockId), block.text()+"iteration(" + forEachCounter.getAndIncrement()+"): "+devcie);
-                    updatedRepresentationBuilder.parentToChild(block, forEachBlock);
-                    BiConsumer<In, Out> newRunnable = (in, out) -> {
-                        MissionInput scopedInput = MissionInput.from(params).and(configuration.itemPlaceholder().name(),
-                                devcie);
-                        configuration.runnable().accept(scopedInput, out);
-
-                    };
-                    updatedRunnablesBuilder.put(forEachBlock, newRunnable);
-                });
-
-            });
-        }
-        final Map<Block, BiConsumer<In, Out>> updatedRunnables = updatedRunnablesBuilder.build();
+         * create structure with expanded foreach blocks
+         */     
         ImmutableMissionRepresentation.Builder newRepresentationBuilder = ImmutableMissionRepresentation.builder(runnableLeafMission.treeStructure().rootBlock());
         Map<Block, MissionInput> scopedInputs = new HashMap<>();
-        Map<Block, Placeholder<?>> forEachBlocks = runnableLeafMission.getForEachBlocks();
         final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder = ImmutableMap.builder();
         Set<Block> newParallelBlocks = new HashSet<>();
-        traverse(runnableLeafMission, runnableLeafMission.treeStructure().missionRepresentation().rootBlock(), input, "", newRepresentationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, newParallelBlocks);
-        System.out.println(newRepresentationBuilder.build().parentsToChildren());
-        
-        Map<Block, Map<String, Object>> blockInputs = new HashMap<>();
-        forEachBlocks.forEach((forEachBlock, placeholder)->{
-            Collection<?> forEachItems = (Collection<?>)input.get(forEachBlocks.get(forEachBlock));
-            forEachItems.forEach(item -> {
-            	ForEachConfiguration<?,?> forEachConfig = runnableLeafMission.getForEachBlocksConfigurations().get(forEachBlock);
-            	System.out.println(forEachConfig.itemPlaceholder());
-            	System.out.println(item);
-//            	MissionInput.from(params).and(key, value)
-            	TreeStructure subTree = runnableLeafMission.treeStructure().substructure(forEachBlock, item.toString());
-            	//input for all leafs in subtree must be extended by itemPlaceholder 
-            	for(Block block : subTree.allBlocks()) {
-            		if(blockInputs.containsKey(block)) {
-            			blockInputs.get(block).put(forEachConfig.itemPlaceholder().name(), item);
-            		}
-            		else {
-            			blockInputs.put(block, new HashMap<>());
-            			blockInputs.get(block).put(forEachConfig.itemPlaceholder().name(), item);
-            		}
-            	}
-            	System.out.println("p2C"+subTree.missionRepresentation().parentsToChildren());
-                System.out.println(subTree.allBlocks());
-                System.out.println(subTree.missionRepresentation().parentsToChildren());
-            });
-        });
+        Block rootBlock = runnableLeafMission.treeStructure().missionRepresentation().rootBlock();
+        createExpandedMission(runnableLeafMission, rootBlock, input, rootBlock.id(), newRepresentationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, newParallelBlocks);
 
-        System.out.println(blockInputs);
-
-        //TreeStructure updatedTreeStructure = new TreeStructure(updatedRepresentationBuilder.build(), runnableLeafMission.treeStructure().parallelBlocks());
-        //TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-        //TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
         TreeStructure updatedTreeStructure = new TreeStructure(newRepresentationBuilder.build(), ImmutableSet.copyOf(newParallelBlocks));
         TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);

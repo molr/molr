@@ -1,5 +1,6 @@
 package io.molr.mole.core.tree;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +15,14 @@ import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.In;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.MolrCollection;
+import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.commons.domain.StrandCommand;
@@ -38,6 +41,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     private final static List<String> ITEM_LIST_2 = new ArrayList<>(Arrays.asList("D", "E", "F"));
     private final static String PARAMETER_NAME_DEVICE_NAMES = "deviceNames";
     private final static String PARAMETER_NAME_DEVICE_NAMES_2 = "deviceNames2";
+    
     
     RunnableLeafsMission mission() {
 
@@ -85,58 +89,6 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 		});
                 	});
                 	
-					/*
-					 * //alternative 1
-					 * missionRoot.branch("newForEach").parallel().foreachItem(collectionPlaceholder
-					 * ).branch("forDevice").as((foreachBranch, itemPlaceholder)->{
-					 * foreachBranch.leaf("hel").run(in->{
-					 * System.out.println("hello each"+in.get(itemPlaceholder)); }); //
-					 * foreachBranch.branch("anotherFor").sequential().foreachItem(
-					 * secondCollectionPlaceholder).branch("sec").as((nestedForeachBranch,
-					 * foreachItem2)-> { // nestedForeachBranch.leaf("hel").run(in->{ //
-					 * System.out.println("hello each"+in.get(foreachItem2) +
-					 * in.get(itemPlaceholder)); // }); // });
-					 * 
-					 * });
-					 * 
-					 * //alternative 2 Placeholder<String> returnedItemPlaceholder =
-					 * missionRoot.branch("test").forEach(collectionPlaceholder, (branchDescription,
-					 * itemPlaceholder) -> { branchDescription.leaf("hello").run((in, out) -> {
-					 * System.out.println("hello"+in.get(itemPlaceholder)); });
-					 * 
-					 * branchDescription.branch("forEachChild").sequential().as(forEachChild ->{
-					 * forEachChild.leaf("hello").run((in, out)-> {
-					 * System.out.println(in.get(itemPlaceholder)); }); });
-					 * 
-					 * //other alternatives
-					 * //branchDescription.foreach("ConfigureCollectionOfItems").of(
-					 * collectionPlaceholder).parallel().do().branch("ConfigureSingleMagnet"){...}|
-					 * leaf("switchOnMagnet").run((item, in, out)-> {})|mission(...);
-					 * //branchDescription.foreach("ConfigureMagnets").of(collectionPlaceholder).
-					 * parallel().do().branch("ConfigureSingleMagnet"){...}|leaf("switchOnMagnet").
-					 * run((item, in, out)-> {})
-					 * 
-					 * branchDescription.branch("NextForEach").forEach(collectionPlaceholder,
-					 * (nextForEach, nextItemPlaceholder)->{
-					 * nextForEach.branch("hello").sequential().as(hello->{
-					 * hello.leaf("name").run((in, out)->{
-					 * System.out.println(in.get(nextItemPlaceholder)); }); }); });
-					 * 
-					 * // branchDescription.leaf("hello").run((item)->{ //
-					 * System.out.println("item"); // }); });
-					 */
-                	
-					/*
-					 * missionRoot.leafForEach("aForEachLoop", collectionPlaceholder,
-					 * ITEM_PLACEHOLDER, (in, out) -> { String deviceName =
-					 * in.get(ITEM_PLACEHOLDER); System.out.println("deviceName: " + deviceName);
-					 * out.emit(ITEM_PLACEHOLDER, deviceName); });
-					 * 
-					 * missionRoot.leafForEach("a2ndForEachLoop", secondCollectionPlaceholder,
-					 * ITEM_PLACEHOLDER, (in, out) -> { String deviceName =
-					 * in.get(ITEM_PLACEHOLDER); System.out.println("deviceName: " + deviceName);
-					 * out.emit(ITEM_PLACEHOLDER, deviceName); });
-					 */
                 });
             }
             
@@ -151,43 +103,45 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
             	Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
             	
-                Placeholder<ListOfStrings> collectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
-                Placeholder<ListOfStrings> secondCollectionPlaceholder = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+                Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+                Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
                 optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
                                 
-                root("root1").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as(missionRoot -> {// 0
+                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as(missionRoot -> {// 0
                 	
-                	missionRoot.foreach(collectionPlaceholder, "configCollection").parallel().leaf("switchOn").runFor((String item)-> {
-                		System.out.println("foreach: "+item);
+                	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
+                		System.out.println("switchOn: "+item);
                 	});
-                	
-                	missionRoot.foreach(collectionPlaceholder, "configCollection2").parallel().branch("switchOnBranch").sequential().as((branchDescription, itemPlaceholder)-> {
-                		branchDescription.leaf("powerOn").runForCtx((context, item) -> {
+
+                	missionRoot.foreach(someDevices).parallel().branch("configure").sequential().as((branchDescription, itemPlaceholder)-> {
+                		branchDescription.leaf("setValue").runForCtx((context, item) -> {
                 			
-                			System.out.println("powerOn "+item+" " + context);
+                			System.out.println("setValue of "+item+" to xy, context:" + context);
                 			try {
                     			Thread.sleep(2000);
                 			}
                 			catch(Exception e) {
                 				e.printStackTrace();
                 			}
-                			System.out.println("slept");
+                			System.out.println("setValue finished");
                 			
 
                 		});
                 		
-                		branchDescription.foreach(secondCollectionPlaceholder, "nested").leaf("nestedLeaf").runFor((item)->{
-                			System.out.println("itemNested "+item);
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{//0.1.i.1.j
+                			String outerItem = in.get(itemPlaceholder);
+                			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
+                			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("set").runFor((String item) -> {
-                			System.out.println("set"+item);
+                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {//2
+                			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
                 		
                 		branchDescription.leaf("switchOff").runFor((String item) -> {
-                			System.out.println("switchOff"+item);
+                			System.out.println("switchOff "+item);
                 			Thread.sleep(1000);
                 		});
                 	});
@@ -211,7 +165,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
         params.put("demoContextParameter", "SomeText");
 
-        MissionHandle handle = mole.instantiate(new Mission("root1"), params).block(Duration.ofMillis(500));
+        MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block(Duration.ofMillis(500));
         /*
          * tedious, this should maybe be worth an issue. At least a later convenience API should block
          * until mission can actually be started 
@@ -226,22 +180,17 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
          * root.forEach.iteration0
          * root.main1.sub...
          */
-        List<Block> forEachBlocks = representation.childrenOf(Block.builder("3", "aForEachLoop").build());
+        List<Block> forEachBlocks = representation.childrenOf(Block.builder("0.1.0", "foreachDemo_forEachItemIn:deviceNames_configure").build());
         System.out.println("foreachblocks"+forEachBlocks);
-        for (int i = 0; i < forEachBlocks.size(); i++) {
-            Block block = forEachBlocks.get(i);
-            String blockOutput = output.get(block, ITEM_PLACEHOLDER);
-            Assertions.assertThat(blockOutput).isEqualTo(ITEM_LIST.get(i));
+        for (int i = 0; i < ITEM_LIST.size(); i++) {
+        	for (int j = 0; j < ITEM_LIST_2.size(); j++) {
+        		String blockId = MessageFormat.format("0.1.{0}.1.{1}", i, j);
+        		Block block = representation.blockOfId(blockId).get();
+        		String blockOutput = output.get(block, Placeholder.aString("nestedItems"));
+        		Assertions.assertThat(blockOutput).isEqualTo(ITEM_LIST.get(i)+":"+ITEM_LIST_2.get(j));
+			}
+
         }
-        
-        List<Block> forEachBlocks2 = representation.childrenOf(Block.builder("4", "a2ndForEachLoop").build());
-        System.out.println("foreachblocks2"+forEachBlocks2);
-        for (int i = 0; i < forEachBlocks2.size(); i++) {
-            Block block = forEachBlocks2.get(i);
-            String blockOutput = output.get(block, ITEM_PLACEHOLDER);
-            Assertions.assertThat(blockOutput).isEqualTo(ITEM_LIST_2.get(i));
-        }
-        
         System.out.println(output);
         mole.statesFor(handle).blockLast();
     }

@@ -14,7 +14,8 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
 		// TODO Auto-generated constructor stub
 	}
 	
-    public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, String name) {
+    public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder/*, String name*/) {
+    	String name = "forEachItemIn:"+itemsPlaceholder.name();
         return new ContextualForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 
