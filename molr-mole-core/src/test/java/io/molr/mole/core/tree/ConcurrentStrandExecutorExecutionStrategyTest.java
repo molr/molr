@@ -61,9 +61,9 @@ public class ConcurrentStrandExecutorExecutionStrategyTest extends AbstractSingl
         waitUntilRootStrandStateIs(RunState.FINISHED);
         
         assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("1", "task1").build()).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(Block.builder("2", "task2").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("3", "task3").build()).isEqualTo(Result.SUCCESS);                      
+        assertThatResultOf(Block.builder("0.0", "task1").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.1", "task2").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.2", "task3").build()).isEqualTo(Result.SUCCESS);                      
     }
     
     @Test
@@ -74,9 +74,9 @@ public class ConcurrentStrandExecutorExecutionStrategyTest extends AbstractSingl
         waitUntilRootStrandStateIs(RunState.FINISHED);
         
         assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("1", "task1").build()).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(Block.builder("2", "task2").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("3", "task3").build()).isEqualTo(Result.UNDEFINED);                      
+        assertThatResultOf(Block.builder("0.0", "task1").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.1", "task2").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.2", "task3").build()).isEqualTo(Result.UNDEFINED);                      
     }
     
     @Test(timeout = 500)
@@ -86,9 +86,9 @@ public class ConcurrentStrandExecutorExecutionStrategyTest extends AbstractSingl
         
         waitUntilRootStrandStateIs(RunState.PAUSED);
 
-        assertThatResultOf(Block.builder("1", "task1").build()).isEqualTo(Result.SUCCESS);
-        assertThatResultOf(Block.builder("2", "task2").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("3", "task3").build()).isEqualTo(Result.UNDEFINED);
+        assertThatResultOf(Block.builder("0.0", "task1").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.1", "task2").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.2", "task3").build()).isEqualTo(Result.UNDEFINED);
         assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);                   
     }
     

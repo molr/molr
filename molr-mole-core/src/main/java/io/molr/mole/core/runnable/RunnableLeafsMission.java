@@ -146,7 +146,7 @@ public class RunnableLeafsMission {
             assertRootDefined();
 
             int childId = parentToChildren.get(parent).size();
-            Block child = block(parent.id()+"."+childId, parent.text()+"_"+childName);
+            Block child = block(parent.id()+"."+childId, /*parent.text()+"_"+*/childName);
             parentToChildren.put(parent, child);
             representationBuilder.parentToChild(parent, child);
             apply(child, blockAttributes);
