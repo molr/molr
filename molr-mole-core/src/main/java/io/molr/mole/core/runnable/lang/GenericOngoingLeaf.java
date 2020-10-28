@@ -17,7 +17,7 @@ public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extend
                 requireNonNull(parent, "parent must not be null")
         );
     }
-
+    
     public void run(Runnable runnable) {
         run((in, out) -> runnable.run());
     }

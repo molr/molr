@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * TODO #1 consider merging with MissionRepresentation
  */
@@ -30,12 +32,16 @@ public class TreeStructure {
      * NOTE: The current implementation is not optimized for performance...
      */
     public TreeStructure substructure(Block block) {
+    	return substructure(block, "");
+    }
+    
+    public TreeStructure substructure(Block block, String postfix) {
         if (!representation.allBlocks().contains(block)) {
             throw new IllegalArgumentException("Block " + block + " is not part of this structure");
         }
 
-        ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(block);
-        addChildren(block, null, builder);
+        ImmutableMissionRepresentation.Builder builder = ImmutableMissionRepresentation.builder(Block.builder(block.id()+postfix, block.text()).build());
+        addChildren(block, null, builder, postfix);
 
         MissionRepresentation subrepresentation = builder.build();
         Set<Block> subparallelBlocks = parallelBlocks.stream()
@@ -88,6 +94,10 @@ public class TreeStructure {
         return representation.allBlocks();
     }
 
+    public Set<Block> parallelBlocks(){
+        return ImmutableSet.copyOf(parallelBlocks);
+    }
+    
     public boolean contains(Block block) {
         return allBlocks().contains(block);
     }
@@ -105,14 +115,14 @@ public class TreeStructure {
         return substructure(source).allBlocks().contains(target);
     }
 
-    private void addChildren(Block child, Block parent, ImmutableMissionRepresentation.Builder builder) {
+    private void addChildren(Block child, Block parent, ImmutableMissionRepresentation.Builder builder, String idPostfix) {
         if (parent != null) {
-            builder.parentToChild(parent, child);
+            builder.parentToChild(Block.builder(parent.id()+idPostfix, parent.text()).build(), Block.builder(child.id()+idPostfix, child.text()).build());
         }
 
         if (!isLeaf(child)) {
             for (Block grandChild : childrenOf(child)) {
-                addChildren(grandChild, child, builder);
+                addChildren(grandChild, child, builder, idPostfix);
             }
         }
     }

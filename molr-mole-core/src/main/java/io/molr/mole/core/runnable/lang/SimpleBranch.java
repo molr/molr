@@ -1,17 +1,12 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.In;
-import io.molr.commons.domain.Out;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.utils.Checkeds;
-
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
-public class SimpleBranch extends AbstractBranch {
+public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
 
     protected SimpleBranch(RunnableLeafsMission.Builder builder, Block parent) {
         super(builder, parent);
@@ -39,9 +34,6 @@ public class SimpleBranch extends AbstractBranch {
     @Deprecated
     public void parallel(String name, Consumer<SimpleBranch> branchDefiner) {
         branch(name).parallel().as(branchDefiner);
-    }
-
-
-
+    }	    
 
 }

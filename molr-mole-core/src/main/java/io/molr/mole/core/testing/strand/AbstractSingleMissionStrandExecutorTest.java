@@ -13,6 +13,7 @@ import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -42,7 +43,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
 
-        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new ConcurrentMissionOutputCollector(), runStateTracker);
+        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new HashMap<>(),new ConcurrentMissionOutputCollector(), runStateTracker);
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
         strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), executionStrategy);

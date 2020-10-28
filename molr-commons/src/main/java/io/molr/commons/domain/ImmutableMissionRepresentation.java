@@ -70,7 +70,8 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
     }
 
     public static Builder builder(MissionRepresentation oldRepresentation) {
-        return builder(oldRepresentation.rootBlock()).parentsToChildren(oldRepresentation.parentsToChildren());
+        return builder(oldRepresentation.rootBlock()).parentsToChildren(oldRepresentation.parentsToChildren())
+                .addDefaultBreakpoints(oldRepresentation.defaultBreakpoints());
     }
 
     public static MissionRepresentation empty(String name) {
@@ -97,8 +98,14 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
         ImmutableSet.Builder<Block> defaultBreakpointsBuilder = ImmutableSet.builder();
 
-        public void addDefaultBreakpoint(final Block block) {
+        public Builder addDefaultBreakpoint(final Block block) {
             defaultBreakpointsBuilder.add(block);
+            return this;
+        }
+
+        public Builder addDefaultBreakpoints(final Collection<Block> blocks) {
+            defaultBreakpointsBuilder.addAll(blocks);
+            return this;
         }
         
         private Builder(Block rootBlock) {

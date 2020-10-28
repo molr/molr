@@ -21,9 +21,9 @@ public abstract class AbstractBranch {
         this.parent = requireNonNull(parent, "parent must not be null");
     }
 
-    public abstract GenericOngoingBranch<? extends GenericOngoingBranch> branch(String name);
+    public abstract GenericOngoingBranch<? extends GenericOngoingBranch<?>> branch(String name);
 
-    public abstract GenericOngoingLeaf<? extends GenericOngoingLeaf> leaf(String name);
+    public abstract GenericOngoingLeaf<? extends GenericOngoingLeaf<?>> leaf(String name);
 
     protected RunnableLeafsMission.Builder builder() {
         return this.builder;
