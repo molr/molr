@@ -71,16 +71,43 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
     }
 
     public <P1, P2> void runCtx(Checkeds.CheckedThrowingConsumer3<C, P1, P2> runnable, Placeholder<P1> p1,
-            Placeholder<P2> p2) {
+                                Placeholder<P2> p2) {
         runCtx2(runnable, in -> in.get(p1), in -> in.get(p2));
     }
 
     private <P1, P2> void runCtx2(Checkeds.CheckedThrowingConsumer3<C, P1, P2> runnable, Function<In, P1> p1,
-            Function<In, P2> p2) {
+                                  Function<In, P2> p2) {
         run(in -> {
             C c = in.get(context());
             runnable.accept(c, p1.apply(in), p2.apply(in));
         });
     }
+
+    public <P1, P2, P3> void runCtx(Checkeds.CheckedThrowingConsumer4<C, P1, P2, P3> runnable, Placeholder<P1> p1,
+                                    Placeholder<P2> p2, Placeholder<P3> p3) {
+        runCtx3(runnable, in -> in.get(p1), in -> in.get(p2), in -> in.get(p3));
+    }
+
+    private <P1, P2, P3> void runCtx3(Checkeds.CheckedThrowingConsumer4<C, P1, P2, P3> runnable, Function<In, P1> p1,
+                                      Function<In, P2> p2, Function<In, P3> p3) {
+        run(in -> {
+            C c = in.get(context());
+            runnable.accept(c, p1.apply(in), p2.apply(in), p3.apply(in));
+        });
+    }
+
+    public <P1, P2, P3, P4> void runCtx(Checkeds.CheckedThrowingConsumer5<C, P1, P2, P3, P4> runnable, Placeholder<P1> p1,
+                                        Placeholder<P2> p2, Placeholder<P3> p3, Placeholder<P4> p4) {
+        runCtx4(runnable, in -> in.get(p1), in -> in.get(p2), in -> in.get(p3), in -> in.get(p4));
+    }
+
+    private <P1, P2, P3, P4> void runCtx4(Checkeds.CheckedThrowingConsumer5<C, P1, P2, P3, P4> runnable, Function<In, P1> p1,
+                                          Function<In, P2> p2, Function<In, P3> p3, Function<In, P4> p4) {
+        run(in -> {
+            C c = in.get(context());
+            runnable.accept(c, p1.apply(in), p2.apply(in), p3.apply(in), p4.apply(in));
+        });
+    }
+
 
 }
