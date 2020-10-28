@@ -94,6 +94,35 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
     }
     
+	RunnableLeafsMission runCtxForDemo() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+
+				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as(rootDescription -> {
+					rootDescription.foreach(someDevices).branch("runCtxForDemoBranch")
+							.as((branchDe, itemPlaceholder) -> {
+								branchDe.leaf("").runCtxFor((demoContext, item) -> {
+									System.out.println("out " + demoContext + " " + item);
+								});
+								branchDe.leaf("leaf").runCtxFor((demoContext, item, in) -> {
+									System.out.println("out " + demoContext + " " + item);
+									System.out.println(in);
+								});
+								branchDe.leaf("leaf").runCtxFor((demoContext, item, in, out) -> {
+									System.out.println("out " + demoContext + " " + item);
+									out.emit("hello", "world");
+								});
+							});
+
+				});
+			}
+		}.build();
+
+	}
+    
     RunnableLeafsMission contextualMission() {
 
         return new RunnableLeafsMissionSupport() {
@@ -113,7 +142,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 	});
 
                 	missionRoot.foreach(someDevices).parallel().branch("configure").sequential().as((branchDescription, itemPlaceholder)-> {
-                		branchDescription.leaf("setValue").runForCtx((context, item) -> {
+                		branchDescription.leaf("setValue").runCtxFor((context, item) -> {
                 			
                 			System.out.println("setValue of "+item+" to xy, context:" + context);
                 			try {
@@ -156,6 +185,23 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
     Mole contextualMole() {
         return new RunnableLeafsMole(Sets.newHashSet(contextualMission()));
+    }
+    
+    @Test
+    public void justRunCtxFor() throws InterruptedException {
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(runCtxForDemo()));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+        params.put("demoContextParameter", "SomeText");
+    	MissionHandle handle = mole.instantiate(new Mission("runCtxForDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	
+    	mole.statesFor(handle).blockLast();
+    	MissionOutput output = mole.outputsFor(handle).blockLast();
+    	System.out.println(output);
+    	
     }
     
     @Test

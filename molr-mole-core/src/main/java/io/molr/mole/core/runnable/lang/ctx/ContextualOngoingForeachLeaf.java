@@ -28,11 +28,27 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 		return in.get(itemPlaceholder);
 	}
 	
-	public void runForCtx(Checkeds.CheckedThrowingBiConsumer<C, T> runnable) {
+	public void runCtxFor(Checkeds.CheckedThrowingBiConsumer<C, T> runnable) {
 		run(in -> {
 			C context = in.get(Placeholders.context());
 			T item = item(in);
 			runnable.accept(context, item);
+		});
+	}
+	
+	public void runCtxFor(Checkeds.CheckedThrowingConsumer3<C, T, In> runnable) {
+		run(in -> {
+			C context = in.get(Placeholders.context());
+			T item = item(in);
+			runnable.accept(context, item, in);
+		});
+	}
+	
+	public void runCtxFor(Checkeds.CheckedThrowingConsumer4<C, T, In, Out> runnable) {
+		run((in, out) -> {
+			C context = in.get(Placeholders.context());
+			T item = item(in);
+			runnable.accept(context, item, in, out);
 		});
 	}
 
