@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.molr.mole.core.utils.function.Consumer3;
+import io.molr.mole.core.utils.function.Consumer4;
+import io.molr.mole.core.utils.function.Consumer5;
 
 public final class Checkeds {
 
@@ -31,7 +33,6 @@ public final class Checkeds {
 
         void checkedThrowingRun() throws Exception;
     }
-
 
 
     public static <T> T callUnchecked(CheckedThrowingCallable<T> runnable) {
@@ -92,6 +93,27 @@ public final class Checkeds {
 
         void checkedThrowingAccept(P1 p1, P2 p2, P3 p3) throws Exception;
     }
+
+    @FunctionalInterface
+    public interface CheckedThrowingConsumer4<P1, P2, P3, P4> extends Consumer4<P1, P2, P3, P4> {
+        @Override
+        default void accept(P1 p1, P2 p2, P3 p3, P4 p4) {
+            runUnchecked(() -> checkedThrowingAccept(p1, p2, p3, p4));
+        }
+
+        void checkedThrowingAccept(P1 p1, P2 p2, P3 p3, P4 p4) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface CheckedThrowingConsumer5<P1, P2, P3, P4, P5> extends Consumer5<P1, P2, P3, P4, P5> {
+        @Override
+        default void accept(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
+            runUnchecked(() -> checkedThrowingAccept(p1, p2, p3, p4, p5));
+        }
+
+        void checkedThrowingAccept(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) throws Exception;
+    }
+
 
     @FunctionalInterface
     public interface CheckedThrowingFunction<T, R> extends Function<T, R> {
