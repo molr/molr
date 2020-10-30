@@ -6,7 +6,6 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.utils.Checkeds;
@@ -14,9 +13,11 @@ import io.molr.mole.core.utils.Checkeds;
 public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<ContextualOngoingForeachLeaf<C, T>> {
 
 	Placeholder<T> itemPlaceholder;
+	Placeholder<C> contextPlaceholder;
 	
-	public ContextualOngoingForeachLeaf(String name, Builder builder, Block parent, Placeholder<T> item) {
+	public ContextualOngoingForeachLeaf(String name, Builder builder, Block parent, Placeholder<C> context, Placeholder<T> item) {
 		super(name, builder, parent);
+		this.contextPlaceholder = context;
 		this.itemPlaceholder = item;
 	}
 
@@ -30,7 +31,7 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 	
 	public void runCtxFor(Checkeds.CheckedThrowingBiConsumer<C, T> runnable) {
 		run(in -> {
-			C context = in.get(Placeholders.context());
+			C context = in.get(contextPlaceholder);
 			T item = item(in);
 			runnable.accept(context, item);
 		});
@@ -38,7 +39,7 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 	
 	public void runCtxFor(Checkeds.CheckedThrowingConsumer3<C, T, In> runnable) {
 		run(in -> {
-			C context = in.get(Placeholders.context());
+			C context = in.get(contextPlaceholder);
 			T item = item(in);
 			runnable.accept(context, item, in);
 		});
@@ -46,7 +47,7 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 	
 	public void runCtxFor(Checkeds.CheckedThrowingConsumer4<C, T, In, Out> runnable) {
 		run((in, out) -> {
-			C context = in.get(Placeholders.context());
+			C context = in.get(contextPlaceholder);
 			T item = item(in);
 			runnable.accept(context, item, in, out);
 		});

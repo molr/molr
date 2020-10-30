@@ -13,6 +13,8 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.UUID;
+
 public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
@@ -22,8 +24,11 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
     }
 
     public <C> OngoingContextualBranch<C> contextual(Function<In, C> contextFactory) {
-        builder().contextFactory(contextFactory);
-        return new OngoingContextualBranch<>(name(), builder(), parent(), mode());
+        //builder().contextFactory(contextFactory);
+        @SuppressWarnings("unchecked")
+		Placeholder<C> contextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
+        builder().contextFactory(contextPlaceholder, contextFactory);
+        return new OngoingContextualBranch<>(name(), builder(), parent(), mode(), contextPlaceholder, true);
     }
 
     public <C, P1> OngoingContextualBranch<C> contextual(Function<P1, C> contextFactory, Placeholder<P1> p1) {

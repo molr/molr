@@ -100,8 +100,9 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
 				Placeholder<ListOfStrings> someDevices = mandatory(
 						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<Long> id = Placeholder.aLong("deviecId");
 
-				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as(rootDescription -> {
+				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as((rootDescription, ctxPlaceholder) -> {
 					rootDescription.foreach(someDevices).branch("runCtxForDemoBranch")
 							.as((branchDe, itemPlaceholder) -> {
 								branchDe.leaf("").runCtxFor((demoContext, item) -> {
@@ -115,6 +116,9 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 									System.out.println("out " + demoContext + " " + item);
 									out.emit("hello", "world");
 								});
+								branchDe.branch("som").contextual(Long::new, id).as((branchDescription, ctxP) -> {
+									branchDescription.leaf("").runCtx(longVal -> System.out.println("long"+longVal));
+								});;
 							});
 
 				});
@@ -135,7 +139,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
                                 
-                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as(missionRoot -> {// 0
+                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {// 0
                 	
                 	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("switchOn: "+item);
@@ -194,6 +198,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
         params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
         params.put("demoContextParameter", "SomeText");
+        params.put("deviecId", 4);
     	MissionHandle handle = mole.instantiate(new Mission("runCtxForDemo"), params).block();
     	Thread.sleep(50);
     	mole.instructRoot(handle, StrandCommand.RESUME);

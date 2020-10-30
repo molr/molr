@@ -162,7 +162,7 @@ public class DemoRunnableLeafsConfiguration {
                 Placeholder<String> a = mandatory(aString("a"));
                 Placeholder<String> b = mandatory(aString("b"));
 
-                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as(root -> {
+                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as((root, ctx) -> {
                     root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
                     root.leaf("switch off").runCtx(DeviceDriver::switchOff);
                     root.leaf("do").runCtx((DeviceDriver dev, String A, String B) -> {

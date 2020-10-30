@@ -33,9 +33,9 @@ public final class Placeholders {
         return ALL_RETURN_VALUES.stream().filter(p -> p.type().isAssignableFrom(returnType)).map(p -> (Placeholder<T>) p).findAny();
     }
 
-    public static <T> Placeholder<T> context() {
-        return (Placeholder<T>) CONTEXT;
-    }
+//    public static <T> Placeholder<T> context() {
+//        return (Placeholder<T>) CONTEXT;
+//    }
 
 
 }

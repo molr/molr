@@ -13,12 +13,14 @@ public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<Cont
 
 	private Block block;
 	Placeholder<T> itemPlaceholder;
+	Placeholder<C> contextPlaceholder;
 	Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
 
-	public ContextualForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode,
+	public ContextualForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder,
 			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
 
+		this.contextPlaceholder = contextPlaceholder;
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = MolrCollection.itemPlaceholderForCollectionPlaceholder(itemsPlaceholder,
 				UUID.randomUUID().toString());
@@ -31,12 +33,12 @@ public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<Cont
 	
 	public ContextualOngoingForeachBranch<C, T> branch(String name) {
 		createAndAddForeachBlock();
-		return new ContextualOngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
+		return new ContextualOngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, itemPlaceholder);
 	}
 
 	public ContextualOngoingForeachLeaf<C, T> leaf(String name) {
 		createAndAddForeachBlock();
-		return new ContextualOngoingForeachLeaf<C, T>(name, builder(), block, itemPlaceholder);
+		return new ContextualOngoingForeachLeaf<C, T>(name, builder(), block, contextPlaceholder, itemPlaceholder);
 	}
 
 }

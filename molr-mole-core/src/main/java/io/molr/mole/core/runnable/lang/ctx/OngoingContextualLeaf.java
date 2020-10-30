@@ -1,41 +1,43 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
-import static io.molr.commons.domain.Placeholders.context;
-
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.utils.Checkeds;
 
 public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextualLeaf<C>> {
 
-    public OngoingContextualLeaf(String name, RunnableLeafsMission.Builder builder, Block parent) {
+	Placeholder<C> contextPlaceholder;
+	
+    public OngoingContextualLeaf(String name, RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
         super(name, builder, parent);
+        if(contextPlaceholder == null) throw new IllegalArgumentException("ph bull");
+        this.contextPlaceholder = contextPlaceholder;
     }
 
     public void runCtx(Checkeds.CheckedThrowingConsumer<C> runnable) {
         run(in -> {
-            C c = in.get(Placeholders.context());
+        	System.out.println(contextPlaceholder);
+            C c = in.get(contextPlaceholder);
             runnable.accept(c);
         });
     }
 
     public void runCtx(Checkeds.CheckedThrowingBiConsumer<C, In> runnable) {
         run(in -> {
-            C c = in.get(Placeholders.context());
+            C c = in.get(contextPlaceholder);
             runnable.accept(c, in);
         });
     }
 
     public void runCtx(Checkeds.CheckedThrowingConsumer3<C, In, Out> runnable) {
         run((in, out) -> {
-            C c = in.get(Placeholders.context());
+            C c = in.get(contextPlaceholder);
             runnable.accept(c, in, out);
         });
     }
@@ -51,7 +53,7 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
 
     private <P1> void runCtx1(Checkeds.CheckedThrowingBiConsumer<C, P1> runnable, Function<In, P1> p1) {
         run(in -> {
-            C c = in.get(Placeholders.context());
+            C c = in.get(contextPlaceholder);
             P1 p1Value = p1.apply(in);
             runnable.accept(c, p1Value);
         });
@@ -78,7 +80,7 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
     private <P1, P2> void runCtx2(Checkeds.CheckedThrowingConsumer3<C, P1, P2> runnable, Function<In, P1> p1,
                                   Function<In, P2> p2) {
         run(in -> {
-            C c = in.get(context());
+            C c = in.get(contextPlaceholder);
             runnable.accept(c, p1.apply(in), p2.apply(in));
         });
     }
@@ -91,7 +93,7 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
     private <P1, P2, P3> void runCtx3(Checkeds.CheckedThrowingConsumer4<C, P1, P2, P3> runnable, Function<In, P1> p1,
                                       Function<In, P2> p2, Function<In, P3> p3) {
         run(in -> {
-            C c = in.get(context());
+            C c = in.get(contextPlaceholder);
             runnable.accept(c, p1.apply(in), p2.apply(in), p3.apply(in));
         });
     }
@@ -104,7 +106,7 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
     private <P1, P2, P3, P4> void runCtx4(Checkeds.CheckedThrowingConsumer5<C, P1, P2, P3, P4> runnable, Function<In, P1> p1,
                                           Function<In, P2> p2, Function<In, P3> p3, Function<In, P4> p4) {
         run(in -> {
-            C c = in.get(context());
+            C c = in.get(contextPlaceholder);
             runnable.accept(c, p1.apply(in), p2.apply(in), p3.apply(in), p4.apply(in));
         });
     }

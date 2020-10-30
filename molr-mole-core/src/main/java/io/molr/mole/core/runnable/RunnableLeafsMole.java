@@ -145,11 +145,16 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     private static MissionInput missionInput(RunnableLeafsMission mission, Map<String, Object> params) {
         MissionInput in = MissionInput.from(params);
 
-        Function<In, ?> contextFactory = mission.contextFactory();
-        if (contextFactory == null) {
-            return in;
-        }
-        return in.and(Placeholders.context().name(), contextFactory.apply(in));
+//        Function<In, ?> contextFactory = mission.contextFactory();
+//        if (contextFactory == null) {
+//            return in;
+//        }
+        System.out.println("ctc");
+        System.out.println(mission.contexts);
+       for(Placeholder<?> placeholder: mission.contexts.keySet()) {
+    	   in = in.and(placeholder.name(), mission.contexts.get(placeholder).apply(in));
+       }
+       return in;//.and(Placeholders.context().name(), contextFactory.apply(in));
     }
     
     private static ExecutionStrategy inferExecutionStrategyFromParameters(MissionParameterDescription parameterDescription, MissionInput input) {

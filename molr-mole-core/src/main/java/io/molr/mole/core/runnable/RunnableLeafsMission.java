@@ -28,6 +28,7 @@ public class RunnableLeafsMission {
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachConfigurations;
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
     private final ImmutableMap<Block, Placeholder<?>> forEachBlocks;
+    ImmutableMap<Placeholder<?>, Function<In, ?>> contexts;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
@@ -42,6 +43,7 @@ public class RunnableLeafsMission {
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
         this.parameterDescription = parameterDescription;
         this.contextFactory = builder.contextFactory;
+        this.contexts = builder.blockContexts.build();
     }
 
     public TreeStructure treeStructure() {
@@ -95,6 +97,7 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, Placeholder<?>> forEachBLocks = ImmutableMap.builder();
+        ImmutableMap.Builder<Placeholder<?>, Function<In,?>> blockContexts = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
@@ -166,11 +169,12 @@ public class RunnableLeafsMission {
             }
         }
 
-        public void contextFactory(Function<In, ?> contextFactory) {
+        public void contextFactory(Placeholder<?> contextPlaceholder, Function<In, ?> contextFactory) {
             if (this.contextFactory != null) {
                 throw new IllegalStateException("contextFactory already set! Only allowed once!");
             }
-            this.contextFactory = requireNonNull(contextFactory, "contextFactory must not be null");
+            this.blockContexts.put(contextPlaceholder, contextFactory);
+            //this.contextFactory = requireNonNull(contextFactory, "contextFactory must not be null");
         }
 
         /**
@@ -186,14 +190,7 @@ public class RunnableLeafsMission {
         public Block block(String id, String name) {
             return Block.idAndText(id, name);
         }
-
-        public <T,U> void forEach(String name, Block parent, Placeholder<T> devicesPlaceholder, Placeholder<U> itemPlaceholder, BiConsumer<In, Out> itemConsumer) {
-              Block block = addChild(parent, name, ImmutableSet.of());
-              ForEachConfiguration<T, U> config = new ForEachConfiguration<>(devicesPlaceholder, itemPlaceholder, itemConsumer);
-              forEachConfigurations.put(block,config);
-              forEachRunnables.put(block, itemConsumer);
-        }
-
+        
 		public <T, U> void forEachBlock(Block block, Placeholder<T> collectionPlaceholder, Placeholder<U> itemPlaceholder) {
 			forEachBLocks.put(block, collectionPlaceholder);
             ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, null);
