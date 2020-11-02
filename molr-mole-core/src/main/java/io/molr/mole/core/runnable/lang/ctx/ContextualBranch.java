@@ -17,7 +17,7 @@ public class ContextualBranch<C> extends ContextualForeachBranchProvidingAbstrac
 
     @Override
     public OngoingContextualBranch<C> branch(String name) {
-        return new OngoingContextualBranch<>(name, builder(), parent(), SEQUENTIAL, contextPlaceholder, false);
+        return new OngoingContextualBranch<>(name, builder(), parent(), SEQUENTIAL, contextPlaceholder);
     }
 
     @Override

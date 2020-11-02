@@ -75,13 +75,23 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 		if(mission.treeStructure().isParallel(block)) {
 			parallelBlocks.add(replicatedSubtree);
 		}
-    	
+		
     	if(forEachConfigs.containsKey(block)) {
     		ForEachConfiguration<?, ?> foreachConfig = forEachConfigs.get(block);
     		Collection<?> forEachItems = (Collection<?>)missionInput.get(foreachConfig.collectionPlaceholder());
     		int i=0;
     		for(Object item : forEachItems) {
     			MissionInput scopedInput = missionInput.and(foreachConfig.itemPlaceholder().name(), item);
+    			
+    			//mission.contexts
+    			if(mission.contexts.containsKey(block)) {
+    				ContextConfiguration contextConfig = mission.contexts.get(block);
+    				System.out.println("addContext "+block+ contextConfig.contextPlaceholder().name());
+    				System.out.println(scopedInput);
+    				scopedInput = scopedInput.and(contextConfig.contextPlaceholder().name(), contextConfig.contextFactory().apply(scopedInput));
+    			}
+    			
+    			
     	    	for(Block child : representation.childrenOf(block)) {
     	    		String childUrl = url+"."+i++;
     	    		Block replicatedChild = Block.idAndText(childUrl, child.text());
@@ -98,17 +108,27 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		}
     	}
     	else {
+    		
+			//mission.contexts
+    		MissionInput scopedInput = missionInput;
+			if(mission.contexts.containsKey(block)) {
+				ContextConfiguration contextConfig = mission.contexts.get(block);
+				System.out.println("addContext "+block+ contextConfig.contextPlaceholder().name());
+				scopedInput = missionInput.and(contextConfig.contextPlaceholder().name(), contextConfig.contextFactory().apply(missionInput));
+				System.out.println(scopedInput);
+			}
+    		
     		int i=0;
 	    	for(Block child : representation.childrenOf(block)) {
 	    		String childUrl = url+"."+i++;
 	    		Block replicatedChild = Block.idAndText(childUrl, child.text());//replicatedBlock(child, url+subtree.id());
 	    		representationBuilder.parentToChild(replicatedSubtree, replicatedChild);
 	    		if(representation.isLeaf(child)) {
-	        		scopedInputs.put(replicatedChild, missionInput);	
+	        		scopedInputs.put(replicatedChild, scopedInput);	
 	        		updatedRunnablesAfterTraverseBuilder.put(replicatedChild, mission.runnables().get(child));
 	    		}
 	    		else {
-		    		createExpandedMission(mission, child, missionInput, childUrl, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);	    			
+		    		createExpandedMission(mission, child, scopedInput, childUrl, representationBuilder, scopedInputs, updatedRunnablesAfterTraverseBuilder, parallelBlocks);	    			
 	    		}
 	    	}
     	}
@@ -151,8 +171,9 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 //        }
         System.out.println("ctc");
         System.out.println(mission.contexts);
-       for(Placeholder<?> placeholder: mission.contexts.keySet()) {
-    	   in = in.and(placeholder.name(), mission.contexts.get(placeholder).apply(in));
+       for(ContextConfiguration config: mission.contexts.values()) {
+    	   System.out.println(in);
+    	   //in = in.and(placeholder.name(), mission.contexts.get(placeholder).apply(in));
        }
        return in;//.and(Placeholders.context().name(), contextFactory.apply(in));
     }

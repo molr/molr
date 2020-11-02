@@ -100,10 +100,11 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
 				Placeholder<ListOfStrings> someDevices = mandatory(
 						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
-				Placeholder<Long> id = Placeholder.aLong("deviecId");
-
-				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as((rootDescription, ctxPlaceholder) -> {
-					rootDescription.foreach(someDevices).branch("runCtxForDemoBranch")
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as((root, ctxPlaceholder) -> {
+					root.leaf("").runCtx(demoContext->System.out.println("context:"+demoContext.toString()));
+					root.foreach(someDevices).branch("runCtxForDemoBranch")
 							.as((branchDe, itemPlaceholder) -> {
 								branchDe.leaf("").runCtxFor((demoContext, item) -> {
 									System.out.println("out " + demoContext + " " + item);
@@ -116,8 +117,21 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 									System.out.println("out " + demoContext + " " + item);
 									out.emit("hello", "world");
 								});
-								branchDe.branch("som").contextual(Long::new, id).as((branchDescription, ctxP) -> {
-									branchDescription.leaf("").runCtx(longVal -> System.out.println("long"+longVal));
+								branchDe.foreach(moreDevices).branch("som").contextual(String::new, itemPlaceholder).as((branchDescription, branchDeContext, branchDeItem) -> {
+									branchDescription.branch("").as(branchDescriptionsd->{
+										branchDescriptionsd.leaf("").runFor(name->{
+											System.out.println("hello "+name);
+										});
+									});
+									branchDescription.leaf("").runCtxFor((contextVal, itemVal) -> System.out.println("item"+itemVal + "context: "+contextVal));
+									branchDescription.foreach(moreDevices).branch("").as((branch12, branch12Device)->{
+										branch12.leaf("a").run(in->{
+											String outer = in.get(branchDeItem);
+											String inner = in.get(branch12Device);
+											String context = in.get(branchDeContext);
+											System.out.println(outer+"+"+inner+"+context:"+context);
+										});
+									});
 								});;
 							});
 
@@ -290,13 +304,11 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     	private String text;
     	
     	public DemoContext(String text) {
-    		System.out.println(text);
     		this.text = text;
     	}
     	
     	@Override
     	public String toString() {
-    		System.out.println(" toString " + text);
     		return text;
     	}
     }

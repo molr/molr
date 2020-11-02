@@ -22,5 +22,4 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
         return new ContextualForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, contextPlaceholder, itemsPlaceholder);
     }
 
-
 }

@@ -31,9 +31,9 @@ public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<Cont
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
 	
-	public ContextualOngoingForeachBranch<C, T> branch(String name) {
+	public ContextualOngoingForeachBranchRoot<C, T> branch(String name) {
 		createAndAddForeachBlock();
-		return new ContextualOngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, itemPlaceholder);
+		return new ContextualOngoingForeachBranchRoot<>(name, builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, itemPlaceholder);
 	}
 
 	public ContextualOngoingForeachLeaf<C, T> leaf(String name) {

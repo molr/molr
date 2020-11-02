@@ -5,6 +5,7 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranch;
+import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranchWithNewContext;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
@@ -23,19 +24,16 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
         super(name, builder, parent, mode);
     }
 
-    public <C> OngoingContextualBranch<C> contextual(Function<In, C> contextFactory) {
+    public <C> OngoingContextualBranchWithNewContext<C> contextual(Function<In, C> contextFactory) {
         //builder().contextFactory(contextFactory);
-        @SuppressWarnings("unchecked")
-		Placeholder<C> contextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
-        builder().contextFactory(contextPlaceholder, contextFactory);
-        return new OngoingContextualBranch<>(name(), builder(), parent(), mode(), contextPlaceholder, true);
+        return new OngoingContextualBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory);
     }
 
-    public <C, P1> OngoingContextualBranch<C> contextual(Function<P1, C> contextFactory, Placeholder<P1> p1) {
+    public <C, P1> OngoingContextualBranchWithNewContext<C> contextual(Function<P1, C> contextFactory, Placeholder<P1> p1) {
         return contextual(in -> contextFactory.apply(in.get(p1)));
     }
 
-    public <C, P1, P2> OngoingContextualBranch<C> contextual(BiFunction<P1, P2, C> contextFactory, Placeholder<P1> p1, Placeholder<P2> p2) {
+    public <C, P1, P2> OngoingContextualBranchWithNewContext<C> contextual(BiFunction<P1, P2, C> contextFactory, Placeholder<P1> p1, Placeholder<P2> p2) {
         return contextual(in -> contextFactory.apply(in.get(p1), in.get(p2)));
     }
 
