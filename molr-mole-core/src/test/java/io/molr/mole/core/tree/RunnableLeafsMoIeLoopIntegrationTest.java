@@ -124,6 +124,37 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     	mole.statesFor(handle).blockLast();
     }
     
+    @Test
+    public void nestedForeachAndContexts2() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+    			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").contextualFor(DemoContext::new).as((doWithDeviceBranch, ctx)-> {
+    				doWithDeviceBranch.leaf("Do something with device ").runCtx(device->{
+    					System.out.println(device);
+    				});
+    				doWithDeviceBranch.foreach(moreDevices).branch("workOnDeviceAndNestedDeviceBranch").contextualFor(DemoContext::new).as((nestedBranch, nestedContext, nestedItem)->{
+    					/**
+    					 * Do something on both contexts.
+    					 */
+    					nestedBranch.leaf("").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doCtx, ctx);
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
     private static void doCtx(DemoContext context1, DemoContext context2) {
     	System.out.println("Do something with"+context1+" and "+ context2);
     }

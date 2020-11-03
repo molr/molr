@@ -28,6 +28,10 @@ public class OngoingForeachBranch<T> extends GenericOngoingBranch<OngoingForeach
     public <C> ContextualOngoingForeachBranchWithNewContext<C, T> contextual(Function<In, C> contextFactory) {
         return new ContextualOngoingForeachBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory, itemPlaceholder);
     }
+    
+    public <C, P1> ContextualOngoingForeachBranchWithNewContext<C, T> contextualFor(Function<T, C> contextFactory) {
+        return contextual(in -> contextFactory.apply(in.get(itemPlaceholder)));
+    }
 
     public <C, P1> ContextualOngoingForeachBranchWithNewContext<C, T> contextual(Function<P1, C> contextFactory, Placeholder<P1> p1) {
         return contextual(in -> contextFactory.apply(in.get(p1)));
