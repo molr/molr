@@ -143,11 +143,6 @@ public class DemoRunnableLeafsConfiguration {
                         log(b, "parallel 2B");
                         
                     });
-                    
-                    root.branch("ForEach").forEach(devices, (forEachBranchConsumer, foreachItem) -> {
-                    	
-                    });
-
                 });
 
             }

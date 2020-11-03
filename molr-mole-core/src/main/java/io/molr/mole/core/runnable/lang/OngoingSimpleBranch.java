@@ -37,31 +37,4 @@ public class OngoingSimpleBranch extends GenericOngoingBranch<OngoingSimpleBranc
         SimpleBranch branch = SimpleBranch.withParent(builder(), block);
         branchDescription.accept(branch);
     }
-    
-    public <T> Placeholder<T> forEach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder, BiConsumer<SimpleBranch, Placeholder<T>> branchDescription) {
-        if (asCalled.getAndSet(true)) {
-            throw new IllegalStateException("as() method must only be called once!");
-        }
-        requireNonNull(branchDescription, "branchDescription must not be null.");
-
-        Placeholder<T> itemPlaceholder = MolrCollection.itemPlaceholderForCollectionPlaceholder(itemsPlaceholder, UUID.randomUUID().toString());
-        System.out.println(itemPlaceholder);
-
-
-        Block block = block();
-        builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
-        SimpleBranch branch = SimpleBranch.withParent(builder(), block);
-        branchDescription.accept(branch, itemPlaceholder);
-        
-        return itemPlaceholder;
-    }
-    
-    public <T> ForeachBranchRoot<T> foreachItem(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
-        if (asCalled.getAndSet(true)) {
-            throw new IllegalStateException("as() method must only be called once!");
-        }
-        return new ForeachBranchRoot<>(name(), builder(), parent(), mode(), itemsPlaceholder);
-    }
-
-
 }
