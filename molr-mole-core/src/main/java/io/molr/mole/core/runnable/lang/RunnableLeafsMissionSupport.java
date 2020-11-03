@@ -28,11 +28,11 @@ public abstract class RunnableLeafsMissionSupport {
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
 
-    protected OngoingRootBranch root(String missionName) {
+    protected OngoingSimpleBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingRootBranch(missionName, builder, null, SEQUENTIAL);
+        return new OngoingSimpleBranch(missionName, builder, null, SEQUENTIAL);
     }
 
     @Deprecated

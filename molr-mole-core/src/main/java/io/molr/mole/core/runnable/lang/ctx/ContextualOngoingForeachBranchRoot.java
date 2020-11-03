@@ -11,7 +11,6 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
-import io.molr.mole.core.runnable.lang.OngoingRootBranch;
 
 public class ContextualOngoingForeachBranchRoot<C, T> extends GenericOngoingBranch<ContextualOngoingForeachBranchRoot<C, T>>{
 	
