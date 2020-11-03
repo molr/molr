@@ -14,7 +14,6 @@ import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
 public class ContextualOngoingForeachBranchWithNewContext<C, T> extends GenericOngoingBranch<ContextualOngoingForeachBranchWithNewContext<C, T>>{
 	
 	Placeholder<T> itemPlaceholder;
-	Placeholder<C> contextPlaceholder;
 	Function<In,C> contextFactory;
 	
 	
@@ -31,8 +30,8 @@ public class ContextualOngoingForeachBranchWithNewContext<C, T> extends GenericO
 		Placeholder<C> newContextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
         builder().contextFactory(block, newContextPlaceholder, contextFactory);
         
-        ContextualForeachBranch<C, T> branch = new ContextualForeachBranch<>(builder(), block, contextPlaceholder, itemPlaceholder);
-        branchDescription.accept(branch, contextPlaceholder);	
+        ContextualForeachBranch<C, T> branch = new ContextualForeachBranch<>(builder(), block, newContextPlaceholder, itemPlaceholder);
+        branchDescription.accept(branch, newContextPlaceholder);	
 	}
 	
 }

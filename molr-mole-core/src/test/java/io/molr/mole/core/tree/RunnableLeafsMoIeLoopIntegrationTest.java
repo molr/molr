@@ -94,6 +94,40 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
     }
     
+    @Test
+    public void nestedForeachAndContexts() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+    			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, device)->{
+    				doWithDeviceBranch.branch("context").contextual(DemoContext::new, device).as((doWithDeviceContextBranch, deviceContext)->{
+    					doWithDeviceContextBranch.leaf("doSommethingWithDevice").runCtx(demoContext -> System.out.println("Let's work with nested devices of "+demoContext));
+						doWithDeviceContextBranch.foreach(moreDevices).branch("nestedDevices").as((nestedDevicesBranch, nestedDevice) -> {
+							nestedDevicesBranch.branch("nestedContext").contextual(DemoContext::new, nestedDevice).as((nestedContextBranch, nestedDeviceContext)->{
+								nestedContextBranch.leaf("doSomeThingInNestedContext").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doCtx, deviceContext);
+							});
+						});
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
+    private static void doCtx(DemoContext context1, DemoContext context2) {
+    	System.out.println("Do something with"+context1+" and "+ context2);
+    }
+    
 	RunnableLeafsMission runCtxForDemo() {
 		return new RunnableLeafsMissionSupport() {
 			{
@@ -304,7 +338,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     	private String text;
     	
     	public DemoContext(String text) {
-    		this.text = text;
+    		this.text = "Contextual"+text;
     	}
     	
     	@Override
