@@ -68,7 +68,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
     private static void createExpandedMission(RunnableLeafsMission mission, Block block, MissionInput missionInput, String url, ImmutableMissionRepresentation.Builder representationBuilder, Map<Block, MissionInput> scopedInputs, Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder, Set<Block> parallelBlocks) {
     	MissionRepresentation representation = mission.treeStructure().missionRepresentation();
-    	Map<Block, ForEachConfiguration<?,?>> forEachConfigs = mission.getForEachBlocksConfigurations();
+    	Map<Block, ForEachConfiguration<?,?>> forEachConfigs = mission.forEachBlocksConfigurations();
 
 
 		Block replicatedSubtree=Block.idAndText(url, block.text());
@@ -82,6 +82,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		int i=0;
     		for(Object item : forEachItems) {
     			MissionInput scopedInput = missionInput.and(foreachConfig.itemPlaceholder().name(), item);
+    			scopedInput = missionInput.and(foreachConfig.transformedItemPlaceholder().name(), foreachConfig.function().apply(scopedInput));    			
     			
     			//mission.contexts
     			if(mission.contexts.containsKey(block)) {

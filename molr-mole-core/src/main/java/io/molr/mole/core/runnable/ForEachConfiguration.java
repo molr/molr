@@ -1,36 +1,44 @@
 package io.molr.mole.core.runnable;
 
-import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import io.molr.commons.domain.In;
-import io.molr.commons.domain.Out;
+import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 
 public class ForEachConfiguration<T,U> {
     
-    private final Placeholder<T> collectionPlaceholder;
+    private final Placeholder<? extends MolrCollection<T>> collectionPlaceholder;
     
-    private final Placeholder<U> itemPlaceholder;
+    private final Placeholder<T> itemPlaceholder;
     
-    private final BiConsumer<In, Out> runnable;
+    private final Placeholder<U> transformedItemPlaceholder;
     
-    public ForEachConfiguration(Placeholder<T> collectionPlaceholder, Placeholder<U> itemPLaceholder, BiConsumer<In, Out> runnable) {
+    private final Function<In, U> function;
+    
+    public ForEachConfiguration(Placeholder<? extends MolrCollection<T>> collectionPlaceholder, Placeholder<T> itemPLaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
         this.collectionPlaceholder = collectionPlaceholder;
         this.itemPlaceholder = itemPLaceholder;
-        this.runnable = runnable;
+        this.transformedItemPlaceholder = transformedItemPlaceholder;
+        this.function = function;
     }
 
-    public Placeholder<T> collectionPlaceholder() {
+    public Placeholder<? extends MolrCollection<T>> collectionPlaceholder() {
         return this.collectionPlaceholder;
     }
 
-    public Placeholder<U> itemPlaceholder() {
+    public Placeholder<T> itemPlaceholder() {
         return this.itemPlaceholder;
     }
 
-    public BiConsumer<In, Out> runnable() {
-        return this.runnable;
+    public Function<In, U> function() {
+        return this.function;
     }
+
+	public Placeholder<U> transformedItemPlaceholder() {
+		return transformedItemPlaceholder;
+	}
+    
     
 }
 
