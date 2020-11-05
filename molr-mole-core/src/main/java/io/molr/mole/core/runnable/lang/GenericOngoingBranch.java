@@ -1,12 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.MolrCollection;
-import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;

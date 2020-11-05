@@ -8,7 +8,6 @@ import io.molr.mole.core.utils.Checkeds;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractBranch {
