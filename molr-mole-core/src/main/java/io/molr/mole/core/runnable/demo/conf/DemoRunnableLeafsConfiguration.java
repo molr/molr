@@ -5,6 +5,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
+import io.molr.mole.core.tree.RunnableLeafsMoIeLoopIntegrationTest;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import static io.molr.commons.domain.Placeholder.*;
 import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
@@ -149,6 +152,24 @@ public class DemoRunnableLeafsConfiguration {
         }.build();
     }
 
+    @Bean
+    public RunnableLeafsMission foreachMission(){
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+    			Placeholder<ListOfStrings> someDevices = mandatory(
+    					Placeholder.aListOfStrings("deviceNames"), Sets.newHashSet(new ListOfStrings(Lists.newArrayList("A", "B")),new ListOfStrings(Lists.newArrayList("A", "B", "C"))));
+    			Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings("moreDeviceNames"), Sets.newHashSet(new ListOfStrings(Lists.newArrayList("A", "B")),new ListOfStrings(Lists.newArrayList("A", "C"))));
+    			
+    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
+    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(10000));
+    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
+    			});
+    		}
+    	}.build();
+    	return mission;
+    }
+    
     @Bean
     public RunnableLeafsMission contextualRunnableLeafsMission() {
         return new RunnableLeafsMissionSupport() {
