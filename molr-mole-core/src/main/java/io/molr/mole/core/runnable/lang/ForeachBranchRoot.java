@@ -16,18 +16,18 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	Placeholder<T> itemPlaceholder;
 	Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
 
+	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
 
 		this.itemsPlaceholder = itemsPlaceholder;
-		this.itemPlaceholder = MolrCollection.itemPlaceholderForCollectionPlaceholder(itemsPlaceholder,
-				UUID.randomUUID().toString());
+		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}
 
 	private void createAndAddForeachBlock() {
 		this.block = block();
-		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder, itemPlaceholder, (In in)-> {return in.get(itemPlaceholder);});
+		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
 	
 	public OngoingForeachBranch<T> branch(String name) {
