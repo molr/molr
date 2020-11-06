@@ -19,6 +19,8 @@ import java.util.function.Function;
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collection;
+
 public class RunnableLeafsMission {
 
 	private final static String ROOT_BLOCK_ID = "0";
@@ -184,11 +186,11 @@ public class RunnableLeafsMission {
             return Block.idAndText(id, name);
         }
         
-		public <T, U> void forEachBlock(Block block, Placeholder<? extends MolrCollection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder) {
+		public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder) {
 			forEachBlock(block, collectionPlaceholder, itemPlaceholder, itemPlaceholder, (in)->{return in.get(itemPlaceholder);});            
 		}
         
-		public <T, U> void forEachBlock(Block block, Placeholder<? extends MolrCollection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
+		public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
 			forEachBLocks.put(block, collectionPlaceholder);
             ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
             forEachBlocksConfigurations.put(block, forEachBlockConfiguration);

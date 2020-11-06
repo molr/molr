@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
-import io.molr.commons.domain.MolrCollection;
+import java.util.Collection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
@@ -15,13 +15,13 @@ public class ContextualForeachBranchRootMapped<C, T, U> extends GenericOngoingBr
 
 	private Placeholder<C> contextPlaceholder;
 	private Placeholder<T> itemPlaceholder;
-	private Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
+	private Placeholder<? extends Collection<T>> itemsPlaceholder;
 	private Placeholder<U> transformedItemPlaceholder;
 	private Function<In, U> function;
 	
 	@SuppressWarnings("unchecked")
 	public ContextualForeachBranchRootMapped(String name, Builder builder, Block parent, BranchMode mode,
-			Placeholder<C> contextPlaceholder, Placeholder<? extends MolrCollection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder,
+			Placeholder<C> contextPlaceholder, Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder,
 			Function<In, U> function) {
 		super(name, builder, parent, mode);
 		this.contextPlaceholder = contextPlaceholder;

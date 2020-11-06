@@ -1,11 +1,11 @@
 package io.molr.mole.core.runnable.lang;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
-import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 
@@ -14,12 +14,12 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 	private Block block;
 	Placeholder<T> itemPlaceholder;
 	Placeholder<U> transformedItemPlaceholder;
-	Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
+	Placeholder<? extends Collection<T>> itemsPlaceholder;
 	Function<In, U> function;
 
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRootMapped(String name, Builder builder, Block parent, BranchMode mode,
-			Placeholder<? extends MolrCollection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder, Function<In, U> function) {
+			Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder, Function<In, U> function) {
 		super(name, builder, parent, mode);
 
 		this.itemsPlaceholder = itemsPlaceholder;

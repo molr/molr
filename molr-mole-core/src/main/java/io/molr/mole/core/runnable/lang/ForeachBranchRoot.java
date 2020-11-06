@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.lang;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -14,7 +15,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 
 	private Block block;
 	Placeholder<T> itemPlaceholder;
-	Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
+	Placeholder<? extends Collection<T>> itemsPlaceholder;
 
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode,

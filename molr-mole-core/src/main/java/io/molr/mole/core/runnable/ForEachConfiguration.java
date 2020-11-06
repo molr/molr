@@ -1,14 +1,14 @@
 package io.molr.mole.core.runnable;
 
+import java.util.Collection;
 import java.util.function.Function;
 
 import io.molr.commons.domain.In;
-import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 
 public class ForEachConfiguration<T,U> {
     
-    private final Placeholder<? extends MolrCollection<T>> collectionPlaceholder;
+    private final Placeholder<? extends Collection<T>> collectionPlaceholder;
     
     private final Placeholder<T> itemPlaceholder;
     
@@ -16,14 +16,14 @@ public class ForEachConfiguration<T,U> {
     
     private final Function<In, U> function;
     
-    public ForEachConfiguration(Placeholder<? extends MolrCollection<T>> collectionPlaceholder, Placeholder<T> itemPLaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
+    public ForEachConfiguration(Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPLaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
         this.collectionPlaceholder = collectionPlaceholder;
         this.itemPlaceholder = itemPLaceholder;
         this.transformedItemPlaceholder = transformedItemPlaceholder;
         this.function = function;
     }
 
-    public Placeholder<? extends MolrCollection<T>> collectionPlaceholder() {
+    public Placeholder<? extends Collection<T>> collectionPlaceholder() {
         return this.collectionPlaceholder;
     }
 
