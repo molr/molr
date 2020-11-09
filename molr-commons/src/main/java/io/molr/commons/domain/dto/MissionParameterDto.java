@@ -108,7 +108,6 @@ public class MissionParameterDto<T> {
     }
 
     private static final String typeStringFrom(Class<?> type) {
-    	System.out.println("type"+type);
         String typeName = TYPE_NAMES.get(type);
         if (typeName != null) {
             return typeName;
