@@ -168,9 +168,9 @@ public class DemoRunnableLeafsConfiguration {
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
     			
-    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(10000));
+    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
     			});
     		}
@@ -198,7 +198,7 @@ public class DemoRunnableLeafsConfiguration {
     			
     			root("foreachDemoWithException").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(10000));
+    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("ThrowException").run(()->{throw new RuntimeException("error xy");});
     				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
     			});
