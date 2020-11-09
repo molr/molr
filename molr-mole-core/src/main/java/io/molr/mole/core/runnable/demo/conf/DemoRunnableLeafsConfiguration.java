@@ -1,7 +1,9 @@
 package io.molr.mole.core.runnable.demo.conf;
 
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
@@ -17,6 +19,7 @@ import com.google.common.collect.Sets;
 import static io.molr.commons.domain.Placeholder.*;
 import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Configuration
@@ -149,18 +152,54 @@ public class DemoRunnableLeafsConfiguration {
             }
         }.build();
     }
-
+    
     @Bean
     public RunnableLeafsMission foreachMission(){
     	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
     		{
+    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    			/*
+    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
+    			 * This issue will be addressed in upcoming releases 
+    			 */
+    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+    			wrappedAllowedValues.add(allowedItems);
+    			ListOfStrings defaultItems = new ListOfStrings("B");
     			Placeholder<ListOfStrings> someDevices = mandatory(
-    					Placeholder.aListOfStrings("deviceNames"), Sets.newHashSet(new ListOfStrings(Lists.newArrayList("A", "B")),new ListOfStrings(Lists.newArrayList("A", "B", "C"))));
-    			Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings("moreDeviceNames"), Sets.newHashSet(new ListOfStrings(Lists.newArrayList("A", "B")),new ListOfStrings(Lists.newArrayList("A", "C"))));
+    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
     			
     			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(10000));
+    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
+    			});
+    		}
+    	}.build();
+    	return mission;
+    }
+    
+    
+    @Bean
+    public RunnableLeafsMission foreachMissionThrowingException(){
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    			/*
+    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
+    			 * This issue will be addressed in upcoming releases 
+    			 */
+    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+    			wrappedAllowedValues.add(allowedItems);
+    			ListOfStrings defaultItems = new ListOfStrings("B");
+    			Placeholder<ListOfStrings> someDevices = mandatory(
+    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
+    			
+    			optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name(), Sets.newHashSet(ExecutionStrategy.PROCEED_ON_ERROR.name(), ExecutionStrategy.ABORT_ON_ERROR.name()));
+    			
+    			root("foreachDemoWithException").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
+    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(10000));
+    				doWithDeviceBranch.leaf("ThrowException").run(()->{throw new RuntimeException("error xy");});
     				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
     			});
     		}

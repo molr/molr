@@ -45,7 +45,6 @@ public class MissionParameterDto<T> {
         TYPE_NAMES.put(Boolean.class, TYPE_BOOLEAN);
         TYPE_NAMES.put(String[].class, TYPE_STRING_ARRAY);
         TYPE_NAMES.put(ListOfStrings.class, TYPE_LIST_OF_STRINGS);
-        TYPE_NAMES.put(ArrayList.class, "list");
     }
     
     public static final Map<Class<?>, Function<String, Placeholder<?>>> TYPE_CREATORS = Maps.newHashMap();
@@ -57,9 +56,6 @@ public class MissionParameterDto<T> {
         TYPE_CREATORS.put(Boolean.class, Placeholder::aBoolean);
         TYPE_CREATORS.put(String[].class, Placeholder::aStringArray);
         TYPE_CREATORS.put(ListOfStrings.class, Placeholder::aListOfStrings);
-        TYPE_CREATORS.put(ArrayList.class, (name)-> {
-                return Placeholder.of(ArrayList.class, name);
-        });
     }
 
     public final String name;
@@ -112,6 +108,7 @@ public class MissionParameterDto<T> {
     }
 
     private static final String typeStringFrom(Class<?> type) {
+    	System.out.println("type"+type);
         String typeName = TYPE_NAMES.get(type);
         if (typeName != null) {
             return typeName;
