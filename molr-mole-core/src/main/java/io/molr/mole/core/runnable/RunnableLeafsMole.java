@@ -8,7 +8,6 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +86,6 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     			//mission.contexts
     			if(mission.contexts.containsKey(block)) {
     				ContextConfiguration contextConfig = mission.contexts.get(block);
-    				System.out.println("addContext "+block+ contextConfig.contextPlaceholder().name());
-    				System.out.println(scopedInput);
     				scopedInput = scopedInput.and(contextConfig.contextPlaceholder().name(), contextConfig.contextFactory().apply(scopedInput));
     			}
     			
@@ -114,9 +111,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		MissionInput scopedInput = missionInput;
 			if(mission.contexts.containsKey(block)) {
 				ContextConfiguration contextConfig = mission.contexts.get(block);
-				System.out.println("addContext "+block+ contextConfig.contextPlaceholder().name());
 				scopedInput = missionInput.and(contextConfig.contextPlaceholder().name(), contextConfig.contextFactory().apply(missionInput));
-				System.out.println(scopedInput);
 			}
     		
     		int i=0;
@@ -164,19 +159,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static MissionInput missionInput(RunnableLeafsMission mission, Map<String, Object> params) {
-        MissionInput in = MissionInput.from(params);
-
-//        Function<In, ?> contextFactory = mission.contextFactory();
-//        if (contextFactory == null) {
-//            return in;
-//        }
-        System.out.println("ctc");
-        System.out.println(mission.contexts);
-       for(ContextConfiguration config: mission.contexts.values()) {
-    	   System.out.println(in);
-    	   //in = in.and(placeholder.name(), mission.contexts.get(placeholder).apply(in));
-       }
-       return in;//.and(Placeholders.context().name(), contextFactory.apply(in));
+    	MissionInput in = MissionInput.from(params);
+    	return in;
     }
     
     private static ExecutionStrategy inferExecutionStrategyFromParameters(MissionParameterDescription parameterDescription, MissionInput input) {
