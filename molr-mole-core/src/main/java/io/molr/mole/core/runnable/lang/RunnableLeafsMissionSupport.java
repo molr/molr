@@ -3,9 +3,11 @@ package io.molr.mole.core.runnable.lang;
 import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public abstract class RunnableLeafsMissionSupport {
 
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
+    private ExecutionStrategyConfiguration executionStrategyConfig = new ExecutionStrategyConfiguration();
 
     protected OngoingRootBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
@@ -49,6 +52,10 @@ public abstract class RunnableLeafsMissionSupport {
         if (this.builder != null) {
             throw new IllegalStateException("Root can only be defined once! Use either sequential() or parallel().");
         }
+    }
+    
+    protected ExecutionStrategyConfiguration executionStrategy() {
+    	return this.executionStrategyConfig;
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
@@ -101,6 +108,9 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     public RunnableLeafsMission build() {
+    	MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
+    			.withDefault(executionStrategyConfig.defaultStrategy()).withAllowed(executionStrategyConfig.allowedStrategies());
+    	parameterBuilder.add(executionStrategyParameter);    	
         MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
         return builder.build(parameterDescription);
     }
