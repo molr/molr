@@ -31,7 +31,7 @@ public class DemoRunnableLeafsConfiguration {
     public RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
             {
-            	executionStrategy().allowed(ExecutionStrategy.values());
+            	executionStrategy().defaultsTo(ExecutionStrategy.PAUSE_ON_ERROR).allowed(ExecutionStrategy.values());
             	
                 root("Executable Leafs Demo Mission").sequential().as(root -> {
 
@@ -196,7 +196,7 @@ public class DemoRunnableLeafsConfiguration {
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
 
-    			executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
+    			executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR);//.allowed(ExecutionStrategy.values());
     			
     			root("foreachDemoWithException").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});

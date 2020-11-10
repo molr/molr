@@ -1,5 +1,6 @@
 package io.molr.commons.domain;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,48 +1,89 @@
 package io.molr.mole.core.runnable.lang;
 
+import java.text.MessageFormat;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.ExecutionStrategy;
 
 public class ExecutionStrategyConfiguration {
 	
-	private ExecutionStrategy defaultStrategy = ExecutionStrategy.PAUSE_ON_ERROR;
-	private Set<ExecutionStrategy> allowedStrategies;
+	private final ExecutionStrategy defaultStrategy;
+	private final Set<ExecutionStrategy> allowedStrategies;
 	
-	public ExecutionStrategyConfiguration() {
+	
+	private ExecutionStrategyConfiguration() {
 		allowedStrategies = ImmutableSet.copyOf(ExecutionStrategy.values());
+		defaultStrategy = ExecutionStrategy.PAUSE_ON_ERROR;
 	}
 	
-	/**
-	 * Sets the default execution strategy for this mission.
-	 * @param executionStrategy
-	 * @return
-	 */
-	public ExecutionStrategyConfiguration defaultsTo(ExecutionStrategy executionStrategy) {
-		defaultStrategy = executionStrategy;
-		return this;
+	private ExecutionStrategyConfiguration(ExecutionStrategy defaultStrategy, Set<ExecutionStrategy> allowedStrategies) {
+		this.allowedStrategies = ImmutableSet.copyOf(allowedStrategies);
+		this.defaultStrategy = defaultStrategy;
 	}
 	
-	/**
-	 * Sets the allowed strategies the mission can be configured with.
-	 * @param strategies
-	 * @return
-	 */
-	public ExecutionStrategyConfiguration allowed(ExecutionStrategy... strategies) {
-		allowedStrategies = Sets.immutableEnumSet(defaultStrategy, strategies);
-		return this;
+	public ExecutionStrategy defaultStrategy() {
+		return defaultStrategy;
+	}
+
+	public Set<ExecutionStrategy> allowedStrategies() {
+		return allowedStrategies;
+	}
+
+	public static class Builder {
+
+		private ExecutionStrategy defaultStrategy = null;
+		private Set<ExecutionStrategy> allowedStrategies = null;
+		
+		public static Builder builder() {
+			return new Builder();
+		}
+		
+		public Builder defaultsTo(ExecutionStrategy executionStrategy) {
+			if(this.defaultStrategy!=null) throw new IllegalStateException("defaultsTo must not be called twice.");
+			defaultStrategy = executionStrategy;
+			return this;
+		}
+
+		public Builder allowedStrategies(Set<ExecutionStrategy> allowedStrategies) {
+			if(this.allowedStrategies!=null) throw new IllegalStateException("allowedStrategies must not be called twice.");
+			this.allowedStrategies = allowedStrategies;
+			return this;
+		}
+		
+		ExecutionStrategyConfiguration build() {
+			if(allowedStrategies == null) {
+				if(defaultStrategy == null) {
+					return new ExecutionStrategyConfiguration();
+				}
+				else {
+					return new ExecutionStrategyConfiguration(defaultStrategy, ImmutableSet.of(defaultStrategy));
+				}
+			}
+			else {
+				if(allowedStrategies.size()==0) {
+					throw new IllegalArgumentException("At least one Strategy has to be specified as allowed execution strategy.");
+				}
+				if(defaultStrategy == null) {
+					if(allowedStrategies.size()>1) {
+						throw new IllegalArgumentException("Default execution strategy is missing.");
+					}
+					System.out.println(" "+allowedStrategies);
+					return new ExecutionStrategyConfiguration(allowedStrategies.iterator().next(), allowedStrategies);	
+				}
+				else {
+					if(allowedStrategies.contains(defaultStrategy)) {
+						return new ExecutionStrategyConfiguration(defaultStrategy, allowedStrategies);
+					}
+					throw new IllegalArgumentException(MessageFormat.format("Default strategy {0} is not a member of {1}", defaultStrategy, allowedStrategies));
+				}
+			}
+
+		}
+		
 	}
 	
-	Set<String> allowedStrategies(){
-		return this.allowedStrategies.stream().map(ExecutionStrategy::name).collect(Collectors.toSet());
-	}
 	
-	String defaultStrategy() {
-		return this.defaultStrategy.name();
-	}
 
 }

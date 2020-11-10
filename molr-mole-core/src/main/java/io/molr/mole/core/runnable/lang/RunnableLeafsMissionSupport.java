@@ -9,10 +9,13 @@ import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.ExecutionStrategyConfiguration.Builder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
@@ -29,7 +32,7 @@ public abstract class RunnableLeafsMissionSupport {
 
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
-    private ExecutionStrategyConfiguration executionStrategyConfig = new ExecutionStrategyConfiguration();
+    private ExecutionStrategyConfiguration.Builder executionStrategyConfigurationBuilder = null;
 
     protected OngoingRootBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
@@ -54,8 +57,12 @@ public abstract class RunnableLeafsMissionSupport {
         }
     }
     
-    protected ExecutionStrategyConfiguration executionStrategy() {
-    	return this.executionStrategyConfig;
+    protected OngoingExecutionStrategyConfiguration executionStrategy() {
+    	if(executionStrategyConfigurationBuilder!=null) {
+    		throw new IllegalStateException("Execution strategies can only be defined once.");
+    	}
+    	this.executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+    	return new OngoingExecutionStrategyConfiguration(executionStrategyConfigurationBuilder);
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
@@ -108,9 +115,18 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     public RunnableLeafsMission build() {
+    	if(executionStrategyConfigurationBuilder == null) {
+    		executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+    	}
+    	ExecutionStrategyConfiguration executionStrategyConfig = executionStrategyConfigurationBuilder.build();
+//    	if(executionStrategyConfig.allowedStrategies().size()>1) {
+        /*
+         * if we want to exclude the strategy parameter when allowed strategies size is 1 we need to put strategy definitions somewhere else
+         */
     	MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
-    			.withDefault(executionStrategyConfig.defaultStrategy()).withAllowed(executionStrategyConfig.allowedStrategies());
-    	parameterBuilder.add(executionStrategyParameter);    	
+        			.withDefault(executionStrategyConfig.defaultStrategy().name()).withAllowed(executionStrategyConfig.allowedStrategies().stream().map(ExecutionStrategy::name).collect(Collectors.toSet()));
+        parameterBuilder.add(executionStrategyParameter);
+//        }     	
         MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
         return builder.build(parameterDescription);
     }
