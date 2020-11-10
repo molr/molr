@@ -3,6 +3,7 @@ package io.molr.mole.core.runnable.lang;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.ExecutionStrategy;
@@ -10,7 +11,11 @@ import io.molr.commons.domain.ExecutionStrategy;
 public class ExecutionStrategyConfiguration {
 	
 	private ExecutionStrategy defaultStrategy = ExecutionStrategy.PAUSE_ON_ERROR;
-	private Set<ExecutionStrategy> allowedStrategies = Sets.immutableEnumSet(ExecutionStrategy.PAUSE_ON_ERROR);
+	private Set<ExecutionStrategy> allowedStrategies;
+	
+	public ExecutionStrategyConfiguration() {
+		allowedStrategies = ImmutableSet.copyOf(ExecutionStrategy.values());
+	}
 	
 	/**
 	 * Sets the default execution strategy for this mission.
