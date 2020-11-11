@@ -31,6 +31,41 @@ public class ExecutionStrategyConfiguration {
 		return allowedStrategies;
 	}
 
+	@Override
+	public String toString() {
+		return MessageFormat.format("{defaultStrategy={0}, allowedStrategies={1}}",defaultStrategy, allowedStrategies);
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((allowedStrategies == null) ? 0 : allowedStrategies.hashCode());
+		result = prime * result + ((defaultStrategy == null) ? 0 : defaultStrategy.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExecutionStrategyConfiguration other = (ExecutionStrategyConfiguration) obj;
+		if (allowedStrategies == null) {
+			if (other.allowedStrategies != null)
+				return false;
+		} else if (!allowedStrategies.equals(other.allowedStrategies))
+			return false;
+		if (defaultStrategy != other.defaultStrategy)
+			return false;
+		return true;
+	}
+
+
+
 	public static class Builder {
 
 		private ExecutionStrategy defaultStrategy = null;
@@ -69,7 +104,6 @@ public class ExecutionStrategyConfiguration {
 					if(allowedStrategies.size()>1) {
 						throw new IllegalArgumentException("Default execution strategy is missing.");
 					}
-					System.out.println(" "+allowedStrategies);
 					return new ExecutionStrategyConfiguration(allowedStrategies.iterator().next(), allowedStrategies);	
 				}
 				else {

@@ -36,7 +36,7 @@ public class LenientModeIntegrationTest {
         return new RunnableLeafsMissionSupport() {
             {
 
-                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
+                executionStrategy().allowAll().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
 
                 root("root1").sequential().as(missionRoot -> {// 0
 
