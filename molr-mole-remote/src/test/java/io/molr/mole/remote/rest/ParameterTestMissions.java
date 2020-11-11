@@ -48,8 +48,7 @@ public class ParameterTestMissions {
                 Placeholder<Long> longValue = mandatory(SLEEP_TIME, 5000L, Sets.newHashSet(500L, 5000L,3000L,2000L));
                 Placeholder<CustomTestParameter> custom = mandatory(CUSTOM, CUSTOM_DEFAULT_VALUE, Sets.newHashSet(new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world"))));
                 Placeholder<String[]> placeholderSomeStringArray = mandatory(Placeholder.aStringArray("someStringArray"));
-                optional(Placeholders.EXECUTION_STRATEGY);//TODO should we make this a default parameter in runnable leafs mission
-                
+                                
                 /*
                  * If a type is not registered for remote usage. An exception is thrown while parameters are being retrieved
                  * However a remote mole could also validate the parameter description in advance, before advertising a mission.

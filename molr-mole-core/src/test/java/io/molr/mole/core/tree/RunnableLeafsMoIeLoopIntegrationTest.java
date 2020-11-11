@@ -50,7 +50,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
                 Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
-                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
                 root("foreachDemo").sequential().as(missionRoot -> {// 0
                 	
@@ -284,7 +284,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
                 Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
-                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
                 root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {// 0
                 	
