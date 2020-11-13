@@ -14,7 +14,7 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
 	
     public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
     	String name = "forEachItemIn:"+itemsPlaceholder.name();
-    	BlockNameConfiguration formatter = BlockNameConfiguration.builder().build();
+    	BlockNameConfiguration formatter = BlockNameConfiguration.builder().text(name).build();
         return new ForeachBranchRoot<>(formatter, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 

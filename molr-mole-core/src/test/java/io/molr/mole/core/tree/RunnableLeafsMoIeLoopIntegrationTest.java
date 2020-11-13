@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sound.midi.spi.MidiDeviceProvider;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -23,7 +21,6 @@ import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
