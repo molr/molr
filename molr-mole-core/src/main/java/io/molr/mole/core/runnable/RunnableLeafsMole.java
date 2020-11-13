@@ -117,7 +117,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 			for (int i = 0; i < args.length; i++) {
 				args[i]=newScopedInput.get(placeholders.get(i));
 			}
-			childText = MessageFormatter.format(child.text(), args).getMessage();
+			childText = MessageFormatter.arrayFormat(child.text(), args).getMessage();
 		}
 
 		Block replicatedChild = Block.idAndText(replicatedSubtree.id()+"."+index, childText);
