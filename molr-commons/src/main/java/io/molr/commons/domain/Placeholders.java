@@ -20,13 +20,6 @@ public final class Placeholders {
 
 	private static final Placeholder<Object> CONTEXT = Placeholder.of(Object.class, CONTEXT_KEY);
 
-	/*
-	 * 
-	 */
-	@SuppressWarnings("rawtypes")
-	public static final Placeholder<Placeholder> LATEST_FOREACH_ITEM = Placeholder.of(Placeholder.class,
-			LATEST_FOREACH_ITEM_KEY);
-
 	private static final Set<Placeholder<?>> ALL_RETURN_VALUES = ImmutableSet.of(RETURNED_STRING, RETURNED_INTEGER,
 			RETURNED_DOUBLE, RETURNED_BOOLEAN);
 
