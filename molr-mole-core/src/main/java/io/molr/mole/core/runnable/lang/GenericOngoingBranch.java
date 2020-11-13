@@ -12,7 +12,7 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
     private BranchMode mode;
 
 
-    public GenericOngoingBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public GenericOngoingBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(
                 requireNonNull(name, "branchName must not be null"), //
                 requireNonNull(builder, "builder must not be null"), //

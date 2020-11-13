@@ -18,7 +18,7 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
 
-    public OngoingRootBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public OngoingRootBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(name, builder, parent, mode);
     }
 
@@ -49,7 +49,7 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
     public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
     	String name = "forEachItemIn:"+itemsPlaceholder.name();
         Block block = block();
-        return new ForeachBranchRoot<>(name, builder(), block, BranchMode.SEQUENTIAL, itemsPlaceholder);
+        return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
 
 }

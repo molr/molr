@@ -11,13 +11,13 @@ import static java.util.Objects.requireNonNull;
 
 public class OngoingNode<N extends OngoingNode<N>> {
 
-    private final String name;
+    private final BlockNameConfiguration name;
     private final RunnableLeafsMission.Builder builder;
     private final Block parent;
 
     private final EnumSet<BlockAttribute> attributes = EnumSet.noneOf(BlockAttribute.class);
 
-    public OngoingNode(String name, RunnableLeafsMission.Builder builder, Block parent) {
+    public OngoingNode(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent) {
         this.name = name;
         this.builder = builder;
         this.parent = parent;
@@ -39,7 +39,7 @@ public class OngoingNode<N extends OngoingNode<N>> {
         return this.builder;
     }
 
-    protected String name() {
+    protected BlockNameConfiguration name() {
         return this.name;
     }
 

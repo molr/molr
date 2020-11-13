@@ -6,6 +6,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -20,7 +21,7 @@ public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBran
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
     Function<In,C> contextFactory;
 
-    public OngoingContextualBranchWithNewContext(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Function<In,C> contextFactory) {
+    public OngoingContextualBranchWithNewContext(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Function<In,C> contextFactory) {
         super(name, builder, parent, mode);
         this.contextFactory = contextFactory;
     }

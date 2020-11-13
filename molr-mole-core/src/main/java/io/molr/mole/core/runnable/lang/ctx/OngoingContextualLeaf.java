@@ -8,13 +8,14 @@ import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.utils.Checkeds;
 
 public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextualLeaf<C>> {
 
 	Placeholder<C> contextPlaceholder;
 	
-    public OngoingContextualLeaf(String name, RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
+    public OngoingContextualLeaf(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
         super(name, builder, parent);
         if(contextPlaceholder == null) throw new IllegalArgumentException("ph bull");
         this.contextPlaceholder = contextPlaceholder;

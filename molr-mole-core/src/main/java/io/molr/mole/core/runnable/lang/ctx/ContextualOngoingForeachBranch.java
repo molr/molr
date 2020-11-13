@@ -10,13 +10,14 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 public class ContextualOngoingForeachBranch<C, T> extends GenericOngoingBranch<ContextualOngoingForeachBranch<C, T>>{
 	
 	Placeholder<T> itemPlaceholder;
 	Placeholder<C> contextPlaceholder;
 	
-	public ContextualOngoingForeachBranch(String name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder, Placeholder<T> itemPlaceholder) {
+	public ContextualOngoingForeachBranch(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder, Placeholder<T> itemPlaceholder) {
 		super(name, builder, parent, mode);
 		this.contextPlaceholder = contextPlaceholder;
 		this.itemPlaceholder = itemPlaceholder;

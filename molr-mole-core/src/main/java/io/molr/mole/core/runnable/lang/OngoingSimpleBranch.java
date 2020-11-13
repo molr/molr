@@ -18,7 +18,7 @@ public class OngoingSimpleBranch extends GenericOngoingBranch<OngoingSimpleBranc
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
 
-    public OngoingSimpleBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public OngoingSimpleBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(name, builder, parent, mode);
     }
 

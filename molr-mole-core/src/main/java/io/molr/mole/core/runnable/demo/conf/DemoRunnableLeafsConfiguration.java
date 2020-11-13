@@ -6,6 +6,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import com.google.common.collect.Sets;
 import static io.molr.commons.domain.Placeholder.*;
 import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,7 +79,15 @@ public class DemoRunnableLeafsConfiguration {
                 Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
                 Placeholder<String> message = mandatory(aString("aMessage"), "Hello World", allowedMessages);
 
-                Placeholder<ListOfStrings> devices = mandatory(Placeholder.aListOfStrings("devices"));
+    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    			/*
+    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
+    			 * This issue will be addressed in upcoming releases 
+    			 */
+    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+    			wrappedAllowedValues.add(allowedItems);
+    			ListOfStrings defaultItems = new ListOfStrings("B");
+                Placeholder<ListOfStrings> devices = mandatory(Placeholder.aListOfStrings("devices"), defaultItems, wrappedAllowedValues);
                 
                 Placeholder<String> device = optional(aString("deviceName"), "TEST_DEVCIE_1", ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
@@ -112,7 +122,7 @@ public class DemoRunnableLeafsConfiguration {
                         log(b1, "First B");
                     });
 
-                    root.branch("Second").sequential().as(b1 -> {
+                    root.branch("Second {}", devices).sequential().as(b1 -> {
                         log(b1, "second A");
                         log(b1, "second B");
                     });
@@ -170,10 +180,35 @@ public class DemoRunnableLeafsConfiguration {
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
     			
-    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
-    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
+    				doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runFor(device->{device.switchOff();});
+    			});
+    		}
+    	}.build();
+    	return mission;
+    }
+    
+    @Bean
+    public RunnableLeafsMission foreachMission2(){
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    			/*
+    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
+    			 * This issue will be addressed in upcoming releases 
+    			 */
+    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+    			wrappedAllowedValues.add(allowedItems);
+    			ListOfStrings defaultItems = new ListOfStrings("B");
+    			Placeholder<ListOfStrings> someDevices = mandatory(
+    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
+    			
+    			root("foreachDemo2").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{});
+    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
+    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{});
     			});
     		}
     	}.build();
@@ -219,7 +254,7 @@ public class DemoRunnableLeafsConfiguration {
 
                 root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as((root, ctx) -> {
                     root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
-                    root.leaf("switch off").runCtx(DeviceDriver::switchOff);
+                    root.leaf("switch off {}", device).runCtx(DeviceDriver::switchOff);
                     root.leaf("do").runCtx((DeviceDriver dev, String A, String B) -> {
 
                     		System.out.println("run");
@@ -248,6 +283,11 @@ public class DemoRunnableLeafsConfiguration {
 
         public void switchOff() {
             System.out.println("Switched OFF device " + deviceName + ".");
+        }
+        
+        @Override
+        public String toString() {
+        	return MessageFormat.format("'{'deviceName={0}'}'", deviceName);
         }
 
 

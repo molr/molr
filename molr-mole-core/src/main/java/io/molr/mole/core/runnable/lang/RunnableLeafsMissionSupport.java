@@ -9,7 +9,6 @@ import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.ExecutionStrategyConfiguration.Builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public abstract class RunnableLeafsMissionSupport {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingRootBranch(missionName, builder, null, SEQUENTIAL);
+        return new OngoingRootBranch(BlockNameConfiguration.builder().text(missionName).build(), builder, null, SEQUENTIAL);
     }
 
     @Deprecated

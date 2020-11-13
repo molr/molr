@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
@@ -10,6 +11,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 public class ContextualForeachBranchRootMapped<C, T, U> extends GenericOngoingBranch<ContextualForeachBranchRootMapped<C, T, U>>{
 
@@ -20,7 +22,7 @@ public class ContextualForeachBranchRootMapped<C, T, U> extends GenericOngoingBr
 	private Function<In, U> function;
 	
 	@SuppressWarnings("unchecked")
-	public ContextualForeachBranchRootMapped(String name, Builder builder, Block parent, BranchMode mode,
+	public ContextualForeachBranchRootMapped(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<C> contextPlaceholder, Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder,
 			Function<In, U> function) {
 		super(name, builder, parent, mode);
@@ -37,14 +39,14 @@ public class ContextualForeachBranchRootMapped<C, T, U> extends GenericOngoingBr
 		return block;
 	}
 	
-	public ContextualOngoingForeachBranchRoot<C, U> branch(String name) {
+	public ContextualOngoingForeachBranchRoot<C, U> branch(String name, Placeholder<?>... placeholders) {
 		Block block = createAndAddForeachBlock();
-		return new ContextualOngoingForeachBranchRoot<>(name, builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, transformedItemPlaceholder);
+		return new ContextualOngoingForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(), builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, transformedItemPlaceholder);
 	}
 
-	public ContextualOngoingForeachLeaf<C, U> leaf(String name) {
+	public ContextualOngoingForeachLeaf<C, U> leaf(String name, Placeholder<?>... placeholders) {
 		Block block = createAndAddForeachBlock();
-		return new ContextualOngoingForeachLeaf<C, U>(name, builder(), block, contextPlaceholder, transformedItemPlaceholder);
+		return new ContextualOngoingForeachLeaf<C, U>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(), builder(), block, contextPlaceholder, transformedItemPlaceholder);
 	}	
 
 }

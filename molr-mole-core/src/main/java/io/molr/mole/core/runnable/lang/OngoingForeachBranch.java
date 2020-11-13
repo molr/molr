@@ -14,7 +14,7 @@ public class OngoingForeachBranch<T> extends GenericOngoingBranch<OngoingForeach
 	
 	Placeholder<T> itemPlaceholder;
 	
-	public OngoingForeachBranch(String name, Builder builder, Block parent, BranchMode mode, Placeholder<T> itemPlaceholder) {
+	public OngoingForeachBranch(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<T> itemPlaceholder) {
 		super(name, builder, parent, mode);
 		this.itemPlaceholder = itemPlaceholder;
 	}

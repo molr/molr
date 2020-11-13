@@ -8,6 +8,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.AbstractBranch;
 import io.molr.mole.core.runnable.lang.BranchMode;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends AbstractBranch{
 
@@ -21,7 +22,7 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
 	
     public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends Collection<T>> itemsPlaceholder/*, String name*/) {
     	String name = "forEachItemIn:"+itemsPlaceholder.name();
-        return new ContextualForeachBranchRoot<>(name, builder(), parent(), BranchMode.SEQUENTIAL, contextPlaceholder, itemsPlaceholder);
+        return new ContextualForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), parent(), BranchMode.SEQUENTIAL, contextPlaceholder, itemsPlaceholder);
     }
 
 }

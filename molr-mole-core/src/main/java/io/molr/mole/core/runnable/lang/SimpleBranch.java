@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import java.util.function.Consumer;
 
@@ -17,13 +18,13 @@ public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
     }
 
     @Override
-    public OngoingSimpleBranch branch(String name) {
-        return new OngoingSimpleBranch(name, builder(), parent(), SEQUENTIAL);
+    public OngoingSimpleBranch branch(String name, Placeholder<?>... placeholders) {
+        return new OngoingSimpleBranch(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), SEQUENTIAL);
     }
 
     @Override
-    public OngoingSimpleLeaf leaf(String name) {
-        return new OngoingSimpleLeaf(name, builder(), parent());
+    public OngoingSimpleLeaf leaf(String name, Placeholder<?>... placeholders) {
+        return new OngoingSimpleLeaf(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent());
     }
 
     @Deprecated

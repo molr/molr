@@ -8,6 +8,7 @@ import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.utils.Checkeds;
 
 public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<ContextualOngoingForeachLeaf<C, T>> {
@@ -15,7 +16,7 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 	Placeholder<T> itemPlaceholder;
 	Placeholder<C> contextPlaceholder;
 	
-	public ContextualOngoingForeachLeaf(String name, Builder builder, Block parent, Placeholder<C> context, Placeholder<T> item) {
+	public ContextualOngoingForeachLeaf(BlockNameConfiguration name, Builder builder, Block parent, Placeholder<C> context, Placeholder<T> item) {
 		super(name, builder, parent);
 		this.contextPlaceholder = context;
 		this.itemPlaceholder = item;

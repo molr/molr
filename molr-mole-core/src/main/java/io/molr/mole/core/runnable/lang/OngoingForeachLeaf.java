@@ -13,7 +13,7 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
 
 	Placeholder<T> itemPlaceholder;
 	
-	public OngoingForeachLeaf(String name, Builder builder, Block parent, Placeholder<T> item) {
+	public OngoingForeachLeaf(BlockNameConfiguration name, Builder builder, Block parent, Placeholder<T> item) {
 		super(name, builder, parent);
 		this.itemPlaceholder = item;
 	}

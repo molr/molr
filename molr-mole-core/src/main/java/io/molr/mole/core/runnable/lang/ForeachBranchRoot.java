@@ -9,6 +9,7 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 
 public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot<T>> {
@@ -18,7 +19,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	Placeholder<? extends Collection<T>> itemsPlaceholder;
 
 	@SuppressWarnings("unchecked")
-	public ForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode,
+	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
 
@@ -31,14 +32,16 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
 	
-	public OngoingForeachBranch<T> branch(String name) {
+	public OngoingForeachBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
+		return new OngoingForeachBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
+				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
 	}
 
-	public OngoingForeachLeaf<T> leaf(String name) {
+	public OngoingForeachLeaf<T> leaf(String name,  Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachLeaf<T>(name, builder(), block, itemPlaceholder);
+		return new OngoingForeachLeaf<T>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
+				builder(), block, itemPlaceholder);
 	}
 
     public <C> ForeachBranchRootMapped<T, C> map(Function<T, C> contextFactory) {

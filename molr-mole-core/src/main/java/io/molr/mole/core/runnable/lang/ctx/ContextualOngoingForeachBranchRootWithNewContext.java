@@ -9,6 +9,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.utils.Checkeds;
 
 public class ContextualOngoingForeachBranchRootWithNewContext<C, T> extends GenericOngoingBranch<ContextualOngoingForeachBranchRootWithNewContext<C, T>>{
@@ -16,7 +17,7 @@ public class ContextualOngoingForeachBranchRootWithNewContext<C, T> extends Gene
 	Placeholder<T> itemPlaceholder;
 	Function<In, C> contextFactory;
 	
-	public ContextualOngoingForeachBranchRootWithNewContext(String name, Builder builder, Block parent, BranchMode mode, Function<In, C> contextFactory, Placeholder<T> itemPlaceholder) {
+	public ContextualOngoingForeachBranchRootWithNewContext(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Function<In, C> contextFactory, Placeholder<T> itemPlaceholder) {
 		super(name, builder, parent, mode);
 		this.contextFactory = contextFactory;
 		this.itemPlaceholder = itemPlaceholder;

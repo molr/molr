@@ -155,4 +155,30 @@ public class TreeStructure {
     public int hashCode() {
         return Objects.hash(representation, parallelBlocks);
     }
+    
+    private static String addWhitespace(String string, int spaces) {
+    	StringBuilder builder = new StringBuilder();
+    	for (int i = 0; i < spaces; i++) {
+			builder.append(" ");
+		}
+    	builder.append(string);
+    	return builder.toString();
+    }
+    
+    private static void printWithSpaces(String string, int spaces) {
+    	System.out.println(addWhitespace(string, spaces));
+    }
+    
+    public static void print(TreeStructure strucure, Block from, int level) {
+    	
+    	if(strucure.childrenOf(from).isEmpty()) {
+    		printWithSpaces("leaf "+from, level);
+    	}
+    	else {
+    		printWithSpaces("branch "+from, level);
+    		strucure.childrenOf(from).forEach(child->{
+    			print(strucure, child, level+1);
+    		});
+    	}
+    }
 }

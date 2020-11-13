@@ -7,6 +7,7 @@ import java.util.function.Function;
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 
 public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachBranchRootMapped<T, U>> {
@@ -18,7 +19,7 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 	Function<In, U> function;
 
 	@SuppressWarnings("unchecked")
-	public ForeachBranchRootMapped(String name, Builder builder, Block parent, BranchMode mode,
+	public ForeachBranchRootMapped(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder, Function<In, U> function) {
 		super(name, builder, parent, mode);
 
@@ -33,14 +34,22 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
 	}
 	
-	public OngoingForeachBranch<U> branch(String name) {
+	public OngoingForeachBranch<U> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, transformedItemPlaceholder);
+		//builder().blockTextFormat(block, placeholders);
+		for (int i = 0; i < placeholders.length; i++) {
+			if(placeholders[i].equals(Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)) {
+				placeholders[i]=itemPlaceholder;
+			}
+		}
+		BlockNameConfiguration blockNameConfig = BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build();
+		return new OngoingForeachBranch<>(blockNameConfig, builder(), block, BranchMode.SEQUENTIAL, transformedItemPlaceholder);
 	}
-
-	public OngoingForeachLeaf<U> leaf(String name) {
+	
+	public OngoingForeachLeaf<U> leaf(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachLeaf<U>(name, builder(), block, transformedItemPlaceholder);
+		BlockNameConfiguration blockNameConfig = BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build();
+		return new OngoingForeachLeaf<U>(blockNameConfig, builder(), block, transformedItemPlaceholder);
 	}
 	
 }

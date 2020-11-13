@@ -8,6 +8,7 @@ import com.google.common.collect.ListMultimap;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.BranchMode;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.tree.TreeStructure;
 
 import java.util.Map;
@@ -17,9 +18,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
-import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.List;
 
 public class RunnableLeafsMission {
 
@@ -30,6 +31,8 @@ public class RunnableLeafsMission {
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
     private final ImmutableMap<Block, Placeholder<?>> forEachBlocks;
     ImmutableMap<Block, ContextConfiguration> contexts;
+    //private final ImmutableMap<Block, Function<In, String>> blockNameFormatters;
+    private final ImmutableMap<Block,List<Placeholder<?>>> blockNameFormatterArgs;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
@@ -39,6 +42,7 @@ public class RunnableLeafsMission {
         this.forEachRunnables = builder.forEachRunnables.build();
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
         this.forEachBlocks = builder.forEachBLocks.build();
+        this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
         this.parameterDescription = parameterDescription;
@@ -67,6 +71,10 @@ public class RunnableLeafsMission {
 		return forEachBlocks;
 	}
 
+    public List<Placeholder<?>> blockNameFormatterArgs(Block block){
+    	return blockNameFormatterArgs.get(block);
+    }
+    
 	public String name() {
         return this.treeStructure.rootBlock().text();
     }
@@ -92,8 +100,9 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, Placeholder<?>> forEachBLocks = ImmutableMap.builder();
-        ImmutableMap.Builder<Block, ContextConfiguration> contextConfigurations = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, ContextConfiguration> contextConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
 
         private Function<In, ?> contextFactory;
@@ -102,12 +111,12 @@ public class RunnableLeafsMission {
             /* use static factory method */
         }
 
-        public Block rootBranchNode(String rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
+        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
 
-            Block root = block(ROOT_BLOCK_ID, rootName);
+            Block root = block(ROOT_BLOCK_ID, rootName.text());
             if (PARALLEL == branchMode) {
                 parallelBlocksBuilder.add(root);
             }
@@ -117,7 +126,7 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block childBranchNode(Block parent, String name, BranchMode mode, Set<BlockAttribute> blockAttributes) {
+        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode mode, Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, name, blockAttributes);
             if (mode == PARALLEL) {
                 parallelBlocksBuilder.add(child);
@@ -125,7 +134,7 @@ public class RunnableLeafsMission {
             return child;
         }
 
-        public Block leafChild(Block parent, String childName, BiConsumer<In, Out> runnable, Set<BlockAttribute> blockAttributes) {
+        public Block leafChild(Block parent, BlockNameConfiguration childName, BiConsumer<In, Out> runnable, Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, childName, blockAttributes);
             runnables.put(child, runnable);
             return child;
@@ -140,11 +149,12 @@ public class RunnableLeafsMission {
             return new RunnableLeafsMission(this, parameterDescription);
         }
 
-        private Block addChild(Block parent, String childName, Set<BlockAttribute> blockAttributes) {
+        private Block addChild(Block parent, BlockNameConfiguration childName, Set<BlockAttribute> blockAttributes) {
             assertRootDefined();
 
             int childId = parentToChildren.get(parent).size();
-            Block child = block(parent.id()+"."+childId, /*parent.text()+"_"+*/childName);
+            Block child = block(parent.id()+"."+childId, childName.text());
+            blockNameFormatterArgumentBuilder.put(child, childName.placeholders());
             parentToChildren.put(parent, child);
             representationBuilder.parentToChild(parent, child);
             apply(child, blockAttributes);
@@ -195,6 +205,10 @@ public class RunnableLeafsMission {
             ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
             forEachBlocksConfigurations.put(block, forEachBlockConfiguration);
             
+		}
+
+		public <T> void blockTextFormat(Block block, List<Placeholder<?>> placeholders) {
+			blockNameFormatterArgumentBuilder.put(block, placeholders);
 		}
     }
 }
