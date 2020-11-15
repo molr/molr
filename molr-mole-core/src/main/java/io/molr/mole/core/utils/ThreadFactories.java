@@ -9,7 +9,7 @@ public final class ThreadFactories {
     /**
      * Returns a {@link ThreadFactory} with the specified name format
      */
-    public static ThreadFactory namedThreadFactory(String nameFormat) {
+    public static ThreadFactory namedDaemonThreadFactory(String nameFormat) {
         return new ThreadFactoryBuilder().setNameFormat(nameFormat).setDaemon(true).build();
     }
 

@@ -107,7 +107,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         updateChildrenExecutors(ImmutableList.of());
 
         this.commandQueue = new LinkedBlockingQueue<>(1);
-        this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedThreadFactory("strand" + strand.id() + "-exec-%d"));
+        this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.executor.submit(this::lifecycle);
     }
 

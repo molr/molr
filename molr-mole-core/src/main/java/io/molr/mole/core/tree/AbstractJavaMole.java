@@ -36,7 +36,7 @@ public abstract class AbstractJavaMole implements Mole {
     private final Set<MissionInstance> instances = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory(this);
-    private final ExecutorService moleExecutor = newSingleThreadExecutor(ThreadFactories.namedThreadFactory("java-mole-%d"));
+    private final ExecutorService moleExecutor = newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("java-mole-%d"));
 
     private final Set<Mission> availableMissions;
 

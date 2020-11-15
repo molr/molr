@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static io.molr.commons.util.Exceptions.illegalArgumentException;
-import static io.molr.mole.core.utils.ThreadFactories.namedThreadFactory;
+import static io.molr.mole.core.utils.ThreadFactories.namedDaemonThreadFactory;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -44,10 +44,10 @@ public class LocalSuperMole implements Mole {
     private final Map<MissionHandle, Mole> activeMoles = new ConcurrentHashMap<>();
 
     private final Flux<AgencyState> statesStream;
-    private final ExecutorService agencyExecutor = newSingleThreadExecutor(namedThreadFactory("local-agency-%d"));
+    private final ExecutorService agencyExecutor = newSingleThreadExecutor(namedDaemonThreadFactory("local-agency-%d"));
     private final Scheduler agencyScheduler = Schedulers.fromExecutor(agencyExecutor);
 
-    private final Scheduler stateScheduler = Schedulers.fromExecutor(newSingleThreadExecutor(namedThreadFactory("delegation-states-%d")));
+    private final Scheduler stateScheduler = Schedulers.fromExecutor(newSingleThreadExecutor(namedDaemonThreadFactory("delegation-states-%d")));
 
     public LocalSuperMole(Iterable<Mole> moles) {
         requireNonNull(moles, "moles must not be null");
