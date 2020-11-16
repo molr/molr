@@ -41,9 +41,8 @@ public class DisposeMissionsTest {
         assertThat(instance2StateAfterInstantiating.allowedMissionCommands()).isEmpty();
 
         mole.instructRoot(instance1Handle, StrandCommand.RESUME);
-        sleepUnchecked(1000);
 
-        MissionState instance1StateAfterMissionCompleted = mole.statesFor(instance1Handle).blockFirst();
+        MissionState instance1StateAfterMissionCompleted = mole.statesFor(instance1Handle).blockLast();
         assertThat(instance1StateAfterMissionCompleted.allowedMissionCommands()).containsExactly(MissionCommand.DISPOSE);
     }
 
