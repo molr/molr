@@ -12,7 +12,6 @@ public class ContextConfiguration {
 	private final Placeholder<?> contextPlaceholder;
 	
 	public ContextConfiguration(Function<In, ?> contextFactory, Placeholder<?> contextPlaceholder) {
-		super();
 		requireNonNull(contextFactory);
 		requireNonNull(contextPlaceholder);
 		this.contextFactory = contextFactory;
