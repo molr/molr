@@ -1,12 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.MolrCollection;
-import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
@@ -17,10 +12,10 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
     private BranchMode mode;
 
 
-    public GenericOngoingBranch(String name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public GenericOngoingBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(
-                requireNonNull(name, "branchName must not be null"), //
-                requireNonNull(builder, "builder must not be null"), //
+                requireNonNull(name, "branchName must not be null"),
+                requireNonNull(builder, "builder must not be null"),
                 parent /* parent may be null (special case for root branch)*/
         );
         this.mode = requireNonNull(mode);

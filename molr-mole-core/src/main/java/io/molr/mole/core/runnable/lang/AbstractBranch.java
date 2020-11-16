@@ -3,12 +3,12 @@ package io.molr.mole.core.runnable.lang;
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Out;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.utils.Checkeds;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractBranch {
@@ -21,9 +21,9 @@ public abstract class AbstractBranch {
         this.parent = requireNonNull(parent, "parent must not be null");
     }
 
-    public abstract GenericOngoingBranch<? extends GenericOngoingBranch<?>> branch(String name);
+    public abstract GenericOngoingBranch<? extends GenericOngoingBranch<?>> branch(String name, Placeholder<?>... placeholders);
 
-    public abstract GenericOngoingLeaf<? extends GenericOngoingLeaf<?>> leaf(String name);
+    public abstract GenericOngoingLeaf<? extends GenericOngoingLeaf<?>> leaf(String name, Placeholder<?>... placeholders);
 
     protected RunnableLeafsMission.Builder builder() {
         return this.builder;

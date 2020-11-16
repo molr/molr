@@ -77,13 +77,13 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
 
         Object defaultValue = mapper.treeToValue(defaultValueNode, Object.class);
         return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
-
-        // throw new IllegalStateException("Type cannot be deserialized "+type);
     }
     
     public <T> Set<T> readAllowedValues(JsonNode node) throws IOException{
         TypeReference<Set<T>> typeRef = new TypeReference<Set<T>>() {
-            //
+            /*
+             * nothing to do here
+             */
         };
         ObjectReader allowedValuesReader = mapper.readerFor(typeRef);
         return allowedValuesReader.readValue(node);

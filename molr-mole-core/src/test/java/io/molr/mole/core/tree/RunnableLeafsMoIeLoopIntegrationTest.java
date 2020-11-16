@@ -21,7 +21,6 @@ import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -33,7 +32,6 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
  */
 public class RunnableLeafsMoIeLoopIntegrationTest {
 
-	//private final static Placeholder<String> ITEM_PLACEHOLDER = Placeholder.aString("aForEachLoop.deviceName");
     private final static List<String> ITEM_LIST = new ArrayList<>(Arrays.asList("A", "B", "C"));
     private final static List<String> ITEM_LIST_2 = new ArrayList<>(Arrays.asList("D", "E", "F"));
     private final static String PARAMETER_NAME_DEVICE_NAMES = "deviceNames";
@@ -48,9 +46,9 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
                 Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
-                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
-                root("foreachDemo").sequential().as(missionRoot -> {// 0
+                root("foreachDemo").sequential().as(missionRoot -> {
                 	
                 	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("switchOn: "+item);
@@ -71,13 +69,13 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{//0.1.i.1.j
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {//2
+                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
@@ -94,15 +92,148 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
     }
     
+    @Test
+    public void nestedForeachAndContexts() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+    			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, device)->{
+    				doWithDeviceBranch.branch("context").contextual(DemoContext::new, device).as((doWithDeviceContextBranch, deviceContext)->{
+    					doWithDeviceContextBranch.leaf("doSommethingWithDevice").runCtx(demoContext -> System.out.println("Let's work with nested devices of "+demoContext));
+						doWithDeviceContextBranch.foreach(moreDevices).branch("nestedDevices").as((nestedDevicesBranch, nestedDevice) -> {
+							nestedDevicesBranch.branch("nestedContext").contextual(DemoContext::new, nestedDevice).as((nestedContextBranch, nestedDeviceContext)->{
+								nestedContextBranch.leaf("doSomeThingInNestedContext").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, deviceContext);
+							});
+						});
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
+    
+    @Test
+    public void nestedForeachMapped() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+    			root("foreachDemo").foreach(someDevices).map(DemoContext::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    				doWithDeviceBranch.leaf("Do something with device ").runFor(device->{
+    					System.out.println(device);
+    				});
+    				doWithDeviceBranch.foreach(moreDevices).map(DemoContext::new).branch("workOnDeviceAndNestedDeviceBranch").as((nestedBranch, nestedDevicePlaceholder)->{
+    					nestedBranch.leaf("Do something with both devices").runFor(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
+    @Test
+    public void nestedForeachMappedInContextual() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
+				
+    			root("foreachDemo").foreach(someDevices).map(DemoContext::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    				doWithDeviceBranch.leaf("Do something with device ").runFor(device->{
+    					System.out.println(device);
+    				});
+    				doWithDeviceBranch.branch("context").contextual(String::new, contextParameterPlaceholder).as((ctxBranch, ctxPlaceholder) -> {
+    					ctxBranch.foreach(moreDevices).map(DemoContext::new).branch("workOnDeviceAndNestedDeviceBranch").as((nestedBranch, nestedDevicePlaceholder)->{
+        					nestedBranch.leaf("Do something with both devices").runFor(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
+        					nestedBranch.leaf("Do ...").run((device, nestedDevice, ctx)->{
+        						System.out.println(device+" "+nestedDevice+" "+ctx);
+        					}, devicePlaceholder, nestedDevicePlaceholder, ctxPlaceholder);
+        				});
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+        params.put("demoContextParameter", "SomeText");
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
+    @Test
+    public void nestedForeachAndContexts2() throws InterruptedException {
+    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+    		{
+				Placeholder<ListOfStrings> someDevices = mandatory(
+						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+    			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").contextualFor(DemoContext::new).as((doWithDeviceBranch, ctx)-> {
+    				doWithDeviceBranch.leaf("Do something with device ").runCtx(device->{
+    					System.out.println(device);
+    				});
+    				doWithDeviceBranch.foreach(moreDevices).branch("workOnDeviceAndNestedDeviceBranch").contextualFor(DemoContext::new).as((nestedBranch, nestedContext, nestedItem)->{
+    					/**
+    					 * Do something on both contexts.
+    					 */
+    					nestedBranch.leaf("").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, ctx);
+    				});
+    			});
+    		}
+    	}.build();
+    	Mole mole = new RunnableLeafsMole(Sets.newHashSet(mission));
+        Map<String, Object> params = new HashMap<>();
+        params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
+        params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
+    	MissionHandle handle = mole.instantiate(new Mission("foreachDemo"), params).block();
+    	Thread.sleep(50);
+    	mole.instructRoot(handle, StrandCommand.RESUME);
+    	mole.statesFor(handle).blockLast();
+    }
+    
+    
+    
+    private static void doWithDevices(DemoContext context1, DemoContext context2) {
+    	System.out.println("Do something with"+context1+" and "+ context2);
+    }
+    
 	RunnableLeafsMission runCtxForDemo() {
 		return new RunnableLeafsMissionSupport() {
 			{
 				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
 				Placeholder<ListOfStrings> someDevices = mandatory(
 						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
-
-				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as(rootDescription -> {
-					rootDescription.foreach(someDevices).branch("runCtxForDemoBranch")
+				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
+				
+				root("runCtxForDemo").contextual(DemoContext::new, contextParameterPlaceholder).as((root, ctxPlaceholder) -> {
+					root.leaf("").runCtx(demoContext->System.out.println("context:"+demoContext.toString()));
+					root.foreach(someDevices).branch("runCtxForDemoBranch")
 							.as((branchDe, itemPlaceholder) -> {
 								branchDe.leaf("").runCtxFor((demoContext, item) -> {
 									System.out.println("out " + demoContext + " " + item);
@@ -115,6 +246,22 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 									System.out.println("out " + demoContext + " " + item);
 									out.emit("hello", "world");
 								});
+								branchDe.foreach(moreDevices).branch("som").contextual(String::new, itemPlaceholder).as((branchDescription, branchDeContext, branchDeItem) -> {
+									branchDescription.branch("").as(branchDescriptionsd->{
+										branchDescriptionsd.leaf("").runFor(name->{
+											System.out.println("hello "+name);
+										});
+									});
+									branchDescription.leaf("").runCtxFor((contextVal, itemVal) -> System.out.println("item"+itemVal + "context: "+contextVal));
+									branchDescription.foreach(moreDevices).branch("").as((branch12, branch12Device)->{
+										branch12.leaf("a").run(in->{
+											String outer = in.get(branchDeItem);
+											String inner = in.get(branch12Device);
+											String context = in.get(branchDeContext);
+											System.out.println(outer+"+"+inner+"+context:"+context);
+										});
+									});
+								});;
 							});
 
 				});
@@ -133,9 +280,9 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
                 Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 
-                optional(Placeholders.EXECUTION_STRATEGY, ExecutionStrategy.ABORT_ON_ERROR.name());
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
-                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as(missionRoot -> {// 0
+                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {
                 	
                 	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("switchOn: "+item);
@@ -156,13 +303,13 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{//0.1.i.1.j
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {//2
+                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
@@ -194,6 +341,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
         params.put(PARAMETER_NAME_DEVICE_NAMES, ITEM_LIST);
         params.put(PARAMETER_NAME_DEVICE_NAMES_2, ITEM_LIST_2);
         params.put("demoContextParameter", "SomeText");
+        params.put("deviecId", 4);
     	MissionHandle handle = mole.instantiate(new Mission("runCtxForDemo"), params).block();
     	Thread.sleep(50);
     	mole.instructRoot(handle, StrandCommand.RESUME);
@@ -285,13 +433,11 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     	private String text;
     	
     	public DemoContext(String text) {
-    		System.out.println(text);
-    		this.text = text;
+    		this.text = "Contextual"+text;
     	}
     	
     	@Override
     	public String toString() {
-    		System.out.println(" toString " + text);
     		return text;
     	}
     }

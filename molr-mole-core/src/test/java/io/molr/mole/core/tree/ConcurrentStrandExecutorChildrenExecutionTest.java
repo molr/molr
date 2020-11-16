@@ -6,7 +6,10 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,9 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     private CountDownLatch latchB1End;
     private CountDownLatch latchB2End;
 
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(10);
+    
     @Override
     protected RunnableLeafsMission mission() {
         return new RunnableLeafsMissionSupport() {

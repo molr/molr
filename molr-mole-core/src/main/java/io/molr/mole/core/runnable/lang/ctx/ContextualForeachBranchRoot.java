@@ -1,27 +1,35 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.MolrCollection;
+import io.molr.commons.domain.In;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<ContextualForeachBranchRoot<C, T>> {
 
 	private Block block;
 	Placeholder<T> itemPlaceholder;
-	Placeholder<? extends MolrCollection<T>> itemsPlaceholder;
+	Placeholder<C> contextPlaceholder;
+	Placeholder<? extends Collection<T>> itemsPlaceholder;
 
-	public ContextualForeachBranchRoot(String name, Builder builder, Block parent, BranchMode mode,
-			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+	@SuppressWarnings("unchecked")
+	public ContextualForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder,
+			Placeholder<? extends Collection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
-
+		requireNonNull(contextPlaceholder);
+		this.contextPlaceholder = contextPlaceholder;
+		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
-		this.itemPlaceholder = MolrCollection.itemPlaceholderForCollectionPlaceholder(itemsPlaceholder,
-				UUID.randomUUID().toString());
+		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}
 
 	private void createAndAddForeachBlock() {
@@ -29,14 +37,26 @@ public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<Cont
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
 	
-	public ContextualOngoingForeachBranch<C, T> branch(String name) {
+	public ContextualOngoingForeachBranchRoot<C, T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new ContextualOngoingForeachBranch<>(name, builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
+		return new ContextualOngoingForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(), builder(), block, BranchMode.SEQUENTIAL, contextPlaceholder, itemPlaceholder);
 	}
 
-	public ContextualOngoingForeachLeaf<C, T> leaf(String name) {
+	public ContextualOngoingForeachLeaf<C, T> leaf(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new ContextualOngoingForeachLeaf<C, T>(name, builder(), block, itemPlaceholder);
+		return new ContextualOngoingForeachLeaf<C, T>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(), builder(), block, contextPlaceholder, itemPlaceholder);
 	}
 
+    public <U> ContextualForeachBranchRootMapped<C, T, U> map(Function<T, U> function) {
+        return mapIt(in -> function.apply(in.get(itemPlaceholder)));
+    }
+
+    public <U, P1> ContextualForeachBranchRootMapped<C, T, U> map(BiFunction<T, P1, U> contextFactory, Placeholder<P1> p1) {
+        return mapIt(in -> contextFactory.apply(in.get(itemPlaceholder), in.get(p1)));
+    }
+    
+    private <U> ContextualForeachBranchRootMapped<C, T, U> mapIt(Function<In, U> function) {
+        return new ContextualForeachBranchRootMapped<C, T, U>(name(), builder(), parent(), mode(), contextPlaceholder, itemsPlaceholder, itemPlaceholder, function);
+    }
+	
 }

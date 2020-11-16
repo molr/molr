@@ -1,6 +1,7 @@
 package io.molr.commons.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -19,6 +20,11 @@ public class ListOfStrings extends ArrayList<String> implements MolrCollection<S
         super(values);
     }
 
+    
+    public ListOfStrings(String... values) {
+        super(Arrays.asList(values));
+    }
+    
     @Override
     public int hashCode() {
         return super.hashCode();

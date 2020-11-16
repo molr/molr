@@ -358,7 +358,10 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private void updateActualBlock(Block newBlock) {
         LOGGER.debug("[{}] block = {}", strand, newBlock);
-        // TODO Should we complete the stream if the newBlock is null? (strand execution finished)
+		/*
+		 * TODO Should we complete the stream if the newBlock is null? (strand execution
+		 * finished)
+		 */
         actualBlock.set(newBlock);
         blockSink.onNext(newBlock);
         updateAllowedCommands();
@@ -366,7 +369,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private void updateState(ExecutorState newState) {
         LOGGER.debug("[{}] state = {}", strand, newState);
-        // TODO Should we complete the stream if the new state is FINISHED?
+		/* TODO Should we complete the stream if the new state is FINISHED? */
         actualState.set(newState);
         stateSink.onNext(runStateFrom(newState));
         updateAllowedCommands();

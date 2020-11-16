@@ -3,14 +3,18 @@ package io.molr.mole.core.runnable.lang;
 import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
@@ -27,12 +31,13 @@ public abstract class RunnableLeafsMissionSupport {
 
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
+    private ExecutionStrategyConfiguration.Builder executionStrategyConfigurationBuilder = null;
 
     protected OngoingRootBranch root(String missionName) {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingRootBranch(missionName, builder, null, SEQUENTIAL);
+        return new OngoingRootBranch(BlockNameConfiguration.builder().text(missionName).build(), builder, null, SEQUENTIAL);
     }
 
     @Deprecated
@@ -49,6 +54,20 @@ public abstract class RunnableLeafsMissionSupport {
         if (this.builder != null) {
             throw new IllegalStateException("Root can only be defined once! Use either sequential() or parallel().");
         }
+    }
+    
+    /**
+     * Configure the execution strategies that can be used for that mission. This includes the default execution strategy and allowed execution strategies 
+     * that can be selected during mission instantiation. If the configuration is omitted the the default configuration is used.
+     * 
+     * @return an configuration object for execution strategy configuration
+     */
+    protected OngoingExecutionStrategyConfiguration executionStrategy() {
+    	if(executionStrategyConfigurationBuilder!=null) {
+    		throw new IllegalStateException("Execution strategies can only be defined once.");
+    	}
+    	this.executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+    	return new OngoingExecutionStrategyConfiguration(executionStrategyConfigurationBuilder);
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
@@ -101,6 +120,16 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     public RunnableLeafsMission build() {
+    	if(executionStrategyConfigurationBuilder == null) {
+    		executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+    	}
+    	ExecutionStrategyConfiguration executionStrategyConfig = executionStrategyConfigurationBuilder.build();
+        /*
+         * if we want to exclude the strategy parameter when allowed strategies size is 1 we need to put strategy definitions somewhere else
+         */
+    	MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
+        			.withDefault(executionStrategyConfig.defaultStrategy().name()).withAllowed(executionStrategyConfig.allowedStrategies().stream().map(ExecutionStrategy::name).collect(Collectors.toSet()));
+        parameterBuilder.add(executionStrategyParameter);
         MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
         return builder.build(parameterDescription);
     }

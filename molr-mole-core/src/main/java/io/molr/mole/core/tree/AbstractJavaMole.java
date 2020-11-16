@@ -25,6 +25,8 @@ import java.util.function.Supplier;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
+import java.util.Collection;
+
 public abstract class AbstractJavaMole implements Mole {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaMole.class);
@@ -48,7 +50,6 @@ public abstract class AbstractJavaMole implements Mole {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
-            // TODO we should discuss where to put parameter validation
             validateParameterValues(mission, params);
             MissionHandle handle = handleFactory.createHandle();
             executors.put(handle, executorFor(mission, params));
@@ -74,6 +75,11 @@ public abstract class AbstractJavaMole implements Mole {
                 throw new IllegalArgumentException("missing mandatory parameter "+parameter.placeholder().name());
             }
 
+            if(Collection.class.isAssignableFrom(parameterValue.getClass())) {
+            	LOGGER.warn("Validation of collection values has been skipped.");
+            	return;
+            }
+            
             if(parameter.allowedValues() != null && !parameter.allowedValues().isEmpty()) {
                 if(!parameter.allowedValues().contains(parameterValue)) {
                     throw new IllegalArgumentException("Cannot instantiate mission: Value "+parameterValue
