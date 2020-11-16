@@ -77,8 +77,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		}
     		
     		final MissionInput extendedByContext;
-    		if(mission.contexts.containsKey(subTree)) {
-				ContextConfiguration contextConfig = mission.contexts.get(subTree);
+    		if(mission.contexts().containsKey(subTree)) {
+				ContextConfiguration contextConfig = mission.contexts().get(subTree);
 				extendedByContext = scopedInput.and(contextConfig.contextPlaceholder().name(), contextConfig.contextFactory().apply(scopedInput));
 			}
     		else {

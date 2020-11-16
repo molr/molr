@@ -29,9 +29,7 @@ public class RunnableLeafsMission {
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
     private final ImmutableMap<Block, BiConsumer<In, Out>> forEachRunnables;
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
-    private final ImmutableMap<Block, Placeholder<?>> forEachBlocks;
-    ImmutableMap<Block, ContextConfiguration> contexts;
-    //private final ImmutableMap<Block, Function<In, String>> blockNameFormatters;
+    private final ImmutableMap<Block, ContextConfiguration> contexts;
     private final ImmutableMap<Block,List<Placeholder<?>>> blockNameFormatterArgs;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
@@ -41,7 +39,6 @@ public class RunnableLeafsMission {
         this.runnables = builder.runnables.build();
         this.forEachRunnables = builder.forEachRunnables.build();
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
-        this.forEachBlocks = builder.forEachBLocks.build();
         this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
@@ -67,10 +64,6 @@ public class RunnableLeafsMission {
         return this.forEachRunnables;
     }
 
-    public Map<Block, Placeholder<?>> getForEachBlocks() {
-		return forEachBlocks;
-	}
-
     public List<Placeholder<?>> blockNameFormatterArgs(Block block){
     	return blockNameFormatterArgs.get(block);
     }
@@ -90,6 +83,10 @@ public class RunnableLeafsMission {
     public ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations() {
 		return forEachBlocksConfigurations;
 	}
+    
+	public Map<Block, ContextConfiguration> contexts() {
+		return this.contexts;
+	}
 
 	public static class Builder {
 
@@ -99,7 +96,6 @@ public class RunnableLeafsMission {
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, Placeholder<?>> forEachBLocks = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ContextConfiguration> contextConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
@@ -179,7 +175,6 @@ public class RunnableLeafsMission {
                 throw new IllegalStateException("contextFactory already set! Only allowed once!");
             }
             this.contextConfigurations.put(block, new ContextConfiguration(contextFactory, contextPlaceholder));
-            //this.contextFactory = requireNonNull(contextFactory, "contextFactory must not be null");
         }
 
         /**
@@ -191,8 +186,7 @@ public class RunnableLeafsMission {
             return latest.get();
         }
 
-        //TODO remove public access
-        public Block block(String id, String name) {
+        private Block block(String id, String name) {
             return Block.idAndText(id, name);
         }
         
@@ -201,7 +195,6 @@ public class RunnableLeafsMission {
 		}
         
 		public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
-			forEachBLocks.put(block, collectionPlaceholder);
             ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
             forEachBlocksConfigurations.put(block, forEachBlockConfiguration);
             
