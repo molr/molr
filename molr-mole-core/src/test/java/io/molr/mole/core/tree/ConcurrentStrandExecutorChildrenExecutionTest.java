@@ -6,6 +6,7 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import static io.molr.commons.domain.RunState.*;
 import static io.molr.commons.domain.StrandCommand.*;
 
+@Ignore
 public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStepOverParallelTest.class);
@@ -77,6 +79,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         latchB2End = new CountDownLatch(1);
     }
 
+    @Ignore
     @Test
     public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() throws InterruptedException {
         moveRootStrandTo(parallelBlock);
@@ -93,6 +96,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         assertThatRootStrandState().isNotEqualTo(FINISHED);
     }
 
+    @Ignore
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallelBlock);
@@ -113,6 +117,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         assertThatRootStrandState().isNotEqualTo(FINISHED);
     }
 
+    @Ignore
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldMoveNextOnParent() {
         moveRootStrandTo(parallelBlock);
@@ -131,6 +136,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         waitUntilRootStrandBlockIs(lastBlock);
     }
 
+    @Ignore
     @Test
     public void testIfAllChildrenArePausedParentShouldPause() {
         moveRootStrandTo(parallelBlock);
@@ -146,6 +152,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         rootStrandChildren().forEach(se -> assertThatStateOf(se).isEqualTo(PAUSED));
     }
 
+    @Ignore
     @Test
     public void testIfAtLeastOneChildrenIsRunningParentIsWaiting() {
         /* WAITING_FOR_CHILDREN == RUNNING RunState */
