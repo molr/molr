@@ -96,7 +96,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         				newScopedInput = newScopedInput.and(foreachConfig.transformedItemPlaceholder().name(), foreachConfig.function().apply(newScopedInput));
         			}
         			
-    				Block child = mission.treeStructure().childrenOf(subTree).get(0); //TODO assert that children.size is 1
+        			if(mission.treeStructure().childrenOf(subTree).size()!=1) {
+        				throw new IllegalStateException("foreach blocks must have exactly one child.");
+        			}
+    				Block child = mission.treeStructure().childrenOf(subTree).get(0);
     				addChildToReplicatedTreeAndTraverse(mission, child, replicatedSubtree, missionInput, newScopedInput, childIndex.getAndIncrement(), builder, level);
     			});
     		}
