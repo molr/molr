@@ -17,7 +17,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
     private final ReplayProcessor<MissionOutput> outputSink = ReplayProcessor.cacheLast();
-    private final Flux<MissionOutput> outputStream = outputSink.publishOn(Schedulers.newSingle("Output collector"));
+    private final Flux<MissionOutput> outputStream = outputSink.publishOn(Schedulers.newSingle("output-collector", true));
 
     private final Map<Block, Map<String, Object>> blockOutputs = new ConcurrentHashMap<>();
 
