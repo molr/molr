@@ -36,7 +36,6 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 	
 	public OngoingForeachBranch<U> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		//builder().blockTextFormat(block, placeholders);
 		for (int i = 0; i < placeholders.length; i++) {
 			if(placeholders[i].equals(Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)) {
 				placeholders[i]=itemPlaceholder;

@@ -13,8 +13,8 @@ public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extend
 
     public GenericOngoingLeaf(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent) {
         super(
-                requireNonNull(name, "leafName must not be null"), //
-                requireNonNull(builder, "builder must not be null"), //
+                requireNonNull(name, "leafName must not be null"),
+                requireNonNull(builder, "builder must not be null"),
                 requireNonNull(parent, "parent must not be null")
         );
     }

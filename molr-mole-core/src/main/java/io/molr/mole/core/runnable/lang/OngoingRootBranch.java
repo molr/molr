@@ -23,7 +23,6 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
     }
 
     public <C> OngoingContextualBranchWithNewContext<C> contextual(Function<In, C> contextFactory) {
-        //builder().contextFactory(contextFactory);
         return new OngoingContextualBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory);
     }
 

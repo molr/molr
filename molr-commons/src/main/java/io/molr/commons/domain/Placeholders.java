@@ -9,7 +9,6 @@ public final class Placeholders {
 
 	private static final String RETURN_VALUE_KEY = "returnValue";
 	private static final String THROWABLE_KEY = "throwable";
-	private static final String CONTEXT_KEY = "context";
 	private static final String EXECUTION_STRATEGY_KEY = "executionStrategy";
 	private static final String LATEST_FOREACH_ITEM_KEY = "latestForeachItem";
 
@@ -17,8 +16,6 @@ public final class Placeholders {
 	public static final Placeholder<Integer> RETURNED_INTEGER = Placeholder.anInteger(RETURN_VALUE_KEY);
 	public static final Placeholder<Double> RETURNED_DOUBLE = Placeholder.aDouble(RETURN_VALUE_KEY);
 	public static final Placeholder<Boolean> RETURNED_BOOLEAN = Placeholder.aBoolean(RETURN_VALUE_KEY);
-
-	private static final Placeholder<Object> CONTEXT = Placeholder.of(Object.class, CONTEXT_KEY);
 
 	private static final Set<Placeholder<?>> ALL_RETURN_VALUES = ImmutableSet.of(RETURNED_STRING, RETURNED_INTEGER,
 			RETURNED_DOUBLE, RETURNED_BOOLEAN);
@@ -47,10 +44,5 @@ public final class Placeholders {
 				LATEST_FOREACH_ITEM_KEY);
 		return latestItemPlaceholder;
 	}
-	
-	// public static <T> Placeholder<T> context() {
-	 // return (Placeholder<T>) CONTEXT;
-//    }
-
 
 }

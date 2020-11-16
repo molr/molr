@@ -14,8 +14,8 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
 
     public GenericOngoingBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(
-                requireNonNull(name, "branchName must not be null"), //
-                requireNonNull(builder, "builder must not be null"), //
+                requireNonNull(name, "branchName must not be null"),
+                requireNonNull(builder, "builder must not be null"),
                 parent /* parent may be null (special case for root branch)*/
         );
         this.mode = requireNonNull(mode);

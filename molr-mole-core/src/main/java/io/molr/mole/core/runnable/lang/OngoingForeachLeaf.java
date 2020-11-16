@@ -46,7 +46,6 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
         });
     }
 
-    // one arg
 	public <P1> void runFor(Checkeds.CheckedThrowingBiConsumer<T, P1> runnable, P1 p1) {
         runFor1(runnable, in -> p1);
     }
@@ -55,7 +54,6 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
         runFor1(runnable, in -> in.get(p1));
     }
 
-    //private  <P1> void runFor1(Checkeds.CheckedThrowingBiConsumer<T, P1> runnable, Function<In, P1> p1) {
 	private <P1> void runFor1(Checkeds.CheckedThrowingBiConsumer<T, P1> runnable, Function<In, P1> p1) {
         run(in -> {
             P1 p1Value = p1.apply(in);
@@ -63,7 +61,6 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
         });
     }
 
-    // 2 args
 	public <P1, P2> void runFor(Checkeds.CheckedThrowingConsumer3<T, P1, P2> runnable, P1 p1, P2 p2) {
         runFor2(runnable, in -> p1, in -> p2);
     }
@@ -81,8 +78,6 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
         runFor2(runnable, in -> in.get(p1), in -> in.get(p2));
     }
 
-    //private default <P1, P2> void runFor2(Checkeds.CheckedThrowingConsumer3<T, P1, P2> runnable, Function<In, P1> p1,
-     //       Function<In, P2> p2) {
 	private <P1, P2> void runFor2(Checkeds.CheckedThrowingConsumer3<T, P1, P2> runnable, Function<In, P1> p1,
             Function<In, P2> p2) {
         run(in -> {

@@ -28,13 +28,13 @@ public class MissionParameterDto<T> {
     public static final String TYPE_LONG = "long";
     public static final String TYPE_BOOLEAN = "boolean";
     public static final String TYPE_STRING_ARRAY = "string[]";
-    public static final String TYPE_LIST_OF_STRINGS = "listOfStrings";//just as proof of concept
+    public static final String TYPE_LIST_OF_STRINGS = "listOfStrings";
     /*
      * custom types can be registered
      */
         
     /*
-     *TODO ?find a better way and or place for type registration?
+     *TODO find a better way and or place for type registration?
      */
     public static final BiMap<Class<?>, String> TYPE_NAMES = HashBiMap.create();
     static {

@@ -124,14 +124,12 @@ public abstract class RunnableLeafsMissionSupport {
     		executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
     	}
     	ExecutionStrategyConfiguration executionStrategyConfig = executionStrategyConfigurationBuilder.build();
-//    	if(executionStrategyConfig.allowedStrategies().size()>1) {
         /*
          * if we want to exclude the strategy parameter when allowed strategies size is 1 we need to put strategy definitions somewhere else
          */
     	MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
         			.withDefault(executionStrategyConfig.defaultStrategy().name()).withAllowed(executionStrategyConfig.allowedStrategies().stream().map(ExecutionStrategy::name).collect(Collectors.toSet()));
         parameterBuilder.add(executionStrategyParameter);
-//        }     	
         MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
         return builder.build(parameterDescription);
     }

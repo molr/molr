@@ -39,15 +39,12 @@ public final class Placeholder<T> {
     }
 
     /*
-     * TODO delete comment: see method below. However the used conversion workaround would be unnecessary if types are 
-     * deserialized correctly, which is possible.
+     * The used conversion workaround would be unnecessary if types are 
+     * deserialized correctly.
      */
-    /* aLong does not work at the moment ... the transport over json always converts into integers
-    when numbers fit into integers and then the case fails .. so for the moment we avoid it ;-)*/
     public static final Placeholder<Long> aLong(String name) {
         return new Placeholder<>(Long.class, name, longOrInt -> {
             if(longOrInt.getClass().equals(Integer.class)){
-                //convert the unintentionally used integer to a long value
                 return Long.valueOf((Integer)longOrInt);
             }
             return (Long)longOrInt;
