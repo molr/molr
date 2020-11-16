@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
@@ -22,7 +24,10 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 	public ForeachBranchRootMapped(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder, Function<In, U> function) {
 		super(name, builder, parent, mode);
-
+		requireNonNull(itemsPlaceholder);
+		requireNonNull(itemPlaceholder);
+		requireNonNull(function);
+		
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = itemPlaceholder;
 		this.transformedItemPlaceholder = (Placeholder<U>) Placeholder.of(Object.class, UUID.randomUUID().toString());

@@ -1,7 +1,7 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static java.util.Objects.requireNonNull;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
@@ -26,10 +26,14 @@ public class ContextualForeachBranchRootMapped<C, T, U> extends GenericOngoingBr
 			Placeholder<C> contextPlaceholder, Placeholder<? extends Collection<T>> itemsPlaceholder, Placeholder<T> itemPlaceholder,
 			Function<In, U> function) {
 		super(name, builder, parent, mode);
+		requireNonNull(contextPlaceholder);
 		this.contextPlaceholder = contextPlaceholder;
+		requireNonNull(itemPlaceholder);
 		this.itemPlaceholder = itemPlaceholder;
+		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.transformedItemPlaceholder = (Placeholder<U>)Placeholder.of(Object.class, UUID.randomUUID().toString());
+		requireNonNull(function);
 		this.function = function;
 	}
 	

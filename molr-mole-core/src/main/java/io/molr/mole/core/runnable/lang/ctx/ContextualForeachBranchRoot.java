@@ -1,12 +1,13 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
-import java.util.Collection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
@@ -24,8 +25,9 @@ public class ContextualForeachBranchRoot<C, T> extends GenericOngoingBranch<Cont
 	public ContextualForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder,
 			Placeholder<? extends Collection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
-
+		requireNonNull(contextPlaceholder);
 		this.contextPlaceholder = contextPlaceholder;
+		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}

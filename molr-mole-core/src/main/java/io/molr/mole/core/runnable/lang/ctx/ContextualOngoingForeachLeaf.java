@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
@@ -18,6 +20,8 @@ public class ContextualOngoingForeachLeaf<C, T> extends GenericOngoingLeaf<Conte
 	
 	public ContextualOngoingForeachLeaf(BlockNameConfiguration name, Builder builder, Block parent, Placeholder<C> context, Placeholder<T> item) {
 		super(name, builder, parent);
+		requireNonNull(context);
+		requireNonNull(item);
 		this.contextPlaceholder = context;
 		this.itemPlaceholder = item;
 	}

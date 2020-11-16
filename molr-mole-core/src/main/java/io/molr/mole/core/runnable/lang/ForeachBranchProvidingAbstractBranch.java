@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
@@ -13,6 +15,7 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
 	}
 	
     public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+    	requireNonNull(itemsPlaceholder);
     	String name = "forEachItemIn:"+itemsPlaceholder.name();
     	BlockNameConfiguration formatter = BlockNameConfiguration.builder().text(name).build();
         return new ForeachBranchRoot<>(formatter, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);

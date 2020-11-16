@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static java.util.Objects.requireNonNull;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,6 +20,8 @@ public class ContextualOngoingForeachBranch<C, T> extends GenericOngoingBranch<C
 	
 	public ContextualOngoingForeachBranch(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder, Placeholder<T> itemPlaceholder) {
 		super(name, builder, parent, mode);
+		requireNonNull(contextPlaceholder);
+		requireNonNull(itemPlaceholder);
 		this.contextPlaceholder = contextPlaceholder;
 		this.itemPlaceholder = itemPlaceholder;
 	}

@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static java.util.Objects.requireNonNull;
+
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
 import io.molr.commons.domain.Block;
@@ -13,6 +15,7 @@ public class ContextualBranch<C> extends ContextualForeachBranchProvidingAbstrac
 	
     protected ContextualBranch(RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
         super(builder, parent, contextPlaceholder);
+        requireNonNull(contextPlaceholder);
         this.contextPlaceholder = contextPlaceholder;
     }
 

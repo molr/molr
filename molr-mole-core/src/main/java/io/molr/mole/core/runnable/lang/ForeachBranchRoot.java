@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -9,7 +11,6 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 
 public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot<T>> {
@@ -22,7 +23,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
-
+		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}

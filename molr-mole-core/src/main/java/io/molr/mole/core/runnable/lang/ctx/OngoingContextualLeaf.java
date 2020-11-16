@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static java.util.Objects.requireNonNull;
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
@@ -17,7 +18,7 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
 	
     public OngoingContextualLeaf(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
         super(name, builder, parent);
-        if(contextPlaceholder == null) throw new IllegalArgumentException("ph bull");
+        requireNonNull(contextPlaceholder);
         this.contextPlaceholder = contextPlaceholder;
     }
 

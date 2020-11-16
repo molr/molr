@@ -1,5 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
@@ -10,6 +12,7 @@ public class ForeachBranch<T> extends ForeachBranchProvidingAbstractBranch{
 	
 	protected ForeachBranch(Builder builder, Block parent, Placeholder<T> itemPlaceholder) {
 		super(builder, parent);
+		requireNonNull(itemPlaceholder);
 		this.itemPlaceholder = itemPlaceholder;
 	}
 

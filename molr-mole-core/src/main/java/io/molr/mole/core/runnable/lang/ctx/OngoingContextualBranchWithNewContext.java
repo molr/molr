@@ -23,6 +23,7 @@ public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBran
 
     public OngoingContextualBranchWithNewContext(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Function<In,C> contextFactory) {
         super(name, builder, parent, mode);
+        requireNonNull(contextFactory);
         this.contextFactory = contextFactory;
     }
 

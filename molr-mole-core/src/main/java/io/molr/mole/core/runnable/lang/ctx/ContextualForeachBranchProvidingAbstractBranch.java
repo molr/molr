@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
 import java.util.Collection;
+import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
 
@@ -16,6 +17,7 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
 
 	protected ContextualForeachBranchProvidingAbstractBranch(Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
 		super(builder, parent);
+		requireNonNull(contextPlaceholder);
 		this.contextPlaceholder = contextPlaceholder;
 	}
 	

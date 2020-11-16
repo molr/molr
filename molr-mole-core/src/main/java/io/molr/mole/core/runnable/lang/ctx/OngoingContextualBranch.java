@@ -19,6 +19,7 @@ public class OngoingContextualBranch<C> extends GenericOngoingBranch<OngoingCont
 
     public OngoingContextualBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Placeholder<C> contextPlaceholder) {
         super(name, builder, parent, mode);
+        requireNonNull(contextPlaceholder);
         this.contextPlaceholder = contextPlaceholder;
     }
 

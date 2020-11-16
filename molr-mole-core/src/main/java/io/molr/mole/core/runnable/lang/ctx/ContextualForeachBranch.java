@@ -5,6 +5,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
+import static java.util.Objects.requireNonNull;
 
 public class ContextualForeachBranch<C, T> extends ContextualForeachBranchProvidingAbstractBranch<C>{
 
@@ -13,7 +14,9 @@ public class ContextualForeachBranch<C, T> extends ContextualForeachBranchProvid
 	
 	protected ContextualForeachBranch(Builder builder, Block parent, Placeholder<C> contextPlaceholder, Placeholder<T> itemPlaceholder) {
 		super(builder, parent, contextPlaceholder);
+		requireNonNull(contextPlaceholder);
 		this.contextPlaceholder = contextPlaceholder;
+		requireNonNull(itemPlaceholder);
 		this.itemPlaceholder = itemPlaceholder;
 	}
 

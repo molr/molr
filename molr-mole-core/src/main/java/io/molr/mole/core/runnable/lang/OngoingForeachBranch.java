@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -16,6 +17,7 @@ public class OngoingForeachBranch<T> extends GenericOngoingBranch<OngoingForeach
 	
 	public OngoingForeachBranch(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode, Placeholder<T> itemPlaceholder) {
 		super(name, builder, parent, mode);
+		requireNonNull(itemPlaceholder);
 		this.itemPlaceholder = itemPlaceholder;
 	}
 
