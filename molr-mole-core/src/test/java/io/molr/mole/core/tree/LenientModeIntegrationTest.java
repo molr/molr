@@ -1,14 +1,12 @@
 package io.molr.mole.core.tree;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 
 import io.molr.commons.domain.Block;
@@ -38,39 +36,39 @@ public class LenientModeIntegrationTest {
 
                 executionStrategy().allowAll().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
 
-                root("root1").sequential().as(missionRoot -> {// 0
+                root("root1").sequential().as(missionRoot -> {
 
-                    missionRoot.branch("main1").parallel().as(main1Root -> {// 1
+                    missionRoot.branch("main1").parallel().as(main1Root -> {
 
-                        main1Root.leaf("main1Sub1").run(() -> {// 2
+                        main1Root.leaf("main1Sub1").run(() -> {
                             System.out.println("main1Sub1");
                         });
 
-                        main1Root.branch("main1Sub2").sequential().as(main1Sub2 -> {// 3
+                        main1Root.branch("main1Sub2").sequential().as(main1Sub2 -> {
 
-                            main1Sub2.leaf("main1Sub2Sub1").run(() -> {// 4
+                            main1Sub2.leaf("main1Sub2Sub1").run(() -> {
                                 System.out.println("main1Sub2Task1");
                             });
 
-                            main1Sub2.leaf("main1Sub2Sub2").run(() -> {// 5
+                            main1Sub2.leaf("main1Sub2Sub2").run(() -> {
                                 System.out.println("main1Sub2Task2");
                                 throw new RuntimeException("error");
                             });
 
-                            main1Sub2.leaf("main1Sub2Sub3").run(() -> {// 6
+                            main1Sub2.leaf("main1Sub2Sub3").run(() -> {
                                 System.out.println("main1Sub2Task3");
                             });
                         });
 
-                        main1Root.leaf("main1Sub3").run(() -> {// 7
+                        main1Root.leaf("main1Sub3").run(() -> {
                             System.out.println("main1Sub1");
                         });
                     });
 
-                    missionRoot.leaf("main2").run((in, out) -> {// 8
+                    missionRoot.leaf("main2").run((in, out) -> {
                         System.out.println("hello1");
                     });
-                    missionRoot.leaf("main3").run((in, out) -> {// 9
+                    missionRoot.leaf("main3").run((in, out) -> {
                         System.out.println("hello2");
                     });
                 });
@@ -96,13 +94,6 @@ public class LenientModeIntegrationTest {
         Thread.sleep(100);
         mole.instructRoot(handle, StrandCommand.RESUME);
 
-        // Find criterion valid criterion to block
-        // mole.statesFor(handle).map(missionState ->
-        // missionState.runStateOf(missionState.rootStrand())).filter(RunState.RUNNING::equals)
-        // .blockFirst();
-        // mole.statesFor(handle).map(missionState ->
-        // missionState.runStateOf(missionState.rootStrand())).filter(RunState.PAUSED::equals)
-        // .blockFirst();
         Thread.sleep(1000);
         MissionState latestState = mole.statesFor(handle).blockFirst();
         MissionRepresentation instantiatedRepresentation = mole.representationsFor(handle).blockFirst();
@@ -110,29 +101,40 @@ public class LenientModeIntegrationTest {
 
         Assertions.assertThat(latestState.resultOf(representation.rootBlock())).isEqualTo(Result.FAILED);
         Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1").id())).isEqualTo(Result.FAILED);
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub1").id())).isEqualTo(Result.SUCCESS);//2"main1Sub1"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2").id())).isEqualTo(Result.FAILED);//3"main1Sub2"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(Result.SUCCESS);//4"main1Sub2Sub1"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(Result.FAILED);//5"main1Sub2Sub2"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(Result.UNDEFINED);//6"main1Sub2Sub3"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub3").id())).isEqualTo(Result.SUCCESS);//7"main1Sub3"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main2").id())).isEqualTo(Result.UNDEFINED);//8"main2"
-        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main3").id())).isEqualTo(Result.UNDEFINED);//9"main3"
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub1").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(Result.FAILED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(Result.UNDEFINED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main1Sub3").id())).isEqualTo(Result.SUCCESS);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main2").id())).isEqualTo(Result.UNDEFINED);
+        Assertions.assertThat(latestState.resultOfBlockId(blocksByText.get("main3").id())).isEqualTo(Result.UNDEFINED);
 
         Assertions.assertThat(latestState.runStateOf(latestState.rootStrand())).isEqualTo(RunState.FINISHED);
         /**
          * TODO We cannot rely on runStateOfBlockId - summarizer does not defer the correct runState from children
          */
-        // Assertions.assertThat(lastState.runStateOfBlockId("0")).isEqualTo(RunState.PAUSED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("1")).isEqualTo(RunState.PAUSED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("2")).isEqualTo(RunState.FINISHED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("3")).isEqualTo(RunState.PAUSED);
+		/*
+		 * Assertions.assertThat(lastState.runStateOfBlockId("0")).isEqualTo(RunState.
+		 * PAUSED);
+		 * Assertions.assertThat(lastState.runStateOfBlockId("1")).isEqualTo(RunState.
+		 * PAUSED);
+		 * Assertions.assertThat(lastState.runStateOfBlockId("2")).isEqualTo(RunState.
+		 * FINISHED);
+		 * Assertions.assertThat(lastState.runStateOfBlockId("3")).isEqualTo(RunState.
+		 * PAUSED);
+		 */
         Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(RunState.FINISHED);
         Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(RunState.FINISHED);
         Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(RunState.UNDEFINED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("7")).isEqualTo(RunState.UNDEFINED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("8")).isEqualTo(RunState.UNDEFINED);
-        // Assertions.assertThat(lastState.runStateOfBlockId("9")).isEqualTo(RunState.UNDEFINED);
+		/*
+		 * Assertions.assertThat(lastState.runStateOfBlockId("7")).isEqualTo(RunState.
+		 * UNDEFINED);
+		 * Assertions.assertThat(lastState.runStateOfBlockId("8")).isEqualTo(RunState.
+		 * UNDEFINED);
+		 * Assertions.assertThat(lastState.runStateOfBlockId("9")).isEqualTo(RunState.
+		 * UNDEFINED);
+		 */
 
     }
 
@@ -142,33 +144,9 @@ public class LenientModeIntegrationTest {
         Mission mission = new Mission("root1");
         Mole mole = testMoole();
         MissionRepresentation representation = mole.representationOf(mission).block();
-        //TODO remove on merge
-        ListMultimap<Block, Block> blocks = representation.parentsToChildren();
-        Block root = representation.rootBlock();
-        List<Block> childrenOfRoot = blocks.get(root);
-        for (Block child : childrenOfRoot) {
-            System.out.println(child);
-            if (blocks.containsKey(child)) {
-                System.out.println("  " + blocks.get(child));
-            }
-        }
-        //
         HashMap<String, Object> params = new HashMap<>();
         params.put(Placeholders.EXECUTION_STRATEGY.name(), ExecutionStrategy.PROCEED_ON_ERROR.name());
         MissionHandle handle = mole.instantiate(mission, params).block();
-        //TODO remove on merge
-        mole.statesFor(handle).subscribe(missionState -> {
-            System.out.println("----");
-            System.out.println("StateUpdate:");
-            System.out.println("Results");
-            System.out.println(missionState.result());
-            System.out.println(missionState.blockIdsToResult());
-            System.out.println("RunStates:");
-            System.out.println(missionState.blockIdsToRunState());
-            System.out.println("Strands:");
-            System.out.println(missionState.allStrands());
-            System.out.println("----");
-        });
 
         /*
          * issues
@@ -183,9 +161,6 @@ public class LenientModeIntegrationTest {
         instantiatedRepresentation.allBlocks().stream().filter(block->block.text().equals("main1"));
 
         mole.instructRoot(handle, StrandCommand.RESUME);
-
-        // Thread.sleep(10000);
-        // System.out.println(mole.representationOf(mission).block().parentsToChildren());
 
         MissionState lastState = mole.statesFor(handle).blockLast();
         Map<String, Block> blocksByText = blocksByText(instantiatedRepresentation); 

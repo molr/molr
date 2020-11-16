@@ -17,7 +17,6 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
 	protected ContextualForeachBranchProvidingAbstractBranch(Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
 		super(builder, parent);
 		this.contextPlaceholder = contextPlaceholder;
-		// TODO Auto-generated constructor stub
 	}
 	
     public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends Collection<T>> itemsPlaceholder/*, String name*/) {

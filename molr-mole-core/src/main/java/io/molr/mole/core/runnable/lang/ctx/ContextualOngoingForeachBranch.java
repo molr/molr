@@ -30,8 +30,6 @@ public class ContextualOngoingForeachBranch<C, T> extends GenericOngoingBranch<C
 	}
 
     public <B> ContextualOngoingForeachBranchWithNewContext<B, T> contextual(Function<In, B> contextFactory) {
-//        builder().contextFactory(contextFactory);
-        //return new ContextualOngoingForeachBranch<>(name(), builder(), parent(), mode(), newContextPlaceholder, true);
         return new ContextualOngoingForeachBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory, itemPlaceholder);
     }
 

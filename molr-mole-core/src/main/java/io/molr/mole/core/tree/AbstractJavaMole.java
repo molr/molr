@@ -50,7 +50,6 @@ public abstract class AbstractJavaMole implements Mole {
     @Override
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         return supplyAsync(() -> {
-            // TODO we should discuss where to put parameter validation
             validateParameterValues(mission, params);
             MissionHandle handle = handleFactory.createHandle();
             executors.put(handle, executorFor(mission, params));

@@ -83,18 +83,16 @@ public class MoleWebClient {
     }
 
     private static Mono<ClientResponse> triggerRequest(String uri, Mono<ClientResponse> preparedRequest) {
-        /* caching will prevent the re-trigger of the http request */
-    	//but retriggering might be useful in reconnect scenarios
+        /* caching will prevent the re-trigger of the http request, but retriggering might be useful in reconnect scenarios */
         Mono<ClientResponse> cachedRequest = logAndFilterErrors(uri, preparedRequest).cache();
         /* subscribing here makes sure that the http call is initiated immediately */
-        //Stefan what's the benefit?
         cachedRequest.subscribe();
         return cachedRequest;
     }
 
     private static Mono<ClientResponse> logAndFilterErrors(String uri, Mono<ClientResponse> clientResponse) {
-        return clientResponse//
-                .doOnNext(response -> logIfHttpErrorStatusCode(uri, response)) //
+        return clientResponse
+                .doOnNext(response -> logIfHttpErrorStatusCode(uri, response))
                 .doOnNext(response -> {
                     if (!response.statusCode().is2xxSuccessful()) {
                         throw exception(MolrRemoteException.class, "Response from '{}' is not successful: {}", uri, response.statusCode());

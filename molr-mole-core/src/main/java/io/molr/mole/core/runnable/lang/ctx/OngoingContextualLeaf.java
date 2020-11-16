@@ -43,7 +43,6 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
         });
     }
 
-    // one arg
     public <P1> void runCtx(Checkeds.CheckedThrowingBiConsumer<C, P1> runnable, P1 p1) {
         runCtx1(runnable, in -> p1);
     }
@@ -60,7 +59,6 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
         });
     }
 
-    // 2 args
     public <P1, P2> void runCtx(Checkeds.CheckedThrowingConsumer3<C, P1, P2> runnable, P1 p1, P2 p2) {
         runCtx2(runnable, in -> p1, in -> p2);
     }

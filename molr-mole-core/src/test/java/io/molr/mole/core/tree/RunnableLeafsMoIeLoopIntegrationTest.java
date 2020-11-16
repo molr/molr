@@ -32,7 +32,6 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
  */
 public class RunnableLeafsMoIeLoopIntegrationTest {
 
-	//private final static Placeholder<String> ITEM_PLACEHOLDER = Placeholder.aString("aForEachLoop.deviceName");
     private final static List<String> ITEM_LIST = new ArrayList<>(Arrays.asList("A", "B", "C"));
     private final static List<String> ITEM_LIST_2 = new ArrayList<>(Arrays.asList("D", "E", "F"));
     private final static String PARAMETER_NAME_DEVICE_NAMES = "deviceNames";
@@ -49,7 +48,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
-                root("foreachDemo").sequential().as(missionRoot -> {// 0
+                root("foreachDemo").sequential().as(missionRoot -> {
                 	
                 	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("switchOn: "+item);
@@ -70,13 +69,13 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{//0.1.i.1.j
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {//2
+                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
@@ -283,7 +282,7 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                                 
-                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {// 0
+                root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {
                 	
                 	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
                 		System.out.println("switchOn: "+item);
@@ -304,13 +303,13 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{//0.1.i.1.j
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {//2
+                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});

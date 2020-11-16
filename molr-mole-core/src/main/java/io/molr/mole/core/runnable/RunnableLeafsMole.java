@@ -92,7 +92,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     			forEachItems.forEach(item->{
     				
         			MissionInput newScopedInput = extendedByContext.and(foreachConfig.itemPlaceholder().name(), item);
-        			if(foreachConfig.itemPlaceholder()!=foreachConfig.transformedItemPlaceholder()) {//mapped item needs to be added
+        			if(foreachConfig.itemPlaceholder()!=foreachConfig.transformedItemPlaceholder()) {
         				newScopedInput = newScopedInput.and(foreachConfig.transformedItemPlaceholder().name(), foreachConfig.function().apply(newScopedInput));
         			}
         			

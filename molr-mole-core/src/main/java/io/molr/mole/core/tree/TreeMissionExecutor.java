@@ -128,7 +128,7 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
         });
         
-        //TODO we might need to define another criterion when a mission should become disposable
+        /* TODO we might need to define another criterion when a mission should become disposable*/
         if(isDisposable()) {
             builder.addAllowedCommand(MissionCommand.DISPOSE);
         }

@@ -6,7 +6,6 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
-import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import static io.molr.commons.domain.Placeholder.*;
 import static io.molr.mole.core.runnable.lang.BlockAttribute.BREAK;
@@ -73,7 +70,6 @@ public class DemoRunnableLeafsConfiguration {
                  * optionally add a collection of allowed values in order to restrict parameter values to those values
                  * if allowed parameters is used explicitly, but empty the parameter values are considered to be unrestricted
                  */
-                //TODO validate parameter description - duplicate keys?!
                 Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500, allowedSleepTimes);
                 Placeholder<Long> sleepAsLongPlaceholder = mandatory(aLong("sleepMillis2"), 999L);
                 Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
@@ -142,8 +138,6 @@ public class DemoRunnableLeafsConfiguration {
 
     @Bean
     public RunnableLeafsMission parallelBlocksMission() {
-    	
-    	Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("devices");
     	
         return new RunnableLeafsMissionSupport() {
             {
@@ -260,9 +254,6 @@ public class DemoRunnableLeafsConfiguration {
                     		System.out.println("run");
 
                     }, a, b);
-//                    root.branch("branch").as(branchDescription->{
-//                    	branchDescription.branch("for").forEach();
-//                    });
                 });
 
             }

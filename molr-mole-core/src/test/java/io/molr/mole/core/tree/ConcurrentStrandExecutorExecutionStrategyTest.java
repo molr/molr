@@ -28,7 +28,7 @@ public class ConcurrentStrandExecutorExecutionStrategyTest extends AbstractSingl
 
     @Override
     public void setUpAbstract() {
-        //ConcurrentStrandExecutor needs to be initialized with test case specific ExecutionStrategy 
+        /*ConcurrentStrandExecutor needs to be initialized with test case specific ExecutionStrategy*/
     }
     
     @Override
