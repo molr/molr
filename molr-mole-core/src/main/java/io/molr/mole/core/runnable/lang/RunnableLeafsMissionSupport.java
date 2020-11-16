@@ -60,7 +60,7 @@ public abstract class RunnableLeafsMissionSupport {
      * Configure the execution strategies that can be used for that mission. This includes the default execution strategy and allowed execution strategies 
      * that can be selected during mission instantiation. If the configuration is omitted the the default configuration is used.
      * 
-     * @return
+     * @return an configuration object for execution strategy configuration
      */
     protected OngoingExecutionStrategyConfiguration executionStrategy() {
     	if(executionStrategyConfigurationBuilder!=null) {

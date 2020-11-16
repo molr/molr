@@ -22,8 +22,8 @@ public class OngoingExecutionStrategyConfiguration {
 	 * or the one and only allowed strategy if and only if exactly one strategy has been specified by {@link #allowed}. If multiple allowed strategies have been specified
 	 * the default strategy must be a member of the allowed strategies.
 	 *
-	 * @param executionStrategy
-	 * @return
+	 * @param executionStrategy to be setup as default strategy
+	 * @return the configuration object configured with default execution strategy
 	 */
 	public OngoingExecutionStrategyConfiguration defaultsTo(ExecutionStrategy executionStrategy) {
 		builder.defaultsTo(executionStrategy);
@@ -32,8 +32,8 @@ public class OngoingExecutionStrategyConfiguration {
 	
 	/**
 	 * Sets the allowed strategies the mission can be configured with.
-	 * @param strategies
-	 * @return
+	 * @param strategies to be set up as allowed strategies
+	 * @return the configuration object configured with allowed strategies
 	 */
 	public OngoingExecutionStrategyConfiguration allowed(ExecutionStrategy... strategies) {
 		Set<ExecutionStrategy> allowedStrategies = ImmutableSet.copyOf(strategies);
@@ -43,7 +43,7 @@ public class OngoingExecutionStrategyConfiguration {
 	
 	/**
 	 * Allow for all strategies to be used with this mission.
-	 * @return
+	 * @return the configuration object with all strategies as allowed strategies
 	 */
 	public OngoingExecutionStrategyConfiguration allowAll() {
 		Set<ExecutionStrategy> allowedStrategies = ImmutableSet.copyOf(ExecutionStrategy.values());
