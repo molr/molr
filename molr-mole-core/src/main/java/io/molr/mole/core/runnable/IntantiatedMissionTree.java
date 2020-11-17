@@ -74,10 +74,6 @@ public class IntantiatedMissionTree {
 		}
 		
 		public IntantiatedMissionTree build() {
-			
-			MissionRepresentation representation = newRepresentationBuilder.build();
-			TreeStructure.print(new TreeStructure(representation, Sets.newHashSet()), representation.rootBlock(),0);
-						
 			return new IntantiatedMissionTree(this);
 		}
 		
