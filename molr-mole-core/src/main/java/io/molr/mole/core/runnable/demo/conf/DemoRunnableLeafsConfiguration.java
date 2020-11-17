@@ -158,7 +158,7 @@ public class DemoRunnableLeafsConfiguration {
             }
         }.build();
     }
-    
+
     @Bean
     public RunnableLeafsMission foreachMission(){
     	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
@@ -173,8 +173,10 @@ public class DemoRunnableLeafsConfiguration {
     			ListOfStrings defaultItems = new ListOfStrings("B");
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
-    			
-    			root("foreachDemo").foreach(someDevices).map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
+    			/*
+    			 * map called on foreach will map/transform each item into an object created by the given factory
+    			 */
+    			root("foreachDemo").foreach(someDevices).parallel().map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runFor(device->{device.switchOff();});
@@ -185,7 +187,7 @@ public class DemoRunnableLeafsConfiguration {
     }
     
     @Bean
-    public RunnableLeafsMission foreachMission2(){
+    public RunnableLeafsMission foreachMissionWithoutMappedItem(){
     	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
     		{
     			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
@@ -195,11 +197,11 @@ public class DemoRunnableLeafsConfiguration {
     			 */
     			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
     			wrappedAllowedValues.add(allowedItems);
-    			ListOfStrings defaultItems = new ListOfStrings("B");
+    			ListOfStrings defaultItems = new ListOfStrings("B", "C", "F");
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
     			
-    			root("foreachDemo2").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    			root("foreachDemoWithoutMappedItem").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{});
@@ -225,9 +227,12 @@ public class DemoRunnableLeafsConfiguration {
     			Placeholder<ListOfStrings> someDevices = mandatory(
     					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
 
-    			executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR);//.allowed(ExecutionStrategy.values());
+    			/*
+    			 * optionally configure allowed and default execution strategies.
+    			 */
+    			executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR).allowAll();
     			
-    			root("foreachDemoWithException").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    			root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("ThrowException").run(()->{throw new RuntimeException("error xy");});

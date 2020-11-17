@@ -165,19 +165,20 @@ public class TreeStructure {
     	return builder.toString();
     }
     
-    private static void printWithSpaces(String string, int spaces) {
-    	System.out.println(addWhitespace(string, spaces));
+    public static String print(TreeStructure structure) {
+    	StringBuilder stringBuilder = new StringBuilder();
+    	print(structure, structure.rootBlock(), 0, stringBuilder);
+    	return stringBuilder.toString();
     }
     
-    public static void print(TreeStructure strucure, Block from, int level) {
-    	
+    private static void print(TreeStructure strucure, Block from, int level, StringBuilder stringBuilder) {
     	if(strucure.childrenOf(from).isEmpty()) {
-    		printWithSpaces("leaf "+from, level);
+    		stringBuilder.append(addWhitespace("leaf "+from, level)+"\n");
     	}
     	else {
-    		printWithSpaces("branch "+from, level);
+    		stringBuilder.append(addWhitespace("branch "+from, level)+"\n");
     		strucure.childrenOf(from).forEach(child->{
-    			print(strucure, child, level+1);
+    			print(strucure, child, level+1, stringBuilder);
     		});
     	}
     }
