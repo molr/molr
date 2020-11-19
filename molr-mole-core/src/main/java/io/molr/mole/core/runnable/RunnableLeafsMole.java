@@ -141,7 +141,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         TreeStructure updatedTreeStructure = instantiatedTree.getUpdatedTreeStructure();
         LOGGER.info("Instantiated mission tree:\n"+TreeStructure.print(updatedTreeStructure));
         TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-        TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
+        TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
 
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 

@@ -126,7 +126,7 @@ public class LenientModeIntegrationTest {
 		 */
         Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub1").id())).isEqualTo(RunState.FINISHED);
         Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub2").id())).isEqualTo(RunState.FINISHED);
-        Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(RunState.UNDEFINED);
+        Assertions.assertThat(latestState.runStateOfBlockId(blocksByText.get("main1Sub2Sub3").id())).isEqualTo(RunState.NOT_STARTED);
 		/*
 		 * Assertions.assertThat(lastState.runStateOfBlockId("7")).isEqualTo(RunState.
 		 * UNDEFINED);
