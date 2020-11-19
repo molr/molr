@@ -5,7 +5,9 @@ import io.molr.commons.domain.MissionRepresentation;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -18,12 +20,18 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 
     private final T defaultValue;
     private final Function<Iterable<T>, T> summarizer;
+    private final Flux<? extends Entry<Block, T>> mergedUpdateStream;
 
     private TreeTracker(Builder<T> builder) {
         this.representation = builder.representation;
         this.defaultValue = builder.defaultValue;
         this.summarizer = builder.summarizer;
         this.blockResultTrackers = builder.createBlockTrackers();
+
+        List<Flux<? extends Entry<Block, T>>> allUpdateStreams = blockResultTrackers.entrySet().stream()
+        		.map(entry -> entry.getValue().asStream()
+        				.map(update->new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), update))).collect(Collectors.toList());
+        mergedUpdateStream = Flux.merge(allUpdateStreams);
     }
 
     public static <T> TreeTracker<T> create(MissionRepresentation representation, T defaultValue, Function<Iterable<T>, T> summarizer) {
@@ -56,6 +64,10 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
         return Optional.ofNullable(blockResultTrackers.get(block)).map(r -> r.result()).orElse(null);
     }
 
+    public Flux<Block> updatedBlocksStream() {
+        return mergedUpdateStream.map(entry->entry.getKey());
+    }
+    
     public Flux<T> resultUpdatesFor(Block block) {
         return blockResultTrackers.get(block).asStream();
     }
@@ -92,6 +104,8 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
         }
 
         private void addTrackerForBlock(Block block, Map<Block, BlockTracker<T>> map) {
+        	System.out.println(block);
+        	System.out.println(map);
             if (representation.isLeaf(block)) {
                 map.put(block, new LeafTracker(initialValueFor(block)));
             } else {

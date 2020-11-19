@@ -51,7 +51,8 @@ public class TreeMissionExecutor implements MissionExecutor {
         //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
         statesSink = EmitterProcessor.create();
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
-            newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
+        	runStateTracker.updatedBlocksStream().subscribe(any -> statesSink.onNext(new Object()));
+        	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
                 error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onExecutorStatesStreamComplete);
         });
