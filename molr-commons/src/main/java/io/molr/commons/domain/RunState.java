@@ -27,7 +27,17 @@ public enum RunState {
         if (StreamSupport.stream(values.spliterator(), false).allMatch(FINISHED::equals)) {
             return FINISHED;
         }
-        return UNDEFINED;
+        else {
+            if (StreamSupport.stream(values.spliterator(), false).allMatch(UNDEFINED::equals)) {
+                return UNDEFINED;
+            }
+        }
+        /*
+         * States may be combination of UNDEFINED and FINISHED
+         * since states may from RUNNING->FINISHED and children to be executed
+         * have not been started yet.
+         */
+        return RUNNING;
 
     }
 }
