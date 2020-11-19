@@ -104,8 +104,6 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
         }
 
         private void addTrackerForBlock(Block block, Map<Block, BlockTracker<T>> map) {
-        	System.out.println(block);
-        	System.out.println(map);
             if (representation.isLeaf(block)) {
                 map.put(block, new LeafTracker(initialValueFor(block)));
             } else {
