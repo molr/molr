@@ -6,6 +6,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
+import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,8 +178,8 @@ public class DemoRunnableLeafsConfiguration {
     			 * map called on foreach will map/transform each item into an object created by the given factory
     			 */
     			root("foreachDemo").foreach(someDevices).parallel().map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
+    				doWithDeviceBranch.leaf("SwitchOn ").perDefault(BlockAttribute.IGNORE).runFor(device->{device.switchOn();});
+    				doWithDeviceBranch.leaf("Pause").perDefault(BREAK).run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runFor(device->{device.switchOff();});
     			});
     		}

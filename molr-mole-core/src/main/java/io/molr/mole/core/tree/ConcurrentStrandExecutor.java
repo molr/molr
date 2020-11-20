@@ -47,7 +47,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private final Object cycleLock = new Object();
 
-    Set<Block> breakpoints;
+    private final Set<Block> breakpoints;
+    private final Set<Block> blocksToBeIgnored;
     
     private final ExecutorService executor;
     private final LinkedBlockingQueue<StrandCommand> commandQueue;
@@ -77,10 +78,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private ExecutionStrategy executionStrategy;
     private AtomicBoolean aborted = new AtomicBoolean(false);
     
-    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints, ExecutionStrategy executionStrategy) {
+    public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure, StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
         this.executionStrategy = executionStrategy;
         this.breakpoints = breakpoints;
+        this.blocksToBeIgnored = blocksToBeIgnored;
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
         this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
@@ -244,7 +246,13 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     
                     if (isLeaf(actualBlock())) {                     
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
-                        Result result = leafExecutor.execute(actualBlock());
+                        Result result;
+                        if(blocksToBeIgnored.contains(actualBlock())) {
+                        	result = leafExecutor.ignoreBlock(actualBlock());
+                        }
+                        else {
+                        	result = leafExecutor.execute(actualBlock());
+                        }
                         if (result == Result.SUCCESS || executionStrategy == ExecutionStrategy.PROCEED_ON_ERROR) {
                             moveNext();
                         } else {
@@ -337,7 +345,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private StrandExecutor createChildStrandExecutor(Block childBlock) {
         Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, executionStrategy);
+        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
         addChildExecutor(childExecutor);
         LOGGER.debug("[{}] created child strand {}", strand, childStrand);
         return childExecutor;

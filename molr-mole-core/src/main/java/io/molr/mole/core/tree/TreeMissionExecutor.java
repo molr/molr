@@ -34,11 +34,14 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final TreeTracker<RunState> runStateTracker;
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
+    private final Set<Block> blocksToBeIgnored;
     EmitterProcessor<Object> statesSink;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, ExecutionStrategy executionStrategy) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
+        this.blocksToBeIgnored = ConcurrentHashMap.newKeySet();
         breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
+        blocksToBeIgnored.addAll(treeStructure.missionRepresentation().defaultIgnoreBlocks());
         
         this.runStateTracker = runStateTracker;
         strandFactory = new StrandFactoryImpl();
@@ -64,7 +67,7 @@ public class TreeMissionExecutor implements MissionExecutor {
                 .publishOn(Schedulers.elastic());
 
         Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, executionStrategy);
+        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -122,6 +125,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         runStateTracker.blockResults().entrySet().forEach(e -> builder.blockRunState(e.getKey(), e.getValue()));
         
         breakpoints.forEach(builder::addBreakpoint);
+        blocksToBeIgnored.forEach(builder::addIgnoreBlock);
         representation.allBlocks().forEach(block -> {
             boolean isBreakpoint = breakpoints.contains(block);
             if(isBreakpoint) {
@@ -129,6 +133,14 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
             else {
                 builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);                
+            }
+            boolean ignore = blocksToBeIgnored.contains(block);
+            if(ignore)
+            {
+            	builder.addAllowedCommand(block, BlockCommand.UNSET_IGNORE);
+            }
+            else {
+            	builder.addAllowedCommand(block, BlockCommand.SET_IGNORE);
             }
         });
         
@@ -166,7 +178,19 @@ public class TreeMissionExecutor implements MissionExecutor {
             if(breakpointAdded) {
                 statesSink.onNext(new Object());
             }
-        }        
+        }
+        if(command == BlockCommand.UNSET_IGNORE) {
+            boolean blockRemoved = blocksToBeIgnored.removeIf(block -> block.id().equals(blockId));
+            if(blockRemoved) {
+                statesSink.onNext(new Object());
+            }
+        } else if(command == BlockCommand.SET_IGNORE){
+            Block block = representation.blockOfId(blockId).get();
+            boolean added = blocksToBeIgnored.add(block);
+            if(added) {
+                statesSink.onNext(new Object());
+            }
+        }    
     }
 
     @Override

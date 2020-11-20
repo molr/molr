@@ -13,11 +13,13 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
     private final Block root;
     private final ListMultimap<Block, Block> children;
     private final Set<Block> defaultBreakpoints;
+    private final Set<Block> defaultIgnoreBlocks;
 
     public ImmutableMissionRepresentation(Builder builder) {
         this.root = builder.rootBlock;
         this.children = builder.treeBuilder.build();
         this.defaultBreakpoints = builder.defaultBreakpointsBuilder.build();
+        this.defaultIgnoreBlocks = builder.defaultIgnoreBlocksBuilder.build();
     }
 
     @Override
@@ -65,13 +67,18 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         return defaultBreakpoints;
     }
 
+	@Override
+	public Set<Block> defaultIgnoreBlocks() {
+		return defaultIgnoreBlocks;
+	}
+
     public static Builder builder(Block rootBlock) {
         return new Builder(rootBlock);
     }
 
     public static Builder builder(MissionRepresentation oldRepresentation) {
         return builder(oldRepresentation.rootBlock()).parentsToChildren(oldRepresentation.parentsToChildren())
-                .addDefaultBreakpoints(oldRepresentation.defaultBreakpoints());
+                .addDefaultBreakpoints(oldRepresentation.defaultBreakpoints()).addDefaultIgnoreBlocks(oldRepresentation.defaultIgnoreBlocks());
     }
 
     public static MissionRepresentation empty(String name) {
@@ -97,6 +104,7 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         private final Block rootBlock;
         private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
         ImmutableSet.Builder<Block> defaultBreakpointsBuilder = ImmutableSet.builder();
+        ImmutableSet.Builder<Block> defaultIgnoreBlocksBuilder = ImmutableSet.builder();
 
         public Builder addDefaultBreakpoint(final Block block) {
             defaultBreakpointsBuilder.add(block);
@@ -110,6 +118,16 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         
         private Builder(Block rootBlock) {
             this.rootBlock = requireNonNull(rootBlock, "rootBlock must not be null");
+        }
+        
+        public Builder addDefaultIgnoreBlock(final Block block) {
+            defaultIgnoreBlocksBuilder.add(block);
+            return this;
+        }
+
+        public Builder addDefaultIgnoreBlocks(final Collection<Block> blocks) {
+            defaultIgnoreBlocksBuilder.addAll(blocks);
+            return this;
         }
 
         public Builder parentToChild(Block parent, Block child) {
@@ -130,5 +148,4 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
             return new ImmutableMissionRepresentation(this);
         }
     }
-
 }

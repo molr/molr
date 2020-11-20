@@ -21,13 +21,15 @@ public class MissionRepresentationDto {
     public final Set<BlockDto> blocks;
     public final Map<String, List<String>> childrenBlockIds;
     public final Set<String> breakpointBlockIds;
+    public final Set<String> ignoreBlockIds;
     
 
-    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds, Set<String> breakpointBlockIds) {
+    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds, Set<String> breakpointBlockIds, Set<String> ignoreBlockIds) {
         this.rootBlockId = rootBlockId;
         this.blocks = blocks;
         this.childrenBlockIds = childrenBlockIds;
         this.breakpointBlockIds = breakpointBlockIds;
+        this.ignoreBlockIds = ignoreBlockIds;
     }
 
     public MissionRepresentationDto() {
@@ -35,12 +37,14 @@ public class MissionRepresentationDto {
         this.blocks = Collections.emptySet();
         this.childrenBlockIds = Collections.emptyMap();
         this.breakpointBlockIds = Collections.emptySet();
+        this.ignoreBlockIds = Collections.emptySet();
     }
 
     public static final MissionRepresentationDto from(MissionRepresentation representation) {
         Set<Block> allBlocks = representation.allBlocks();
         Set<BlockDto> blockDtos = allBlocks.stream().map(BlockDto::from).collect(toSet());
         Set<String> breakpointIds = representation.defaultBreakpoints().stream().map(block -> block.id()).collect(Collectors.toSet());
+        Set<String> ignoreIds = representation.defaultIgnoreBlocks().stream().map(block -> block.id()).collect(Collectors.toSet());
         
         ImmutableMap.Builder<String, List<String>> builder = ImmutableMap.builder();
         for (Block block : allBlocks) {
@@ -50,7 +54,7 @@ public class MissionRepresentationDto {
                 builder.put(block.id(), childrenIds);
             }
         }
-        return new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build(), breakpointIds);
+        return new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build(), breakpointIds, ignoreIds);
     }
 
     public MissionRepresentation toMissionRepresentation() {

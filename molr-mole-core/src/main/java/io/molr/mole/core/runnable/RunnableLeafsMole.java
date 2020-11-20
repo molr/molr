@@ -64,6 +64,13 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
+    	if(mission.treeStructure().missionRepresentation().defaultBreakpoints().contains(subTree)) {
+    		builder.addToBreakpointBlocks(replicatedSubtree);
+    	}
+    	if(mission.treeStructure().missionRepresentation().defaultIgnoreBlocks().contains(subTree)) {
+    		builder.addToIgnoreBlocks(replicatedSubtree);
+    	}
+    	
     	if(mission.treeStructure().childrenOf(subTree).isEmpty()) {
     		builder.addBlockInput(replicatedSubtree, scopedInput);
     		builder.addRunnable(replicatedSubtree, mission.runnables().get(subTree));

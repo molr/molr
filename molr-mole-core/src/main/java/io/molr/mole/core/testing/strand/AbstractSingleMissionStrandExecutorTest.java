@@ -46,7 +46,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new HashMap<>(),new ConcurrentMissionOutputCollector(), runStateTracker);
         strandFactory = new StrandFactoryImpl();
         strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
-        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), executionStrategy);
+        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), new HashSet<>(), executionStrategy);
     }
 
     @Override

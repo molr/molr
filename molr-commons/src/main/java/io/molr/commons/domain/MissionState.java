@@ -20,6 +20,7 @@ public final class MissionState {
     private final Map<String, Result> blockIdsToResult;
     private final Map<String, RunState> blockIdsToRunState;
     private final Set<String> breakpointBlockIds;
+    private final Set<String> ignoreBlockIds;
     private final SetMultimap<String, BlockCommand> allowedBlockCommands;
     private final Set<MissionCommand> allowedMissionCommands;
 
@@ -36,6 +37,7 @@ public final class MissionState {
         this.blockIdsToResult = builder.blockIdsToResult.build();
         this.blockIdsToRunState = builder.blockIdsToRunState.build();
         this.breakpointBlockIds = builder.breakpointBlockIds.build();
+        this.ignoreBlockIds = builder.ignoreBlockIds.build();
         this.allowedBlockCommands = builder.blocksToAllowedCommandsBuilder.build();
         this.allowedMissionCommands = builder.allowedMissionCommands.build();
     }
@@ -99,6 +101,10 @@ public final class MissionState {
     public Set<String> breakpointBlockIds() {
         return this.breakpointBlockIds;
     }
+
+    public Set<String> ignoreBlockIds() {
+        return this.ignoreBlockIds;
+    }
     
     public Set<BlockCommand> allowedBlockCommandsFor(String blockId){
         return allowedBlockCommands.get(blockId);
@@ -130,6 +136,7 @@ public final class MissionState {
         private final ImmutableMap.Builder<String, Result> blockIdsToResult = ImmutableMap.builder();
         private final ImmutableMap.Builder<String, RunState> blockIdsToRunState = ImmutableMap.builder();
         private final ImmutableSet.Builder<String> breakpointBlockIds = ImmutableSet.builder();
+        private final ImmutableSet.Builder<String> ignoreBlockIds = ImmutableSet.builder();
         private final ImmutableSetMultimap.Builder<String, BlockCommand> blocksToAllowedCommandsBuilder = ImmutableSetMultimap.builder();
         private final ImmutableSet.Builder<MissionCommand> allowedMissionCommands = ImmutableSet.builder();
 
@@ -201,6 +208,16 @@ public final class MissionState {
             this.breakpointBlockIds.add(blockId);
             return this;
         }      
+
+        public Builder addIgnoreBlock(Block block) {
+            this.ignoreBlockIds.add(block.id());
+            return this;
+        }
+        
+        public Builder addIgnoreBlock(String blockId) {
+            this.ignoreBlockIds.add(blockId);
+            return this;
+        }    
         
         public Builder addAllowedCommand(Block block, BlockCommand command) {
             this.blocksToAllowedCommandsBuilder.put(block.id(), command);

@@ -35,4 +35,6 @@ public interface MissionRepresentation {
      * @return immutable set of blocks that represent default breakpoints
      */
     Set<Block> defaultBreakpoints();
+    
+    Set<Block> defaultIgnoreBlocks();
 }

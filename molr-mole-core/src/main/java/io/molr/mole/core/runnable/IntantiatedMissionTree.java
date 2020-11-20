@@ -54,6 +54,14 @@ public class IntantiatedMissionTree {
 			return new Builder();
 		}
 		
+		public void addToIgnoreBlocks(Block block) {
+			newRepresentationBuilder.addDefaultIgnoreBlock(block);
+		}
+		
+		public void addToBreakpointBlocks(Block block) {
+			newRepresentationBuilder.addDefaultBreakpoint(block);
+		}
+		
 		public void addToParallelBlocks(Block block) {
 			this.parallelBlocksBuilder.add(block);
 		}

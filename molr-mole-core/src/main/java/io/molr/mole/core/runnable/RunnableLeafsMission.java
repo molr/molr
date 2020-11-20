@@ -162,6 +162,9 @@ public class RunnableLeafsMission {
             if (blockAttributes.contains(BlockAttribute.BREAK)) {
                 representationBuilder.addDefaultBreakpoint(block);
             }
+            if(blockAttributes.contains(BlockAttribute.IGNORE)) {
+            	representationBuilder.addDefaultIgnoreBlock(block);
+            }
         }
 
         private void assertRootDefined() {

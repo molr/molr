@@ -8,7 +8,6 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,12 +38,12 @@ public class StrandExecutorFactory{
         newStrandsStream = newStrandsSink.publishOn(Schedulers.elastic());
     }
 
-    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, ExecutionStrategy executionStrategy) {
+    public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
         synchronized (strandExecutorLock) {
             if (strandExecutors.containsKey(strand)) {
                 throw new IllegalArgumentException(strand + " is already associated with an executor");
             }
-            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor, breakpoints, executionStrategy);
+            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, strandFactory, this, leafExecutor, breakpoints, blocksToBeIgnored, executionStrategy);
             strandExecutors.put(strand, strandExecutor);
             newStrandsSink.onNext(strandExecutor);
             return strandExecutor;

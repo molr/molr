@@ -10,6 +10,7 @@ public enum RunState {
     NOT_STARTED,
     RUNNING,
     PAUSED,
+    IGNORED,
     FINISHED;
 
     public static final RunState summaryOf(Iterable<RunState> values) {
@@ -24,8 +25,10 @@ public enum RunState {
             }
         }
 
-        if (StreamSupport.stream(values.spliterator(), false).allMatch(FINISHED::equals)) {
-            return FINISHED;
+        if (StreamSupport.stream(values.spliterator(), false).allMatch(state -> {
+        	return state.equals(FINISHED) || state.equals(IGNORED);
+        })){
+        	return FINISHED;
         }
         else {
             if (StreamSupport.stream(values.spliterator(), false).allMatch(NOT_STARTED::equals)) {
