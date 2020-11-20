@@ -179,11 +179,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
     
     private boolean isComplete() {
-        RunState rootRunState = runStateTracker.resultFor(representation.rootBlock());
-        System.out.println("runStateRoot "+rootRunState);
-        System.out.println(strandExecutorFactory.activeStrandExecutors().size());
         if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState).allMatch(runState -> runState.equals(RunState.FINISHED))){
-            System.out.println("allComplete "+Thread.currentThread());
         	return true;
         }
 		/*
