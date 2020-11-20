@@ -24,7 +24,6 @@ public class OngoingContextualLeaf<C> extends GenericOngoingLeaf<OngoingContextu
 
     public void runCtx(Checkeds.CheckedThrowingConsumer<C> runnable) {
         run(in -> {
-        	System.out.println(contextPlaceholder);
             C c = in.get(contextPlaceholder);
             runnable.accept(c);
         });
