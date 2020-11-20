@@ -50,8 +50,10 @@ public class TreeMissionExecutor implements MissionExecutor {
 
         //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
         statesSink = EmitterProcessor.create();
+    	runStateTracker.updatedBlocksStream().subscribe(any -> {
+    		statesSink.onNext(new Object());
+    	});
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
-        	runStateTracker.updatedBlocksStream().subscribe(any -> statesSink.onNext(new Object()));
         	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
                 error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onExecutorStatesStreamComplete);
@@ -67,6 +69,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
         }
+        states.subscribe();
     }
     
     private void onExecutorStatesStreamComplete() {
@@ -133,7 +136,6 @@ public class TreeMissionExecutor implements MissionExecutor {
         if(isDisposable()) {
             builder.addAllowedCommand(MissionCommand.DISPOSE);
         }
-        
         return builder.build();
     }
 
@@ -179,12 +181,15 @@ public class TreeMissionExecutor implements MissionExecutor {
     private boolean isComplete() {
         RunState rootRunState = runStateTracker.resultFor(representation.rootBlock());
         System.out.println("runStateRoot "+rootRunState);
+        System.out.println(strandExecutorFactory.activeStrandExecutors().size());
         if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState).allMatch(runState -> runState.equals(RunState.FINISHED))){
-            return true;
+            System.out.println("allComplete "+Thread.currentThread());
+        	return true;
         }
-        if(rootRunState == RunState.FINISHED) {
-            return true;
-        }
+		/*
+		 * This is not sufficient since some updates may still be pending
+		 * if(rootRunState == RunState.FINISHED) { return true; }
+		 */
         return false;
         
     }
