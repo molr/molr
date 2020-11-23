@@ -76,6 +76,10 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
     
     private void onExecutorStatesStreamComplete() {
+        /*
+         * TODO Ensure that all mandatory state updates have been sent to subscribers before isComplete
+         * is satisfied
+         */
         if(isComplete()) {
             outputCollector.onComplete();
             statesSink.onComplete();
@@ -201,15 +205,12 @@ public class TreeMissionExecutor implements MissionExecutor {
         statesSink.onComplete();
         outputCollector.onComplete();
     }
-    
+
     private boolean isComplete() {
-        if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState).allMatch(runState -> runState.equals(RunState.FINISHED))){
+        if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState)
+        		.allMatch(runState -> runState.equals(RunState.FINISHED))){
         	return true;
         }
-		/*
-		 * This is not sufficient since some updates may still be pending
-		 * if(rootRunState == RunState.FINISHED) { return true; }
-		 */
         return false;
         
     }

@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static io.molr.commons.domain.RunState.*;
 import static io.molr.commons.domain.StrandCommand.*;
@@ -120,9 +121,22 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         }
     }
 
+    private void traverseLeafs(Block block, Consumer<Block> function) {
+    	List<Block> children = structure.childrenOf(block);
+    	if(children.isEmpty()) {
+    		function.accept(block);
+    	}
+    	else {
+    		children.forEach(child -> {
+    			traverseLeafs(child, function);
+    		});
+    	}
+    }
+    
     private void lifecycle() {
         // FIXME refactor in a more maintainable way, after tests are complete!
         boolean finished = false;
+        LOGGER.info("Start lifecycle for "+ strand);
         while (!finished) {
 
             synchronized (cycleLock) {
@@ -143,6 +157,18 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                         continue;
                     }
                 }
+
+                /*
+                 * if block should be ignored ignore subtree by ignoring all children for branches
+                 * or ignore the block itself for leafs
+                 * afterwards move next
+                 */
+            	if(blocksToBeIgnored.contains(actualBlock.get())) {
+            		LOGGER.info("Ignore all leafs in subtree move on "+actualBlock());
+            		traverseLeafs(actualBlock(), leafExecutor::ignoreBlock);
+            		moveNext();
+            		continue;
+            	}
                 
                 /* remove finished children */
                 if (hasChildren() && actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
@@ -246,13 +272,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     
                     if (isLeaf(actualBlock())) {                     
                         LOGGER.debug("[{}] executing {}", strand, actualBlock());
-                        Result result;
-                        if(blocksToBeIgnored.contains(actualBlock())) {
-                        	result = leafExecutor.ignoreBlock(actualBlock());
-                        }
-                        else {
-                        	result = leafExecutor.execute(actualBlock());
-                        }
+                        Result result = leafExecutor.execute(actualBlock());
                         if (result == Result.SUCCESS || executionStrategy == ExecutionStrategy.PROCEED_ON_ERROR) {
                             moveNext();
                         } else {
@@ -288,9 +308,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             cycleSleep();
         }//whileNotFinished
 
-        LOGGER.debug("Executor for strand {} is finished", strand);
+        LOGGER.info("Executor for strand {} is finished", strand);
         executor.shutdown();
-        LOGGER.debug("Close streams for strand {}", strand);
+        LOGGER.info("Close streams for strand {}", strand);
         stateSink.onComplete();
         blockSink.onComplete();
         errorSink.onComplete();
