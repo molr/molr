@@ -7,7 +7,7 @@ package io.molr.commons.domain;
 import java.util.stream.StreamSupport;
 
 public enum RunState {
-    UNDEFINED,
+    NOT_STARTED,
     RUNNING,
     PAUSED,
     FINISHED;
@@ -27,7 +27,17 @@ public enum RunState {
         if (StreamSupport.stream(values.spliterator(), false).allMatch(FINISHED::equals)) {
             return FINISHED;
         }
-        return UNDEFINED;
+        else {
+            if (StreamSupport.stream(values.spliterator(), false).allMatch(NOT_STARTED::equals)) {
+                return NOT_STARTED;
+            }
+        }
+        /*
+         * States may be combination of UNDEFINED and FINISHED
+         * since states may from RUNNING->FINISHED and children to be executed
+         * have not been started yet.
+         */
+        return RUNNING;
 
     }
 }

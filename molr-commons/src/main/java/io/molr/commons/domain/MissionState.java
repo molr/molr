@@ -77,7 +77,7 @@ public final class MissionState {
     }
 
     public RunState runStateOfBlockId(String blockId) {
-        return Optional.ofNullable(blockIdsToRunState.get(blockId)).orElse(RunState.UNDEFINED);
+        return Optional.ofNullable(blockIdsToRunState.get(blockId)).orElse(RunState.NOT_STARTED);
     }
 
     public Strand rootStrand() {

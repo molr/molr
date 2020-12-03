@@ -8,13 +8,10 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
-
-import com.google.common.collect.ImmutableMap.Builder;
 
 
 import static java.util.Objects.requireNonNull;
@@ -144,7 +141,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
         TreeStructure updatedTreeStructure = instantiatedTree.getUpdatedTreeStructure();
         LOGGER.info("Instantiated mission tree:\n"+TreeStructure.print(updatedTreeStructure));
         TreeTracker<Result> resultTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-        TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.UNDEFINED, RunState::summaryOf);
+        TreeTracker<RunState> runStateTracker = TreeTracker.create(updatedTreeStructure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
 
         MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 
