@@ -184,10 +184,10 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 if (hasChildren()) {
                     boolean allPaused = childExecutors.stream().map(StrandExecutor::getActualState).allMatch(PAUSED::equals);
                     if (allPaused && actualState() != ExecutorState.IDLE) {
-                        LOGGER.debug("[{}] paused because all children are paused", strand);
+                        LOGGER.info("[{}] paused because all children are paused", strand);
                         updateState(ExecutorState.IDLE);
                     } else if (!allPaused && actualState() != ExecutorState.WAITING_FOR_CHILDREN) {
-                        LOGGER.debug("[{}] has some non-paused children. Setting the state to waiting", strand);
+                        LOGGER.info("[{}] has some non-paused children. Setting the state to waiting", strand);
                         updateState(ExecutorState.WAITING_FOR_CHILDREN);
                     }
                 }
