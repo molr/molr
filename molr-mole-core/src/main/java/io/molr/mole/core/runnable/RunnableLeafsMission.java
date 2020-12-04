@@ -6,7 +6,6 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
 import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.tree.TreeStructure;
@@ -159,12 +158,7 @@ public class RunnableLeafsMission {
         }
 
         private void apply(Block block, Set<BlockAttribute> blockAttributes) {
-            if (blockAttributes.contains(BlockAttribute.BREAK)) {
-                representationBuilder.addDefaultBreakpoint(block);
-            }
-            if(blockAttributes.contains(BlockAttribute.IGNORE)) {
-            	representationBuilder.addDefaultIgnoreBlock(block);
-            }
+        	representationBuilder.addBlockAttributes(block, blockAttributes);
         }
 
         private void assertRootDefined() {

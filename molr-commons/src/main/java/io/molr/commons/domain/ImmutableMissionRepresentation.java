@@ -12,14 +12,12 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
     private final Block root;
     private final ListMultimap<Block, Block> children;
-    private final Set<Block> defaultBreakpoints;
-    private final Set<Block> defaultIgnoreBlocks;
+    private final ListMultimap<Block, BlockAttribute> blockAttributes;
 
     public ImmutableMissionRepresentation(Builder builder) {
         this.root = builder.rootBlock;
         this.children = builder.treeBuilder.build();
-        this.defaultBreakpoints = builder.defaultBreakpointsBuilder.build();
-        this.defaultIgnoreBlocks = builder.defaultIgnoreBlocksBuilder.build();
+        this.blockAttributes = builder.blockAttributes.build();
     }
 
     @Override
@@ -61,15 +59,10 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
     public ListMultimap<Block, Block> parentsToChildren() {
         return this.children;
     }
-    
-    @Override
-    public Set<Block> defaultBreakpoints() {
-        return defaultBreakpoints;
-    }
 
 	@Override
-	public Set<Block> defaultIgnoreBlocks() {
-		return defaultIgnoreBlocks;
+	public ListMultimap<Block, BlockAttribute> blockAttributes() {
+		return this.blockAttributes;
 	}
 
     public static Builder builder(Block rootBlock) {
@@ -78,7 +71,7 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
 
     public static Builder builder(MissionRepresentation oldRepresentation) {
         return builder(oldRepresentation.rootBlock()).parentsToChildren(oldRepresentation.parentsToChildren())
-                .addDefaultBreakpoints(oldRepresentation.defaultBreakpoints()).addDefaultIgnoreBlocks(oldRepresentation.defaultIgnoreBlocks());
+        		.addBlockAttributes(oldRepresentation.blockAttributes());
     }
 
     public static MissionRepresentation empty(String name) {
@@ -105,7 +98,19 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
         private final ImmutableListMultimap.Builder<Block, Block> treeBuilder = ImmutableListMultimap.builder();
         ImmutableSet.Builder<Block> defaultBreakpointsBuilder = ImmutableSet.builder();
         ImmutableSet.Builder<Block> defaultIgnoreBlocksBuilder = ImmutableSet.builder();
-
+        ImmutableListMultimap.Builder<Block, BlockAttribute> blockAttributes = ImmutableListMultimap.builder();
+        
+        public Builder addBlockAttributes(ListMultimap<Block, BlockAttribute> attributes) {
+        	requireNonNull(attributes);
+        	blockAttributes.putAll(attributes);
+        	return this;
+        }
+        
+        public Builder addBlockAttributes(Block block, Collection<BlockAttribute> attributes) {
+        	blockAttributes.putAll(block, attributes);
+        	return this;
+        }
+        
         public Builder addDefaultBreakpoint(final Block block) {
             defaultBreakpointsBuilder.add(block);
             return this;
@@ -148,4 +153,5 @@ public final class ImmutableMissionRepresentation implements MissionRepresentati
             return new ImmutableMissionRepresentation(this);
         }
     }
+
 }

@@ -6,6 +6,7 @@ import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -35,13 +36,19 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
-    EmitterProcessor<Object> statesSink;
+    private final EmitterProcessor<Object> statesSink;
 
     public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, ExecutionStrategy executionStrategy) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
         this.blocksToBeIgnored = ConcurrentHashMap.newKeySet();
-        breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
-        blocksToBeIgnored.addAll(treeStructure.missionRepresentation().defaultIgnoreBlocks());
+        treeStructure.missionRepresentation().blockAttributes().forEach((block, attribute)->{
+        	if(attribute==BlockAttribute.IGNORE) {
+        		this.blocksToBeIgnored.add(block);
+        	}
+        	else if(attribute == BlockAttribute.BREAK) {
+        		this.breakpoints.add(block);
+        	}
+        });
         
         this.runStateTracker = runStateTracker;
         strandFactory = new StrandFactoryImpl();

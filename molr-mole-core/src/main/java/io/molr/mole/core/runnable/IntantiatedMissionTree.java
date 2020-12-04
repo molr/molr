@@ -1,13 +1,14 @@
 package io.molr.mole.core.runnable;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ImmutableMissionRepresentation;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionInput;
@@ -54,12 +55,8 @@ public class IntantiatedMissionTree {
 			return new Builder();
 		}
 		
-		public void addToIgnoreBlocks(Block block) {
-			newRepresentationBuilder.addDefaultIgnoreBlock(block);
-		}
-		
-		public void addToBreakpointBlocks(Block block) {
-			newRepresentationBuilder.addDefaultBreakpoint(block);
+		public void addBlockAttributes(Block block, Collection<BlockAttribute> attributes) {
+			newRepresentationBuilder.addBlockAttributes(block, attributes);
 		}
 		
 		public void addToParallelBlocks(Block block) {
