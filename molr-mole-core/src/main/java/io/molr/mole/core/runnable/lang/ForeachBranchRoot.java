@@ -32,7 +32,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		this.block = block();
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
-	
+
 	public OngoingForeachBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		return new OngoingForeachBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
@@ -41,7 +41,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 
 	public OngoingForeachLeaf<T> leaf(String name,  Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachLeaf<T>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
+		return new OngoingForeachLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
 				builder(), block, itemPlaceholder);
 	}
 
@@ -49,11 +49,16 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
         return mapIt(in -> contextFactory.apply(in.get(itemPlaceholder)));
     }
 
+    public <C> ForeachBranchRootMapped<T, C> map(BiFunction<T, In, C> contextFactory) {
+        return mapIt(in -> contextFactory.apply(in.get(itemPlaceholder), in));
+    }
+
     public <C, P1> ForeachBranchRootMapped<T, C> map(BiFunction<T, P1, C> contextFactory, Placeholder<P1> p1) {
         return mapIt(in -> contextFactory.apply(in.get(itemPlaceholder), in.get(p1)));
     }
-    
+
     private <C> ForeachBranchRootMapped<T, C> mapIt(Function<In, C> contextFactory) {
-        return new ForeachBranchRootMapped<T, C>(name(), builder(), parent(), mode(), itemsPlaceholder, itemPlaceholder, contextFactory);
+        return new ForeachBranchRootMapped<>(name(), builder(), parent(), mode(), itemsPlaceholder, itemPlaceholder,
+                contextFactory);
     }
 }
