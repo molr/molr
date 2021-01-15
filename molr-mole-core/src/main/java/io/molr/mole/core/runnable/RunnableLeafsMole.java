@@ -167,6 +167,15 @@ public class RunnableLeafsMole extends AbstractJavaMole {
                 String executionStrategyString = input.get(Placeholders.EXECUTION_STRATEGY);
                 executionStrategy = ExecutionStrategy.forName(executionStrategyString);
             }
+            else {
+            	@SuppressWarnings("unchecked")
+				MissionParameter<String> executionStrategyParam = (MissionParameter<String>) parameterDescription.parameters().stream().filter(parameter -> {
+            		return parameter.placeholder().equals(Placeholders.EXECUTION_STRATEGY);}).findFirst().get();
+            	if(executionStrategyParam.defaultValue()!=null) {
+            		executionStrategy = ExecutionStrategy.forName(executionStrategyParam.defaultValue());
+            	}
+            		
+            }
         }
         else {
             LOGGER.warn("Selected ExecutionStrategy has been ignored since corresponding parameter is not specified in parameter description");
