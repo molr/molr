@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
@@ -17,7 +18,11 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
     private final ReplayProcessor<MissionOutput> outputSink = ReplayProcessor.cacheLast();
-    private final Flux<MissionOutput> outputStream = outputSink.publishOn(Schedulers.newSingle("output-collector", true));
+    private final Scheduler scheduler = Schedulers.newSingle("output-collector", true);
+    /*
+     * TODO instead of disposing scheduler we may use permanent shared thread pool
+     */
+    private final Flux<MissionOutput> outputStream = outputSink.publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
 
     private final Map<Block, Map<String, Object>> blockOutputs = new ConcurrentHashMap<>();
 
