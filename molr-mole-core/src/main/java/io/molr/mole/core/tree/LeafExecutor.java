@@ -47,11 +47,6 @@ public abstract class LeafExecutor {
         return new BlockOutputCollector(output, block);
     }
 
-    public Result ignoreBlock(Block block) {
-    	runStateBucket.push(block, RunState.IGNORED);
-    	resultBucket.push(block, Result.SUCCESS);
-    	return Result.SUCCESS;
-    }
     
     public final Result execute(Block block) {
         runStateBucket.push(block, RUNNING);
