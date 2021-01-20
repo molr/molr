@@ -75,14 +75,15 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final AtomicReference<ExecutorState> actualState;
     private final AtomicReference<Block> actualBlock;
     private final Block strandRoot;
-    private List<Block> visited = new ArrayList<>();
+    private Block lastBlock;
 
     private Block currentStepOverSource;
     private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
     private ExecutionStrategy executionStrategy;
-    private AtomicBoolean aborted = new AtomicBoolean(false);
-
+    private AtomicBoolean aborted = new AtomicBoolean(false); 
+    //TODO remove field after refactoring
+    AtomicBoolean complete = new AtomicBoolean();
     private RunStates runStates;
     
     private static Scheduler cursorScheduler = Schedulers.newParallel("shared-cursor-scheduler", 12);
@@ -135,7 +136,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
         this.commandQueue = new LinkedBlockingQueue<>(1);
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
-        this.executor.submit(this::lifecycle);
+        this.executor.submit(this::lifecyleChecked);
     }
 
     @Override
@@ -157,6 +158,15 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     	}
     }
     
+    private void lifecyleChecked() {
+    	try {
+			lifecycle();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+    }
+    
     private void lifecycle() {
         // FIXME refactor in a more maintainable way, after tests are complete!
         boolean finished = false;
@@ -171,19 +181,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 if (actualState() == ExecutorState.FINISHED) {
                     finished = true;
                     continue;
-                }
-                
-                if (hasChildren()) {
-                    boolean anyAborted = childExecutors.stream().anyMatch(strandExecutor -> strandExecutor.aborted());
-                    if(anyAborted) {
-                        // TODO is cursor removal really that what we want?
-                    	runStates.put(getActualBlock(), FINISHED);
-                        this.actualBlock.set(null);// TODO We need a cleanup method where remove cursor is
-                        //
-                        updateState(ExecutorState.FINISHED);
-                        this.aborted.set(true);
-                        continue;
-                    }
                 }
 
                 /*
@@ -200,7 +197,22 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
                 /* remove finished children */
                 if (hasChildren() && actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
-                    childExecutors.stream().filter(c -> c.getActualState() == FINISHED).forEach(this::removeChildExecutor);
+					childExecutors.stream().filter(c -> {
+						/*
+						 * TODO avoid this cast, but complete flag should be removed anyway
+						 */
+						ConcurrentStrandExecutor childExecutor = (ConcurrentStrandExecutor) c;
+						return childExecutor.complete.get();
+					}).forEach(completedChild -> {
+						removeChildExecutor(completedChild);
+						/*
+						 * TODO abort in a separate step
+						 */
+						if (completedChild.aborted() && !this.aborted()) {
+							updateState(ExecutorState.FINISHED);
+							this.aborted.set(true);
+						}
+					});
                 }
 
                 /* if has children then the state can only be WAITING or IDLE*/
@@ -314,8 +326,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                                 // TODO aborted seems to be wrong here
                                 aborted.set(true);
                                 // TODO investigate what happens
-                                // this.actualBlock.set(null);
+                                //this.actualBlock.set(null);
                                 updateState(ExecutorState.FINISHED);
+                                continue;
                             }
                         }
                     } else if (structure.isParallel(actualBlock())) {
@@ -362,8 +375,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         if(strandRoot.id().equals("0")) {
             strandExecutorFactory.closeStrandsStream();
         }
-        
-        
+
+        //TODO needs to be refactored, field wouldn't be necessary if executor finished means finished
+        complete.set(true);
         //errorSink.dispose();
         //lastCommandSink.dispose();
         LOGGER.info(strand + ": all streams closed");
@@ -433,9 +447,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         if (children.isEmpty()) {
             throw exception(IllegalStateException.class, "Strand {} cannot move into block {}, no children!", strand.id(), actualBlock());
         }
-        //TODO
-        runStates.put(actualBlock(), RunState.RUNNING);
-        //
         Block firstChild = children.get(0);
         updateActualBlock(firstChild);
     }
@@ -450,11 +461,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 	 */
     
     private void moveNext() {
-        Block last = actualBlock();
+    	lastBlock = actualBlock();
         Optional<Block> nextBlock = structure.nextBlock(actualBlock());
         // TODO move next with skip
         while (nextBlock.isPresent() && blocksToBeIgnored.contains(nextBlock.get())) {
-            System.out.println("skippy " + nextBlock.get());
+            LOGGER.info(strand+": ignore "+nextBlock+" ");
             nextBlock = structure.nextBlock(nextBlock.get());
             // throw new IllegalStateException("skipped");
         }
@@ -465,19 +476,14 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             int childIndex = children.indexOf(next);
             for (int i = 0; i < childIndex; i++) {
                 // RUNSTATE should be finished if running
-                System.out.println("finished child " + children.get(i));
                 Block executedSubtree = children.get(i);
                 traverseNonLeafes(executedSubtree, this::markRunningBlockFinished);
             }
-            System.out.println("NEXT " + next + " LAST " + last);
-            boolean descendantOfLast = structure.isDescendantOf(next, last);
-            if (descendantOfLast) {
-                System.out.println("   Block is descendant of " + last);
-            }
+            LOGGER.info(strand+" NEXT " + next + " LAST " + lastBlock);
             updateActualBlock(nextBlock.get());
         } else {
             traverseNonLeafes(strandRoot, this::markRunningBlockFinished);
-            LOGGER.debug("[{}] {} is the last block. Finished", strand, actualBlock());
+            LOGGER.info("[{}] {} is the last block. Finished", strand, actualBlock());
             // updateActualBlock first since block update belongs to mission state
             // corresponding to update
             updateActualBlock(null);
@@ -498,6 +504,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     private void removeChildExecutor(StrandExecutor childExecutor) {
+    	LOGGER.info(this.strand+ ": Remove child executor "+childExecutor.getStrand());
         updateChildrenExecutors(childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(collectingAndThen(toList(), ImmutableList::copyOf)));
     }
 
@@ -520,7 +527,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                 }
             }
         }
-        visited.add(newBlock);
         actualBlock.set(newBlock);
         blockSink.onNext(newBlock);
         updateAllowedCommands();
@@ -535,17 +541,32 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 //    }
     
     private void updateState(ExecutorState newState) {
-        LOGGER.debug("[{}] state = {}", strand, newState);
+    	if(actualBlock() == null) {
+    		LOGGER.error("EXCEPTION "+actualBlock());
+    		if(lastBlock == null) {
+        		throw new IllegalStateException();	
+    		}
+    		else {
+    			System.out.println("GO newState "+lastBlock+"\n\n\n");
+    			goBack(lastBlock, strandRoot, RunState.FINISHED);
+    	        actualState.set(newState);
+    	        updateAllowedCommands();
+    	        stateSink.onNext(runStateFrom(newState));
+    	        return;
+    		}
+    	}
+        LOGGER.info("[{}] state = {}", strand, newState);
 		/* TODO Should we complete the stream if the new state is FINISHED? */
         actualState.set(newState);
         if (newState == ExecutorState.FINISHED) {
-            runStates.put(strandRoot, FINISHED);
+        	goBack(actualBlock(), strandRoot, FINISHED);
         }
         if (newState == ExecutorState.IDLE) {
-            runStates.put(actualBlock(), PAUSED);
+        	goBack(actualBlock(), strandRoot, RunState.PAUSED);
         }
-        if (newState == ExecutorState.RESUMING) {
-            runStates.put(actualBlock(), RUNNING);
+        if (newState == ExecutorState.RESUMING || newState == ExecutorState.WAITING_FOR_CHILDREN) {
+        	//TODO right for WaitingForChildren?
+        	goBack(actualBlock(), strandRoot, RunState.RUNNING);
         }
         //goBack(actualBlock(), strandRoot, RunState.PAUSED);
         updateAllowedCommands();
@@ -718,7 +739,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private enum ExecutorState {
         IDLE,
         STEPPING_OVER,
-        RUNNING_LEAF,
         RESUMING,
         FINISHED,
         WAITING_FOR_CHILDREN;
