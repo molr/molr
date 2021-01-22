@@ -7,6 +7,7 @@ import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.tree.exception.RejectedCommandException;
 import io.molr.mole.core.tree.exception.StrandExecutorException;
+import io.molr.mole.core.tree.states.ExecuteChildren;
 import io.molr.mole.core.utils.ThreadFactories;
 import io.molr.mole.core.utils.Trees;
 import org.slf4j.Logger;
@@ -218,12 +219,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
             						}
             					}
             					if(completed == 2) {//remove
-            						break;
+            						stack.pop();
             					}
             				}
-            				System.out.println("break on parallel\n\n");
-            				//break;
-            				
             			}
             			else {
             				int currentChild = childIndex.get(current)+1;
