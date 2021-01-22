@@ -7,7 +7,6 @@ import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.tree.exception.RejectedCommandException;
 import io.molr.mole.core.tree.exception.StrandExecutorException;
-import io.molr.mole.core.tree.states.ExecuteChildren;
 import io.molr.mole.core.utils.ThreadFactories;
 import io.molr.mole.core.utils.Trees;
 import org.slf4j.Logger;
@@ -58,11 +57,10 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private final Set<Block> blocksToBeIgnored;
     
     private final ExecutorService executor;
-    private final LinkedBlockingQueue<StrandCommand> commandQueue;
-    private final TreeStructure structure;
+    final LinkedBlockingQueue<StrandCommand> commandQueue;
+    final TreeStructure structure;//TODO
     private final Strand strand;
-    private final StrandFactory strandFactory;
-    private final StrandExecutorFactory strandExecutorFactory;
+    private final StrandExecutorFactoryNew strandExecutorFactory;
     private final LeafExecutor leafExecutor;
 
     private final ReplayProcessor<StrandCommand> lastCommandSink;
@@ -94,7 +92,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private static Scheduler stateStreamscheduler = Schedulers.newParallel("shared-state-stream-scheduler", 12);
 
     public ConcurrentStrandExecutorStacked(Strand strand, Block actualBlock, TreeStructure structure,
-            StrandFactory strandFactory, StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor,
+    		StrandExecutorFactoryNew strandExecutorFactory, LeafExecutor leafExecutor,
             Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy,
             RunStates runStates) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
@@ -106,7 +104,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         this.blocksToBeIgnored = blocksToBeIgnored;
         this.structure = requireNonNull(structure, "structure cannot be null");
         this.strand = requireNonNull(strand, "strand cannot be null");
-        this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
         this.strandExecutorFactory = requireNonNull(strandExecutorFactory, "strandExecutorFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
 
@@ -139,6 +136,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         updateState(ExecutorState.IDLE);
         updateChildrenExecutors(ImmutableList.of());
 
+        state = new PausedState(this);
+        
         this.commandQueue = new LinkedBlockingQueue<>(1);
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.executor.submit(this::lifecyleChecked);
@@ -174,10 +173,68 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     Stack<Block> stack = new Stack<>();
     Map<Block, Integer> childIndex = new HashMap<>();
+    StrandExecutionState state = null;
     
-    private void push(Block block) {
+    void push(Block block) {
     	childIndex.put(block, -1);
     	stack.push(block);
+    }
+    
+    private void navigate() {
+//    	if(!stack.empty()) {
+//    		Block current = stack.peek();
+//    		List<Block> children = structure.childrenOf(current);
+//    		if(structure.isLeaf(current)) {
+//    			//leaf to execute
+//    			System.out.println("execute "+current);
+//    			stack.pop();
+//    			//
+//    		}
+//    		else {
+//    			if(structure.isParallel(current)) {
+//    				//other executors involved
+//    				state = new ExecuteChildren(current, this);
+//    				if(!waitingForChildren) {//REPLACE
+//        				for(Block child : children) {
+//        					System.out.println("add child "+child);
+//        					createChildStrandExecutor(child);
+//        				}
+//        				waitingForChildren = true;//REMOVE
+//    				}
+//    				else {
+//    					int completed = 0;
+//    					for(StrandExecutor childExecutor : childExecutors) {
+//    						ConcurrentStrandExecutorStacked stacked = (ConcurrentStrandExecutorStacked)childExecutor;
+//    						if(stacked.complete.get()) {
+//    							System.out.println("complete "+stacked.getStrand());
+//    							completed++;
+//    						}
+//    					}
+//    					if(completed == 2) {//remove
+//    						stack.pop();
+//    					}
+//    				}
+//    			}
+//    			else {
+//    				int currentChild = childIndex.get(current)+1;
+//    				if(children.size()==currentChild) {
+//    					System.out.println("no more children "+current);
+//    					stack.pop();
+//    					//we could also get an result here
+//    					//what about non executed children
+//    				}
+//    				else {
+//    					Block next = children.get(currentChild);
+//    					push(next);
+//    					childIndex.put(current, currentChild);
+//    				}
+//    			}
+//    		}
+//    	}
+//    	else {
+//    		System.out.println("empty stack finished "+strand);
+//    		break;
+//    	}
     }
     
     private void lifecycle() {
@@ -189,7 +246,11 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         while (!finished) {
          	
             synchronized (cycleLock) {
-            	commandQueue.poll();
+            	state.run();
+            	if(stack.empty()) {
+            		break;
+            	}
+            	/*
             	if(!stack.empty()) {
             		Block current = stack.peek();
             		List<Block> children = structure.childrenOf(current);
@@ -202,6 +263,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
             		else {
             			if(structure.isParallel(current)) {
             				//other executors involved
+            				state = new ExecuteChildren(current, this);
             				if(!waitingForChildren) {//REPLACE
 	            				for(Block child : children) {
 	            					System.out.println("add child "+child);
@@ -242,7 +304,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
             	else {
             		System.out.println("empty stack finished "+strand);
             		break;
-            	}
+            	}*/
+            	
             	if(true) {
             		continue;
             	}
@@ -564,11 +627,10 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         }
     }
 
-    private StrandExecutor createChildStrandExecutor(Block childBlock) {
-        Strand childStrand = strandFactory.createChildStrand(strand);
-        StrandExecutor childExecutor = strandExecutorFactory.createStrandExecutor(childStrand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
+    ConcurrentStrandExecutorStacked createChildStrandExecutor(Block childBlock) {
+    	ConcurrentStrandExecutorStacked childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
         addChildExecutor(childExecutor);
-        LOGGER.debug("[{}] created child strand {}", strand, childStrand);
+        LOGGER.info("[{}] created child strand {}", strand, childExecutor.getStrand());
         return childExecutor;
     }
 
