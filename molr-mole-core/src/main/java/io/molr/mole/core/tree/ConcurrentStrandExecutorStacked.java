@@ -4,11 +4,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
+import io.molr.mole.core.runnable.ResultStates;
 import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.tree.exception.RejectedCommandException;
 import io.molr.mole.core.tree.exception.StrandExecutorException;
 import io.molr.mole.core.utils.ThreadFactories;
 import io.molr.mole.core.utils.Trees;
+
+import org.assertj.core.error.ShouldNotBeEqualWithinPercentage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
@@ -87,6 +90,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     //TODO remove field after refactoring
     AtomicBoolean complete = new AtomicBoolean();
     private RunStates runStates;
+    private ResultStates resultStates;
     
     private static Scheduler cursorScheduler = Schedulers.newParallel("shared-cursor-scheduler", 12);
     private static Scheduler stateStreamscheduler = Schedulers.newParallel("shared-state-stream-scheduler", 12);
@@ -94,10 +98,11 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     public ConcurrentStrandExecutorStacked(Strand strand, Block actualBlock, TreeStructure structure,
     		StrandExecutorFactoryNew strandExecutorFactory, LeafExecutor leafExecutor,
             Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy,
-            RunStates runStates) {
+            TreeNodeStates treeNodeStates) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
-        requireNonNull(runStates);
-        this.runStates = runStates;
+        requireNonNull(treeNodeStates);
+        this.runStates = treeNodeStates.getRunStates();
+        this.resultStates = treeNodeStates.getResultStates();
         this.strandRoot = actualBlock;
         this.executionStrategy = executionStrategy;
         this.breakpoints = breakpoints;
@@ -137,6 +142,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         updateChildrenExecutors(ImmutableList.of());
 
         state = new PausedState(this);
+        updateLoopState(new PausedState(this));
         
         this.commandQueue = new LinkedBlockingQueue<>(1);
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
@@ -174,7 +180,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     Stack<Block> stack = new Stack<>();
     Map<Block, Integer> childIndices = new HashMap<>();
     private StrandExecutionState state = null;
-    private Map<Block, Result> results = new HashMap<>();
     
     boolean toBeIgnored(Block block) {
     	return this.blocksToBeIgnored.contains(block);
@@ -187,6 +192,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     Result runLeaf(Block block) {
     	runStates.put(block, RunState.RUNNING);
     	Result result = leafExecutor.execute(block);
+    	resultStates.put(block, result);
     	runStates.put(block, RunState.FINISHED);
     	return result;
     }
@@ -242,8 +248,16 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     		System.out.println(strand + " pop "+stack.peek());
     		Block popped = stack.pop();
     		if(popped!=null) {
-    			results.put(popped, Result.SUCCESS);//TODO
     			runStates.put(popped, RunState.FINISHED);
+    			if(!structure.isLeaf(popped)) {
+        			boolean allNonIgnoredChildrenWithSuccess = structure.childrenOf(popped).stream().filter(block -> {
+        				return (runStates.of(block) == RunState.FINISHED);
+        			}).allMatch(block -> {
+        				return resultStates.of(block) == Result.SUCCESS;
+        			});
+        			Result blockResult = allNonIgnoredChildrenWithSuccess?Result.SUCCESS:Result.FAILED;
+        			resultStates.put(popped, blockResult);	
+    			}
     		}
     	}
     }
@@ -259,6 +273,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	childIndices.put(parent, i);
     	System.out.println("get child of "+parent+" "+i);
     	Block child = structure.childrenOf(parent).get(i);
+    	//TODO we may skip blocks to be ignored
     	push(structure.childrenOf(parent).get(i));
     	System.out.println(strand + " next child is "+child);
     	return Optional.of(child);

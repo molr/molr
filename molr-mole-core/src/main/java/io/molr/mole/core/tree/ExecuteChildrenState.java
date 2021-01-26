@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
 
 public class ExecuteChildrenState extends StrandExecutionState{
 
@@ -16,15 +19,23 @@ public class ExecuteChildrenState extends StrandExecutionState{
 	
 	public ExecuteChildrenState(Block block, ConcurrentStrandExecutorStacked context) {
 		super(context);
+		requireNonNull(block);
+		this.block = block;
 		context.structure.childrenOf(block).forEach(childBlock -> {
 			ConcurrentStrandExecutorStacked childExecutor = context.createChildStrandExecutor(childBlock);
-			childExecutors.put(block, childExecutor);
+			childExecutors.put(childBlock, childExecutor);
 		});
 		
 	}
 	
 	@Override
 	public void run() {
+		
+		StrandCommand command = context.commandQueue.poll();
+		if(command == StrandCommand.RESUME) {
+			resumeChildren();
+		}
+		
 		childExecutors.forEach((block, childExecutor) -> {
 			if(childExecutor.complete.get()) {
 				finishedChildren.add(childExecutor);
@@ -32,10 +43,23 @@ public class ExecuteChildrenState extends StrandExecutionState{
 		});
 		
 		if(finishedChildren.size() == childExecutors.size()) {
-			System.out.println("finished");
-			context.stack.pop();
-			context.state = new NavigatingState(context);
+			System.out.println(block + "finished children");
+			context.popUntilNextChildAvailableAndPush();
+			context.updateRunStates(Map.of(block, RunState.FINISHED));
+			context.updateLoopState(new NavigatingState(context));
 		}
+	}
+	
+	public void resumeChildren() {
+		childExecutors.forEach((block, child)->{
+			child.instruct(StrandCommand.RESUME);
+		});
+	}
+
+	@Override
+	public void onEnterState() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
