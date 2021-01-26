@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.Stack;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.StrandCommand;
 
 public class NavigatingState extends StrandExecutionState{
 
-	
+	boolean paused = true;
 	
 	public NavigatingState(ConcurrentStrandExecutorStacked context) {
 		super(context);
@@ -16,6 +17,7 @@ public class NavigatingState extends StrandExecutionState{
 
 	@Override
 	public void run() {
+		
 		TreeStructure structure = context.structure;
 		Stack<Block> stack = context.stack;
 		Map<Block,Integer> childIndices = context.childIndex;
@@ -25,6 +27,8 @@ public class NavigatingState extends StrandExecutionState{
 			if(structure.isLeaf(current)) {
 				//leaf to execute
 				System.out.println("execute "+current);
+				context.runLeaf(current);
+				//update runStates
 				stack.pop();
 				//
 			}
@@ -39,8 +43,9 @@ public class NavigatingState extends StrandExecutionState{
 					if(children.size()==currentChild) {
 						System.out.println("no more children "+current);
 						stack.pop();
-						//we could also get an result here
-						//what about non executed children
+						//-could also directly move to next
+						//- we could also get an result here
+						//- what about non executed children
 					}
 					else {
 						Block next = children.get(currentChild);

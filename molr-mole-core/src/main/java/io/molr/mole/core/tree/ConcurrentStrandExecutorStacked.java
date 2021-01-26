@@ -175,9 +175,74 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     Map<Block, Integer> childIndex = new HashMap<>();
     StrandExecutionState state = null;
     
+    void runLeaf(Block block) {
+    	runStates.put(block, RunState.RUNNING);
+    	leafExecutor.execute(block);
+    	runStates.put(block, RunState.FINISHED);
+    }
+    
+    void updateRunStates(Map<Block, RunState> runStateUpdates) {
+    	runStateUpdates.forEach((block, state)->runStates.put(block, state));
+    }
+    
     void push(Block block) {
     	childIndex.put(block, -1);
     	stack.push(block);
+    	updateActualBlock(block);
+    }
+    
+    void addBreakpoint(Block block) {
+    	breakpoints.add(block);
+    	stateSink.onNext(null);//TODO
+    }
+    
+    boolean hasUnfinishedChild(Block block) {
+    	int i = childIndex.get(block);
+    	List<Block> children = structure.childrenOf(block);
+    	if(structure.isLeaf(block))
+    		return false;
+    	return i < children.size()-1;
+    }
+    
+//    Block findNext() {
+//    	int i = stack.size()-1;
+//    	Block next=null;
+//    	while(i>=0 && next==null) {
+//    		Block block = stack.get(i);
+//    		if(hasUnfinishedChild(block)){
+//    			int childIdx = childIndex.get(block);
+//    			structure.childrenOf(block).get(childIdx);    			
+//    		}
+//    	}
+//    }
+    
+    void popUntilNext() {
+    	while(!stack.isEmpty() && !hasUnfinishedChild(stack.peek())) {
+    		stack.pop();
+    	}
+    }
+    
+    boolean pushNextChild() {
+    	popUntilNext();
+    	if(stack.isEmpty()) {
+    		return false;
+    	}
+    	Block parent = stack.peek();
+    	int i = childIndex.get(parent);
+    	i++;
+    	childIndex.put(parent, i);
+    	System.out.println("get child of "+parent+" "+i);
+    	Block child = structure.childrenOf(parent).get(i);
+    	push(structure.childrenOf(parent).get(i));
+    	System.out.println("next child is "+child);
+    	return true;
+    }
+    
+    void pushNext() {
+    	popUntilNext();
+    	if(!stack.isEmpty()) {
+    		
+    	}
     }
     
     private void navigate() {
