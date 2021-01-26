@@ -23,14 +23,14 @@ public class PausedState extends StrandExecutionState{
 		StrandCommand command = context.commandQueue.poll();
 		System.out.println("polled command "+command);
 		if(command == StrandCommand.RESUME) {
-			context.state = new NavigatingState(context);
+			context.updateLoopState(new NavigatingState(context));
 		}
 		
 		if(command == StrandCommand.STEP_INTO) {
 			Block current = context.stack.peek();
 			
 			if(context.structure.isParallel(current)) {
-				context.state = new ExecuteChildrenState(current, context);
+				context.updateLoopState(new ExecuteChildrenState(current, context));
 				return;
 			}
 			
@@ -38,10 +38,9 @@ public class PausedState extends StrandExecutionState{
 			Block firstChild = children.get(0);
 			context.push(firstChild);
 			//TODO needs to be 
-			context.childIndex.put(current, context.childIndex.get(current)+1);
+			context.childIndices.put(current, context.childIndices.get(current)+1);
 			//state is PAUSED
 			//breakpoint not needed since we do not move anyway
-			//context.addBreakpoint(firstChild);
 			updateRunStates();
 		}
 		
@@ -54,10 +53,9 @@ public class PausedState extends StrandExecutionState{
 		
 		if(command == StrandCommand.SKIP) {
 			//SET Breakpoint to next succ and navigate
-			Block pointer = context.stack.peek();//TODO ensure stack is not empty -> peek throws exception
 			Block skipped = context.stack.pop();
 			context.updateRunStates(Map.of(skipped, RunState.NOT_STARTED));
-			if(context.pushNextChild()) {
+			if(context.popUntilNextChildAvailableAndPush().isPresent()) {
 				System.out.println("pushed next");
 			}
 			else {
@@ -70,31 +68,6 @@ public class PausedState extends StrandExecutionState{
 			if(true) {
 				return;
 			}
-			if(context.stack.size()>1) {
-				//get next
-				Block parent = context.stack.elementAt(context.stack.size()-2);
-				int childInex = context.childIndex.get(parent);
-				List<Block> childrenOfParent = context.structure.childrenOf(parent);
-				if(childInex < childrenOfParent.size()-1) {
-					Block next = childrenOfParent.get(childInex+1);
-					context.push(next);
-					//TODO needs to be refactored, helper
-					context.childIndex.put(parent, context.childIndex.get(parent)+1);
-					System.out.println("nextBreakpoint "+next);
-				}
-				else {
-					//TODO
-					System.out.println("next must be found upwards "+childInex+" "+childrenOfParent);
-					//pop current and pop parent
-					//TODO do this in a consistent mannor, one pop should be sufficient pop and navigate or so
-					context.stack.pop();
-					context.stack.pop();
-				}
-			}
-			else {
-				System.out.println("finished");
-			}
-			//System.exit(0);
 		}
 		
 		if(command != null) {
@@ -110,6 +83,11 @@ public class PausedState extends StrandExecutionState{
 			runStates.put(stackElement, RunState.PAUSED);
 		});
 		context.updateRunStates(runStates);
+	}
+
+	@Override
+	public void onEnterState() {
+		context.updateStrandRunState(RunState.PAUSED);	
 	}
 
 }

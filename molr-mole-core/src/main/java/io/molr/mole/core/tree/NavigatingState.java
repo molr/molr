@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.StrandCommand;
+import io.molr.commons.domain.RunState;
 
 public class NavigatingState extends StrandExecutionState{
 
@@ -20,37 +20,55 @@ public class NavigatingState extends StrandExecutionState{
 		
 		TreeStructure structure = context.structure;
 		Stack<Block> stack = context.stack;
-		Map<Block,Integer> childIndices = context.childIndex;
     	if(!stack.empty()) {
 			Block current = stack.peek();
-			List<Block> children = structure.childrenOf(current);
+			
+			if(context.toBeIgnored(current)) {
+				context.stack.pop();
+				context.popUntilNextChildAvailableAndPush();
+				return;
+			}
+			
+			if(context.isBreakpointSet(current)) {
+				context.updateLoopState(new PausedState(context));
+				return;
+			}
+						
 			if(structure.isLeaf(current)) {
-				//leaf to execute
-				System.out.println("execute "+current);
 				context.runLeaf(current);
-				//update runStates
-				stack.pop();
-				//
+				context.popUntilNextChildAvailableAndPush();
+				//must be pop and next otherwise we would pause again if parent is breakpoint
 			}
 			else {
+				/*
+				 * Block with parallel children to be executed by other executors
+				 */
 				if(structure.isParallel(current)) {
-					//other executors involved
-					context.state = new ExecuteChildrenState(current, context);
+					ExecuteChildrenState newExecuteChildrenState = new ExecuteChildrenState(current, context);
+					newExecuteChildrenState.resumeChildren();
+					context.updateLoopState(newExecuteChildrenState);
 					return;
 				}
+				/*
+				 * Block with children to be executed by own strand
+				 */
 				else {
-					int currentChild = context.childIndex.get(current)+1;
-					if(children.size()==currentChild) {
-						System.out.println("no more children "+current);
-						stack.pop();
-						//-could also directly move to next
+					/*
+					 * The current block is finished
+					 */
+					if(!context.hasUnfinishedChild(current)) {
+						context.popUntilNextChildAvailableAndPush();
+						context.updateRunStates(Map.of(current, RunState.FINISHED));
 						//- we could also get an result here
 						//- what about non executed children
 					}
+					/*
+					 * The current block has non-executed children
+					 */
 					else {
-						Block next = children.get(currentChild);
-						context.push(next);
-						childIndices.put(current, currentChild);
+						Block next = context.popUntilNextChildAvailableAndPush().get();
+						//context.updateRunStates(Map.of(next, RunState.RUNNING));
+
 					}
 				}
 			}
@@ -58,6 +76,11 @@ public class NavigatingState extends StrandExecutionState{
     	else {
 			System.out.println("empty stack finished "+context.getStrand());
     	}
+	}
+
+	@Override
+	public void onEnterState() {
+		context.updateStrandRunState(RunState.RUNNING);		
 	}
 
 }

@@ -172,21 +172,42 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
     
     Stack<Block> stack = new Stack<>();
-    Map<Block, Integer> childIndex = new HashMap<>();
-    StrandExecutionState state = null;
+    Map<Block, Integer> childIndices = new HashMap<>();
+    private StrandExecutionState state = null;
+    private Map<Block, Result> results = new HashMap<>();
     
-    void runLeaf(Block block) {
+    boolean toBeIgnored(Block block) {
+    	return this.blocksToBeIgnored.contains(block);
+    }
+    
+    boolean isBreakpointSet(Block block) {
+    	return this.breakpoints.contains(block);
+    }
+    
+    Result runLeaf(Block block) {
     	runStates.put(block, RunState.RUNNING);
-    	leafExecutor.execute(block);
+    	Result result = leafExecutor.execute(block);
     	runStates.put(block, RunState.FINISHED);
+    	return result;
+    }
+    
+    void updateLoopState(StrandExecutionState newState) {
+    	state = newState;
+    	state.onEnterState();
     }
     
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
     	runStateUpdates.forEach((block, state)->runStates.put(block, state));
     }
     
+    private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
+    
+    void updateStrandRunState(RunState state) {
+    	this.strandRunState.set(state);
+    }
+    
     void push(Block block) {
-    	childIndex.put(block, -1);
+    	childIndices.put(block, -1);
     	stack.push(block);
     	updateActualBlock(block);
     }
@@ -197,13 +218,13 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
     
     boolean hasUnfinishedChild(Block block) {
-    	int i = childIndex.get(block);
+    	int i = childIndices.get(block);
     	List<Block> children = structure.childrenOf(block);
-    	if(structure.isLeaf(block))
+    	if(structure.isLeaf(block) || structure.isParallel(block))//|| is misleading
     		return false;
     	return i < children.size()-1;
     }
-    
+        
 //    Block findNext() {
 //    	int i = stack.size()-1;
 //    	Block next=null;
@@ -218,92 +239,32 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     void popUntilNext() {
     	while(!stack.isEmpty() && !hasUnfinishedChild(stack.peek())) {
-    		stack.pop();
+    		System.out.println(strand + " pop "+stack.peek());
+    		Block popped = stack.pop();
+    		if(popped!=null) {
+    			results.put(popped, Result.SUCCESS);//TODO
+    			runStates.put(popped, RunState.FINISHED);
+    		}
     	}
     }
     
-    boolean pushNextChild() {
+    Optional<Block> popUntilNextChildAvailableAndPush() {
     	popUntilNext();
     	if(stack.isEmpty()) {
-    		return false;
+    		return Optional.empty();
     	}
     	Block parent = stack.peek();
-    	int i = childIndex.get(parent);
+    	int i = childIndices.get(parent);
     	i++;
-    	childIndex.put(parent, i);
+    	childIndices.put(parent, i);
     	System.out.println("get child of "+parent+" "+i);
     	Block child = structure.childrenOf(parent).get(i);
     	push(structure.childrenOf(parent).get(i));
-    	System.out.println("next child is "+child);
-    	return true;
-    }
-    
-    void pushNext() {
-    	popUntilNext();
-    	if(!stack.isEmpty()) {
-    		
-    	}
-    }
-    
-    private void navigate() {
-//    	if(!stack.empty()) {
-//    		Block current = stack.peek();
-//    		List<Block> children = structure.childrenOf(current);
-//    		if(structure.isLeaf(current)) {
-//    			//leaf to execute
-//    			System.out.println("execute "+current);
-//    			stack.pop();
-//    			//
-//    		}
-//    		else {
-//    			if(structure.isParallel(current)) {
-//    				//other executors involved
-//    				state = new ExecuteChildren(current, this);
-//    				if(!waitingForChildren) {//REPLACE
-//        				for(Block child : children) {
-//        					System.out.println("add child "+child);
-//        					createChildStrandExecutor(child);
-//        				}
-//        				waitingForChildren = true;//REMOVE
-//    				}
-//    				else {
-//    					int completed = 0;
-//    					for(StrandExecutor childExecutor : childExecutors) {
-//    						ConcurrentStrandExecutorStacked stacked = (ConcurrentStrandExecutorStacked)childExecutor;
-//    						if(stacked.complete.get()) {
-//    							System.out.println("complete "+stacked.getStrand());
-//    							completed++;
-//    						}
-//    					}
-//    					if(completed == 2) {//remove
-//    						stack.pop();
-//    					}
-//    				}
-//    			}
-//    			else {
-//    				int currentChild = childIndex.get(current)+1;
-//    				if(children.size()==currentChild) {
-//    					System.out.println("no more children "+current);
-//    					stack.pop();
-//    					//we could also get an result here
-//    					//what about non executed children
-//    				}
-//    				else {
-//    					Block next = children.get(currentChild);
-//    					push(next);
-//    					childIndex.put(current, currentChild);
-//    				}
-//    			}
-//    		}
-//    	}
-//    	else {
-//    		System.out.println("empty stack finished "+strand);
-//    		break;
-//    	}
+    	System.out.println(strand + " next child is "+child);
+    	return Optional.of(child);
     }
     
     private void lifecycle() {
-        // FIXME refactor in a more maintainable way, after tests are complete!
         boolean finished = false;
         LOGGER.info("Start lifecycle for "+ strand);
 
@@ -313,250 +274,16 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
             synchronized (cycleLock) {
             	state.run();
             	if(stack.empty()) {
+                    //TODO update this by own state?
+                    updateStrandRunState(FINISHED);
             		break;
             	}
-            	/*
-            	if(!stack.empty()) {
-            		Block current = stack.peek();
-            		List<Block> children = structure.childrenOf(current);
-            		if(structure.isLeaf(current)) {
-            			//leaf to execute
-            			System.out.println("execute "+current);
-            			stack.pop();
-            			//
-            		}
-            		else {
-            			if(structure.isParallel(current)) {
-            				//other executors involved
-            				state = new ExecuteChildren(current, this);
-            				if(!waitingForChildren) {//REPLACE
-	            				for(Block child : children) {
-	            					System.out.println("add child "+child);
-	            					createChildStrandExecutor(child);
-	            				}
-	            				waitingForChildren = true;//REMOVE
-            				}
-            				else {
-            					int completed = 0;
-            					for(StrandExecutor childExecutor : childExecutors) {
-            						ConcurrentStrandExecutorStacked stacked = (ConcurrentStrandExecutorStacked)childExecutor;
-            						if(stacked.complete.get()) {
-            							System.out.println("complete "+stacked.getStrand());
-            							completed++;
-            						}
-            					}
-            					if(completed == 2) {//remove
-            						stack.pop();
-            					}
-            				}
-            			}
-            			else {
-            				int currentChild = childIndex.get(current)+1;
-            				if(children.size()==currentChild) {
-            					System.out.println("no more children "+current);
-            					stack.pop();
-            					//we could also get an result here
-            					//what about non executed children
-            				}
-            				else {
-            					Block next = children.get(currentChild);
-            					push(next);
-            					childIndex.put(current, currentChild);
-            				}
-            			}
-            		}
-            	}
-            	else {
-            		System.out.println("empty stack finished "+strand);
-            		break;
-            	}*/
-            	
-            	if(true) {
-            		continue;
-            	}
-            	
-                if(aborted.get()) {
-                    updateState(ExecutorState.FINISHED);
-                    //TODO cleanup of running/paused children?
-                }
-                if (actualState() == ExecutorState.FINISHED) {
-                    finished = true;
-                    continue;
-                }
-
-                /*
-                 * if block should be ignored ignore subtree by ignoring all children for branches
-                 * or ignore the block itself for leafs
-                 * afterwards move next
-                 */
-                if (blocksToBeIgnored.contains(actualBlock.get())) {
-                    LOGGER.info("Ignore all leafs in subtree move on " + actualBlock());
-                    // traverseLeafs(actualBlock(), leafExecutor::ignoreBlock);
-                    moveNext();
-                    continue;
-                }
-
-                /* remove finished children */
-                if (hasChildren() && actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
-					childExecutors.stream().filter(c -> {
-						/*
-						 * TODO avoid this cast, but complete flag should be removed anyway
-						 */
-						ConcurrentStrandExecutorStacked childExecutor = (ConcurrentStrandExecutorStacked) c;
-						return childExecutor.complete.get();
-					}).forEach(completedChild -> {
-						removeChildExecutor(completedChild);
-						/*
-						 * TODO abort in a separate step
-						 */
-						if (completedChild.aborted() && !this.aborted()) {
-							updateState(ExecutorState.FINISHED);
-							this.aborted.set(true);
-						}
-					});
-                }
-
-                /* if has children then the state can only be WAITING or IDLE*/
-                if (hasChildren() && actualState() != ExecutorState.WAITING_FOR_CHILDREN && actualState() != ExecutorState.IDLE) {
-                    publishError(exception(StrandExecutorException.class, "[{}] inconsistent state! There are children, so current state can only be IDLE or WAITING FOR CHILDREN, pausing! Current state is {}", strand, actualState()));
-                    updateState(ExecutorState.IDLE);
-                }
-
-                if (hasChildren()) {
-                    boolean allPaused = childExecutors.stream().map(StrandExecutor::getActualState).allMatch(PAUSED::equals);
-                    if (allPaused && actualState() != ExecutorState.IDLE) {
-                        LOGGER.info("[{}] paused because all children are paused", strand);
-                        updateState(ExecutorState.IDLE);
-                    } else if (!allPaused && actualState() != ExecutorState.WAITING_FOR_CHILDREN) {
-                        LOGGER.info("[{}] has some non-paused children. Setting the state to waiting", strand);
-                        updateState(ExecutorState.WAITING_FOR_CHILDREN);
-                    }
-                }
-
-                StrandCommand commandToExecute = commandQueue.poll();
-
-                if (commandToExecute == StrandCommand.PAUSE) {
-                    pause();
-                }
-
-                if (commandToExecute == StrandCommand.SKIP) {
-                    if (hasChildren()) {
-                        publishError(new RejectedCommandException(commandToExecute, "[{}] has children so skipping is not allowed", strand));
-                    } else {
-                        moveNext();
-                    }
-                }
-
-                if (commandToExecute == StrandCommand.STEP_INTO) {
-                    if (hasChildren()) {
-                        publishError(new RejectedCommandException(commandToExecute, "[{}] has children so step into is not allowed", strand));
-                    } else {
-                        if(breakpoints.contains(actualBlock())) {
-                            LOGGER.debug("block is a breakpoint" + actualBlock);
-                            updateState(ExecutorState.IDLE);
-                            continue;
-                        }
-                        stepInto();
-                    }
-                }
-
-                if (commandToExecute == STEP_OVER && hasChildren()) {
-                    publishError(new RejectedCommandException(commandToExecute, "[{}] has children so step over is not allowed", strand));
-                }
-
-                if (commandToExecute == STEP_OVER) {
-                    currentStepOverSource = actualBlock();
-                }
-
-                if (commandToExecute == STEP_OVER || commandToExecute == RESUME) {
-
-                    if (structure.isParallel(actualBlock()) && hasChildren()) {
-                        updateState(ExecutorState.WAITING_FOR_CHILDREN);// TODO is this actualBlock->runState=running
-                        LOGGER.debug("[{}] instructing children to RESUME", strand);
-                        childExecutors.forEach(child -> child.instruct(RESUME));
-                    } else {
-                        if (commandToExecute == STEP_OVER) {
-                            updateState(ExecutorState.STEPPING_OVER);
-                        } else {
-                            updateState(ExecutorState.RESUMING);
-                        }
-                    }
-                }
-
-                if (actualState() == ExecutorState.WAITING_FOR_CHILDREN) {
-                    if (!hasChildren()) {
-                        if (lastCommand == RESUME) {
-                            updateState(ExecutorState.RESUMING);
-                        } else {
-                            updateState(ExecutorState.IDLE);
-                        }
-                        moveNext();
-                    }
-                }
-
-                if (actualState() == ExecutorState.STEPPING_OVER) {
-                    // FIXME potential performance bottleneck #isDescendantOf is very slow
-                    if (!structure.isDescendantOf(actualBlock(), currentStepOverSource)) {
-                        // Stepping over has finished the subtree of the block that initiate it.. finishing
-                        updateState(ExecutorState.IDLE);
-                        currentStepOverSource = null;
-                    }
-                }
-
-                if (actualState() == ExecutorState.RESUMING || actualState() == ExecutorState.STEPPING_OVER) {
-
-                    if(breakpoints.contains(actualBlock())) {
-                        LOGGER.debug("{} is breakpoint -> go to idle", actualBlock);
-                        updateState(ExecutorState.IDLE);
-                        continue;
-                    }
-                    
-                    if (isLeaf(actualBlock())) {                     
-                        LOGGER.debug("[{}] executing {}", strand, actualBlock());
-                        runStates.put(actualBlock(), RUNNING);
-                        Result result = leafExecutor.execute(actualBlock());
-                        runStates.put(actualBlock(), FINISHED);
-                        if (result == Result.SUCCESS || executionStrategy == ExecutionStrategy.PROCEED_ON_ERROR) {
-                            moveNext();
-                        } else {
-                            if(executionStrategy == ExecutionStrategy.PAUSE_ON_ERROR) {
-                                LOGGER.warn("[{}] execution of {} returned {}. Pausing strand", strand, actualBlock(), result);
-                                updateState(ExecutorState.IDLE);
-                            }
-                            if (executionStrategy == ExecutionStrategy.ABORT_ON_ERROR) {
-                                // TODO aborted seems to be wrong here
-                                aborted.set(true);
-                                // TODO investigate what happens
-                                //this.actualBlock.set(null);
-                                updateState(ExecutorState.FINISHED);
-                                continue;
-                            }
-                        }
-                    } else if (structure.isParallel(actualBlock())) {
-                        for (Block child : structure.childrenOf(actualBlock())) {
-                        	if(!blocksToBeIgnored.contains(child)) {
-                                StrandExecutor childExecutor = createChildStrandExecutor(child);
-                                childExecutor.instruct(RESUME);
-                        	}
-                        }
-                        LOGGER.debug("[{}] waiting for children strand to finish", strand);
-                        updateState(ExecutorState.WAITING_FOR_CHILDREN);
-                    } else {
-                        // Sequential block, moving into
-                        moveIntoFirstChild();
-                    }
-                }
-
-                if (commandToExecute != null) {
-                    lastCommand = commandToExecute;
-                    LOGGER.debug("[{}] consumed command {}", strand, commandToExecute);
-                    lastCommandSink.onNext(commandToExecute);
-                }
             }//cycleLock
 
             cycleSleep();
         }//whileNotFinished
 
+        
         LOGGER.info("Executor for strand {} is finished", strand);
         executor.shutdown();
         LOGGER.info("Close streams for strand {}", strand);
@@ -582,40 +309,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         //errorSink.dispose();
         //lastCommandSink.dispose();
         LOGGER.info(strand + ": all streams closed");
-    }
-
-    private void traverseNonLeafes(Block block, Consumer<Block> function) {
-        List<Block> children = structure.childrenOf(block);
-        if (children.isEmpty()) {
-            return;
-        }
-        function.accept(block);
-        for (Block child : children) {
-            traverseNonLeafes(child, function);
-        }
-    }
-    
-    private void goBack(Block from, Block to, RunState state) {
-    	if(from.equals(to)) {
-    		runStates.put(from, state);
-    		System.out.println("go back from "+ from+ to);
-    		return;
-    	}
-    	else {
-    		runStates.put(from, state);
-    		System.out.println("go back from "+from + to);
-    		goBack(structure.parentOf(from).get(), to, state);
-    	}
-    }
-    
-    private void markMixedSubtree(Block block) {
-        traverseNonLeafes(block, this::markRunningBlockFinished);
-    }
-
-    private void markRunningBlockFinished(Block block) {
-        if (!runStates.of(block).equals(RunState.NOT_STARTED)) {
-            runStates.put(block, FINISHED);
-        }
     }
 
     private void pause() {
@@ -661,37 +354,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 	 * updateState(ExecutorState.FINISHED); updateActualBlock(null); } }
 	 */
     
-    private void moveNext() {
-    	lastBlock = actualBlock();
-        Optional<Block> nextBlock = structure.nextBlock(actualBlock());
-        // TODO move next with skip
-        while (nextBlock.isPresent() && blocksToBeIgnored.contains(nextBlock.get())) {
-            LOGGER.info(strand+": ignore "+nextBlock+" ");
-            nextBlock = structure.nextBlock(nextBlock.get());
-            // throw new IllegalStateException("skipped");
-        }
-        if (nextBlock.isPresent()) {
-            Block next = nextBlock.get();
-            Block parent = structure.parentOf(next).get();
-            List<Block> children = structure.childrenOf(parent);
-            int childIndex = children.indexOf(next);
-            for (int i = 0; i < childIndex; i++) {
-                // RUNSTATE should be finished if running
-                Block executedSubtree = children.get(i);
-                traverseNonLeafes(executedSubtree, this::markRunningBlockFinished);
-            }
-            LOGGER.info(strand+" NEXT " + next + " LAST " + lastBlock);
-            updateActualBlock(nextBlock.get());
-        } else {
-            traverseNonLeafes(strandRoot, this::markRunningBlockFinished);
-            LOGGER.info("[{}] {} is the last block. Finished", strand, actualBlock());
-            // updateActualBlock first since block update belongs to mission state
-            // corresponding to update
-            updateActualBlock(null);
-            updateState(ExecutorState.FINISHED);
-        }
-    }
-
     ConcurrentStrandExecutorStacked createChildStrandExecutor(Block childBlock) {
     	ConcurrentStrandExecutorStacked childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
         addChildExecutor(childExecutor);
@@ -701,11 +363,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
     private void addChildExecutor(StrandExecutor childExecutor) {
         updateChildrenExecutors(ImmutableList.<StrandExecutor>builder().addAll(childExecutors).add(childExecutor).build());
-    }
-
-    private void removeChildExecutor(StrandExecutor childExecutor) {
-    	LOGGER.info(this.strand+ ": Remove child executor "+childExecutor.getStrand());
-        updateChildrenExecutors(childExecutors.stream().filter(e -> !e.equals(childExecutor)).collect(collectingAndThen(toList(), ImmutableList::copyOf)));
     }
 
     private void updateChildrenExecutors(ImmutableList<StrandExecutor> newChildren) {
@@ -731,44 +388,11 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         blockSink.onNext(newBlock);
         updateAllowedCommands();
     }
-
-//    private void updateState(ExecutorState newState) {
-//        LOGGER.debug("[{}] state = {}", strand, newState);
-//		/* TODO Should we complete the stream if the new state is FINISHED? */
-//        actualState.set(newState);
-//        stateSink.onNext(runStateFrom(newState));
-//        updateAllowedCommands();
-//    }
     
     private void updateState(ExecutorState newState) {
-    	if(actualBlock() == null) {
-    		LOGGER.error("EXCEPTION "+actualBlock());
-    		if(lastBlock == null) {
-        		throw new IllegalStateException();	
-    		}
-    		else {
-    			System.out.println("GO newState "+lastBlock+"\n\n\n");
-    			goBack(lastBlock, strandRoot, RunState.FINISHED);
-    	        actualState.set(newState);
-    	        updateAllowedCommands();
-    	        stateSink.onNext(runStateFrom(newState));
-    	        return;
-    		}
-    	}
-        LOGGER.info("[{}] state = {}", strand, newState);
+    	LOGGER.info("[{}] state = {}", strand, newState);
 		/* TODO Should we complete the stream if the new state is FINISHED? */
         actualState.set(newState);
-        if (newState == ExecutorState.FINISHED) {
-        	goBack(actualBlock(), strandRoot, FINISHED);
-        }
-        if (newState == ExecutorState.IDLE) {
-        	goBack(actualBlock(), strandRoot, RunState.PAUSED);
-        }
-        if (newState == ExecutorState.RESUMING || newState == ExecutorState.WAITING_FOR_CHILDREN) {
-        	//TODO right for WaitingForChildren?
-        	goBack(actualBlock(), strandRoot, RunState.RUNNING);
-        }
-        //goBack(actualBlock(), strandRoot, RunState.PAUSED);
         updateAllowedCommands();
         stateSink.onNext(runStateFrom(newState));
     }
@@ -814,12 +438,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         return errorStream;
     }
 
-    @Deprecated
-    @VisibleForTesting
-    public Flux<StrandCommand> getLastCommandStream() {
-        return lastCommandStream;
-    }
-
     @Override
     public Strand getStrand() {
         return strand;
@@ -827,7 +445,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
     @Override
     public RunState getActualState() {
-        return runStateFrom(actualState());
+        //return runStateFrom(actualState());
+    	return this.strandRunState.get();
     }
 
     @Override
