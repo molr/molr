@@ -15,7 +15,6 @@ public class PausedState extends StrandExecutionState{
 
 	@Override
 	public void run() {
-		//sk.util.Threads.sleep(1000);
 		
 		StrandCommand command = context.commandQueue.poll();
 		if(command == StrandCommand.RESUME) {
@@ -31,16 +30,16 @@ public class PausedState extends StrandExecutionState{
 			}
 			//TODO
 			if(context.moveChildIndexAndPushNextChild(current).isEmpty()){
-				//cannot stepInto -> publish error
+				context.publishError(new RuntimeException("Cannot move into child since none none ignored available"));
 				return;
 			}
 			updateRunStates();
 		}
 		
 		if(command == StrandCommand.STEP_OVER) {
-			//add breakpoint to next
-			//resume
-			//[]maybe do not allow ignore after step_over block
+			context.addStepOverBlock(context.currentStackElement());
+			context.updateLoopState(new NavigatingState(context));
+			return;
 			//[]test stepping over parallel
 		}
 		

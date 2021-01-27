@@ -1,5 +1,7 @@
 package io.molr.mole.core.tree;
 
+import java.util.Set;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Result;
@@ -20,9 +22,19 @@ public class NavigatingState extends StrandExecutionState{
     	if(!context.isStackEmpty()) {
 			Block current = context.currentStackElement();
 			
+			/*
+			 * TODO maybe removed
+			 */
 			if(context.toBeIgnored(current)) {
 				context.popStackElement();
 				context.popUntilNextChildAvailableAndPush();
+				return;
+			}
+
+			if(context.steppingOverFinished()) {
+				Block stepOverSource = context.removeCurrentStepOverBlock();
+				context.updateLoopState(new PausedState(context));
+				context.log("Pause strand since step over sources have been executed {}", stepOverSource);
 				return;
 			}
 			

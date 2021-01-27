@@ -1,17 +1,12 @@
 package io.molr.mole.core.tree;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.ResultStates;
 import io.molr.mole.core.runnable.RunStates;
-import io.molr.mole.core.tree.exception.RejectedCommandException;
-import io.molr.mole.core.tree.exception.StrandExecutorException;
 import io.molr.mole.core.utils.ThreadFactories;
-import io.molr.mole.core.utils.Trees;
 
-import org.assertj.core.error.ShouldNotBeEqualWithinPercentage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
@@ -22,8 +17,8 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -38,8 +33,8 @@ import static io.molr.commons.domain.RunState.*;
 import static io.molr.commons.domain.StrandCommand.*;
 import static io.molr.commons.util.Exceptions.exception;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
 
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
@@ -80,10 +75,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private final AtomicReference<ExecutorState> actualState;
     private final AtomicReference<Block> actualBlock;
     private final Block strandRoot;
-    private Block lastBlock;
 
-    private Block currentStepOverSource;
-    private StrandCommand lastCommand;
     private ImmutableList<StrandExecutor> childExecutors;
     private ExecutionStrategy executionStrategy;
     private AtomicBoolean aborted = new AtomicBoolean(false); 
@@ -94,6 +86,14 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     private static Scheduler cursorScheduler = Schedulers.newParallel("shared-cursor-scheduler", 12);
     private static Scheduler stateStreamscheduler = Schedulers.newParallel("shared-state-stream-scheduler", 12);
+    
+    private Stack<Block> stack = new Stack<>();
+    private Map<Block, Integer> childIndices = new HashMap<>();
+    private StrandExecutionState state = null;
+    private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
+    
+    private AtomicReference<Block> stepOverBlock = new AtomicReference<>();
+    private Set<Block> poppedBlocks = new HashSet<>();
 
     public ConcurrentStrandExecutorStacked(Strand strand, Block actualBlock, TreeStructure structure,
     		StrandExecutorFactoryNew strandExecutorFactory, LeafExecutor leafExecutor,
@@ -133,8 +133,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         this.allowedCommands = new AtomicReference<>();
         this.actualBlock = new AtomicReference<>();
         this.actualState = new AtomicReference<>();
-        this.currentStepOverSource = null;
-        this.lastCommand = null;
 
         updateActualBlock(actualBlock);
         push(actualBlock);
@@ -155,18 +153,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
             LOGGER.warn("Command {} cannot be accepted by strand {} because it is processing another command", command, strand);
         }
     }
-
-    private void traverseLeafs(Block block, Consumer<Block> function) {
-    	List<Block> children = structure.childrenOf(block);
-    	if(children.isEmpty()) {
-    		function.accept(block);
-    	}
-    	else {
-    		children.forEach(child -> {
-    			traverseLeafs(child, function);
-    		});
-    	}
-    }
     
     private void lifecyleChecked() {
     	try {
@@ -176,11 +162,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 			throw e;
 		}
     }
-    
-    private Stack<Block> stack = new Stack<>();
-    private Map<Block, Integer> childIndices = new HashMap<>();
-    private StrandExecutionState state = null;
-    private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
     
     boolean isComplete() {
     	return complete.get();
@@ -312,6 +293,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     		
     		System.out.println(strand + " pop "+stack.peek());
     		Block popped = stack.pop();
+    		poppedBlocks.add(popped);
     		if(popped!=null) {
     			runStates.put(popped, RunState.FINISHED);
     			if(!structure.isLeaf(popped)) {
@@ -343,17 +325,35 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	return Optional.of(stack.peek());
     }
     
+    void addStepOverBlock(Block block) {
+    	stepOverBlock.set(block);
+    }
+    
+    Block removeCurrentStepOverBlock() {
+    	Block currentStepOverBlock = stepOverBlock.get();
+    	stepOverBlock.set(null);
+    	return currentStepOverBlock;
+    }
+    
+    boolean steppingOverFinished() {
+    	if(stepOverBlock.get()!=null) {
+    		if(poppedBlocks.contains(stepOverBlock.get())) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+        
     private void lifecycle() {
         boolean finished = false;
         LOGGER.info("Start lifecycle for "+ strand);
 
-        boolean waitingForChildren = false;
         while (!finished) {
          	
             synchronized (cycleLock) {
             	state.run();
             	if(stack.empty()) {
-                    //TODO update this by own state?
+                    //TODO update this by states itself?
                     updateStrandRunState(FINISHED);
             		break;
             	}
@@ -389,49 +389,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         //lastCommandSink.dispose();
         LOGGER.info(strand + ": all streams closed");
     }
-
-    private void pause() {
-        if (hasChildren()) {
-            LOGGER.debug("[{}] instructing children to pause", strand);
-            childExecutors.stream().filter(se -> se.getActualState() != PAUSED).forEach(child -> child.instruct(PAUSE));
-        } else {
-            LOGGER.debug("[{}] paused", strand);
-            updateState(ExecutorState.IDLE);
-        }
-    }
-
-    private void stepInto() {
-        if (isLeaf(actualBlock())) {
-            LOGGER.debug("[{}] {} is a leaf, stepping into is not allowed", strand, actualBlock());
-            return;
-        }
-
-        if (structure.isParallel(actualBlock())) {
-            structure.childrenOf(actualBlock()).forEach(this::createChildStrandExecutor);
-        } else {
-            moveIntoFirstChild();
-        }
-
-        updateState(ExecutorState.IDLE);
-    }
-
-    private void moveIntoFirstChild() {
-        List<Block> children = structure.childrenOf(actualBlock());
-        if (children.isEmpty()) {
-            throw exception(IllegalStateException.class, "Strand {} cannot move into block {}, no children!", strand.id(), actualBlock());
-        }
-        Block firstChild = children.get(0);
-        updateActualBlock(firstChild);
-    }
-
-
-	/*
-	 * private void moveNext() { Optional<Block> nextBlock =
-	 * structure.nextBlock(actualBlock()); if (nextBlock.isPresent()) {
-	 * updateActualBlock(nextBlock.get()); } else {
-	 * LOGGER.debug("[{}] {} is the last block. Finished", strand, actualBlock());
-	 * updateState(ExecutorState.FINISHED); updateActualBlock(null); } }
-	 */
     
     ConcurrentStrandExecutorStacked createChildStrandExecutor(Block childBlock) {
     	ConcurrentStrandExecutorStacked childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
@@ -538,29 +495,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         return allowedCommands.get();
     }
 
-    /**
-     * TODO think about a command for this!! A parametrized command will also solve the concurrency issues that the
-     * implementation below have
-     */
-    @Deprecated
-    @VisibleForTesting
-    public void moveTo(Block block) {
-        synchronized (cycleLock) {
-            if (!structure.contains(block)) {
-                throw exception(IllegalArgumentException.class, "Strand {} cannot move to {} as is not part of this tree structure", strand.id(), block);
-            }
-            if (Trees.doesBlockHaveAParallelParent(block, structure)) {
-                throw exception(IllegalArgumentException.class, "Strand {} cannot move to {} as is descendant of a parallel block", strand.id(), block);
-            }
-            if (actualState() != ExecutorState.IDLE) {
-                throw exception(IllegalStateException.class, "Strand {} can move only while in paused state! Currently in {}", strand.id(), actualState());
-            }
-            updateActualBlock(block);
-        }
-    }
-
-    @VisibleForTesting
-    public Set<StrandExecutor> getChildrenStrandExecutors() {
+    private Set<StrandExecutor> getChildrenStrandExecutors() {
         synchronized (cycleLock) {
             return ImmutableSet.copyOf(childExecutors);
         }
@@ -588,7 +523,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         return this.structure.isLeaf(block);
     }
 
-    private void publishError(Exception error) {
+    void publishError(Exception error) {
         LOGGER.error("[{}] {}: {}", strand, error.getClass().getSimpleName(), error.getMessage());
         errorSink.onNext(error);
     }
