@@ -1,7 +1,6 @@
 package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
@@ -30,16 +29,14 @@ public class TreeMissionExecutor implements MissionExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeMissionExecutor.class);
     
     private final Flux<MissionState> states;
-    private final StrandFactoryImpl strandFactory;
-    private final StrandExecutorFactory strandExecutorFactory;
+    private final StrandExecutorFactoryNew strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
     private final Tracker<Result> resultTracker;
-    private final TreeTracker<RunState> runStateTracker;
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
     private final EmitterProcessor<Object> statesSink;
-    private RunStates runStates;
+    private TreeNodeStates nodeStates;
     
 	public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker,
 			MissionOutputCollector outputCollector,
@@ -54,10 +51,8 @@ public class TreeMissionExecutor implements MissionExecutor {
         		this.breakpoints.add(block);
         	}
         });
-        this.runStates = new RunStates(treeStructure);
-        this.runStateTracker = runStateTracker;
-        strandFactory = new StrandFactoryImpl();
-        strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor, runStates);
+        this.nodeStates = new TreeNodeStates(treeStructure);
+		strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
         this.outputCollector = outputCollector;
         this.resultTracker = resultTracker;
         this.representation = treeStructure.missionRepresentation();
@@ -82,8 +77,7 @@ public class TreeMissionExecutor implements MissionExecutor {
                 	statesSinkScheduler.dispose();
                 });
 
-        Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
+        StrandExecutor rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -102,16 +96,6 @@ public class TreeMissionExecutor implements MissionExecutor {
         }
     }
 
-    @Deprecated
-    public Strand getRootStrand() {
-        return strandFactory.rootStrand();
-    }
-
-    @Deprecated
-    public StrandFactoryImpl getStrandFactory() {
-        return strandFactory;
-    }
-
     @Override
     public Flux<MissionState> states() {
         return states;
@@ -127,13 +111,18 @@ public class TreeMissionExecutor implements MissionExecutor {
         return Flux.just(this.representation);
     }
 
+    /*
+     * TODO optimize
+     * - the gathering itself
+     * - and maybe the way how and how often it is triggered by StrandExecutors
+     */
     private MissionState gatherMissionState() {
         Result rootResult = resultTracker.resultFor(representation.rootBlock());
         MissionState.Builder builder = MissionState.builder(rootResult);
         for (StrandExecutor executor : strandExecutorFactory.allStrandExecutors()) {
             RunState runState = executor.getActualState();
             Block cursor = executor.getActualBlock();
-            Optional<Strand> parent = strandFactory.parentOf(executor.getStrand());
+            Optional<Strand> parent = strandExecutorFactory.parentOf(executor.getStrand());
             if (parent.isPresent()) {
                 builder.add(executor.getStrand(), runState, cursor, parent.get(), executor.getAllowedCommands());
             } else {
@@ -141,9 +130,8 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
         }
 
-        resultTracker.blockResults().entrySet().forEach(e -> builder.blockResult(e.getKey(), e.getValue()));
-        //runStateTracker.blockResults().entrySet().forEach(e -> builder.blockRunState(e.getKey(), e.getValue()));
-        runStates.getSnapshot().forEach((block, state)-> {builder.blockRunState(block, state);});
+        nodeStates.getResultStates().getSnapshot().forEach((block, state) -> {builder.blockResult(block, state);});
+        nodeStates.getRunStates().getSnapshot().forEach((block, state)-> {builder.blockRunState(block, state);});
         
         breakpoints.forEach(builder::addBreakpoint);
         blocksToBeIgnored.forEach(builder::addIgnoreBlock);
@@ -181,7 +169,7 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instructRoot(StrandCommand command) {
-        instruct(strandFactory.rootStrand(), command);
+        instruct(strandExecutorFactory.rootStrand(), command);
     }
 
     @Override

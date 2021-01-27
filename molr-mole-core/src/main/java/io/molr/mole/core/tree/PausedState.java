@@ -17,6 +17,10 @@ public class PausedState extends StrandExecutionState{
 	public void run() {
 		
 		StrandCommand command = context.commandQueue.poll();
+		if(command != null) {
+			context.log("retrieved command to be executed from queue", command);
+		}
+		
 		if(command == StrandCommand.RESUME) {
 			context.updateLoopState(new NavigatingState(context));
 		}
@@ -65,8 +69,6 @@ public class PausedState extends StrandExecutionState{
 		if(command != null) {
 			System.out.println("command");
 		}
-		//System.out.println(context.getStrand()+"exec paused" +context.currentStackElement());
-		
 	}
 	
 	void updateRunStates() {
@@ -75,7 +77,9 @@ public class PausedState extends StrandExecutionState{
 
 	@Override
 	public void onEnterState() {
-		context.updateStrandRunState(RunState.PAUSED);	
+		context.log("enter PAUSED state");
+		context.updateStrandRunState(RunState.PAUSED);
+		updateRunStates();
 	}
 
 }

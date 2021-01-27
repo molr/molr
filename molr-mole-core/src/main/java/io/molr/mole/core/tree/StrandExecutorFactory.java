@@ -17,6 +17,8 @@ import static io.molr.commons.domain.RunState.FINISHED;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Optional;
+
 /**
  * FIXME to be merged most probably with StrandFactory...
  */
@@ -32,8 +34,8 @@ public class StrandExecutorFactory{
     private final Flux<StrandExecutor> newStrandsStream;
     private final RunStates runStates;
 
-    public StrandExecutorFactory(StrandFactory strandFactory, LeafExecutor leafExecutor, RunStates runStates) {
-        this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
+    public StrandExecutorFactory(LeafExecutor leafExecutor, RunStates runStates) {
+    	this.strandFactory = new StrandFactoryImpl();
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
         this.strandExecutors = new ConcurrentHashMap<>();
         this.runStates = runStates;
@@ -43,6 +45,14 @@ public class StrandExecutorFactory{
         newStrandsStream = newStrandsSink.publishOn(strandsScheduler).doFinally(signal-> {
         	strandsScheduler.dispose();
         });
+    }
+    
+    public Strand rootStrand() {
+    	return strandFactory.rootStrand();
+    }
+    
+    public StrandExecutor createRootStrandExecutor(TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
+    	return createStrandExecutor(strandFactory.rootStrand(), structure, breakpoints, blocksToBeIgnored, executionStrategy);
     }
 
     public StrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
@@ -85,5 +95,9 @@ public class StrandExecutorFactory{
     public void closeStrandsStream() {
     	newStrandsSink.onComplete();
     }
+
+	public Optional<Strand> parentOf(Strand strand) {
+		return strandFactory.parentOf(strand);
+	}
 
 }

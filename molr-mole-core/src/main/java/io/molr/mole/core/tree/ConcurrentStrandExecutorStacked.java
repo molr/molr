@@ -199,12 +199,12 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     void updateRunStatesForStackElements(RunState stateUpdate) {
     	stack.forEach(block -> runStates.put(block, stateUpdate));
-    	stateSink.onNext(null);//TODO replace
+    	stateSink.onNext(stateUpdate);/*TODO replace*/
     }
     
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
     	runStateUpdates.forEach((block, state)->runStates.put(block, state));
-    	stateSink.onNext(null);
+    	stateSink.onNext(RunState.NOT_STARTED);/*TODO remove dummy and find better way to update/trigger gatherMissionState */
     }
     
     void updateStrandRunState(RunState state) {
@@ -298,10 +298,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     			runStates.put(popped, RunState.FINISHED);
     			if(!structure.isLeaf(popped)) {
         			boolean allNonIgnoredChildrenWithSuccess = structure.childrenOf(popped).stream().filter(block -> {
-        				//TODO implies that RunState of aborted missions must be set to FINISHED
+        				/* NOTE: this that RunState of aborted missions must be set to FINISHED*/
         				return (runStates.of(block) == RunState.FINISHED);
         			}).allMatch(block -> {
-        				System.out.println("result "+block+" "+resultStates.of(block));
         				return resultStates.of(block) == Result.SUCCESS;
         			});
         			Result blockResult = allNonIgnoredChildrenWithSuccess?Result.SUCCESS:Result.FAILED;
@@ -310,8 +309,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         			if(!allNonIgnoredChildrenWithSuccess) {
         				System.out.println("overall failed "+popped);
         			}
-        			//
-
     			}
     		}
     	}
@@ -407,19 +404,11 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
 
     private void updateActualBlock(Block newBlock) {
-        LOGGER.debug("[{}] block = {}", strand, newBlock);
+        LOGGER.debug("[{}] update block = {}", strand, newBlock);
         /*
          * TODO Should we complete the stream if the newBlock is null? (strand execution
          * finished)
          */
-        if (newBlock != null) {
-            if (actualState.get() == ExecutorState.RESUMING) {
-                System.out.println("\n\nRunStates omitted");
-                if (!structure.isLeaf(newBlock)) {
-                    this.runStates.put(newBlock, RunState.RUNNING);
-                }
-            }
-        }
         actualBlock.set(newBlock);
         blockSink.onNext(newBlock);
         updateAllowedCommands();

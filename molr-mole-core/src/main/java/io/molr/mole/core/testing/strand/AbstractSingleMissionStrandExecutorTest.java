@@ -4,6 +4,7 @@ import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.MissionInput;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
+import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.testing.LatchTestSupport;
@@ -25,7 +26,6 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     private TreeStructure treeStructure;
     private TreeTracker<Result> resultTracker;
     private LeafExecutor leafExecutor;
-    private StrandFactory strandFactory;
     private StrandExecutorFactory strandExecutorFactory;
     private StrandExecutor strandExecutor;
 
@@ -43,10 +43,10 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
 
-        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new HashMap<>(),new ConcurrentMissionOutputCollector(), runStateTracker);
-        strandFactory = new StrandFactoryImpl();
-        strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
-        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), new HashSet<>(), executionStrategy);
+		leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(),
+				new HashMap<>(), new ConcurrentMissionOutputCollector(), runStateTracker);
+        strandExecutorFactory = new StrandExecutorFactory(leafExecutor, new RunStates(treeStructure));
+        strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, new HashSet<>(), new HashSet<>(), executionStrategy);
     }
 
     @Override
@@ -65,10 +65,6 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
 
     protected LeafExecutor leafExecutor() {
         return leafExecutor;
-    }
-
-    protected StrandFactory strandFactory() {
-        return strandFactory;
     }
 
     protected StrandExecutorFactory strandExecutorFactory() {

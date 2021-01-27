@@ -1,7 +1,5 @@
 package io.molr.mole.core.tree;
 
-import java.util.Set;
-
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Result;
@@ -75,14 +73,19 @@ public class NavigatingState extends StrandExecutionState{
 					context.popUntilNextChildAvailableAndPush();
 				}
 			}
+			
+			context.updateRunStatesForStackElements(RunState.RUNNING);
     	}
+    	
     	else {
-			System.out.println("empty stack finished "+context.getStrand());
+			context.log("NavigatingState finished with empty stack");
     	}
 	}
-
+	
+	
 	@Override
 	public void onEnterState() {
+		context.log("enter state NavigatingState");
 		context.updateRunStatesForStackElements(RunState.RUNNING);
 		context.updateStrandRunState(RunState.RUNNING);		
 	}

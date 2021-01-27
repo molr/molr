@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Strand;
-import io.molr.mole.core.runnable.RunStates;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
@@ -32,9 +31,9 @@ public class StrandExecutorFactoryNew{
     private final ConcurrentHashMap<Strand, ConcurrentStrandExecutorStacked> strandExecutors;
     private final EmitterProcessor<StrandExecutor> newStrandsSink;
     private final Flux<StrandExecutor> newStrandsStream;
-    private final RunStates runStates;
+    private final TreeNodeStates runStates;
 
-    public StrandExecutorFactoryNew(LeafExecutor leafExecutor, RunStates runStates) {
+    public StrandExecutorFactoryNew(LeafExecutor leafExecutor, TreeNodeStates runStates) {
     	this.strandFactory = new StrandFactoryImpl();
         //this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
