@@ -88,7 +88,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private ExecutionStrategy executionStrategy;
     private AtomicBoolean aborted = new AtomicBoolean(false); 
     //TODO remove field after refactoring
-    AtomicBoolean complete = new AtomicBoolean();
+    private AtomicBoolean complete = new AtomicBoolean();
     private RunStates runStates;
     private ResultStates resultStates;
     
@@ -177,9 +177,13 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 		}
     }
     
-    Stack<Block> stack = new Stack<>();
-    Map<Block, Integer> childIndices = new HashMap<>();
+    private Stack<Block> stack = new Stack<>();
+    private Map<Block, Integer> childIndices = new HashMap<>();
     private StrandExecutionState state = null;
+    
+    boolean isComplete() {
+    	return complete.get();
+    }
     
     boolean toBeIgnored(Block block) {
     	return this.blocksToBeIgnored.contains(block);
@@ -202,14 +206,32 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	state.onEnterState();
     }
     
+    void updateRunStatesForStackElements(RunState stateUpdate) {
+    	stack.forEach(block -> runStates.put(block, stateUpdate));
+    	stateSink.onNext(null);//TODO replace
+    }
+    
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
     	runStateUpdates.forEach((block, state)->runStates.put(block, state));
+    	stateSink.onNext(null);
     }
     
     private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
     
     void updateStrandRunState(RunState state) {
     	this.strandRunState.set(state);
+    }
+    
+    Block currentStackElement() {
+    	return this.stack.peek();
+    }
+    
+    Block popStackElement() {
+    	return this.stack.pop();
+    }
+    
+    boolean isStackEmpty() {
+    	return stack.isEmpty();
     }
     
     void push(Block block) {
@@ -223,12 +245,34 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	stateSink.onNext(null);//TODO
     }
     
-    boolean hasUnfinishedChild(Block block) {
-    	int i = childIndices.get(block);
+//    boolean hasUnfinishedChild(Block block) {
+//    	int i = childIndices.get(block);
+//    	List<Block> children = structure.childrenOf(block);
+//    	if(structure.isLeaf(block) || structure.isParallel(block))//|| is misleading
+//    		return false;
+//    	return i < children.size()-1;
+//    }
+    
+    Optional<Block> moveChildIndexAndPushNextChild(Block block) {
+    	if(structure.isLeaf(block) || structure.isParallel(block)) {
+    		return Optional.empty();
+    	}
+    	int currentChildIndex = childIndices.get(block);
     	List<Block> children = structure.childrenOf(block);
-    	if(structure.isLeaf(block) || structure.isParallel(block))//|| is misleading
-    		return false;
-    	return i < children.size()-1;
+    	while(currentChildIndex < children.size()-1) {
+    		currentChildIndex++;
+    		childIndices.put(block, currentChildIndex);
+    		Block childCandidate = children.get(currentChildIndex);
+    		if(!blocksToBeIgnored.contains(childCandidate)) {
+    			push(childCandidate);
+    			LOGGER.info(strand + " Found next child for block "+block+" child: "+childCandidate);
+    			return Optional.of(childCandidate);
+    		}
+    		else {
+    			LOGGER.info(strand + " Ignore block "+childCandidate);
+    		}
+    	}
+    	return Optional.empty();
     }
         
 //    Block findNext() {
@@ -243,8 +287,12 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 //    	}
 //    }
     
-    void popUntilNext() {
-    	while(!stack.isEmpty() && !hasUnfinishedChild(stack.peek())) {
+    private void popUntilNext() {
+    	while(!stack.isEmpty()){//!hasUnfinishedChild(stack.peek())) {
+    		if(moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {
+    			return;
+    		}
+    		
     		System.out.println(strand + " pop "+stack.peek());
     		Block popped = stack.pop();
     		if(popped!=null) {
@@ -267,16 +315,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	if(stack.isEmpty()) {
     		return Optional.empty();
     	}
-    	Block parent = stack.peek();
-    	int i = childIndices.get(parent);
-    	i++;
-    	childIndices.put(parent, i);
-    	System.out.println("get child of "+parent+" "+i);
-    	Block child = structure.childrenOf(parent).get(i);
-    	//TODO we may skip blocks to be ignored
-    	push(structure.childrenOf(parent).get(i));
-    	System.out.println(strand + " next child is "+child);
-    	return Optional.of(child);
+    	return Optional.of(stack.peek());
     }
     
     private void lifecycle() {

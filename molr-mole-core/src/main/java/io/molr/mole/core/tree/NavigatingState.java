@@ -1,9 +1,5 @@
 package io.molr.mole.core.tree;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.RunState;
 
@@ -19,12 +15,11 @@ public class NavigatingState extends StrandExecutionState{
 	public void run() {
 		
 		TreeStructure structure = context.structure;
-		Stack<Block> stack = context.stack;
-    	if(!stack.empty()) {
-			Block current = stack.peek();
+    	if(!context.isStackEmpty()) {
+			Block current = context.currentStackElement();
 			
 			if(context.toBeIgnored(current)) {
-				context.stack.pop();
+				context.popStackElement();
 				context.popUntilNextChildAvailableAndPush();
 				return;
 			}
@@ -53,23 +48,7 @@ public class NavigatingState extends StrandExecutionState{
 				 * Block with children to be executed by own strand
 				 */
 				else {
-					/*
-					 * The current block is finished
-					 */
-					if(!context.hasUnfinishedChild(current)) {
-						context.popUntilNextChildAvailableAndPush();
-						context.updateRunStates(Map.of(current, RunState.FINISHED));
-						//- we could also get an result here
-						//- what about non executed children
-					}
-					/*
-					 * The current block has non-executed children
-					 */
-					else {
-						Block next = context.popUntilNextChildAvailableAndPush().get();
-						//context.updateRunStates(Map.of(next, RunState.RUNNING));
-
-					}
+					context.popUntilNextChildAvailableAndPush();
 				}
 			}
     	}
@@ -80,6 +59,7 @@ public class NavigatingState extends StrandExecutionState{
 
 	@Override
 	public void onEnterState() {
+		context.updateRunStatesForStackElements(RunState.RUNNING);
 		context.updateStrandRunState(RunState.RUNNING);		
 	}
 

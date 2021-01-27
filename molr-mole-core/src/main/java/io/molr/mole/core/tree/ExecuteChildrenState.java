@@ -37,7 +37,7 @@ public class ExecuteChildrenState extends StrandExecutionState{
 		}
 		
 		childExecutors.forEach((block, childExecutor) -> {
-			if(childExecutor.complete.get()) {
+			if(childExecutor.isComplete()) {
 				finishedChildren.add(childExecutor);
 			}
 		});

@@ -1,7 +1,5 @@
 package io.molr.mole.core.tree;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.molr.commons.domain.Block;
@@ -17,8 +15,7 @@ public class PausedState extends StrandExecutionState{
 
 	@Override
 	public void run() {
-
-		sk.util.Threads.sleep(1000);
+		//sk.util.Threads.sleep(1000);
 		
 		StrandCommand command = context.commandQueue.poll();
 		System.out.println("polled command "+command);
@@ -27,20 +24,17 @@ public class PausedState extends StrandExecutionState{
 		}
 		
 		if(command == StrandCommand.STEP_INTO) {
-			Block current = context.stack.peek();
+			Block current = context.currentStackElement();
 			
 			if(context.structure.isParallel(current)) {
 				context.updateLoopState(new ExecuteChildrenState(current, context));
 				return;
 			}
-			
-			List<Block> children = context.structure.childrenOf(current);
-			Block firstChild = children.get(0);
-			context.push(firstChild);
-			//TODO needs to be 
-			context.childIndices.put(current, context.childIndices.get(current)+1);
-			//state is PAUSED
-			//breakpoint not needed since we do not move anyway
+			//TODO
+			if(context.moveChildIndexAndPushNextChild(current).isEmpty()){
+				//cannot stepInto -> publish error
+				return;
+			}
 			updateRunStates();
 		}
 		
@@ -53,7 +47,7 @@ public class PausedState extends StrandExecutionState{
 		
 		if(command == StrandCommand.SKIP) {
 			//SET Breakpoint to next succ and navigate
-			Block skipped = context.stack.pop();
+			Block skipped = context.popStackElement();
 			context.updateRunStates(Map.of(skipped, RunState.NOT_STARTED));
 			if(context.popUntilNextChildAvailableAndPush().isPresent()) {
 				System.out.println("pushed next");
@@ -61,7 +55,7 @@ public class PausedState extends StrandExecutionState{
 			else {
 				System.out.println("none xext");
 			}
-			if(context.stack.isEmpty()) {
+			if(context.isStackEmpty()) {
 				System.out.println("We are done here");
 			}
 			updateRunStates();
@@ -73,16 +67,12 @@ public class PausedState extends StrandExecutionState{
 		if(command != null) {
 			System.out.println("command");
 		}
-		System.out.println(context.getStrand()+"exec paused" +context.stack.peek());
+		System.out.println(context.getStrand()+"exec paused" +context.currentStackElement());
 		
 	}
 	
 	void updateRunStates() {
-		Map<Block, RunState> runStates = new HashMap<>();
-		context.stack.forEach(stackElement-> {
-			runStates.put(stackElement, RunState.PAUSED);
-		});
-		context.updateRunStates(runStates);
+		context.updateRunStatesForStackElements(RunState.PAUSED);
 	}
 
 	@Override
