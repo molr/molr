@@ -1,6 +1,8 @@
 package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 
 public class NavigatingState extends StrandExecutionState{
@@ -30,7 +32,17 @@ public class NavigatingState extends StrandExecutionState{
 			}
 						
 			if(structure.isLeaf(current)) {
-				context.runLeaf(current);
+				Result result = context.runLeaf(current);
+				if(result==Result.FAILED) {
+					if(context.executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR) {
+						context.clearStackElementsAndSetResult();
+						return;
+					}
+					if(context.executionStrategy()==ExecutionStrategy.PAUSE_ON_ERROR) {
+						context.updateLoopState(new PausedState(context));
+						return;
+					}
+				}
 				context.popUntilNextChildAvailableAndPush();
 				//must be pop and next otherwise we would pause again if parent is breakpoint
 			}

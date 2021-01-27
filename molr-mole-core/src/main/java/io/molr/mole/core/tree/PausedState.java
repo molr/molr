@@ -18,7 +18,6 @@ public class PausedState extends StrandExecutionState{
 		//sk.util.Threads.sleep(1000);
 		
 		StrandCommand command = context.commandQueue.poll();
-		System.out.println("polled command "+command);
 		if(command == StrandCommand.RESUME) {
 			context.updateLoopState(new NavigatingState(context));
 		}
@@ -67,7 +66,7 @@ public class PausedState extends StrandExecutionState{
 		if(command != null) {
 			System.out.println("command");
 		}
-		System.out.println(context.getStrand()+"exec paused" +context.currentStackElement());
+		//System.out.println(context.getStrand()+"exec paused" +context.currentStackElement());
 		
 	}
 	

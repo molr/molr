@@ -180,6 +180,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private Stack<Block> stack = new Stack<>();
     private Map<Block, Integer> childIndices = new HashMap<>();
     private StrandExecutionState state = null;
+    private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
     
     boolean isComplete() {
     	return complete.get();
@@ -193,8 +194,17 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	return this.breakpoints.contains(block);
     }
     
+    ExecutionStrategy executionStrategy() {
+    	return this.executionStrategy;
+    }
+    
+    ResultStates resultStates(){
+    	return resultStates;
+    }
+    
     Result runLeaf(Block block) {
     	runStates.put(block, RunState.RUNNING);
+    	log("run leaf {}", block);
     	Result result = leafExecutor.execute(block);
     	resultStates.put(block, result);
     	runStates.put(block, RunState.FINISHED);
@@ -216,14 +226,21 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	stateSink.onNext(null);
     }
     
-    private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
-    
     void updateStrandRunState(RunState state) {
     	this.strandRunState.set(state);
     }
     
     Block currentStackElement() {
     	return this.stack.peek();
+    }
+    
+    void clearStackElementsAndSetResult(){
+    	log("clear stack");
+    	stack.forEach(block-> {
+    		resultStates.put(block, Result.FAILED);
+    		runStates.put(block, FINISHED);
+    	});
+    	this.stack.clear();
     }
     
     Block popStackElement() {
@@ -299,12 +316,20 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     			runStates.put(popped, RunState.FINISHED);
     			if(!structure.isLeaf(popped)) {
         			boolean allNonIgnoredChildrenWithSuccess = structure.childrenOf(popped).stream().filter(block -> {
+        				//TODO implies that RunState of aborted missions must be set to FINISHED
         				return (runStates.of(block) == RunState.FINISHED);
         			}).allMatch(block -> {
+        				System.out.println("result "+block+" "+resultStates.of(block));
         				return resultStates.of(block) == Result.SUCCESS;
         			});
         			Result blockResult = allNonIgnoredChildrenWithSuccess?Result.SUCCESS:Result.FAILED;
-        			resultStates.put(popped, blockResult);	
+        			resultStates.put(popped, blockResult);
+        			log("block {} is finished, result:{}, runState:{}", popped, blockResult, runStates.of(popped));
+        			if(!allNonIgnoredChildrenWithSuccess) {
+        				System.out.println("overall failed "+popped);
+        			}
+        			//
+
     			}
     		}
     	}
@@ -634,5 +659,14 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     @Override
     public boolean aborted() {
         return aborted.get();
+    }
+    
+    void log(String message, Object ... objects){
+    	Object[] concatenated = new Object[objects.length+1];
+    	concatenated[0] = strand;
+    	for (int i = 0; i < objects.length; i++) {
+			concatenated[i+1] = objects[i];
+		}
+    	LOGGER.info("[{}]:"+message, concatenated);
     }
 }
