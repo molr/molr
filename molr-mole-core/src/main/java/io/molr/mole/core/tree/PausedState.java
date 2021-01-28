@@ -51,19 +51,11 @@ public class PausedState extends StrandExecutionState{
 			//SET Breakpoint to next succ and navigate
 			Block skipped = context.popStackElement();
 			context.updateRunStates(Map.of(skipped, RunState.NOT_STARTED));
-			if(context.popUntilNextChildAvailableAndPush().isPresent()) {
-				System.out.println("pushed next");
-			}
-			else {
-				System.out.println("none xext");
-			}
+			context.popUntilNextChildAvailableAndPush();
 			if(context.isStackEmpty()) {
-				System.out.println("We are done here");
+				context.log("PausedState: stack is empty, we are done here");
 			}
 			updateRunStates();
-			if(true) {
-				return;
-			}
 		}
 		
 		if(command != null) {
