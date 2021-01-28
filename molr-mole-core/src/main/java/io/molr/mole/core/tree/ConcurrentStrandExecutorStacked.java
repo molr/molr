@@ -27,14 +27,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static io.molr.commons.domain.RunState.*;
-import static io.molr.commons.domain.StrandCommand.*;
 import static io.molr.commons.util.Exceptions.exception;
 import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
 
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
@@ -45,9 +41,9 @@ import java.util.ArrayList;
 public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStacked.class);
-    private static final int EXECUTOR_SLEEP_MS_IDLE = 50;
+    //private static final int EXECUTOR_SLEEP_MS_IDLE = 50;
     private static final int EXECUTOR_SLEEP_MS_DEFAULT = 10;
-    private static final int EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN = 25;
+    //private static final int EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN = 25;
 
     private final Object cycleLock = new Object();
 
@@ -61,8 +57,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private final StrandExecutorFactoryNew strandExecutorFactory;
     private final LeafExecutor leafExecutor;
 
-    private final ReplayProcessor<StrandCommand> lastCommandSink;
-    private final Flux<StrandCommand> lastCommandStream;
+    //private final ReplayProcessor<StrandCommand> lastCommandSink;
     private final ReplayProcessor<RunState> stateSink;
     private final Flux<RunState> stateStream;
     private final ReplayProcessor<Block> blockSink;
@@ -72,7 +67,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
     /* AtomicReference guarantee read safety while not blocking using cycleLock for the getters */
     private final AtomicReference<Set<StrandCommand>> allowedCommands;
-    private final AtomicReference<ExecutorState> actualState;
     private final AtomicReference<Block> actualBlock;
     private final Block strandRoot;
 
@@ -112,8 +106,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         this.strandExecutorFactory = requireNonNull(strandExecutorFactory, "strandExecutorFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
 
-        this.lastCommandSink = ReplayProcessor.cacheLast();
-        this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
+        //this.lastCommandSink = ReplayProcessor.cacheLast();
+        //this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
         this.errorSink = EmitterProcessor.create();
         this.errorStream = errorSink.publishOn(publishingScheduler("errors"));
 
@@ -132,7 +126,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
         this.allowedCommands = new AtomicReference<>();
         this.actualBlock = new AtomicReference<>();
-        this.actualState = new AtomicReference<>();
 
         updateActualBlock(actualBlock);
         push(actualBlock);
@@ -381,7 +374,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         stateSink.onComplete();
         blockSink.onComplete();
         errorSink.onComplete();
-        lastCommandSink.onComplete();     
+        //lastCommandSink.onComplete();  
         //TODO seems not to be the right way
         //stateStreamscheduler.dispose();
         //scheduler.dispose kills the scheduler right away. dispose called with flux.doFinally runs on scheduler thread and is defered
@@ -425,14 +418,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         updateAllowedCommands();
         blockSink.onNext(newBlock);
     }
-    
-//    private void updateState(ExecutorState newState) {
-//    	LOGGER.info("[{}] state = {}", strand, newState);
-//		/* TODO Should we complete the stream if the new state is FINISHED? */
-//        actualState.set(newState);
-//        updateAllowedCommands();
-//        stateSink.onNext(runStateFrom(newState));
-//    }
 
     private void setAllowedCommands(Set<StrandCommand> allowedCommandSet) {
     	allowedCommands.set(allowedCommandSet);
@@ -450,27 +435,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         	LOGGER.warn("called updateAllowedCommands while state is null");
         	return;
         }
+        log("Legacy updateAllowedCommands() called", state.allowedCommands());
         setAllowedCommands(state.allowedCommands());
-        log("Legacy allowed commands called", state.allowedCommands());
-
-//        ImmutableSet.Builder<StrandCommand> builder = ImmutableSet.builder();
-//        switch (runStateFrom(actualState())) {
-//            case PAUSED:
-//                builder.add(RESUME);
-//                if (!hasChildren()) {
-//                    builder.add(STEP_OVER, SKIP);
-//
-//                    if (!isLeaf(actualBlock())) {
-//                        builder.add(STEP_INTO);
-//                    }
-//                }
-//                break;
-//            case RUNNING:
-//                builder.add(PAUSE);
-//                break;
-//        }
-//
-//        allowedCommands.set(builder.build());
     }
 
     @Override
@@ -515,26 +481,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         }
     }
 
-//    private ExecutorState actualState() {
-//        return actualState.get();
-//    }
-
     private Block actualBlock() {
         return actualBlock.get();
-    }
-
-    private boolean hasChildren() {
-        if (childExecutors == null) {
-            return false;
-        }
-        return !childExecutors.isEmpty();
-    }
-
-    private boolean isLeaf(Block block) {
-        if (block == null) {
-            return false;
-        }
-        return this.structure.isLeaf(block);
     }
 
     void publishError(Exception error) {
@@ -552,44 +500,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private void cycleSleep() {
         try {
         	Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
-//            switch (actualState()) {
-//                case WAITING_FOR_CHILDREN:
-//                    Thread.sleep(EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN);
-//                    break;
-//                case IDLE:
-//                    Thread.sleep(EXECUTOR_SLEEP_MS_IDLE);
-//                    break;
-//                default:
-//                    Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
-//            }
         } catch (InterruptedException e) {
             throw exception(IllegalStateException.class, "Strand {} thread interrupted!", strand.id(), e);
         }
-    }
-
-    private static RunState runStateFrom(ExecutorState state) {
-        switch (state) {
-            case RESUMING:
-            case STEPPING_OVER:
-            case WAITING_FOR_CHILDREN:
-                return RUNNING;
-            case IDLE:
-                return PAUSED;
-            case FINISHED:
-                return FINISHED;
-        }
-        throw exception(IllegalArgumentException.class, "Strand state {} cannot be mapped to a RunState", state);
-    }
-
-    /**
-     * More detailed internal representation of the executor's state
-     */
-    private enum ExecutorState {
-        IDLE,
-        STEPPING_OVER,
-        RESUMING,
-        FINISHED,
-        WAITING_FOR_CHILDREN;
     }
 
     @Override
