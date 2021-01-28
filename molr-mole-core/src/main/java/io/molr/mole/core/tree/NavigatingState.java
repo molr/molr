@@ -1,9 +1,12 @@
 package io.molr.mole.core.tree;
 
+import java.util.Set;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
 
 public class NavigatingState extends StrandExecutionState{
 
@@ -87,7 +90,13 @@ public class NavigatingState extends StrandExecutionState{
 	public void onEnterState() {
 		context.log("enter state NavigatingState");
 		context.updateRunStatesForStackElements(RunState.RUNNING);
-		context.updateStrandRunState(RunState.RUNNING);		
+		context.updateStrandRunState(RunState.RUNNING);
+	}
+	
+	@Override
+	public Set<StrandCommand> allowedCommands() {
+		// TODO Auto-generated method stub
+		return super.allowedCommands();
 	}
 
 }

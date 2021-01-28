@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.common.collect.ImmutableSet;
+
 import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
@@ -84,5 +86,13 @@ public class ExecuteChildrenState extends StrandExecutionState{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+		public Set<StrandCommand> allowedCommands() {
+			/*
+			 * TODO specify meaningful set of commands
+			 */
+			return ImmutableSet.of(StrandCommand.RESUME);
+		}
 
 }

@@ -136,7 +136,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
         updateActualBlock(actualBlock);
         push(actualBlock);
-        updateState(ExecutorState.IDLE);
         updateChildrenExecutors(ImmutableList.of());
 
         state = new PausedState(this);
@@ -194,6 +193,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     void updateLoopState(StrandExecutionState newState) {
     	state = newState;
+    	setAllowedCommands(newState.allowedCommands());
     	state.onEnterState();
     }
     
@@ -213,6 +213,15 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     Block currentStackElement() {
     	return this.stack.peek();
+    }
+    
+    boolean currentStackElementIsLeave() {
+    	Block currentElement = currentStackElement();
+    	if(currentElement == null) {
+    		LOGGER.warn("Ask for type of current stack element but was null");
+    		return false;
+    	}
+    	return structure.isLeaf(currentElement);
     }
     
     void clearStackElementsAndSetResult(){
@@ -349,6 +358,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
          	
             synchronized (cycleLock) {
             	state.run();
+            	/*
+            	 * TODO cleanup the cleanup ;)
+            	 */
             	if(stack.empty()) {
                     //TODO update this by states itself?
                     updateStrandRunState(FINISHED);
@@ -410,42 +422,55 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
          * finished)
          */
         actualBlock.set(newBlock);
-        blockSink.onNext(newBlock);
         updateAllowedCommands();
+        blockSink.onNext(newBlock);
     }
     
-    private void updateState(ExecutorState newState) {
-    	LOGGER.info("[{}] state = {}", strand, newState);
-		/* TODO Should we complete the stream if the new state is FINISHED? */
-        actualState.set(newState);
-        updateAllowedCommands();
-        stateSink.onNext(runStateFrom(newState));
-    }
+//    private void updateState(ExecutorState newState) {
+//    	LOGGER.info("[{}] state = {}", strand, newState);
+//		/* TODO Should we complete the stream if the new state is FINISHED? */
+//        actualState.set(newState);
+//        updateAllowedCommands();
+//        stateSink.onNext(runStateFrom(newState));
+//    }
 
+    private void setAllowedCommands(Set<StrandCommand> allowedCommandSet) {
+    	allowedCommands.set(allowedCommandSet);
+    	log("updated allowed commands to {}", allowedCommandSet);
+    }
+    
     private void updateAllowedCommands() {
-        if (actualBlock() == null || actualState() == null) {
-            allowedCommands.set(ImmutableSet.of());
+		if (actualBlock() == null/* || actualState() == null */) {
+			setAllowedCommands(ImmutableSet.of());
+            LOGGER.warn("called updateAllowedCommands while current block is empty -> setAllowedTo []");
             return;
         }
-
-        ImmutableSet.Builder<StrandCommand> builder = ImmutableSet.builder();
-        switch (runStateFrom(actualState())) {
-            case PAUSED:
-                builder.add(RESUME);
-                if (!hasChildren()) {
-                    builder.add(STEP_OVER, SKIP);
-
-                    if (!isLeaf(actualBlock())) {
-                        builder.add(STEP_INTO);
-                    }
-                }
-                break;
-            case RUNNING:
-                builder.add(PAUSE);
-                break;
+		/*TODO remove after fixing init and updateAllowedCommands flow*/
+        if(state==null) {
+        	LOGGER.warn("called updateAllowedCommands while state is null");
+        	return;
         }
+        setAllowedCommands(state.allowedCommands());
+        log("Legacy allowed commands called", state.allowedCommands());
 
-        allowedCommands.set(builder.build());
+//        ImmutableSet.Builder<StrandCommand> builder = ImmutableSet.builder();
+//        switch (runStateFrom(actualState())) {
+//            case PAUSED:
+//                builder.add(RESUME);
+//                if (!hasChildren()) {
+//                    builder.add(STEP_OVER, SKIP);
+//
+//                    if (!isLeaf(actualBlock())) {
+//                        builder.add(STEP_INTO);
+//                    }
+//                }
+//                break;
+//            case RUNNING:
+//                builder.add(PAUSE);
+//                break;
+//        }
+//
+//        allowedCommands.set(builder.build());
     }
 
     @Override
@@ -490,9 +515,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         }
     }
 
-    private ExecutorState actualState() {
-        return actualState.get();
-    }
+//    private ExecutorState actualState() {
+//        return actualState.get();
+//    }
 
     private Block actualBlock() {
         return actualBlock.get();
@@ -526,16 +551,17 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
      */
     private void cycleSleep() {
         try {
-            switch (actualState()) {
-                case WAITING_FOR_CHILDREN:
-                    Thread.sleep(EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN);
-                    break;
-                case IDLE:
-                    Thread.sleep(EXECUTOR_SLEEP_MS_IDLE);
-                    break;
-                default:
-                    Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
-            }
+        	Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
+//            switch (actualState()) {
+//                case WAITING_FOR_CHILDREN:
+//                    Thread.sleep(EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN);
+//                    break;
+//                case IDLE:
+//                    Thread.sleep(EXECUTOR_SLEEP_MS_IDLE);
+//                    break;
+//                default:
+//                    Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
+//            }
         } catch (InterruptedException e) {
             throw exception(IllegalStateException.class, "Strand {} thread interrupted!", strand.id(), e);
         }

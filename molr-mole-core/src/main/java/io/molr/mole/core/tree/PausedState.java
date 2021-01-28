@@ -1,13 +1,25 @@
 package io.molr.mole.core.tree;
 
 import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 
+/*
+ * TODO Maybe we should move over breakpoint on resume instead of pausing again until breakpoint is removed
+ */
 public class PausedState extends StrandExecutionState{
+	private final static Set<StrandCommand> ALLOWED_COMMANDS_FOR_LEAVES = ImmutableSet.of(StrandCommand.RESUME,
+			StrandCommand.SKIP, StrandCommand.STEP_OVER);
+	private final static Set<StrandCommand> ALL_COMMANDS_FOR_NON_LEAVES = ImmutableSet.of(StrandCommand.RESUME,
+			StrandCommand.STEP_INTO, StrandCommand.SKIP, StrandCommand.STEP_OVER);
 
+
+	
 	public PausedState(ConcurrentStrandExecutorStacked context) {
 		super(context);
 
@@ -18,7 +30,7 @@ public class PausedState extends StrandExecutionState{
 		
 		StrandCommand command = context.commandQueue.poll();
 		if(command != null) {
-			context.log("retrieved command to be executed from queue", command);
+			context.log("retrieved {} command to be executed from queue", command);
 		}
 		
 		if(command == StrandCommand.RESUME) {
@@ -48,7 +60,6 @@ public class PausedState extends StrandExecutionState{
 		}
 		
 		if(command == StrandCommand.SKIP) {
-			//SET Breakpoint to next succ and navigate
 			Block skipped = context.popStackElement();
 			context.updateRunStates(Map.of(skipped, RunState.NOT_STARTED));
 			context.popUntilNextChildAvailableAndPush();
@@ -56,10 +67,6 @@ public class PausedState extends StrandExecutionState{
 				context.log("PausedState: stack is empty, we are done here");
 			}
 			updateRunStates();
-		}
-		
-		if(command != null) {
-			System.out.println("command");
 		}
 	}
 	
@@ -72,6 +79,15 @@ public class PausedState extends StrandExecutionState{
 		context.log("enter PAUSED state");
 		context.updateStrandRunState(RunState.PAUSED);
 		updateRunStates();
+	}
+	
+	@Override
+	public Set<StrandCommand> allowedCommands() {
+		if(context.currentStackElementIsLeave()) {
+			return ALLOWED_COMMANDS_FOR_LEAVES;
+		}
+		return ALL_COMMANDS_FOR_NON_LEAVES;
+
 	}
 
 }
