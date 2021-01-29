@@ -1,8 +1,10 @@
 package io.molr.mole.core.tree;
 
+import java.util.List;
 import java.util.Set;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
@@ -54,6 +56,10 @@ public class NavigatingState extends StrandExecutionState{
 					if(context.executionStrategy()==ExecutionStrategy.PAUSE_ON_ERROR) {
 						context.updateLoopState(new PausedState(context));
 						return;
+					}
+					List<BlockAttribute> attributes = context.structure.missionRepresentation().blockAttributes().get(current);
+					if(attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
+						context.popAndMoveChildIndexToLast();
 					}
 				}
 				context.popUntilNextChildAvailableAndPush();

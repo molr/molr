@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.demo.conf;
 
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.Placeholder;
@@ -27,6 +28,99 @@ public class DemoRunnableLeafsConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoRunnableLeafsConfiguration.class);
 
+    ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
+    
+    @Bean RunnableLeafsMission parallelRoot() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+        		root("ParallelRoot").parallel().as(rootBranch -> {
+        			rootBranch.leaf("FirstChild").run(()->{System.out.println("run");});
+        			rootBranch.leaf("SecondChild").run(()-> {System.out.println("run "+this);});
+        		});	
+        		
+    		}
+    	}.build();
+    }
+    
+    @Bean RunnableLeafsMission sequentialRoot() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+        		root("SequentialRoot").sequential().as(rootBranch -> {
+        			rootBranch.leaf("A").run(()->{System.out.println("run");});
+        			rootBranch.branch("B").parallel().as(branch-> {
+        				branch.leaf("B.A").run(()->{System.out.println("run nested");});
+        				branch.leaf("B.B").run(()->{System.out.println("run nested");});
+        			});
+        		});	
+        		
+    		}
+    	}.build();
+    }
+    
+    @Bean
+    public RunnableLeafsMission runStateMission() {
+        return new RunnableLeafsMissionSupport() {
+            {
+            	executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
+            	
+                root("RunStates").sequential().as(root -> {
+
+                	
+                    root.branch("Zero").sequential().as(b1 -> {
+                    	b1.branch("YeroA_First").as(subB1 -> {
+                    		subB1.leaf("ZAA").run(()->{});
+                    		subB1.leaf("ZAB").run(()->{});
+                    	});
+                    	
+                        b1.leaf("ZFirst A")
+                                .run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("ZFirstB").run(()->{});
+                    });
+                	
+                    root.branch("First").parallel().as(b1 -> {
+                    	b1.branch("FirstA_First").as(subB1 -> {
+                    		subB1.leaf("AA").run(()->{});
+                    		subB1.leaf("AB").run(()->{throw new IllegalStateException("e");});
+                    		
+                    	});
+                    	
+                        b1.leaf("First A")
+                                .run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("FirstB").run(()->{});
+                    });
+                });
+
+            }
+        }.build();
+    }
+    
+    @Bean
+    public RunnableLeafsMission runStateMission2() {
+        return new RunnableLeafsMissionSupport() {
+            {
+            	executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
+            	
+                root("RunStates2").sequential().as(root -> {
+
+                	
+                    root.branch("ParallelParallel").sequential().as(b1 -> {
+                    	b1.branch("YeroA_First").sequential().as(subB1 -> {
+                    		subB1.leaf("ZAA").run(()->{});
+                    		subB1.leaf("ZAB").run(()->{throw new RuntimeException("error");});
+                        	});
+                    	
+                        b1.leaf("ZFirst A")
+                                .run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("ZFirstB").run(()->{});
+                    });
+
+                });
+
+            }
+        }.build();
+    }
+    
     @Bean
     public RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
@@ -37,7 +131,7 @@ public class DemoRunnableLeafsConfiguration {
 
                     root.branch("First").sequential().as(b1 -> {
                         b1.leaf("First A")
-                                .perDefault(BREAK)
+                                //.perDefault(BREAK)
                                 .run(() -> LOGGER.info("{} executed", "First A"));
                         log(b1, "First B");
                     });
@@ -165,6 +259,9 @@ public class DemoRunnableLeafsConfiguration {
     	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
     		{
     			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+    			for (int i = 0; i < 250; i++) {
+					allowedItems.add("A"+i);
+				}
     			/*
     			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
     			 * This issue will be addressed in upcoming releases 
@@ -178,8 +275,8 @@ public class DemoRunnableLeafsConfiguration {
     			 * map called on foreach will map/transform each item into an object created by the given factory
     			 */
     			root("foreachDemo").foreach(someDevices).parallel().map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("SwitchOn ").perDefault(IGNORE).runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").perDefault(BREAK).run(()->Thread.sleep(1000));
+					doWithDeviceBranch.leaf("SwitchOn ").perDefault(IGNORE).runFor(device->{device.switchOn();});
+    				doWithDeviceBranch.leaf("Pause").perDefault(IGNORE).run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runFor(device->{device.switchOff();});
     			});
     		}
@@ -236,7 +333,7 @@ public class DemoRunnableLeafsConfiguration {
     			root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
-    				doWithDeviceBranch.leaf("ThrowException").run(()->{throw new RuntimeException("error xy");});
+    				doWithDeviceBranch.leaf("ThrowException").perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run(()->{throw new RuntimeException("error xy");});
     				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
     			});
     		}

@@ -1,5 +1,5 @@
 package io.molr.commons.domain;
 
 public enum BlockAttribute {
-	BREAK, IGNORE
+	BREAK, IGNORE, ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS
 }

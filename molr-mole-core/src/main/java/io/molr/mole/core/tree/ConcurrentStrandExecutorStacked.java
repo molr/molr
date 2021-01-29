@@ -287,6 +287,12 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 //    	}
 //    }
     
+    void popAndMoveChildIndexToLast() {
+    	stack.pop();
+    	Block parent = stack.peek();
+    	childIndices.put(stack.peek(), structure.childrenOf(parent).size()-1);
+    }
+    
     private void popUntilNext() {
     	while(!stack.isEmpty()){//!hasUnfinishedChild(stack.peek())) {
     		if(moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {

@@ -125,6 +125,7 @@ public class TreeStructure {
                 addChildren(grandChild, child, builder, idPostfix);
             }
         }
+        builder.addBlockAttributes(child, representation.blockAttributes().get(child));
     }
 
     private boolean isLastSibling(Block actualBlock, List<Block> siblings) {
