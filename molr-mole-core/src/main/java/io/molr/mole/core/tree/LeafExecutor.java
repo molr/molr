@@ -63,6 +63,7 @@ public abstract class LeafExecutor {
         } catch (Exception e) {
             LOGGER.warn("Execution of {} threw an exception: {}", block, e.getMessage(), e);
             outputFor(block).emit(Placeholders.THROWN, stackTraceFrom(e));
+            outputFor(block).emit(Placeholders.THROWN.name()+".message", e.getMessage());
             return FAILED;
         }
     }
