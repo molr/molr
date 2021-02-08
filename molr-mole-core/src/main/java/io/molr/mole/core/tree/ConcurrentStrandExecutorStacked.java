@@ -32,6 +32,8 @@ import static io.molr.commons.domain.RunState.*;
 import static io.molr.commons.util.Exceptions.exception;
 import static java.util.Objects.requireNonNull;
 
+import java.text.MessageFormat;
+
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
  * thread avoiding to block the {@link #instruct(StrandCommand)} method (or any other for that matter).
@@ -142,7 +144,10 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     @Override
     public void instruct(StrandCommand command) {
         if (!commandQueue.offer(command)) {
-            LOGGER.warn("Command {} cannot be accepted by strand {} because it is processing another command", command, strand);
+        	String message = MessageFormat.format("Command {0} cannot be accepted by strand {1} because it is processing another command",
+        			command, strand);
+            LOGGER.warn(message);
+            throw new RuntimeException(message);
         }
     }
     
@@ -399,6 +404,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
     
     ConcurrentStrandExecutorStacked createChildStrandExecutor(Block childBlock) {
+    	if(blocksToBeIgnored.contains(childBlock)) {
+    		return null;
+    	}
     	ConcurrentStrandExecutorStacked childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
         addChildExecutor(childExecutor);
         LOGGER.info("[{}] created child strand {}", strand, childExecutor.getStrand());

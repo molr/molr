@@ -41,7 +41,7 @@ public class PausedState extends StrandExecutionState{
 			Block current = context.currentStackElement();
 			
 			if(context.structure.isParallel(current)) {
-				context.updateLoopState(new ExecuteChildrenState(current, context));
+				context.updateLoopState(new ExecuteChildrenPausedState(current, context));
 				return;
 			}
 			//TODO

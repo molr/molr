@@ -41,6 +41,7 @@ import static java.util.stream.Collectors.toList;
  * <p>
  * This class is thread safe
  */
+@Deprecated
 public class ConcurrentStrandExecutor implements StrandExecutor {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);

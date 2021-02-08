@@ -151,7 +151,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
         ExecutionStrategy executionStrategy = inferExecutionStrategyFromParameters(missionParameterDescriptionOf(mission), input);
         LOGGER.info("ExecutionStrategy: "+executionStrategy);
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, instantiatedTree.getRunnables(), input, instantiatedTree.getBlockInputs(), outputCollector, runStateTracker);
+        /*
+         * TODO remove tracker
+         */
+        LeafExecutor leafExecutor = new StateTrackingBlockExecutor(resultTracker, instantiatedTree.getRunnables(), input, instantiatedTree.getBlockInputs(), outputCollector, runStateTracker);
         return new TreeMissionExecutor(updatedTreeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker, executionStrategy);
     }
     

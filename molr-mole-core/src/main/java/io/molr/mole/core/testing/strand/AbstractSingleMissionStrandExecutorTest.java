@@ -26,7 +26,7 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     private TreeStructure treeStructure;
     private TreeTracker<Result> resultTracker;
     private LeafExecutor leafExecutor;
-    private StrandExecutorFactory strandExecutorFactory;
+    private StrandExecutorFactoryNew strandExecutorFactory;
     private StrandExecutor strandExecutor;
 
     protected abstract RunnableLeafsMission mission();
@@ -43,9 +43,9 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
 
-		leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(),
+		leafExecutor = new StateTrackingBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(),
 				new HashMap<>(), new ConcurrentMissionOutputCollector(), runStateTracker);
-        strandExecutorFactory = new StrandExecutorFactory(leafExecutor, new RunStates(treeStructure));
+        strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, new TreeNodeStates(treeStructure));
         strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, new HashSet<>(), new HashSet<>(), executionStrategy);
     }
 
@@ -67,9 +67,9 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         return leafExecutor;
     }
 
-    protected StrandExecutorFactory strandExecutorFactory() {
-        return strandExecutorFactory;
-    }
+//    protected StrandExecutorFactory strandExecutorFactory() {
+//        return strandExecutorFactory;
+//    }
 
     public AbstractComparableAssert<?, Result> assertThatRootResult() {
         return Assertions.assertThat(treeResultTracker().resultFor(treeStructure().rootBlock()));

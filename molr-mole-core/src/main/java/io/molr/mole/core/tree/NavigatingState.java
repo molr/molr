@@ -26,7 +26,7 @@ public class NavigatingState extends StrandExecutionState{
 			Block current = context.currentStackElement();
 			
 			/*
-			 * TODO maybe removed
+			 * TODO maybe removed, ignore may only be evaluated prior to pushing
 			 */
 			if(context.toBeIgnored(current)) {
 				context.popStackElement();
@@ -70,7 +70,8 @@ public class NavigatingState extends StrandExecutionState{
 				 * Block with parallel children to be executed by other executors
 				 */
 				if(structure.isParallel(current)) {
-					ExecuteChildrenState newExecuteChildrenState = new ExecuteChildrenState(current, context);
+					ExecuteChildrenState newExecuteChildrenState = new ExecuteChildrenRunningState(current, context);
+					System.out.println("resume\n\n\n\n");
 					newExecuteChildrenState.resumeChildren();
 					context.updateLoopState(newExecuteChildrenState);
 					return;
