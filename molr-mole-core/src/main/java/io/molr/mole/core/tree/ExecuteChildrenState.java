@@ -2,11 +2,13 @@ package io.molr.mole.core.tree;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -20,14 +22,13 @@ import io.molr.commons.domain.StrandCommand;
 
 public abstract class ExecuteChildrenState extends StrandExecutionState{
 
-//	Set<ConcurrentStrandExecutorStacked> childExecutors;
-	Block block;
-	Map<Block, ConcurrentStrandExecutorStacked> childExecutors = new HashMap<Block, ConcurrentStrandExecutorStacked>();
-	Set<ConcurrentStrandExecutorStacked> finishedChildren = new HashSet<>();
-	Set<Block> toBeExecuted = new HashSet<>();
-	Queue<Block> waitingForInstantiation = new LinkedBlockingQueue<>();
-	Set<ConcurrentStrandExecutorStacked> runningExecutors = new HashSet<>();
-	int concurrencyLimit = 1;
+	private final Block block;
+	private final Map<Block, ConcurrentStrandExecutorStacked> childExecutors = new HashMap<Block, ConcurrentStrandExecutorStacked>();
+	private final Set<ConcurrentStrandExecutorStacked> finishedChildren = new HashSet<>();
+	private final Set<Block> toBeExecuted = new HashSet<>();
+	private final Queue<Block> waitingForInstantiation = new LinkedBlockingQueue<>();
+	private final Set<ConcurrentStrandExecutorStacked> runningExecutors = new HashSet<>();
+	private final int concurrencyLimit = 20;
 	
 	public ExecuteChildrenState(Block block, ConcurrentStrandExecutorStacked context) {
 		super(context);
@@ -38,10 +39,6 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 				toBeExecuted.add(childBlock);
 				waitingForInstantiation.add(childBlock);
 			}
-//			ConcurrentStrandExecutorStacked childExecutor = context.createChildStrandExecutor(childBlock);
-//			if(childExecutor!=null) {
-//				childExecutors.put(childBlock, childExecutor);	
-//			}
 		});
 		
 	}
@@ -55,23 +52,16 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 			if(childExecutor!=null) {
 				runningExecutors.add(childExecutor);
 				childExecutors.put(nextChild, childExecutor);
-				//childExecutor.instruct(StrandCommand.RESUME);//TODO only if resuming
 				instructCreatedChild(childExecutor);
 			}
 		}
 	}
 
 	private void removeCompletedChildExecutors() {
-		Set<ConcurrentStrandExecutorStacked> updatedRunningExecutors = new HashSet<>();
-		runningExecutors.forEach(executor -> {
-			if(!executor.isComplete()) {
-				updatedRunningExecutors.add(executor);
-			}
-			else {
-				finishedChildren.add(executor);
-			}
-		});
-		runningExecutors = updatedRunningExecutors;
+		List<ConcurrentStrandExecutorStacked> justFinished = runningExecutors.stream()
+				.filter(ConcurrentStrandExecutorStacked::isComplete).collect(Collectors.toList());
+		finishedChildren.addAll(justFinished);
+		runningExecutors.removeAll(justFinished);
 	}
 	
 	@Override
@@ -131,11 +121,8 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	}
 	
 	@Override
-		public Set<StrandCommand> allowedCommands() {
-			/*
-			 * TODO specify meaningful set of commands
-			 */
-			return ImmutableSet.of(StrandCommand.RESUME);
-		}
+	public Set<StrandCommand> allowedCommands() {
+		return ImmutableSet.of();
+	}
 
 }
