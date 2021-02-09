@@ -16,8 +16,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -113,15 +111,15 @@ public class RunnableLeafsMission {
             /* use static factory method */
         }
 
-        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, int maxConcurrency, Set<BlockAttribute> blockAttributes) {
+        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
 
             Block root = block(ROOT_BLOCK_ID, rootName.text());
-            if (PARALLEL == branchMode) {
+            if (BranchMode.Mode.PARALLEL == branchMode.mode()) {
                 parallelBlocksBuilder.add(root);
-                maxConurrencyConfiguration.put(root, maxConcurrency);
+                maxConurrencyConfiguration.put(root, branchMode.maxConcurrency());
             }
             this.representationBuilder = ImmutableMissionRepresentation.builder(root);
             apply(root, blockAttributes);
@@ -129,11 +127,11 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode mode, int maxConcurrency, Set<BlockAttribute> blockAttributes) {
+        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, name, blockAttributes);
-            if (mode == PARALLEL) {
+            if (branchMode.mode()==BranchMode.Mode.PARALLEL) {
                 parallelBlocksBuilder.add(child);
-                maxConurrencyConfiguration.put(child, maxConcurrency);
+                maxConurrencyConfiguration.put(child, branchMode.maxConcurrency());
             }
             return child;
         }
