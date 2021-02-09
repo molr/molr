@@ -74,7 +74,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     	}
     	else {
     		if(mission.treeStructure().isParallel(subTree)) {
-    			builder.addToParallelBlocks(replicatedSubtree);
+    			int maxConcurrency = mission.maxConcurrency().get(subTree);
+    			builder.addToParallelBlocks(replicatedSubtree, maxConcurrency);
     		}
     		
     		final MissionInput extendedByContext;

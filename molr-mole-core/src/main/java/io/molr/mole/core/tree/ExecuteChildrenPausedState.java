@@ -1,5 +1,7 @@
 package io.molr.mole.core.tree;
 
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -18,6 +20,14 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 		super(block, context);
 	}
 	
+	public ExecuteChildrenPausedState(ConcurrentStrandExecutorStacked context, Block block,
+			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
+			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+			int concurrencyLimit) {
+		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit);
+	}
+	
 	@Override
 		public Set<StrandCommand> allowedCommands() {
 			return ImmutableSet.of(StrandCommand.RESUME);
@@ -28,6 +38,13 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 		/*
 		 * no need for instruction in paused state		
 		 */
+	}
+
+	@Override
+	void onCommand(StrandCommand command) {
+		context.updateLoopState(new ExecuteChildrenRunningState(context, block,
+				childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+		resumeChildren();
 	}
 
 }

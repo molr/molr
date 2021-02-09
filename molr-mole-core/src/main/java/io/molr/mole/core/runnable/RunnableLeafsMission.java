@@ -33,6 +33,7 @@ public class RunnableLeafsMission {
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
+    private final ImmutableMap<Block, Integer> maxConcurrency;
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
@@ -40,10 +41,11 @@ public class RunnableLeafsMission {
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
         this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
-        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
+        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency());
         this.parameterDescription = parameterDescription;
         this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
+        this.maxConcurrency = builder.maxConurrencyConfiguration.build();
     }
 
     public TreeStructure treeStructure() {
@@ -74,6 +76,10 @@ public class RunnableLeafsMission {
     public Function<In, ?> contextFactory() {
         return this.contextFactory;
     }
+    
+    public Map<Block, Integer> maxConcurrency(){
+    	return this.maxConcurrency;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -99,6 +105,7 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
+        private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
 
         private Function<In, ?> contextFactory;
 
@@ -106,7 +113,7 @@ public class RunnableLeafsMission {
             /* use static factory method */
         }
 
-        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
+        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, int maxConcurrency, Set<BlockAttribute> blockAttributes) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
@@ -114,6 +121,7 @@ public class RunnableLeafsMission {
             Block root = block(ROOT_BLOCK_ID, rootName.text());
             if (PARALLEL == branchMode) {
                 parallelBlocksBuilder.add(root);
+                maxConurrencyConfiguration.put(root, maxConcurrency);
             }
             this.representationBuilder = ImmutableMissionRepresentation.builder(root);
             apply(root, blockAttributes);
@@ -121,10 +129,11 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode mode, Set<BlockAttribute> blockAttributes) {
+        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode mode, int maxConcurrency, Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, name, blockAttributes);
             if (mode == PARALLEL) {
                 parallelBlocksBuilder.add(child);
+                maxConurrencyConfiguration.put(child, maxConcurrency);
             }
             return child;
         }

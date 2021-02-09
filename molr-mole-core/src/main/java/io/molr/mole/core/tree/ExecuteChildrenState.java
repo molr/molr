@@ -22,16 +22,22 @@ import io.molr.commons.domain.StrandCommand;
 
 public abstract class ExecuteChildrenState extends StrandExecutionState{
 
-	private final Block block;
-	private final Map<Block, ConcurrentStrandExecutorStacked> childExecutors = new HashMap<Block, ConcurrentStrandExecutorStacked>();
-	private final Set<ConcurrentStrandExecutorStacked> finishedChildren = new HashSet<>();
-	private final Set<Block> toBeExecuted = new HashSet<>();
-	private final Queue<Block> waitingForInstantiation = new LinkedBlockingQueue<>();
-	private final Set<ConcurrentStrandExecutorStacked> runningExecutors = new HashSet<>();
-	private final int concurrencyLimit = 20;
+	protected final Block block;
+	protected final Map<Block, ConcurrentStrandExecutorStacked> childExecutors;
+	protected final Set<ConcurrentStrandExecutorStacked> finishedChildren;
+	protected final Set<Block> toBeExecuted;
+	protected final Queue<Block> waitingForInstantiation;
+	protected final Set<ConcurrentStrandExecutorStacked> runningExecutors;
+	protected final int concurrencyLimit;
 	
 	public ExecuteChildrenState(Block block, ConcurrentStrandExecutorStacked context) {
 		super(context);
+		childExecutors = new HashMap<Block, ConcurrentStrandExecutorStacked>();
+		finishedChildren = new HashSet<>();
+		toBeExecuted = new HashSet<>();
+		waitingForInstantiation = new LinkedBlockingQueue<>();
+		runningExecutors = new HashSet<>();
+		this.concurrencyLimit = context.maxConcurrency(block);
 		requireNonNull(block);
 		this.block = block;
 		context.structure.childrenOf(block).forEach(childBlock -> {
@@ -40,10 +46,26 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 				waitingForInstantiation.add(childBlock);
 			}
 		});
-		
 	}
-	
+
+	public ExecuteChildrenState(ConcurrentStrandExecutorStacked context, Block block,
+			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
+			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+			int concurrencyLimit) {
+		super(context);
+		this.block = block;
+		this.childExecutors = childExecutors;
+		this.finishedChildren = finishedChildren;
+		this.toBeExecuted = toBeExecuted;
+		this.waitingForInstantiation = waitingForInstantiation;
+		this.runningExecutors = runningExecutors;
+		this.concurrencyLimit = concurrencyLimit;
+	}
+
 	abstract void instructCreatedChild(ConcurrentStrandExecutorStacked executor);
+	
+	abstract void onCommand(StrandCommand command);
 	
 	private void instantiateAndAddNewChildExecutors() {
 		if(!waitingForInstantiation.isEmpty() && runningExecutors.size()<concurrencyLimit) {
@@ -69,7 +91,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		
 		StrandCommand command = context.commandQueue.poll();
 		if(command == StrandCommand.RESUME) {
-			resumeChildren();
+			onCommand(command);
 		}
 
 		removeCompletedChildExecutors();
@@ -109,7 +131,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	}
 	
 	public void resumeChildren() {
-		childExecutors.forEach((block, child)->{
+		runningExecutors.forEach(child->{
 			child.instruct(StrandCommand.RESUME);
 		});
 	}

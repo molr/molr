@@ -546,4 +546,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 		}
     	LOGGER.info("[{}]:"+message, concatenated);
     }
+    
+    int maxConcurrency(Block block) {
+    	return this.structure.maxConcurrency(block);
+    }
 }

@@ -5,6 +5,7 @@ import io.molr.commons.domain.ImmutableMissionRepresentation;
 import io.molr.commons.domain.MissionRepresentation;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -19,10 +20,12 @@ public class TreeStructure {
 
     private final MissionRepresentation representation;
     private final Set<Block> parallelBlocks;
+    private final Map<Block, Integer> maxConcurrency;
 
-    public TreeStructure(MissionRepresentation representation, Set<Block> parallelBlocks) {
+    public TreeStructure(MissionRepresentation representation, Set<Block> parallelBlocks, Map<Block, Integer> maxConcurrency) {
         this.representation = representation;
         this.parallelBlocks = parallelBlocks;
+        this.maxConcurrency = maxConcurrency;
     }
 
     /**
@@ -46,7 +49,7 @@ public class TreeStructure {
         MissionRepresentation subrepresentation = builder.build();
         Set<Block> subparallelBlocks = parallelBlocks.stream()
                 .filter(subrepresentation.allBlocks()::contains).collect(Collectors.toSet());
-        return new TreeStructure(subrepresentation, subparallelBlocks);
+        return new TreeStructure(subrepresentation, subparallelBlocks, maxConcurrency);
     }
 
     /**
@@ -80,6 +83,14 @@ public class TreeStructure {
 
     public boolean isParallel(Block block) {
         return parallelBlocks.contains(block);
+    }
+    
+    public int maxConcurrency(Block block) {
+    	if(maxConcurrency.containsKey(block))
+    	{
+    		return maxConcurrency.get(block);
+    	}
+    	return Integer.MAX_VALUE;
     }
 
     public boolean isLeaf(Block block) {

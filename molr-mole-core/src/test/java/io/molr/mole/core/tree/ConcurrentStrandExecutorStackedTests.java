@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
@@ -62,7 +63,7 @@ public class ConcurrentStrandExecutorStackedTests {
 	@Test
 	public void parallelChildIsNotExecutedWhenIgnored() throws InterruptedException {
 
-		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of());
+		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(), ImmutableMap.of());
 		//TODO scoped input refactoring necessary?
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
@@ -102,7 +103,7 @@ public class ConcurrentStrandExecutorStackedTests {
 	@Test
 	public void parallelChildIsIgnoredOnStepInto() throws InterruptedException {
 
-		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root));
+		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
 		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 		
@@ -139,7 +140,7 @@ public class ConcurrentStrandExecutorStackedTests {
 	@Test
 	public void stepOverRoot() throws InterruptedException {
 
-		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root));
+		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
 		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
 		

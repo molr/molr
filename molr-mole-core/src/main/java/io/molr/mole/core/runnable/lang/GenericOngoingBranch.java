@@ -10,8 +10,8 @@ import static java.util.Objects.requireNonNull;
 public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> extends OngoingNode<B> {
 
     private BranchMode mode;
-
-
+    private int maxConcurrency = Integer.MAX_VALUE;
+    
     public GenericOngoingBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
         super(
                 requireNonNull(name, "branchName must not be null"),
@@ -25,6 +25,12 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
         this.mode = PARALLEL;
         return (B) this;
     }
+    
+    public B parallel(int maxConcurrency) {
+    	this.maxConcurrency = maxConcurrency;
+        this.mode = PARALLEL;
+        return (B) this;
+    }
 
     public B sequential() {
         this.mode = SEQUENTIAL;
@@ -33,9 +39,9 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
 
     protected Block block() {
         if (parent() == null) {
-            return builder().rootBranchNode(name(), mode, blockAttributes());
+            return builder().rootBranchNode(name(), mode, maxConcurrency, blockAttributes());
         } else {
-            return builder().childBranchNode(parent(), name(), mode, blockAttributes());
+            return builder().childBranchNode(parent(), name(), mode, maxConcurrency, blockAttributes());
         }
     }
 

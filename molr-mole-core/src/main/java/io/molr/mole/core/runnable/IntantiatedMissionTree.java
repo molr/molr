@@ -24,7 +24,7 @@ public class IntantiatedMissionTree {
 	
 	private IntantiatedMissionTree(Builder builder) {
 		MissionRepresentation representation = builder.newRepresentationBuilder.build();
-		updatedTreeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
+		updatedTreeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), builder.maxConcurrencyBuilder.build());
 		this.runnables = builder.updatedRunnablesAfterTraverseBuilder.build();
 		this.blockInputs = builder.scopedInputs.build();
 	}
@@ -45,6 +45,7 @@ public class IntantiatedMissionTree {
 		
 		private ImmutableMissionRepresentation.Builder newRepresentationBuilder;
 		private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
+		private final ImmutableMap.Builder<Block, Integer> maxConcurrencyBuilder = ImmutableMap.builder();
 		private final ImmutableMap.Builder<Block, MissionInput> scopedInputs = ImmutableMap.builder();
 		private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder = ImmutableMap.builder();
 		
@@ -59,8 +60,9 @@ public class IntantiatedMissionTree {
 			newRepresentationBuilder.addBlockAttributes(block, attributes);
 		}
 		
-		public void addToParallelBlocks(Block block) {
+		public void addToParallelBlocks(Block block, int maxConcurrency) {
 			this.parallelBlocksBuilder.add(block);
+			this.maxConcurrencyBuilder.put(block, maxConcurrency);
 		}
 		
 		public void addChild(Block parent, Block child) {
