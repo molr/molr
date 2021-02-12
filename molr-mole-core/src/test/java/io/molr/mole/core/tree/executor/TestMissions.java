@@ -1,4 +1,4 @@
-package io.molr.mole.core.tree;
+package io.molr.mole.core.tree.executor;
 
 import java.util.function.BiConsumer;
 
@@ -9,6 +9,7 @@ import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.tree.TreeStructure;
 
 public class TestMissions {
 	
