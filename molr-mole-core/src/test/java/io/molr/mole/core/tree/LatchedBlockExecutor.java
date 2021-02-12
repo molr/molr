@@ -28,7 +28,6 @@ public class LatchedBlockExecutor extends RunnableBlockExecutor{
 	
 	@Override
 	protected void doBeforeExecute(Block block) {
-		// TODO Auto-generated method stub
 		super.doBeforeExecute(block);
 	}
 	
@@ -41,6 +40,13 @@ public class LatchedBlockExecutor extends RunnableBlockExecutor{
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public void unlatchAll(){
+		latches.forEach((block, latch) ->{
+			latch.countDown();
+			exitLatches.get(block).countDown();
+		});
 	}
 	
 	public void unlatch(Block block) {

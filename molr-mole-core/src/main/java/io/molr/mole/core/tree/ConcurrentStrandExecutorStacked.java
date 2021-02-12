@@ -122,7 +122,12 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         //cursorScheduler.dispose();
         //});
         this.stateSink = ReplayProcessor.cacheLast();
-        this.stateStream = stateSink.publishOn(stateStreamscheduler);
+        /*
+         * TODO check if the publish on scheduler is necessary
+         * and investigate how to cleanup the shared schedulers
+         * if needed
+         */
+        this.stateStream = stateSink;//stateSink.publishOn(stateStreamscheduler);
         this.blockSink = ReplayProcessor.cacheLast();
         this.blockStream = blockSink.publishOn(cursorScheduler);
 
@@ -549,5 +554,9 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     
     int maxConcurrency(Block block) {
     	return this.structure.maxConcurrency(block);
+    }
+    
+    Block strandRoot() {
+    	return this.strandRoot;
     }
 }

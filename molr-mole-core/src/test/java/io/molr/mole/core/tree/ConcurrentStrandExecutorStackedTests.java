@@ -1,6 +1,7 @@
 package io.molr.mole.core.tree;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -106,40 +107,28 @@ public class ConcurrentStrandExecutorStackedTests {
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
 		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
-		
-		//TODO scoped input refactoring necessary?
+
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
 		StrandExecutorFactoryNew strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
 		
 		ConcurrentStrandExecutorStacked executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
-		
-//		executor.getBlockStream().subscribe(block->{
-//			System.out.println("block "+block);
-//		});
-		
-		executor.instruct(StrandCommand.STEP_INTO);
 
-		leafExecutor.awaitEntry(block_00);
-		leafExecutor.unlatch(block_01);
-		leafExecutor.unlatch(block_00);
-		leafExecutor.unlatch(block_02);
-		executor.getStateStream().blockLast();
+		executor.instruct(StrandCommand.STEP_INTO);
 		
-		executor.getBlockStream().filter(block_01::equals).blockFirst();
-				
-		
-		System.out.println(nodeStates.getRunStates().getSnapshot());
-		System.out.println(nodeStates.getResultStates().getSnapshot());
-		
-		//assert that run state for block_01 is not running and result is IGNORED
-		Assertions.assertThat(nodeStates.getResultStates().getSnapshot().get(block_01.id())).isEqualTo(Result.UNDEFINED);
-		Assertions.assertThat(nodeStates.getRunStates().getSnapshot().get(block_01.id())).isEqualTo(RunState.NOT_STARTED);
+		List<Block>strandRootBlocks = strandExecutorFactory.newStrandsStream()
+				.map(ConcurrentStrandExecutorStacked.class::cast)
+				.map(exec->exec.strandRoot())
+				.takeUntil(block -> {
+					return block.id().equals(block_02.id());
+				}).collectList().block();
+		Assertions.assertThat(strandRootBlocks).containsExactly(root, block_00, block_02);
 	}
 	
 	@Test
 	public void stepOverRoot() throws InterruptedException {
 
+		System.out.println("step over root test");
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
 		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
