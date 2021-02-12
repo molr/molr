@@ -1,4 +1,4 @@
-package io.molr.mole.core.tree;
+package io.molr.mole.core.tree.executor;
 
 import static java.util.Objects.requireNonNull;
 
