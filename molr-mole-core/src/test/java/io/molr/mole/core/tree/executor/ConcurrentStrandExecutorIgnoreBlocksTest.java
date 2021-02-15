@@ -110,7 +110,6 @@ public class ConcurrentStrandExecutorIgnoreBlocksTest {
 				mapBuilder.put(block.id(), RunState.FINISHED);	
 			}
 		});
-		System.out.println(mapBuilder);
 		return ImmutableMap.copyOf(mapBuilder);		
 	}
 

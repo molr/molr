@@ -26,6 +26,12 @@ public class NavigatingState extends StrandExecutionState{
     	if(!context.isStackEmpty()) {
 			Block current = context.currentStackElement();
 			
+			StrandCommand command = context.commandQueue.poll();
+			if(command == StrandCommand.PAUSE) {
+				context.updateLoopState(new PausedState(context));
+				return;
+			}
+			
 			/*
 			 * TODO maybe removed, ignore may only be evaluated prior to pushing
 			 */
@@ -103,8 +109,7 @@ public class NavigatingState extends StrandExecutionState{
 	
 	@Override
 	public Set<StrandCommand> allowedCommands() {
-		// TODO Auto-generated method stub
-		return super.allowedCommands();
+		return Set.of(StrandCommand.PAUSE);
 	}
 
 }

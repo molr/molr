@@ -3,6 +3,7 @@ package io.molr.mole.core.tree.executor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
 
 import com.google.common.collect.ImmutableSet;
@@ -13,14 +14,13 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionInput;
 import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.Out;
+import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
 import io.molr.mole.core.tree.LatchedBlockExecutor;
 import io.molr.mole.core.tree.LeafExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.executor.ConcurrentStrandExecutorStacked;
-import io.molr.mole.core.tree.executor.StrandExecutorFactoryNew;
 
 /*
  * TODO add ExecutionStrategy ... and other options
@@ -31,6 +31,9 @@ public class TestTreeContext {
 	Set<Block> breakpoints;
 	Set<Block> toBeIgnored;
 	Set<Block> blocksToFail;
+	Set<String> latched;
+	Map<String, CountDownLatch> entryLatches = new HashMap<>();
+	Map<String, CountDownLatch> pauseLatches = new HashMap<>();
 	
 	TreeStructure treeStructure;
 	Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
@@ -45,6 +48,7 @@ public class TestTreeContext {
 		breakpoints = builder.breakpoints.build();
 		toBeIgnored = builder.ignored.build();
 		blocksToFail = builder.failing.build();
+		latched = builder.latched.build();
 		
 		treeStructure = new TreeStructure(builder.representation, parallel, Map.of());
 		
@@ -55,6 +59,25 @@ public class TestTreeContext {
 			else {
 				runnables.put(block, TestMissions.defaultRunnable(block));
 			}
+			if(latched.contains(block.id())) {
+				BiConsumer<In,Out> toBeLatched = runnables.get(block);
+				CountDownLatch entryMarkerLatch = new CountDownLatch(1);
+				entryLatches.put(block.id(), entryMarkerLatch);
+				CountDownLatch pauseLatch = new CountDownLatch(1);
+				pauseLatches.put(block.id(), pauseLatch);
+				
+				BiConsumer<In,Out> latched = (in, out) -> {
+					entryMarkerLatch.countDown();
+					
+					try {
+						pauseLatch.await();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					toBeLatched.accept(in, out);
+				};
+				runnables.put(block, latched);
+			}
 		});
 		nodeStates = new TreeNodeStates(treeStructure);
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), otuputCollector);
@@ -62,6 +85,26 @@ public class TestTreeContext {
 		this.leafExecutor = leafExecutor;
 		strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
 		strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, toBeIgnored, ExecutionStrategy.PROCEED_ON_ERROR);
+	}
+	
+	void awaitEntry(String blockId) {
+		try {
+			entryLatches.get(blockId).await();
+		} catch (InterruptedException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	
+	void unlatch(String blockId) {
+		pauseLatches.get(blockId).countDown();
+	}
+	
+	void resumeRoot() {
+		strandExecutor.instruct(StrandCommand.RESUME);
+	}
+	
+	ConcurrentStrandExecutorStacked strandExecutor() {
+		return strandExecutor;
 	}
 	
 	public static Builder builder(MissionRepresentation representation) {
@@ -75,6 +118,7 @@ public class TestTreeContext {
 		private final ImmutableSet.Builder<Block> breakpoints = ImmutableSet.builder();
 		private final ImmutableSet.Builder<Block> failing = ImmutableSet.builder();
 		private final ImmutableSet.Builder<Block> ignored = ImmutableSet.builder();
+		private final ImmutableSet.Builder<String> latched = ImmutableSet.builder();
 		
 		private Builder(MissionRepresentation representation) {
 			this.representation = representation;
@@ -125,6 +169,11 @@ public class TestTreeContext {
 		
 		Builder parallel(Block ...blocks) {
 			this.parallel.add(blocks);
+			return this;
+		}
+		
+		Builder latched(String ... blocks) {
+			this.latched.add(blocks);
 			return this;
 		}
 		
