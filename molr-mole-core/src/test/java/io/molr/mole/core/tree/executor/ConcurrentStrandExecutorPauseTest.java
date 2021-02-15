@@ -2,9 +2,12 @@ package io.molr.mole.core.tree.executor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MissionRepresentation;
@@ -17,6 +20,9 @@ public class ConcurrentStrandExecutorPauseTest {
 	private final MissionRepresentation testRepresentation = TestMissions.testRepresentation(2, 3);
 	private final String firstLeafToPause = "0.0.0";
 	private final String secondLeafToPause = "0.0.2";
+	
+	@Rule
+	public Timeout globalTimeout= new Timeout(5000, TimeUnit.MILLISECONDS);
 	
 	@Test
 	public void instructPauseWhileRunning_whenInstructedWhileExecutingLeaf_PauseAtSucceedingBlock() {
