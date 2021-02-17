@@ -39,11 +39,11 @@ public class RunnableLeafsMission {
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
         this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
-        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency());
+        this.maxConcurrency = builder.maxConurrencyConfiguration.build();
+        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency);
         this.parameterDescription = parameterDescription;
         this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
-        this.maxConcurrency = builder.maxConurrencyConfiguration.build();
     }
 
     public TreeStructure treeStructure() {

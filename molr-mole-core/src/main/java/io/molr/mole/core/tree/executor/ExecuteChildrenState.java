@@ -46,6 +46,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 				waitingForInstantiation.add(childBlock);
 			}
 		});
+		instantiateAndAddNewChildExecutors();
 	}
 
 	public ExecuteChildrenState(ConcurrentStrandExecutorStacked context, Block block,
@@ -65,10 +66,9 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 
 	abstract void instructCreatedChild(ConcurrentStrandExecutorStacked executor);
 	
-	abstract void onCommand(StrandCommand command);
-	
 	private void instantiateAndAddNewChildExecutors() {
-		if(!waitingForInstantiation.isEmpty() && runningExecutors.size()<concurrencyLimit) {
+		//
+		while(!waitingForInstantiation.isEmpty() && runningExecutors.size()<concurrencyLimit) {
 			Block nextChild = waitingForInstantiation.poll();
 			ConcurrentStrandExecutorStacked childExecutor = context.createChildStrandExecutor(nextChild);
 			if(childExecutor!=null) {
@@ -88,11 +88,6 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	
 	@Override
 	public void run() {
-		
-		StrandCommand command = context.commandQueue.poll();
-		if(command == StrandCommand.RESUME) {
-			onCommand(command);
-		}
 
 		removeCompletedChildExecutors();
 		instantiateAndAddNewChildExecutors();
@@ -102,7 +97,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 //				finishedChildren.add(childExecutor);
 //			}
 //		});
-		
+				
 		if(finishedChildren.size() == childExecutors.size()) {
 			AtomicBoolean hasErrors = new AtomicBoolean(false);
 			childExecutors.forEach((childBlock, child)->{
@@ -126,21 +121,55 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 			System.out.println(block + "finished children");
 			context.popUntilNextChildAvailableAndPush();
 			context.updateRunStates(Map.of(block, RunState.FINISHED));
+			/**
+			 * last command should maybe field for NavigatingState and all other StepOver related state too
+			 */
+			if(context.lastCommand.get().getStrandCommand()!=StrandCommand.RESUME) {
+				context.addStepOverBlock(block);
+			}
 			context.updateLoopState(new NavigatingState(context));
+			return;
 		}
+	}
+
+	protected boolean isAnyChildrenRunning() {
+//		return runningExecutors.stream().map(ConcurrentStrandExecutorStacked::getActualState)
+//				.anyMatch(RunState.RUNNING::equals);
+		return runningExecutors.stream()
+				.map(ConcurrentStrandExecutorStacked::getActualState)
+				.anyMatch(runState -> {
+					//System.out.println("anyMatch: "+runState);
+					return runState.equals(RunState.RUNNING);
+				});
+	}
+	
+	protected boolean areAllChildrenPaused() {
+		if(runningExecutors.isEmpty()) {
+			return false;
+		}
+		return runningExecutors.stream()
+				.map(ConcurrentStrandExecutorStacked::getActualState)
+				.allMatch(runState -> {
+					return runState.equals(RunState.PAUSED);
+				});
 	}
 	
 	public void resumeChildren() {
+		instructChildren(StrandCommand.RESUME);
+	}
+	
+	public void pauseChildren() {
+		instructChildren(StrandCommand.PAUSE);
+	}
+	
+	public void instructChildren(StrandCommand command) {
 		runningExecutors.forEach(child->{
-			child.instruct(StrandCommand.RESUME);
+			child.instruct(command);
 		});
 	}
 
 	@Override
-	public void onEnterState() {
-		// TODO Auto-generated method stub
-		
-	}
+	public abstract void onEnterState();
 	
 	@Override
 	public Set<StrandCommand> allowedCommands() {

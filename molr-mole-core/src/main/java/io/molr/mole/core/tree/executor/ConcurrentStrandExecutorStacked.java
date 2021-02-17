@@ -6,9 +6,11 @@ import io.molr.commons.domain.*;
 import io.molr.mole.core.runnable.ResultStates;
 import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.tree.LeafExecutor;
+import io.molr.mole.core.tree.QueuedCommand;
 import io.molr.mole.core.tree.StrandExecutor;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
+import io.molr.mole.core.tree.exception.RejectedCommandException;
 import io.molr.mole.core.utils.ThreadFactories;
 
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.molr.commons.domain.RunState.*;
@@ -57,13 +60,14 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     private final Set<Block> blocksToBeIgnored;
     
     private final ExecutorService executor;
-    final LinkedBlockingQueue<StrandCommand> commandQueue;
+    private final LinkedBlockingQueue<QueuedCommand> commandQueue;
     final TreeStructure structure;//TODO
     private final Strand strand;
     private final StrandExecutorFactoryNew strandExecutorFactory;
     private final LeafExecutor leafExecutor;
 
-    //private final ReplayProcessor<StrandCommand> lastCommandSink;
+    private final ReplayProcessor<QueuedCommand> lastCommandSink;
+    private final Flux<QueuedCommand> lastCommandStream;
     private final ReplayProcessor<RunState> stateSink;
     private final Flux<RunState> stateStream;
     private final ReplayProcessor<Block> blockSink;
@@ -74,6 +78,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     /* AtomicReference guarantee read safety while not blocking using cycleLock for the getters */
     private final AtomicReference<Set<StrandCommand>> allowedCommands;
     private final AtomicReference<Block> actualBlock;
+    final AtomicReference<QueuedCommand> lastCommand = new AtomicReference<>();
     private final Block strandRoot;
 
     private ImmutableList<StrandExecutor> childExecutors;
@@ -112,8 +117,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         this.strandExecutorFactory = requireNonNull(strandExecutorFactory, "strandExecutorFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
 
-        //this.lastCommandSink = ReplayProcessor.cacheLast();
-        //this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
+        this.lastCommandSink = ReplayProcessor.cacheLast();
+        this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
         this.errorSink = EmitterProcessor.create();
         this.errorStream = errorSink.publishOn(publishingScheduler("errors"));
 
@@ -149,15 +154,21 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.executor.submit(this::lifecyleChecked);
     }
-
+    
+    AtomicLong commandId = new AtomicLong(0);
+    
     @Override
-    public void instruct(StrandCommand command) {
-        if (!commandQueue.offer(command)) {
+    public long instruct(StrandCommand command) {
+    	long id = commandId.getAndIncrement();
+        if (!commandQueue.offer(new QueuedCommand(command, id))) {
         	String message = MessageFormat.format("Command {0} cannot be accepted by strand {1} because it is processing another command",
         			command, strand);
             LOGGER.warn(message);
             throw new RuntimeException(message);
         }
+        
+        log("Instructed with ", command);
+        return id;
     }
     
     private void lifecyleChecked() {
@@ -199,6 +210,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
     
     void updateLoopState(StrandExecutionState newState) {
+    	log("updateLoopState from {} to {}", state, newState);
     	state = newState;
     	setAllowedCommands(newState.allowedCommands());
     	state.onEnterState();
@@ -362,7 +374,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	}
     	return false;
     }
-        
+     
+    int count = 0;
     private void lifecycle() {
         boolean finished = false;
         LOGGER.info("Start lifecycle for "+ strand);
@@ -370,7 +383,24 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         while (!finished) {
          	
             synchronized (cycleLock) {
-            	state.run();
+
+            	System.out.println(strand+"cycle"+count++);
+            	QueuedCommand command = commandQueue.poll();
+            	if(command!=null) {
+            		if(!state.allowedCommands().contains(command.getStrandCommand())) {
+            			/**
+            			 * TODO log an error
+            			 */
+            			System.out.println("Rejected command: "+command+" state:"+state.getClass());
+            			errorSink.onNext(new RejectedCommandException(command.getStrandCommand(), "not allowed "+command.getCommandId()));
+            		}
+                	state.executeCommand(command.getStrandCommand());
+                	System.out.println("executed "+command.getCommandId());
+                	lastCommandSink.onNext(command);
+                	lastCommand.set(command);
+            	}
+                state.run();
+
             	/*
             	 * TODO cleanup the cleanup ;)
             	 */
@@ -498,7 +528,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
         return allowedCommands.get();
     }
 
-    private Set<StrandExecutor> getChildrenStrandExecutors() {
+    public Set<StrandExecutor> getChildrenStrandExecutors() {
         synchronized (cycleLock) {
             return ImmutableSet.copyOf(childExecutors);
         }
@@ -563,4 +593,8 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     Block strandRoot() {
     	return this.strandRoot;
     }
+
+	public Flux<QueuedCommand> getLastCommandStream() {
+		return lastCommandStream;
+	}
 }

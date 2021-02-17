@@ -86,19 +86,32 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     @Test
     public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() throws InterruptedException {
         moveRootStrandTo(parallelBlock);
+        System.out.println("MOVED to "+rootStrandExecutor().getActualBlock());
         instructRootStrandSync(STEP_INTO);
+        System.out.println("STEP_INTO called");
         rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
         LOGGER.info("Children paused");
-        unlatch(latchA1End, latchB1End, latchB2End);
+        System.out.println("rootStrandChildren"+rootStrandChildren());
+        //me
         rootStrandChildren().forEach(se -> instructSync(se, STEP_OVER));
+        await(latchA1Start);
+        await(latchB1Start);
+        
+        unlatch(latchA1End, latchB1End, latchB2End);
+        System.out.println("rootStrandChildren"+rootStrandChildren());
 
         waitUntilRootStrandBlockIs(lastBlock);
         waitUntilRootStrandStateIs(PAUSED);
 
+        System.out.println("waited");
+        
         assertThatRootStrandBlock().isEqualTo(lastBlock);
         assertThatRootStrandState().isNotEqualTo(FINISHED);
     }
-
+    
+    
+    
+//
     @Test
     public void testChildrenFinishWhileParentIsPauseShouldFinishParent() {
         moveRootStrandTo(parallelBlock);
@@ -106,9 +119,12 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
 
         await(latchA1Start, latchB1Start);
         instructRootStrandSync(PAUSE);
+        
+        System.out.println("instructed \n\n\n\n");
         unlatch(latchA1End, latchB1End, latchB2End);
-
+        System.out.println("instructed \n\n\n\n");
         waitUntilRootStrandStateIs(PAUSED);
+        System.out.println("paused \n\n\n\n");
         rootStrandChildren().forEach(se -> waitUntilStrandStateIs(se, PAUSED));
 
         rootStrandChildren().forEach(se -> se.instruct(StrandCommand.RESUME));
@@ -137,6 +153,9 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         waitUntilRootStrandBlockIs(lastBlock);
     }
 
+    /**
+     * is this the right way to do, should children really control parent?
+     */
     @Test
     public void testIfAllChildrenArePausedParentShouldPause() {
         moveRootStrandTo(parallelBlock);
@@ -177,6 +196,8 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         instructAsync(strandB, RESUME);
         await(latchB2Start);
 
+        System.out.println("wait?");
+        
         waitUntilRootStrandStateIs(RUNNING);
 
         assertThatStateOf(strandA).isEqualTo(PAUSED);

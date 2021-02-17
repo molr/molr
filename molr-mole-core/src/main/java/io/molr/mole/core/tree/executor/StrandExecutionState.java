@@ -25,4 +25,6 @@ public abstract class StrandExecutionState {
 		return ImmutableSet.of();
 	}
 
+	protected abstract void executeCommand(StrandCommand command);
+
 }

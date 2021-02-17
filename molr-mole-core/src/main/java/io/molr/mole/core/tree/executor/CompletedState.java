@@ -1,6 +1,7 @@
 package io.molr.mole.core.tree.executor;
 
 import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
 
 public class CompletedState extends StrandExecutionState{
 
@@ -18,6 +19,12 @@ public class CompletedState extends StrandExecutionState{
 	@Override
 	public void onEnterState() {
 		context.updateStrandRunState(RunState.FINISHED);		
+	}
+
+	@Override
+	protected void executeCommand(StrandCommand command) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

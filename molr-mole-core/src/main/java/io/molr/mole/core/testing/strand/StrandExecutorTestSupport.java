@@ -4,8 +4,8 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
-import io.molr.mole.core.tree.ConcurrentStrandExecutor;
 import io.molr.mole.core.tree.StrandExecutor;
+import io.molr.mole.core.tree.executor.ConcurrentStrandExecutorStacked;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.assertj.core.api.*;
 
@@ -20,7 +20,11 @@ public interface StrandExecutorTestSupport {
     Duration TIMEOUT = Duration.ofSeconds(30);
 
     default void waitUntilStrandStateIs(StrandExecutor strandExecutor, RunState state) {
-        strandExecutor.getStateStream().filter(state::equals).blockFirst(TIMEOUT);
+    	System.out.println(strandExecutor+"subscirbe\n\n\n");
+        strandExecutor.getStateStream().filter(streamedState->{
+        	System.out.println("sub:"+state);
+        	return state.equals(streamedState);
+        }).blockFirst(TIMEOUT);
         assertThatStateOf(strandExecutor).isEqualTo(state);
     }
 
@@ -39,9 +43,12 @@ public interface StrandExecutorTestSupport {
         assertThatResultOf(resultTracker, block).isEqualTo(result);
     }
 
-    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
-        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
-                .filter(command::equals).blockFirst(TIMEOUT);
+    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command, long id) {
+        ((ConcurrentStrandExecutorStacked) strandExecutor).getLastCommandStream()
+                .filter(cmd -> {
+                	System.out.println("filterFun"+id+" "+cmd.getCommandId());
+                	return cmd.getCommandId() == id;
+                }).blockFirst(TIMEOUT);
     }
 
     default void waitForErrorOfType(StrandErrorsRecorder recorder, Class<? extends Exception> clazz) {
@@ -73,7 +80,7 @@ public interface StrandExecutorTestSupport {
     }
 
     default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
-        return ((ConcurrentStrandExecutor) executor).getChildrenStrandExecutors();
+        return ((ConcurrentStrandExecutorStacked) executor).getChildrenStrandExecutors();
     }
 
     /**
@@ -81,8 +88,8 @@ public interface StrandExecutorTestSupport {
      * processing
      */
     default void instructSync(StrandExecutor executor, StrandCommand command) {
-        executor.instruct(command);
-        waitForProcessedCommand(executor, command);
+        long id = executor.instruct(command);
+        waitForProcessedCommand(executor, command, id);
     }
 
     /**
@@ -92,10 +99,10 @@ public interface StrandExecutorTestSupport {
         executor.instruct(command);
     }
 
-    @Deprecated
-    default void moveTo(StrandExecutor executor, Block destination) {
-        ((ConcurrentStrandExecutor) executor).moveTo(destination);
-        assertThatBlockOf(executor).isEqualTo(destination);
-    }
+//    @Deprecated
+//    default void moveTo(StrandExecutor executor, Block destination) {
+//        ((ConcurrentStrandExecutor) executor).moveTo(destination);
+//        assertThatBlockOf(executor).isEqualTo(destination);
+//    }
 
 }

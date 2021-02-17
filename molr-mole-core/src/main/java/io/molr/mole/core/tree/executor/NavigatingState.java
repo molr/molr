@@ -17,6 +17,7 @@ public class NavigatingState extends StrandExecutionState{
 	
 	public NavigatingState(ConcurrentStrandExecutorStacked context) {
 		super(context);
+		System.out.println("new NavigatingState");
 	}
 
 	@Override
@@ -25,12 +26,6 @@ public class NavigatingState extends StrandExecutionState{
 		TreeStructure structure = context.structure;
     	if(!context.isStackEmpty()) {
 			Block current = context.currentStackElement();
-			
-			StrandCommand command = context.commandQueue.poll();
-			if(command == StrandCommand.PAUSE) {
-				context.updateLoopState(new PausedState(context));
-				return;
-			}
 			
 			/*
 			 * TODO maybe removed, ignore may only be evaluated prior to pushing
@@ -79,7 +74,7 @@ public class NavigatingState extends StrandExecutionState{
 				if(structure.isParallel(current)) {
 					ExecuteChildrenState newExecuteChildrenState = new ExecuteChildrenRunningState(current, context);
 					System.out.println("resume\n\n\n\n");
-					newExecuteChildrenState.resumeChildren();
+					//newExecuteChildrenState.resumeChildren();
 					context.updateLoopState(newExecuteChildrenState);
 					return;
 				}
@@ -110,6 +105,14 @@ public class NavigatingState extends StrandExecutionState{
 	@Override
 	public Set<StrandCommand> allowedCommands() {
 		return Set.of(StrandCommand.PAUSE);
+	}
+
+	@Override
+	protected void executeCommand(StrandCommand command) {
+		if(command == StrandCommand.PAUSE) {
+			context.updateLoopState(new PausedState(context));
+			return;
+		}
 	}
 
 }

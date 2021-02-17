@@ -141,10 +141,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     @Override
-    public void instruct(StrandCommand command) {
+    public long instruct(StrandCommand command) {
         if (!commandQueue.offer(command)) {
             LOGGER.warn("Command {} cannot be accepted by strand {} because it is processing another command", command, strand);
         }
+        return 0;
     }
 
     private void traverseLeafs(Block block, Consumer<Block> function) {

@@ -70,44 +70,50 @@ public class ConcurrentStrantExecutorMoveTest extends AbstractSingleMissionStran
         }.build();
     }
 
-    @Before
-    public void setUp() {
-        latchStart = new CountDownLatch(1);
-        latchEnd = new CountDownLatch(1);
-    }
+	@Override
+	public Logger logger() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMoveIntoAnUnknownBlockThrows() {
-        moveRootStrandTo(Block.idAndText("unknown", "unknown"));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMoveIntoParallelANodeIsNotSupported() {
-        moveRootStrandTo(PARALLEL_LEAF_A);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMoveIntoParallelBNodeIsNotSupported() {
-        moveRootStrandTo(PARALLEL_LEAF_B);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testMoveToWhileRunningFails() {
-        instructRootStrandAsync(StrandCommand.RESUME);
-
-        await(latchStart);
-        waitUntilRootStrandStateIs(RUNNING);
-
-        moveRootStrandTo(SEQUENTIAL);
-    }
-
-    @Test
-    public void testMoveIntoSequentialAndLeafNodes() {
-        Stream.of(SEQUENTIAL, SEQUENTIAL_LEAF_A, SEQUENTIAL_LEAF_B, PARALLEL, LEAF).forEach(this::moveRootStrandTo);
-    }
-
-    @Override
-    public Logger logger() {
-        return LOGGER;
-    }
+//    @Before
+//    public void setUp() {
+//        latchStart = new CountDownLatch(1);
+//        latchEnd = new CountDownLatch(1);
+//    }
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testMoveIntoAnUnknownBlockThrows() {
+//        moveRootStrandTo(Block.idAndText("unknown", "unknown"));
+//    }
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testMoveIntoParallelANodeIsNotSupported() {
+//        moveRootStrandTo(PARALLEL_LEAF_A);
+//    }
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testMoveIntoParallelBNodeIsNotSupported() {
+//        moveRootStrandTo(PARALLEL_LEAF_B);
+//    }
+//
+//    @Test(expected = IllegalStateException.class)
+//    public void testMoveToWhileRunningFails() {
+//        instructRootStrandAsync(StrandCommand.RESUME);
+//
+//        await(latchStart);
+//        waitUntilRootStrandStateIs(RUNNING);
+//
+//        moveRootStrandTo(SEQUENTIAL);
+//    }
+//
+//    @Test
+//    public void testMoveIntoSequentialAndLeafNodes() {
+//        Stream.of(SEQUENTIAL, SEQUENTIAL_LEAF_A, SEQUENTIAL_LEAF_B, PARALLEL, LEAF).forEach(this::moveRootStrandTo);
+//    }
+//
+//    @Override
+//    public Logger logger() {
+//        return LOGGER;
+//    }
 }

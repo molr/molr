@@ -57,13 +57,16 @@ public class ConcurrentStrandExecutorExecutionStrategyTest extends AbstractSingl
     public void singleStrandProceedOnErrorTest() {
         setUpAbstract(ExecutionStrategy.PROCEED_ON_ERROR);
         instructRootStrandSync(StrandCommand.RESUME);
+        System.out.println("instructed");
         
         waitUntilRootStrandStateIs(RunState.FINISHED);
+        System.out.println("finished");
         
         assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);
         assertThatResultOf(Block.builder("0.0", "task1").build()).isEqualTo(Result.SUCCESS);
         assertThatResultOf(Block.builder("0.1", "task2").build()).isEqualTo(Result.FAILED);
-        assertThatResultOf(Block.builder("0.2", "task3").build()).isEqualTo(Result.SUCCESS);                      
+        assertThatResultOf(Block.builder("0.2", "task3").build()).isEqualTo(Result.SUCCESS);
+        System.out.println("ready");
     }
     
     @Test

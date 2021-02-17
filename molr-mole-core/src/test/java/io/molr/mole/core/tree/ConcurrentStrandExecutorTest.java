@@ -1,11 +1,14 @@
 package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import io.molr.mole.core.utils.Trees;
+import reactor.core.publisher.SynchronousSink;
+
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
@@ -133,7 +136,9 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
         instructRootStrandSync(StrandCommand.STEP_OVER);
         waitUntilResultOfBlockIs(FIRST_A, SUCCESS);
-        waitUntilRootStrandBlockIs(FIRST_B);
+        waitUntilRootStrandBlockIs(FIRST_B);//TODO this is not sufficient, since reaching block does not mean
+        //state has been updated!
+        waitUntilRootStrandStateIs(RunState.PAUSED);
 
         instructRootStrandSync(StrandCommand.STEP_OVER);
         waitUntilResultOfBlockIs(FIRST_B, SUCCESS);
@@ -151,8 +156,11 @@ public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExe
 
     @Test
     public void testSkippingLastBlockFinishes() {
-        moveRootStrandTo(FOURTH);
+    	System.out.println(FOURTH);
+        moveRootStrandToBySkippingLeafsAndParallelNodes(FOURTH, treeStructure());
         waitUntilRootStrandBlockIs(FOURTH);
+        System.out.println("FOURTH reached");
+        waitUntilRootStrandStateIs(PAUSED);
 
         instructRootStrandSync(StrandCommand.SKIP);
         assertThatRootStrandState().as("Skipping the last block should finish the strand").isEqualTo(FINISHED);

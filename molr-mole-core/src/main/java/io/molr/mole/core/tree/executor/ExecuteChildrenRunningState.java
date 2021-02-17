@@ -7,6 +7,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 
 public class ExecuteChildrenRunningState extends ExecuteChildrenState{
@@ -31,6 +32,15 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	}
 	
 	@Override
+	public void run() {
+		super.run();
+		if(areAllChildrenPaused()) {
+			System.out.println("all paused");
+			context.updateLoopState(new ExecuteChildrenPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+		}
+	}
+	
+	@Override
 	public Set<StrandCommand> allowedCommands() {
 		/*
 		 * is PAUSE a vaild command or should it depend on children?
@@ -39,10 +49,20 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	}
 
 	@Override
-	void onCommand(StrandCommand command) {
-		/*
-		 * TODO Pause children? and switch state		
-		 */
+	protected void executeCommand(StrandCommand command) {
+		if(command == StrandCommand.PAUSE) {
+			pauseChildren();
+			/*
+			 * TODO remove possible dead ends from WaitingForAllPaused
+			 */
+			context.updateLoopState(new ExecuteChildrenWaitingForAllPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+		}
+	}
+	
+	@Override
+	public void onEnterState() {
+		context.updateRunStatesForStackElements(RunState.RUNNING);
+		context.updateStrandRunState(RunState.RUNNING);
 	}
 
 }

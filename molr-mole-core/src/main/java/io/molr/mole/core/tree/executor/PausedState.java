@@ -27,8 +27,32 @@ public class PausedState extends StrandExecutionState{
 
 	@Override
 	public void run() {
-		
-		StrandCommand command = context.commandQueue.poll();
+
+	}
+	
+	void updateRunStates() {
+		context.updateRunStatesForStackElements(RunState.PAUSED);
+	}
+
+	@Override
+	public void onEnterState() {
+		context.log("enter PAUSED state");
+		context.updateStrandRunState(RunState.PAUSED);
+		updateRunStates();
+	}
+	
+	@Override
+	public Set<StrandCommand> allowedCommands() {
+		if(context.currentStackElementIsLeave()) {
+			return ALLOWED_COMMANDS_FOR_LEAVES;
+		}
+		return ALL_COMMANDS_FOR_NON_LEAVES;
+
+	}
+
+	@Override
+	protected void executeCommand(StrandCommand command) {
+
 		if(command != null) {
 			context.log("retrieved {} command to be executed from queue", command);
 		}
@@ -67,27 +91,7 @@ public class PausedState extends StrandExecutionState{
 				context.log("PausedState: stack is empty, we are done here");
 			}
 			updateRunStates();
-		}
-	}
-	
-	void updateRunStates() {
-		context.updateRunStatesForStackElements(RunState.PAUSED);
-	}
-
-	@Override
-	public void onEnterState() {
-		context.log("enter PAUSED state");
-		context.updateStrandRunState(RunState.PAUSED);
-		updateRunStates();
-	}
-	
-	@Override
-	public Set<StrandCommand> allowedCommands() {
-		if(context.currentStackElementIsLeave()) {
-			return ALLOWED_COMMANDS_FOR_LEAVES;
-		}
-		return ALL_COMMANDS_FOR_NON_LEAVES;
-
+		}		
 	}
 
 }
