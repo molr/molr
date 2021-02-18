@@ -20,6 +20,8 @@ public class ConcurrentStrandExecutorPauseTest {
 	private final MissionRepresentation testRepresentation = TestMissions.testRepresentation(2, 3);
 	private final String firstLeafToPause = "0.0.0";
 	private final String secondLeafToPause = "0.0.2";
+	private final String directSuccessorToFirstPauseBlock = "0.0.1";
+	private final String directSuccessorToSecondPauseBlock = "0.1";
 	
 	@Rule
 	public Timeout globalTimeout= new Timeout(5000, TimeUnit.MILLISECONDS);
@@ -33,7 +35,7 @@ public class ConcurrentStrandExecutorPauseTest {
 		context.awaitEntry(firstLeafToPause);
 		context.strandExecutor().instruct(StrandCommand.PAUSE);
 		context.unlatch(firstLeafToPause);
-		waitForBlockAndRunstate(context.strandExecutor(), "0.0.1", RunState.PAUSED);
+		waitForBlockAndRunstate(context.strandExecutor(), directSuccessorToFirstPauseBlock, RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualState()).isEqualTo(RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualBlock().id()).isEqualTo("0.0.1");
 		
@@ -44,7 +46,7 @@ public class ConcurrentStrandExecutorPauseTest {
 		context.awaitEntry(secondLeafToPause);
 		context.strandExecutor().instruct(StrandCommand.PAUSE);
 		context.unlatch(secondLeafToPause);
-		waitForBlockAndRunstate(context.strandExecutor, secondLeafToPause, RunState.PAUSED);
+		waitForBlockAndRunstate(context.strandExecutor, directSuccessorToSecondPauseBlock, RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualState()).isEqualTo(RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualBlock().id()).isEqualTo("0.1");
 		

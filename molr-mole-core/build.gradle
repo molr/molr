@@ -9,4 +9,5 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: springFrameworkVersion
 
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+    testCompile group: 'io.projectreactor', name: 'reactor-test', version: reactorVersion
 }
