@@ -5,6 +5,8 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import io.molr.mole.core.testing.strand.StrandExecutorTestSupport;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -93,7 +95,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         LOGGER.info("Children paused");
         System.out.println("rootStrandChildren"+rootStrandChildren());
         //me
-        rootStrandChildren().forEach(se -> instructSync(se, STEP_OVER));
+        rootStrandChildren().forEach(se -> StrandExecutorTestSupport.instructSync(se, STEP_OVER));
         await(latchA1Start);
         await(latchB1Start);
         
@@ -190,6 +192,8 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
         StrandExecutor strandB = rootStrandChildren().stream()
                 .filter(se -> se.getActualBlock().equals(blockB2)).findFirst().get();
 
+        waitUntilStrandStateIs(strandA, PAUSED);
+        waitUntilStrandStateIs(strandB, PAUSED);
         assertThatStateOf(strandA).isEqualTo(PAUSED);
         assertThatStateOf(strandB).isEqualTo(PAUSED);
 

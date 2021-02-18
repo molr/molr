@@ -10,12 +10,12 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 
-/*
- * TODO is there a need for setting state to running if children are running
- * -> this would imply that child controls parent behavior. E.g.
- * -> should resume in child trigger resume in another paused child or in parent?
- */
 public class ExecuteChildrenPausedState extends ExecuteChildrenState{
+	
+	/*
+	 * serves as a marker to set RunStates according to children states
+	 */
+	private boolean anyChildRunning = false;
 	
 	public ExecuteChildrenPausedState(Block block, ConcurrentStrandExecutorStacked context) {
 		super(block, context);
@@ -27,6 +27,7 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
 			int concurrencyLimit) {
 		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit);
+		anyChildRunning = isAnyChildrenRunning();
 	}
 	
 	@Override
@@ -40,13 +41,21 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 		 * no need for instruction in paused state		
 		 */
 	}
-
+	
 	@Override
 	public void run() {
 		super.run();
 		if(isAnyChildrenRunning()) {
-			//System.out.println("NOT ALL ARE PAUSED\n\n\n\n\n"+block);
-			context.updateLoopState(new ExecuteChildrenRunningState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+			if(!anyChildRunning) {
+				context.updateRunStateForStrandAndStackElements(RunState.RUNNING);
+				anyChildRunning = true;
+			}
+		}
+		else {
+			if(anyChildRunning) {
+				context.updateRunStateForStrandAndStackElements(RunState.PAUSED);
+				anyChildRunning = false;
+			}
 		}
 	}
 	
@@ -55,7 +64,7 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 		if(command==StrandCommand.RESUME) {
 			context.updateLoopState(new ExecuteChildrenRunningState(context, block,
 					childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
-			resumeChildren();	
+			resumeChildren();
 		}
 	}
 	

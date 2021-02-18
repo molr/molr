@@ -20,9 +20,7 @@ public interface StrandExecutorTestSupport {
     Duration TIMEOUT = Duration.ofSeconds(30);
 
     default void waitUntilStrandStateIs(StrandExecutor strandExecutor, RunState state) {
-    	System.out.println(strandExecutor+"subscirbe\n\n\n");
         strandExecutor.getStateStream().filter(streamedState->{
-        	System.out.println("sub:"+state);
         	return state.equals(streamedState);
         }).blockFirst(TIMEOUT);
         assertThatStateOf(strandExecutor).isEqualTo(state);
@@ -43,7 +41,16 @@ public interface StrandExecutorTestSupport {
         assertThatResultOf(resultTracker, block).isEqualTo(result);
     }
 
-    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command, long id) {
+//    @Deprecated
+//    static void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command, long id) {
+//        ((ConcurrentStrandExecutorStacked) strandExecutor).getLastCommandStream()
+//                .filter(cmd -> {
+//                	System.out.println("filterFun"+id+" "+cmd.getCommandId());
+//                	return cmd.getCommandId() == id;
+//                }).blockFirst(TIMEOUT);
+//    }
+
+    static void waitForProcessedCommand(StrandExecutor strandExecutor, long id) {
         ((ConcurrentStrandExecutorStacked) strandExecutor).getLastCommandStream()
                 .filter(cmd -> {
                 	System.out.println("filterFun"+id+" "+cmd.getCommandId());
@@ -87,9 +94,9 @@ public interface StrandExecutorTestSupport {
      * Will instruct the specified command on the specified {@link StrandExecutor} and wait for it to be processed
      * processing
      */
-    default void instructSync(StrandExecutor executor, StrandCommand command) {
+    static void instructSync(StrandExecutor executor, StrandCommand command) {
         long id = executor.instruct(command);
-        waitForProcessedCommand(executor, command, id);
+        waitForProcessedCommand(executor, id);
     }
 
     /**

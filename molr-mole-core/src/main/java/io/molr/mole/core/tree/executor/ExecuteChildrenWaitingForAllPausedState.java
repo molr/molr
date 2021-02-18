@@ -22,7 +22,13 @@ public class ExecuteChildrenWaitingForAllPausedState extends ExecuteChildrenStat
 	public void run() {
 		if(areAllChildrenPaused()) {
 			context.updateLoopState(new ExecuteChildrenPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+			return;
 		}
+		removeCompletedChildExecutors();
+		if(runningExecutors.isEmpty()) {
+			context.updateLoopState(new ExecuteChildrenPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+		}
+		//System.out.println("waiting for all paused");
 		/*
 		 * TODO we must check for finished too
 		 */
@@ -40,6 +46,10 @@ public class ExecuteChildrenWaitingForAllPausedState extends ExecuteChildrenStat
 		/**
 		 * TODO consume resume command		
 		 */
+		if(command == StrandCommand.RESUME) {
+			//resumeChildren();
+			//
+		}
 	}
 	
 	@Override

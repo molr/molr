@@ -98,62 +98,62 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
         latchLeafEnd = new CountDownLatch(1);
     }
 
-//    @Test
-//    public void testPausedLeafCommands() {
-//        moveRootStrandTo(leafBlock);
-//        assertThatRootStrandState().isEqualTo(PAUSED);
-//
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER);
-//    }
-//
-//    @Test
-//    public void testRunningLeafCommands() {
-//        moveRootStrandTo(leafBlock);
-//        instructRootStrandAsync(RESUME);
-//        await(latchLeafStart);
-//
-//        assertThatRootStrandState().isEqualTo(RUNNING);
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
-//    }
-//
-//    @Test
-//    public void testPausedSequentialBlockCommands() {
-//        moveRootStrandTo(sequentialBlock);
-//        assertThatRootStrandState().isEqualTo(PAUSED);
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
-//    }
-//
-//    @Test
-//    public void testPausedParallelBlockCommands() {
-//        moveRootStrandTo(parallelBlock);
-//        assertThatRootStrandState().isEqualTo(PAUSED);
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
-//    }
-//
-//    @Test
-//    public void testWaitingForChildrenParallelBlockCommands() {
-//        moveRootStrandTo(parallelBlock);
-//        instructRootStrandSync(STEP_OVER);
-//
-//        await(latchA1Start, latchB1Start);
-//        waitUntilRootStrandStateIs(RUNNING);
-//
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
-//    }
-//
-//    @Test
-//    public void testPausedParallelBlockWithChildrenCommands() {
-//        moveRootStrandTo(parallelBlock);
-//        instructRootStrandSync(STEP_OVER);
-//
-//        await(latchA1Start, latchB1Start);
-//        instructRootStrandSync(PAUSE);
-//        unlatch(latchA1End, latchB1End);
-//
-//        waitUntilRootStrandStateIs(PAUSED);
-//
-//        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(RESUME);
-//    }
+    @Test
+    public void testPausedLeafCommands() {
+        moveRootStrandTo(leafBlock);
+        assertThatRootStrandState().isEqualTo(PAUSED);
+
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER);
+    }
+
+    @Test
+    public void testRunningLeafCommands() {
+        moveRootStrandTo(leafBlock);
+        instructRootStrandAsync(RESUME);
+        await(latchLeafStart);
+
+        assertThatRootStrandState().isEqualTo(RUNNING);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
+    }
+
+    @Test
+    public void testPausedSequentialBlockCommands() {
+        moveRootStrandTo(sequentialBlock);
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
+    }
+
+    @Test
+    public void testPausedParallelBlockCommands() {
+        moveRootStrandTo(parallelBlock);
+        assertThatRootStrandState().isEqualTo(PAUSED);
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(SKIP, RESUME, STEP_OVER, STEP_INTO);
+    }
+
+    @Test
+    public void testWaitingForChildrenParallelBlockCommands() {
+        moveRootStrandTo(parallelBlock);
+        instructRootStrandSync(STEP_OVER);
+
+        await(latchA1Start, latchB1Start);
+        waitUntilRootStrandStateIs(RUNNING);
+
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(PAUSE);
+    }
+
+    @Test
+    public void testPausedParallelBlockWithChildrenCommands() {
+        moveRootStrandTo(parallelBlock);
+        instructRootStrandSync(STEP_OVER);
+
+        await(latchA1Start, latchB1Start);
+        instructRootStrandSync(PAUSE);
+        unlatch(latchA1End, latchB1End);
+
+        waitUntilRootStrandStateIs(PAUSED);
+
+        assertThatStrandRootAllowedCommands().containsExactlyInAnyOrder(RESUME);
+    }
 
     @Override
     public Logger logger() {

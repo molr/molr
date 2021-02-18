@@ -79,7 +79,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		}
 	}
 
-	private void removeCompletedChildExecutors() {
+	protected void removeCompletedChildExecutors() {
 		List<ConcurrentStrandExecutorStacked> justFinished = runningExecutors.stream()
 				.filter(ConcurrentStrandExecutorStacked::isComplete).collect(Collectors.toList());
 		finishedChildren.addAll(justFinished);
@@ -114,11 +114,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 					return;
 				}
 			}
-			else {
-				context.log("none errors found", block);
-			}
 			//
-			System.out.println(block + "finished children");
 			context.popUntilNextChildAvailableAndPush();
 			context.updateRunStates(Map.of(block, RunState.FINISHED));
 			/**

@@ -104,7 +104,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
      */
     default void instructRootStrandSync(StrandCommand command) {
-        instructSync(rootStrandExecutor(), command);
+        StrandExecutorTestSupport.instructSync(rootStrandExecutor(), command);
     }
 
     /**

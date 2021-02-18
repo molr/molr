@@ -221,13 +221,22 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	stateSink.onNext(stateUpdate);/*TODO replace*/
     }
     
+    @Deprecated
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
     	runStateUpdates.forEach((block, state)->runStates.put(block, state));
     	stateSink.onNext(RunState.NOT_STARTED);/*TODO remove dummy and find better way to update/trigger gatherMissionState */
     }
     
+    @Deprecated
     void updateStrandRunState(RunState state) {
     	this.strandRunState.set(state);
+    }
+    
+    void updateRunStateForStrandAndStackElements(RunState stateUpdate) {
+    	System.out.println("updateStackAndStrandState "+stateUpdate);
+    	this.strandRunState.set(stateUpdate);
+    	stack.forEach(block -> runStates.put(block, stateUpdate));
+    	stateSink.onNext(stateUpdate);
     }
     
     Block currentStackElement() {
@@ -374,8 +383,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	}
     	return false;
     }
-     
-    int count = 0;
+
     private void lifecycle() {
         boolean finished = false;
         LOGGER.info("Start lifecycle for "+ strand);
@@ -384,18 +392,14 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
          	
             synchronized (cycleLock) {
 
-            	System.out.println(strand+"cycle"+count++);
             	QueuedCommand command = commandQueue.poll();
             	if(command!=null) {
             		if(!state.allowedCommands().contains(command.getStrandCommand())) {
-            			/**
-            			 * TODO log an error
-            			 */
-            			System.out.println("Rejected command: "+command+" state:"+state.getClass());
+            			LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),state.getClass());
             			errorSink.onNext(new RejectedCommandException(command.getStrandCommand(), "not allowed "+command.getCommandId()));
             		}
                 	state.executeCommand(command.getStrandCommand());
-                	System.out.println("executed "+command.getCommandId());
+                	log("Command {} with id={} has been processed ", command.getStrandCommand(), command.getCommandId());
                 	lastCommandSink.onNext(command);
                 	lastCommand.set(command);
             	}

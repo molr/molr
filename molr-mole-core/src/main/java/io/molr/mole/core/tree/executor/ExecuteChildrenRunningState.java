@@ -22,6 +22,7 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
 			int concurrencyLimit) {
 		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit);
+		allChildrenPaused = areAllChildrenPaused();
 	}
 	
 	void instructCreatedChild(ConcurrentStrandExecutorStacked childExecutor) {
@@ -31,12 +32,22 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 		childExecutor.instruct(StrandCommand.RESUME);
 	}
 	
+	boolean allChildrenPaused = false;
+	
 	@Override
 	public void run() {
 		super.run();
 		if(areAllChildrenPaused()) {
-			System.out.println("all paused");
-			context.updateLoopState(new ExecuteChildrenPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+			if(!allChildrenPaused) {
+				allChildrenPaused = true;
+				context.updateRunStateForStrandAndStackElements(RunState.PAUSED);
+			}
+		}
+		else {
+			if(allChildrenPaused) {
+				allChildrenPaused = false;
+				context.updateRunStateForStrandAndStackElements(RunState.RUNNING);
+			}
 		}
 	}
 	
@@ -51,18 +62,17 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	@Override
 	protected void executeCommand(StrandCommand command) {
 		if(command == StrandCommand.PAUSE) {
-			pauseChildren();
 			/*
-			 * TODO remove possible dead ends from WaitingForAllPaused
+			 * TODO instructing children is dangerous as command queue might not be empty!
 			 */
-			context.updateLoopState(new ExecuteChildrenWaitingForAllPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
+			pauseChildren();
+			context.updateLoopState(new ExecuteChildrenPausedState(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit));
 		}
 	}
 	
 	@Override
 	public void onEnterState() {
-		context.updateRunStatesForStackElements(RunState.RUNNING);
-		context.updateStrandRunState(RunState.RUNNING);
+		context.updateRunStateForStrandAndStackElements(RunState.RUNNING);
 	}
 
 }

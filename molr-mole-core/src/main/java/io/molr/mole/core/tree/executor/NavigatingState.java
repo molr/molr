@@ -110,6 +110,7 @@ public class NavigatingState extends StrandExecutionState{
 	@Override
 	protected void executeCommand(StrandCommand command) {
 		if(command == StrandCommand.PAUSE) {
+			System.out.println("execute PAUSE");
 			context.updateLoopState(new PausedState(context));
 			return;
 		}
