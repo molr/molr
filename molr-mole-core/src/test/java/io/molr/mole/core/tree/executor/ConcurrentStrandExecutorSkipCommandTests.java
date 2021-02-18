@@ -24,9 +24,6 @@ public class ConcurrentStrandExecutorSkipCommandTests {
 				}
 			}
 		}
-//		context.strandExecutor().instruct(StrandCommand.STEP_INTO);
-//		context.strandExecutor().instruct(StrandCommand.STEP_INTO);
-		sk.util.Threads.sleep(10000);
 	}
 	
 //  @Test

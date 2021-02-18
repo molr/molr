@@ -103,8 +103,7 @@ public class ConcurrentStrandExecutorStackedTests {
 		//assert that run state for block_01 is not running and result is IGNORED
 		Assertions.assertThat(nodeStates.getResultStates().getSnapshot().get(block_01.id())).isEqualTo(Result.UNDEFINED);
 		Assertions.assertThat(nodeStates.getRunStates().getSnapshot().get(block_01.id())).isEqualTo(RunState.NOT_STARTED);
-		
-		sk.util.Threads.sleep(2000);
+
 		//TODO stepverifier
 	}
 	

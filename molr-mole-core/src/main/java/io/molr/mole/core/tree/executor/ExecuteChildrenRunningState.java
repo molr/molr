@@ -12,6 +12,8 @@ import io.molr.commons.domain.StrandCommand;
 
 public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	
+	private boolean allChildrenPaused = false;
+	
 	public ExecuteChildrenRunningState(Block block, ConcurrentStrandExecutorStacked context) {
 		super(block, context);
 	}
@@ -31,8 +33,6 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 		 */
 		childExecutor.instruct(StrandCommand.RESUME);
 	}
-	
-	boolean allChildrenPaused = false;
 	
 	@Override
 	public void run() {

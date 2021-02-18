@@ -220,8 +220,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	stack.forEach(block -> runStates.put(block, stateUpdate));
     	stateSink.onNext(stateUpdate);/*TODO replace*/
     }
-    
-    @Deprecated
+
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
     	runStateUpdates.forEach((block, state)->runStates.put(block, state));
     	stateSink.onNext(RunState.NOT_STARTED);/*TODO remove dummy and find better way to update/trigger gatherMissionState */
@@ -233,7 +232,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     }
     
     void updateRunStateForStrandAndStackElements(RunState stateUpdate) {
-    	System.out.println("updateStackAndStrandState "+stateUpdate);
     	this.strandRunState.set(stateUpdate);
     	stack.forEach(block -> runStates.put(block, stateUpdate));
     	stateSink.onNext(stateUpdate);
@@ -280,14 +278,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	stateSink.onNext(null);//TODO
     }
     
-//    boolean hasUnfinishedChild(Block block) {
-//    	int i = childIndices.get(block);
-//    	List<Block> children = structure.childrenOf(block);
-//    	if(structure.isLeaf(block) || structure.isParallel(block))//|| is misleading
-//    		return false;
-//    	return i < children.size()-1;
-//    }
-    
     Optional<Block> moveChildIndexAndPushNextChild(Block block) {
     	if(structure.isLeaf(block) || structure.isParallel(block)) {
     		return Optional.empty();
@@ -309,19 +299,7 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
     	}
     	return Optional.empty();
     }
-        
-//    Block findNext() {
-//    	int i = stack.size()-1;
-//    	Block next=null;
-//    	while(i>=0 && next==null) {
-//    		Block block = stack.get(i);
-//    		if(hasUnfinishedChild(block)){
-//    			int childIdx = childIndex.get(block);
-//    			structure.childrenOf(block).get(childIdx);    			
-//    		}
-//    	}
-//    }
-    
+
     void popAndMoveChildIndexToLast() {
     	stack.pop();
     	Block parent = stack.peek();
@@ -518,7 +496,6 @@ public class ConcurrentStrandExecutorStacked implements StrandExecutor {
 
     @Override
     public RunState getActualState() {
-        //return runStateFrom(actualState());
     	return this.strandRunState.get();
     }
 
