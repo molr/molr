@@ -63,6 +63,7 @@ public class ConcurrentStrandExecutorIgnoreBlocksTest {
 		Future<Duration> blockVerification = streamVerification(getBlockIdsStream(context), 
 				"0", "0.0", "0.0.0", "0.0.1","0.0.2", "0.1", "0.1.0", "0.1.1", "0.1.2",
 				"0.2", "0.2.0", "0.2.1");
+		Thread.sleep(100);
 		
 		resumeAndWaitForRootStrandComplete(context);
 		
@@ -78,6 +79,7 @@ public class ConcurrentStrandExecutorIgnoreBlocksTest {
 		TestTreeContext context = TestTreeContext.builder(defaultRepresentation).ignore("0.0", "0.2").build();
 		Future<Duration> blockVerification = streamVerification(getBlockIdsStream(context), 
 				"0", "0.1", "0.1.0", "0.1.1","0.1.2");
+		Thread.sleep(100);
 		resumeAndWaitForRootStrandComplete(context);
 		Map<String, RunState> runStateSnapshot = context.nodeStates.getRunStates().getSnapshot();
 		Assertions.assertThat(runStateSnapshot).containsEntry("0.0", RunState.NOT_STARTED);
@@ -91,6 +93,8 @@ public class ConcurrentStrandExecutorIgnoreBlocksTest {
 	public void ignoreAllFirstLevelBranches() throws InterruptedException, ExecutionException {
 		TestTreeContext context = TestTreeContext.builder(defaultRepresentation).ignore("0.0", "0.1", "0.2").build();
 		Future<Duration> verifier = streamVerification(context.strandExecutor.getBlockStream().map(Block::id), "0");
+		Thread.sleep(100);
+		
 		resumeAndWaitForRootStrandComplete(context);
 		verifier.get();
 	}
