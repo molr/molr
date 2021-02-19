@@ -28,8 +28,6 @@ import io.molr.mole.core.tree.LatchedBlockExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.executor.ConcurrentStrandExecutorStacked;
-import io.molr.mole.core.tree.executor.StrandExecutorFactoryNew;
 
 public class ConcurrentStrandExecutorStackedTests {
 
@@ -75,9 +73,9 @@ public class ConcurrentStrandExecutorStackedTests {
 		//TODO scoped input refactoring necessary?
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
-		StrandExecutorFactoryNew strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
+		StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		
-		ConcurrentStrandExecutorStacked executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.PROCEED_ON_ERROR);
+		ConcurrentStrandExecutor executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.PROCEED_ON_ERROR);
 		
 		executor.getBlockStream().subscribe(block->{
 			System.out.println("_"+block);
@@ -116,14 +114,14 @@ public class ConcurrentStrandExecutorStackedTests {
 
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
-		StrandExecutorFactoryNew strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
+		StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		
-		ConcurrentStrandExecutorStacked executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
+		ConcurrentStrandExecutor executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
 
 		executor.instruct(StrandCommand.STEP_INTO);
 		
 		List<Block>strandRootBlocks = strandExecutorFactory.newStrandsStream()
-				.map(ConcurrentStrandExecutorStacked.class::cast)
+				.map(ConcurrentStrandExecutor.class::cast)
 				.map(exec->exec.strandRoot())
 				.takeUntil(block -> {
 					return block.id().equals(block_02.id());
@@ -142,9 +140,9 @@ public class ConcurrentStrandExecutorStackedTests {
 		//TODO scoped input refactoring necessary?
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
-		StrandExecutorFactoryNew strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
+		StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		
-		ConcurrentStrandExecutorStacked executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
+		ConcurrentStrandExecutor executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
 		
 //		executor.getBlockStream().subscribe(block->{
 //			System.out.println("block "+block);

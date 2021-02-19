@@ -5,7 +5,7 @@ import io.molr.commons.domain.StrandCommand;
 
 public class CompletedState extends StrandExecutionState{
 
-	public CompletedState(ConcurrentStrandExecutorStacked context) {
+	public CompletedState(ConcurrentStrandExecutor context) {
 		super(context);
 		// TODO Auto-generated constructor stub
 	}

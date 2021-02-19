@@ -14,20 +14,20 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	
 	private boolean allChildrenPaused = false;
 	
-	public ExecuteChildrenRunningState(Block block, ConcurrentStrandExecutorStacked context) {
+	public ExecuteChildrenRunningState(Block block, ConcurrentStrandExecutor context) {
 		super(block, context);
 	}
 	
-	public ExecuteChildrenRunningState(ConcurrentStrandExecutorStacked context, Block block,
-			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
-			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
-			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+	public ExecuteChildrenRunningState(ConcurrentStrandExecutor context, Block block,
+			Map<Block, ConcurrentStrandExecutor> childExecutors,
+			Set<ConcurrentStrandExecutor> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutor> runningExecutors,
 			int concurrencyLimit) {
 		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit);
 		allChildrenPaused = areAllChildrenPaused();
 	}
 	
-	void instructCreatedChild(ConcurrentStrandExecutorStacked childExecutor) {
+	void instructCreatedChild(ConcurrentStrandExecutor childExecutor) {
 		/*
 		 * TODO fails if command queue of child is not empty
 		 */

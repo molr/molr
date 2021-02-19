@@ -20,7 +20,7 @@ public class PausedState extends StrandExecutionState{
 
 
 	
-	public PausedState(ConcurrentStrandExecutorStacked context) {
+	public PausedState(ConcurrentStrandExecutor context) {
 		super(context);
 
 	}

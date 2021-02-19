@@ -15,7 +15,7 @@ public class NavigatingState extends StrandExecutionState{
 
 	boolean paused = true;
 	
-	public NavigatingState(ConcurrentStrandExecutorStacked context) {
+	public NavigatingState(ConcurrentStrandExecutor context) {
 		super(context);
 		System.out.println("new NavigatingState");
 	}

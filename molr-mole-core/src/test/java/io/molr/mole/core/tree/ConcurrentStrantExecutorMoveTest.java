@@ -5,6 +5,8 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import io.molr.mole.core.tree.executor.ConcurrentStrandExecutor;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -34,7 +34,7 @@ public class StrandExecutorFactory{
     private final LeafExecutor leafExecutor;
 
     // FIXME #1 change to interface!
-    private final ConcurrentHashMap<Strand, ConcurrentStrandExecutorStacked> strandExecutors;
+    private final ConcurrentHashMap<Strand, ConcurrentStrandExecutor> strandExecutors;
     private final EmitterProcessor<StrandExecutor> newStrandsSink;
     private final Flux<StrandExecutor> newStrandsStream;
     private final TreeNodeStates runStates;

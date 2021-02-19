@@ -23,16 +23,16 @@ import io.molr.commons.domain.StrandCommand;
 public abstract class ExecuteChildrenState extends StrandExecutionState{
 
 	protected final Block block;
-	protected final Map<Block, ConcurrentStrandExecutorStacked> childExecutors;
-	protected final Set<ConcurrentStrandExecutorStacked> finishedChildren;
+	protected final Map<Block, ConcurrentStrandExecutor> childExecutors;
+	protected final Set<ConcurrentStrandExecutor> finishedChildren;
 	protected final Set<Block> toBeExecuted;
 	protected final Queue<Block> waitingForInstantiation;
-	protected final Set<ConcurrentStrandExecutorStacked> runningExecutors;
+	protected final Set<ConcurrentStrandExecutor> runningExecutors;
 	protected final int concurrencyLimit;
 	
-	public ExecuteChildrenState(Block block, ConcurrentStrandExecutorStacked context) {
+	public ExecuteChildrenState(Block block, ConcurrentStrandExecutor context) {
 		super(context);
-		childExecutors = new HashMap<Block, ConcurrentStrandExecutorStacked>();
+		childExecutors = new HashMap<Block, ConcurrentStrandExecutor>();
 		finishedChildren = new HashSet<>();
 		toBeExecuted = new HashSet<>();
 		waitingForInstantiation = new LinkedBlockingQueue<>();
@@ -49,10 +49,10 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		instantiateAndAddNewChildExecutors();
 	}
 
-	public ExecuteChildrenState(ConcurrentStrandExecutorStacked context, Block block,
-			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
-			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
-			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+	public ExecuteChildrenState(ConcurrentStrandExecutor context, Block block,
+			Map<Block, ConcurrentStrandExecutor> childExecutors,
+			Set<ConcurrentStrandExecutor> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutor> runningExecutors,
 			int concurrencyLimit) {
 		super(context);
 		this.block = block;
@@ -64,13 +64,13 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		this.concurrencyLimit = concurrencyLimit;
 	}
 
-	abstract void instructCreatedChild(ConcurrentStrandExecutorStacked executor);
+	abstract void instructCreatedChild(ConcurrentStrandExecutor executor);
 	
 	private void instantiateAndAddNewChildExecutors() {
 		//
 		while(!waitingForInstantiation.isEmpty() && runningExecutors.size()<concurrencyLimit) {
 			Block nextChild = waitingForInstantiation.poll();
-			ConcurrentStrandExecutorStacked childExecutor = context.createChildStrandExecutor(nextChild);
+			ConcurrentStrandExecutor childExecutor = context.createChildStrandExecutor(nextChild);
 			if(childExecutor!=null) {
 				runningExecutors.add(childExecutor);
 				childExecutors.put(nextChild, childExecutor);
@@ -80,8 +80,8 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	}
 
 	protected void removeCompletedChildExecutors() {
-		List<ConcurrentStrandExecutorStacked> justFinished = runningExecutors.stream()
-				.filter(ConcurrentStrandExecutorStacked::isComplete).collect(Collectors.toList());
+		List<ConcurrentStrandExecutor> justFinished = runningExecutors.stream()
+				.filter(ConcurrentStrandExecutor::isComplete).collect(Collectors.toList());
 		finishedChildren.addAll(justFinished);
 		runningExecutors.removeAll(justFinished);
 	}
@@ -129,10 +129,10 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	}
 
 	protected boolean isAnyChildrenRunning() {
-//		return runningExecutors.stream().map(ConcurrentStrandExecutorStacked::getActualState)
+//		return runningExecutors.stream().map(ConcurrentStrandExecutor::getActualState)
 //				.anyMatch(RunState.RUNNING::equals);
 		return runningExecutors.stream()
-				.map(ConcurrentStrandExecutorStacked::getActualState)
+				.map(ConcurrentStrandExecutor::getActualState)
 				.anyMatch(runState -> {
 					//System.out.println("anyMatch: "+runState);
 					return runState.equals(RunState.RUNNING);
@@ -144,7 +144,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 			return false;
 		}
 		return runningExecutors.stream()
-				.map(ConcurrentStrandExecutorStacked::getActualState)
+				.map(ConcurrentStrandExecutor::getActualState)
 				.allMatch(runState -> {
 					return runState.equals(RunState.PAUSED);
 				});

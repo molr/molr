@@ -17,14 +17,14 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 	 */
 	private boolean anyChildRunning = false;
 	
-	public ExecuteChildrenPausedState(Block block, ConcurrentStrandExecutorStacked context) {
+	public ExecuteChildrenPausedState(Block block, ConcurrentStrandExecutor context) {
 		super(block, context);
 	}
 	
-	public ExecuteChildrenPausedState(ConcurrentStrandExecutorStacked context, Block block,
-			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
-			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
-			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+	public ExecuteChildrenPausedState(ConcurrentStrandExecutor context, Block block,
+			Map<Block, ConcurrentStrandExecutor> childExecutors,
+			Set<ConcurrentStrandExecutor> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutor> runningExecutors,
 			int concurrencyLimit) {
 		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors, concurrencyLimit);
 		anyChildRunning = isAnyChildrenRunning();
@@ -36,7 +36,7 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 		}
 
 	@Override
-	void instructCreatedChild(ConcurrentStrandExecutorStacked childExecutor) {
+	void instructCreatedChild(ConcurrentStrandExecutor childExecutor) {
 		/*
 		 * no need for instruction in paused state		
 		 */

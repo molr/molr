@@ -2,7 +2,7 @@ package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.*;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
-import io.molr.mole.core.tree.executor.StrandExecutorFactoryNew;
+import io.molr.mole.core.tree.executor.StrandExecutorFactory;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeMissionExecutor.class);
     
     private final Flux<MissionState> states;
-    private final StrandExecutorFactoryNew strandExecutorFactory;
+    private final StrandExecutorFactory strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
     private final Tracker<Result> resultTracker;
     private final MissionRepresentation representation;
@@ -53,7 +53,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         	}
         });
         this.nodeStates = new TreeNodeStates(treeStructure);
-		strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
+		strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
         this.outputCollector = outputCollector;
         this.resultTracker = resultTracker;
         this.representation = treeStructure.missionRepresentation();

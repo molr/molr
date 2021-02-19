@@ -40,8 +40,8 @@ public class TestTreeContext {
 	TreeNodeStates nodeStates;
 	MissionOutputCollector otuputCollector = new ConcurrentMissionOutputCollector();
 	LeafExecutor leafExecutor;
-	StrandExecutorFactoryNew strandExecutorFactory;
-	ConcurrentStrandExecutorStacked strandExecutor;
+	StrandExecutorFactory strandExecutorFactory;
+	ConcurrentStrandExecutor strandExecutor;
 	
 	private TestTreeContext(Builder builder) {
 		parallel = builder.parallel.build();
@@ -83,7 +83,7 @@ public class TestTreeContext {
 		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), otuputCollector);
 		leafExecutor.unlatchAll();
 		this.leafExecutor = leafExecutor;
-		strandExecutorFactory = new StrandExecutorFactoryNew(leafExecutor, nodeStates);
+		strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, toBeIgnored, ExecutionStrategy.PROCEED_ON_ERROR);
 	}
 	
@@ -103,7 +103,7 @@ public class TestTreeContext {
 		strandExecutor.instruct(StrandCommand.RESUME);
 	}
 	
-	ConcurrentStrandExecutorStacked strandExecutor() {
+	ConcurrentStrandExecutor strandExecutor() {
 		return strandExecutor;
 	}
 	

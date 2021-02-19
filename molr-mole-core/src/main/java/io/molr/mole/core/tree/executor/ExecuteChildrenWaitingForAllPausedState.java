@@ -9,10 +9,10 @@ import io.molr.commons.domain.StrandCommand;
 
 public class ExecuteChildrenWaitingForAllPausedState extends ExecuteChildrenState{
 
-	public ExecuteChildrenWaitingForAllPausedState(ConcurrentStrandExecutorStacked context, Block block,
-			Map<Block, ConcurrentStrandExecutorStacked> childExecutors,
-			Set<ConcurrentStrandExecutorStacked> finishedChildren, Set<Block> toBeExecuted,
-			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutorStacked> runningExecutors,
+	public ExecuteChildrenWaitingForAllPausedState(ConcurrentStrandExecutor context, Block block,
+			Map<Block, ConcurrentStrandExecutor> childExecutors,
+			Set<ConcurrentStrandExecutor> finishedChildren, Set<Block> toBeExecuted,
+			Queue<Block> waitingForInstantiation, Set<ConcurrentStrandExecutor> runningExecutors,
 			int concurrencyLimit) {
 		super(context, block, childExecutors, finishedChildren, toBeExecuted, waitingForInstantiation, runningExecutors,
 				concurrencyLimit);
@@ -35,7 +35,7 @@ public class ExecuteChildrenWaitingForAllPausedState extends ExecuteChildrenStat
 	}
 	
 	@Override
-	void instructCreatedChild(ConcurrentStrandExecutorStacked executor) {
+	void instructCreatedChild(ConcurrentStrandExecutor executor) {
 		/**
 		 * TODO no need to instruct created child, method should also be removed from super
 		 */

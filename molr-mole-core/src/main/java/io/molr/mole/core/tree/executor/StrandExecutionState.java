@@ -10,9 +10,9 @@ import io.molr.commons.domain.StrandCommand;
 
 public abstract class StrandExecutionState {
 	
-	protected ConcurrentStrandExecutorStacked context;
+	protected ConcurrentStrandExecutor context;
 	
-	public StrandExecutionState(ConcurrentStrandExecutorStacked context) {
+	public StrandExecutionState(ConcurrentStrandExecutor context) {
 		requireNonNull(context);
 		this.context = context;
 	}

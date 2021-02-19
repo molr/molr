@@ -5,7 +5,7 @@ import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.tree.StrandExecutor;
-import io.molr.mole.core.tree.executor.ConcurrentStrandExecutorStacked;
+import io.molr.mole.core.tree.executor.ConcurrentStrandExecutor;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.assertj.core.api.*;
 
@@ -43,7 +43,7 @@ public interface StrandExecutorTestSupport {
 
 //    @Deprecated
 //    static void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command, long id) {
-//        ((ConcurrentStrandExecutorStacked) strandExecutor).getLastCommandStream()
+//        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
 //                .filter(cmd -> {
 //                	System.out.println("filterFun"+id+" "+cmd.getCommandId());
 //                	return cmd.getCommandId() == id;
@@ -51,7 +51,7 @@ public interface StrandExecutorTestSupport {
 //    }
 
     static void waitForProcessedCommand(StrandExecutor strandExecutor, long id) {
-        ((ConcurrentStrandExecutorStacked) strandExecutor).getLastCommandStream()
+        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
                 .filter(cmd -> {
                 	System.out.println("filterFun"+id+" "+cmd.getCommandId());
                 	return cmd.getCommandId() == id;
@@ -87,7 +87,7 @@ public interface StrandExecutorTestSupport {
     }
 
     default Set<StrandExecutor> childrenStrandExecutorsOf(StrandExecutor executor) {
-        return ((ConcurrentStrandExecutorStacked) executor).getChildrenStrandExecutors();
+        return ((ConcurrentStrandExecutor) executor).getChildrenStrandExecutors();
     }
 
     /**

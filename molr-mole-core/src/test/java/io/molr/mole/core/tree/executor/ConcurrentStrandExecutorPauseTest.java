@@ -63,7 +63,7 @@ public class ConcurrentStrandExecutorPauseTest {
 		Assertions.assertThat(context.nodeStates.getRunStates().getSnapshot()).containsAllEntriesOf(expectedRunStates);
 	}
 
-	private void waitForBlockAndRunstate(ConcurrentStrandExecutorStacked executor, String blockId, RunState runState) {
+	private void waitForBlockAndRunstate(ConcurrentStrandExecutor executor, String blockId, RunState runState) {
 		executor.getBlockStream().map(Block::id).takeUntil(blockId::equals).blockLast();
 		executor.getStateStream().takeUntil(runState::equals).blockLast();
 	}
