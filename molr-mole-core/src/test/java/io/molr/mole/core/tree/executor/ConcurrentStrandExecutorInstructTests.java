@@ -11,6 +11,7 @@ public class ConcurrentStrandExecutorInstructTests {
 	public void instruct_whileAnotherCommandIsEnqueued_runtimeExceptionIsThrown() throws InterruptedException {
 		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).build();
 		boolean catchedRuntimeException = false;
+		context.strandExecutor().instruct(StrandCommand.PAUSE);
 		try {
 			context.strandExecutor().instruct(StrandCommand.PAUSE);
 		}
