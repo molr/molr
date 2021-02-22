@@ -91,7 +91,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     	if(rootExecutor.isComplete()) {
         	LOGGER.info("Complete states sink and output collector.");
         	outputCollector.onComplete();
-        	statesSink.onNext(gatherMissionState());
+        	//statesSink.onNext(gatherMissionState());
             statesSink.onComplete();
     	}
 
