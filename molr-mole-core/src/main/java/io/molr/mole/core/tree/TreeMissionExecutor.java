@@ -68,7 +68,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
         	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
-                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, ()->{});
+                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onRootExecutorStatesStreamComplete);
         });
         Scheduler statesSinkScheduler = Schedulers.elastic();
         states = statesSink.map(signal -> gatherMissionState())
@@ -80,7 +80,6 @@ public class TreeMissionExecutor implements MissionExecutor {
                 });
 
         rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
-        rootExecutor.getStateStream().subscribe(next->{},error->onRootExecutorStatesStreamComplete(), this::onRootExecutorStatesStreamComplete);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -89,8 +88,13 @@ public class TreeMissionExecutor implements MissionExecutor {
     }
 
     private void onRootExecutorStatesStreamComplete() {
-    	outputCollector.onComplete();
-        statesSink.onComplete();
+    	if(rootExecutor.isComplete()) {
+        	LOGGER.info("Complete states sink and output collector.");
+        	outputCollector.onComplete();
+        	statesSink.onNext(gatherMissionState());
+            statesSink.onComplete();
+    	}
+
     }
 
     @Override
