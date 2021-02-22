@@ -15,7 +15,7 @@ import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 
-public class ConcurrentStrandExecutorPauseTest extends TimeoutEnabledTest{
+public class ConcurrentStrandInstructPauseTest extends TimeoutEnabledTest{
 	
 	private final MissionRepresentation testRepresentation = TestMissions.testRepresentation(2, 3);
 	private final String firstLeafToPause = "0.0.0";
