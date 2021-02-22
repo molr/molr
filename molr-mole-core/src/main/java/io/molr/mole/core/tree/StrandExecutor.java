@@ -29,5 +29,7 @@ public interface StrandExecutor {
     void abort();
     
     boolean aborted();
+    
+    boolean isComplete();
 
 }

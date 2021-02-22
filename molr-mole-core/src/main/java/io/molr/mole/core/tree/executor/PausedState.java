@@ -91,7 +91,7 @@ public class PausedState extends StrandExecutionState{
 				context.log("PausedState: stack is empty, we are done here");
 			}
 			updateRunStates();
-		}		
+		}
 	}
 
 }

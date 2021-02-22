@@ -7,12 +7,10 @@ public class CompletedState extends StrandExecutionState{
 
 	public CompletedState(ConcurrentStrandExecutor context) {
 		super(context);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -23,8 +21,7 @@ public class CompletedState extends StrandExecutionState{
 
 	@Override
 	protected void executeCommand(StrandCommand command) {
-		// TODO Auto-generated method stub
 		
 	}
-
+	
 }

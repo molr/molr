@@ -158,10 +158,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
     
     private void lifecycle() {
-        boolean finished = false;
         LOGGER.info("Start lifecycle for "+ strand);
 
-        while (!finished) {
+        while (!stack.isEmpty()) {
          	
             synchronized (cycleLock) {
 
@@ -178,46 +177,30 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
             	}
                 state.run();
 
-            	/*
-            	 * TODO cleanup the cleanup ;)
-            	 */
             	if(stack.empty()) {
-                    //TODO update this by states itself?
-                    updateStrandRunState(FINISHED);
+            		updateLoopState(new CompletedState(this));
             		break;
             	}
-            }//cycleLock
+            }
 
             cycleSleep();
-        }//whileNotFinished
+        }
 
         
         LOGGER.info("Executor for strand {} is finished", strand);
         executor.shutdown();
-        LOGGER.info("Close streams for strand {}", strand);
-
-        closeStreams();
-
-        //TODO needs to be refactored, field wouldn't be necessary if executor finished means finished
         complete.set(true);
-        //errorSink.dispose();
-        //lastCommandSink.dispose();
-        LOGGER.info(strand + ": all streams closed");
+        closeStreams();
     }
     
 	private void closeStreams() {
-		stateSink.onNext(FINISHED);
-        stateSink.onComplete();
+        LOGGER.info("Close streams for strand {}", strand);
         blockSink.onComplete();
         errorSink.onComplete();
-        lastCommandSink.onComplete();  
-        
-        /*
-         * TODO replace root condition or even better move to StrandExecutor Factory
-         */
-        if(strandRoot.id().equals("0")) {
-            strandExecutorFactory.closeStrandsStream();
-        }
+        lastCommandSink.onComplete();
+		stateSink.onNext(FINISHED);
+        stateSink.onComplete();
+        LOGGER.info(strand + ": all streams closed");
 	}
     
     private void lifecyleChecked() {
@@ -229,7 +212,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 		}
     }
     
-    boolean isComplete() {
+    public boolean isComplete() {
     	return complete.get();
     }
     

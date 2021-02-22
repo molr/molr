@@ -88,7 +88,6 @@ public class NavigatingState extends StrandExecutionState{
 			
 			context.updateRunStatesForStackElements(RunState.RUNNING);
     	}
-    	
     	else {
 			context.log("NavigatingState finished with empty stack");
     	}

@@ -18,6 +18,9 @@ import reactor.core.scheduler.Schedulers;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static io.molr.commons.domain.RunState.FINISHED;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
@@ -28,6 +31,8 @@ import java.util.Optional;
  * FIXME to be merged most probably with StrandFactory...
  */
 public class StrandExecutorFactory{
+	
+	private final Logger LOGGER = LoggerFactory.getLogger(StrandExecutorFactory.class);
 
     private final Object strandExecutorLock = new Object();
     private final StrandFactory strandFactory;
@@ -57,7 +62,9 @@ public class StrandExecutorFactory{
     }
     
     public ConcurrentStrandExecutor createRootStrandExecutor(TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
-    	return createStrandExecutor(strandFactory.rootStrand(), structure, breakpoints, blocksToBeIgnored, executionStrategy);
+    	ConcurrentStrandExecutor rootExecutor = createStrandExecutor(strandFactory.rootStrand(), structure, breakpoints, blocksToBeIgnored, executionStrategy);
+    	rootExecutor.getStateStream().subscribe(state->{}, error->this.closeStrandsStream(), this::closeStrandsStream); 
+    	return rootExecutor;
     }
     
     public ConcurrentStrandExecutor createChildStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints,
@@ -104,6 +111,7 @@ public class StrandExecutorFactory{
     }
     
     public void closeStrandsStream() {
+    	LOGGER.info("Close strands stream.");
     	newStrandsSink.onComplete();
     }
 
