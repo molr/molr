@@ -1,4 +1,4 @@
-package io.molr.mole.core.tree;
+package io.molr.mole.core.tree.executor;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.StrandCommand;
@@ -6,6 +6,7 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import io.molr.mole.core.testing.strand.StrandExecutorTestSupport;
+import io.molr.mole.core.tree.StrandExecutor;
 
 import org.junit.Before;
 import org.junit.Ignore;
