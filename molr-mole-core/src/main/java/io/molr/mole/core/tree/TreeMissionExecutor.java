@@ -37,7 +37,8 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
     private final EmitterProcessor<Object> statesSink;
-    private TreeNodeStates nodeStates;
+    private final TreeNodeStates nodeStates;
+    private final StrandExecutor rootExecutor;
     
 	public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker,
 			MissionOutputCollector outputCollector,
@@ -67,7 +68,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
         	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
             newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
-                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onExecutorStatesStreamComplete);
+                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, ()->{});
         });
         Scheduler statesSinkScheduler = Schedulers.elastic();
         states = statesSink.map(signal -> gatherMissionState())
@@ -78,7 +79,8 @@ public class TreeMissionExecutor implements MissionExecutor {
                 	statesSinkScheduler.dispose();
                 });
 
-        StrandExecutor rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
+        rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
+        rootExecutor.getStateStream().subscribe(next->{},error->onRootExecutorStatesStreamComplete(), this::onRootExecutorStatesStreamComplete);
 
         if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
             rootExecutor.instruct(STEP_INTO);
@@ -86,15 +88,9 @@ public class TreeMissionExecutor implements MissionExecutor {
         states.subscribe();
     }
 
-    private void onExecutorStatesStreamComplete() {
-        /*
-         * TODO Ensure that all mandatory state updates have been sent to subscribers before isComplete
-         * is satisfied
-         */
-        if(isComplete()) {
-            outputCollector.onComplete();
-            statesSink.onComplete();
-        }
+    private void onRootExecutorStatesStreamComplete() {
+    	outputCollector.onComplete();
+        statesSink.onComplete();
     }
 
     @Override
@@ -153,8 +149,7 @@ public class TreeMissionExecutor implements MissionExecutor {
             	builder.addAllowedCommand(block, BlockCommand.SET_IGNORE);
             }
         });
-        
-        /* TODO we might need to define another criterion when a mission should become disposable*/
+
         if(isDisposable()) {
             builder.addAllowedCommand(MissionCommand.DISPOSE);
         }
@@ -212,18 +207,9 @@ public class TreeMissionExecutor implements MissionExecutor {
         statesSink.onComplete();
         outputCollector.onComplete();
     }
-
-    private boolean isComplete() {
-        if(strandExecutorFactory.activeStrandExecutors().stream().map(StrandExecutor::getActualState)
-        		.allMatch(runState -> runState.equals(RunState.FINISHED))){
-        	return true;
-        }
-        return false;
-        
-    }
     
     private boolean isDisposable() {
-    	return isComplete();
+    	return rootExecutor.isComplete();
     }
     
     public void abort() {
