@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import io.molr.commons.domain.StrandCommand;
 
-public class ConcurrentStrandExecutorInstructTests extends TimeoutEnabledTest{
+public class ConcurrentStrandExecutorInstructTest extends TimeoutEnabledTest{
 	
 	@Test
 	public void instruct_whileAnotherCommandIsEnqueued_runtimeExceptionIsThrown() throws InterruptedException {
