@@ -9,8 +9,10 @@ public class ConcurrentStrandExecutorInstructTest extends TimeoutEnabledTest{
 	
 	@Test
 	public void instruct_whileAnotherCommandIsEnqueued_runtimeExceptionIsThrown() throws InterruptedException {
-		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).build();
+		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).latched("0.0.0").build();
 		boolean catchedRuntimeException = false;
+		context.strandExecutor().instruct(StrandCommand.RESUME);
+		context.awaitEntry("0.0.0");
 		context.strandExecutor().instruct(StrandCommand.PAUSE);
 		try {
 			context.strandExecutor().instruct(StrandCommand.PAUSE);
