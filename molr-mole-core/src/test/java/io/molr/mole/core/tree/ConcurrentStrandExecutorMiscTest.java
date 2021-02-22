@@ -24,9 +24,9 @@ import static io.molr.commons.domain.RunState.FINISHED;
 import static io.molr.commons.domain.RunState.PAUSED;
 
 @SuppressWarnings("unused")
-public class ConcurrentStrandExecutorTest extends AbstractSingleMissionStrandExecutorTest {
+public class ConcurrentStrandExecutorMiscTest extends AbstractSingleMissionStrandExecutorTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorMiscTest.class);
 
     private Block FIRST;
     private Block FIRST_A;
