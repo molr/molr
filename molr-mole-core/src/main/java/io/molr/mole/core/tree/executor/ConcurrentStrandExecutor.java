@@ -83,7 +83,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private ImmutableList<StrandExecutor> childExecutors;
     private ExecutionStrategy executionStrategy;
-    private AtomicBoolean aborted = new AtomicBoolean(false); 
+    private AtomicBoolean aborted = new AtomicBoolean(false);
+    private AtomicLong commandId = new AtomicLong(0);
     //TODO remove field after refactoring
     private AtomicBoolean complete = new AtomicBoolean();
     private RunStates runStates;
@@ -122,19 +123,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.errorSink = EmitterProcessor.create();
         this.errorStream = errorSink.publishOn(publishingScheduler("errors"));
 
-        //cursorScheduler = Schedulers.elastic();//publishingScheduler("cursor");
-        //stateStreamscheduler = Schedulers.elastic();//publishingScheduler("states");
-        //this.stateStream = stateSink.publishOn(stateStreamscheduler).doFinally(signal -> {
-            //stateStreamscheduler.dispose();
-        //});
-        //this.blockStream = blockSink.publishOn(cursorScheduler).doFinally(signal ->{
-        //cursorScheduler.dispose();
-        //});
-        /*
-         * TODO check if the publish on scheduler is necessary
-         * and investigate how to cleanup the shared schedulers
-         * if needed
-         */
         this.stateSink = ReplayProcessor.cacheLast();
         this.stateStream = stateSink.publishOn(stateStreamscheduler);//stateSink;
         this.blockSink = ReplayProcessor.cacheLast();
@@ -154,9 +142,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.executor.submit(this::lifecyleChecked);
     }
-    
-    AtomicLong commandId = new AtomicLong(0);
-    
+        
     @Override
     public long instruct(StrandCommand command) {
     	long id = commandId.getAndIncrement();
@@ -170,6 +156,69 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         log("Instructed with ", command);
         return id;
     }
+    
+    private void lifecycle() {
+        boolean finished = false;
+        LOGGER.info("Start lifecycle for "+ strand);
+
+        while (!finished) {
+         	
+            synchronized (cycleLock) {
+
+            	QueuedCommand command = commandQueue.poll();
+            	if(command!=null) {
+            		if(!state.allowedCommands().contains(command.getStrandCommand())) {
+            			LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),state.getClass());
+            			errorSink.onNext(new RejectedCommandException(command.getStrandCommand(), "not allowed "+command.getCommandId()));
+            		}
+                	state.executeCommand(command.getStrandCommand());
+                	log("Command {} with id={} has been processed ", command.getStrandCommand(), command.getCommandId());
+                	lastCommandSink.onNext(command);
+                	lastCommand.set(command);
+            	}
+                state.run();
+
+            	/*
+            	 * TODO cleanup the cleanup ;)
+            	 */
+            	if(stack.empty()) {
+                    //TODO update this by states itself?
+                    updateStrandRunState(FINISHED);
+            		break;
+            	}
+            }//cycleLock
+
+            cycleSleep();
+        }//whileNotFinished
+
+        
+        LOGGER.info("Executor for strand {} is finished", strand);
+        executor.shutdown();
+        LOGGER.info("Close streams for strand {}", strand);
+
+        closeStreams();
+
+        //TODO needs to be refactored, field wouldn't be necessary if executor finished means finished
+        complete.set(true);
+        //errorSink.dispose();
+        //lastCommandSink.dispose();
+        LOGGER.info(strand + ": all streams closed");
+    }
+    
+	private void closeStreams() {
+		stateSink.onNext(FINISHED);
+        stateSink.onComplete();
+        blockSink.onComplete();
+        errorSink.onComplete();
+        lastCommandSink.onComplete();  
+        
+        /*
+         * TODO replace root condition or even better move to StrandExecutor Factory
+         */
+        if(strandRoot.id().equals("0")) {
+            strandExecutorFactory.closeStrandsStream();
+        }
+	}
     
     private void lifecyleChecked() {
     	try {
@@ -360,70 +409,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     		}
     	}
     	return false;
-    }
-
-    private void lifecycle() {
-        boolean finished = false;
-        LOGGER.info("Start lifecycle for "+ strand);
-
-        while (!finished) {
-         	
-            synchronized (cycleLock) {
-
-            	QueuedCommand command = commandQueue.poll();
-            	if(command!=null) {
-            		if(!state.allowedCommands().contains(command.getStrandCommand())) {
-            			LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),state.getClass());
-            			errorSink.onNext(new RejectedCommandException(command.getStrandCommand(), "not allowed "+command.getCommandId()));
-            		}
-                	state.executeCommand(command.getStrandCommand());
-                	log("Command {} with id={} has been processed ", command.getStrandCommand(), command.getCommandId());
-                	lastCommandSink.onNext(command);
-                	lastCommand.set(command);
-            	}
-                state.run();
-
-            	/*
-            	 * TODO cleanup the cleanup ;)
-            	 */
-            	if(stack.empty()) {
-                    //TODO update this by states itself?
-                    updateStrandRunState(FINISHED);
-            		break;
-            	}
-            }//cycleLock
-
-            cycleSleep();
-        }//whileNotFinished
-
-        
-        LOGGER.info("Executor for strand {} is finished", strand);
-        executor.shutdown();
-        LOGGER.info("Close streams for strand {}", strand);
-
-        // leafExecutor.markBlockFinished(strandRoot);
-        stateSink.onNext(FINISHED);
-        stateSink.onComplete();
-        blockSink.onComplete();
-        errorSink.onComplete();
-        //lastCommandSink.onComplete();  
-        //TODO seems not to be the right way
-        //stateStreamscheduler.dispose();
-        //scheduler.dispose kills the scheduler right away. dispose called with flux.doFinally runs on scheduler thread and is defered
-        //cursorScheduler.dispose();
-        
-        /*
-         * TODO replace root condition or even better move to StrandExecutor Factory
-         */
-        if(strandRoot.id().equals("0")) {
-            strandExecutorFactory.closeStrandsStream();
-        }
-
-        //TODO needs to be refactored, field wouldn't be necessary if executor finished means finished
-        complete.set(true);
-        //errorSink.dispose();
-        //lastCommandSink.dispose();
-        LOGGER.info(strand + ": all streams closed");
     }
     
     ConcurrentStrandExecutor createChildStrandExecutor(Block childBlock) {
