@@ -18,7 +18,7 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-public class ConcurrentStrandExecutorSkipCommandTests extends TimeoutEnabledTest{
+public class ConcurrentStrandExecutorSkipCommandTest extends TimeoutEnabledTest{
 	
 	@Test
 	public void skipNodeWithChildrenButWithoutSuccessor() {

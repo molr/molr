@@ -29,7 +29,7 @@ import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
 
-public class ConcurrentStrandExecutorStackedTests extends TimeoutEnabledTest{
+public class ConcurrentStrandExecutorTest extends TimeoutEnabledTest{
 	
 	Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
 	
