@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -36,7 +37,8 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
-    private final EmitterProcessor<Object> statesSink;
+    EmitterProcessor<Object> statesProcessor;
+    private final FluxSink<Object> statesSink;
     private final TreeNodeStates nodeStates;
     private final StrandExecutor rootExecutor;
     
@@ -61,17 +63,18 @@ public class TreeMissionExecutor implements MissionExecutor {
 
 
         //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
-        statesSink = EmitterProcessor.create();
+        statesProcessor = EmitterProcessor.create();
+        statesSink = statesProcessor.sink();
     	runStateTracker.updatedBlocksStream().subscribe(any -> {
-    		statesSink.onNext(new Object());
+    		statesSink.next(new Object());
     	});
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
-        	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
-            newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
+        	newExecutor.getBlockStream().subscribe(any -> statesSink.next(new Object()));
+            newExecutor.getStateStream().subscribe(any -> {statesSink.next(new Object());},
                 error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onRootExecutorStatesStreamComplete);
         });
         Scheduler statesSinkScheduler = Schedulers.elastic();
-        states = statesSink.map(signal -> gatherMissionState())
+        states = statesProcessor.map(signal -> gatherMissionState())
                 .cache(1)
                 .sample(Duration.ofMillis(100))
                 .publishOn(statesSinkScheduler)
@@ -92,7 +95,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         	LOGGER.info("Complete states sink and output collector.");
         	outputCollector.onComplete();
         	//statesSink.onNext(gatherMissionState());
-            statesSink.onComplete();
+            statesSink.complete();
     	}
 
     }
@@ -180,25 +183,25 @@ public class TreeMissionExecutor implements MissionExecutor {
         if(command == BlockCommand.UNSET_BREAKPOINT) {
             boolean breakpointRemoved = breakpoints.removeIf(block -> block.id().equals(blockId));
             if(breakpointRemoved) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
         } else if(command == BlockCommand.SET_BREAKPOINT){
             Block block = representation.blockOfId(blockId).get();
             boolean breakpointAdded = breakpoints.add(block);
             if(breakpointAdded) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
         }
         if(command == BlockCommand.UNSET_IGNORE) {
             boolean blockRemoved = blocksToBeIgnored.removeIf(block -> block.id().equals(blockId));
             if(blockRemoved) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
         } else if(command == BlockCommand.SET_IGNORE){
             Block block = representation.blockOfId(blockId).get();
             boolean added = blocksToBeIgnored.add(block);
             if(added) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
         }    
     }
@@ -208,7 +211,7 @@ public class TreeMissionExecutor implements MissionExecutor {
         if(!isDisposable()) {
             throw new MissionDisposeException();            
         }
-        statesSink.onComplete();
+        statesSink.complete();
         outputCollector.onComplete();
     }
     
