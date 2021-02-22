@@ -8,12 +8,14 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.testing.strand.StrandExecutorTestSupport;
 
 public class ConcurrendStrandExecutorBasicExecutionTest {
-		
+
+	
+	
 	@Test
 	public void runThroughSimpleTree() {
 		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).build();
 		context.resumeRoot();
-		context.strandExecutor.getStateStream().blockLast(Duration.ofSeconds(30));
+		context.strandExecutor().getStateStream().blockLast(Duration.ofSeconds(30));
 	}
 	
 	@Test

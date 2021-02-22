@@ -15,16 +15,13 @@ import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 
-public class ConcurrentStrandExecutorPauseTest {
+public class ConcurrentStrandExecutorPauseTest extends TimeoutEnabledTest{
 	
 	private final MissionRepresentation testRepresentation = TestMissions.testRepresentation(2, 3);
 	private final String firstLeafToPause = "0.0.0";
 	private final String secondLeafToPause = "0.0.2";
 	private final String directSuccessorToFirstPauseBlock = "0.0.1";
 	private final String directSuccessorToSecondPauseBlock = "0.1";
-	
-	@Rule
-	public Timeout globalTimeout= new Timeout(5000, TimeUnit.MILLISECONDS);
 	
 	@Test
 	public void instructPauseWhileRunning_whenInstructedWhileExecutingLeaf_PauseAtSucceedingBlock() {
@@ -46,7 +43,7 @@ public class ConcurrentStrandExecutorPauseTest {
 		context.awaitEntry(secondLeafToPause);
 		context.strandExecutor().instruct(StrandCommand.PAUSE);
 		context.unlatch(secondLeafToPause);
-		waitForBlockAndRunstate(context.strandExecutor, directSuccessorToSecondPauseBlock, RunState.PAUSED);
+		waitForBlockAndRunstate(context.strandExecutor(), directSuccessorToSecondPauseBlock, RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualState()).isEqualTo(RunState.PAUSED);
 		Assertions.assertThat(context.strandExecutor().getActualBlock().id()).isEqualTo("0.1");
 		
@@ -54,13 +51,13 @@ public class ConcurrentStrandExecutorPauseTest {
 		context.strandExecutor().getStateStream().blockLast();
 		Map<String, RunState> expectedRunStates = new HashMap<>();
 		Map<String, Result> expectedResults = new HashMap<>();
-		context.treeStructure.allBlocks().forEach(block->{
+		context.treeStructure().allBlocks().forEach(block->{
 			expectedRunStates.put(block.id(), RunState.FINISHED);
 			expectedResults.put(block.id(), Result.SUCCESS);
 		});
 		
-		Assertions.assertThat(context.nodeStates.getResultStates().getSnapshot()).containsAllEntriesOf(expectedResults);
-		Assertions.assertThat(context.nodeStates.getRunStates().getSnapshot()).containsAllEntriesOf(expectedRunStates);
+		Assertions.assertThat(context.treeNodeStates().getResultStates().getSnapshot()).containsAllEntriesOf(expectedResults);
+		Assertions.assertThat(context.treeNodeStates().getRunStates().getSnapshot()).containsAllEntriesOf(expectedRunStates);
 	}
 
 	private void waitForBlockAndRunstate(ConcurrentStrandExecutor executor, String blockId, RunState runState) {

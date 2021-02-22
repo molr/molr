@@ -29,10 +29,7 @@ import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
 
-public class ConcurrentStrandExecutorStackedTests {
-
-    //TreeTracker<Result> resultTracker = TreeTracker.create(structure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
-    //TreeTracker<RunState> runStateTracker = TreeTracker.create(structure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
+public class ConcurrentStrandExecutorStackedTests extends TimeoutEnabledTest{
 	
 	Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
 	
@@ -40,10 +37,6 @@ public class ConcurrentStrandExecutorStackedTests {
 	final Block block_00 = Block.idAndText("0.0", "LEAF_0.0");
 	final Block block_01 = Block.idAndText("0.1", "LEAF_0.1");
 	final Block block_02 = Block.idAndText("0.2", "LEAF_0.2");
-
-//	Block block_02 = Block.idAndText("0.2", "BRANCH_0.2");
-//	Block block_020 = Block.idAndText("0.2.0", "LEAF_0.2.0");
-//	Block block_021 = Block.idAndText("0.2.1", "LEAF_0.2.1");
 	
 	private Set<Block> breakPoints = ImmutableSet.of();
 	private Set<Block> toBeIgnored = ImmutableSet.of(block_01);
@@ -93,10 +86,6 @@ public class ConcurrentStrandExecutorStackedTests {
 		executor.getBlockStream().subscribe(block->{
 			System.out.println("block"+block.text());
 		});
-				
-		
-		System.out.println(nodeStates.getRunStates().getSnapshot());
-		System.out.println(nodeStates.getResultStates().getSnapshot());
 		
 		//assert that run state for block_01 is not running and result is IGNORED
 		Assertions.assertThat(nodeStates.getResultStates().getSnapshot().get(block_01.id())).isEqualTo(Result.UNDEFINED);
@@ -132,7 +121,6 @@ public class ConcurrentStrandExecutorStackedTests {
 	@Test
 	public void stepOverRoot() throws InterruptedException {
 
-		System.out.println("step over root test");
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
 		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
@@ -144,14 +132,10 @@ public class ConcurrentStrandExecutorStackedTests {
 		
 		ConcurrentStrandExecutor executor = strandExecutorFactory.createRootStrandExecutor(structure, breakPoints, toBeIgnored, ExecutionStrategy.ABORT_ON_ERROR);
 		
-//		executor.getBlockStream().subscribe(block->{
-//			System.out.println("block "+block);
-//		});
-		
 		executor.instruct(StrandCommand.STEP_OVER);
 
 		leafExecutor.awaitEntry(block_00);
-		Thread.sleep(5000);
+
 		leafExecutor.unlatch(block_00);
 		leafExecutor.unlatch(block_01);
 		
@@ -159,10 +143,6 @@ public class ConcurrentStrandExecutorStackedTests {
 		executor.getStateStream().blockLast();
 		
 		executor.getBlockStream().filter(block_01::equals).blockFirst();
-				
-		
-		System.out.println(nodeStates.getRunStates().getSnapshot());
-		System.out.println(nodeStates.getResultStates().getSnapshot());
 		
 		//assert that run state for block_01 is not running and result is IGNORED
 		Assertions.assertThat(nodeStates.getResultStates().getSnapshot().get(block_01.id())).isEqualTo(Result.UNDEFINED);

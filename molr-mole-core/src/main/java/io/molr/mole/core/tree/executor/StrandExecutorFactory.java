@@ -40,11 +40,10 @@ public class StrandExecutorFactory{
     private final TreeNodeStates runStates;
 
     public StrandExecutorFactory(LeafExecutor leafExecutor, TreeNodeStates runStates) {
-    	this.strandFactory = new StrandFactoryImpl();
-        //this.strandFactory = requireNonNull(strandFactory, "strandFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
+        this.runStates = requireNonNull(runStates, "runStates must not be null");
+        this.strandFactory = new StrandFactoryImpl();
         this.strandExecutors = new ConcurrentHashMap<>();
-        this.runStates = runStates;
 
         newStrandsSink = EmitterProcessor.create();
         Scheduler strandsScheduler = Schedulers.elastic();

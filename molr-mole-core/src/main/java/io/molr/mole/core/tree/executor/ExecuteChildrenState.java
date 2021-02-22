@@ -164,12 +164,4 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		});
 	}
 
-	@Override
-	public abstract void onEnterState();
-	
-	@Override
-	public Set<StrandCommand> allowedCommands() {
-		return ImmutableSet.of();
-	}
-
 }

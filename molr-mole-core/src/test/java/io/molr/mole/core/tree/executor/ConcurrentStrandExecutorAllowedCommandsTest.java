@@ -8,7 +8,7 @@ import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import reactor.core.publisher.Flux;
 
-public class ConcurrentStrandExecutorAllowedCommandsTest {
+public class ConcurrentStrandExecutorAllowedCommandsTest extends TimeoutEnabledTest{
 
     @Test
     public void testPausedLeafCommands() {
@@ -30,12 +30,8 @@ public class ConcurrentStrandExecutorAllowedCommandsTest {
     	/*
     	 * TODO the await command might be too late if strand executor is too fast
     	 */
-    	try {
-			context.entryLatches.get("0.0.0").await();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		context.awaitEntry("0.0.0");
+
     	System.out.println("assert");
     	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(
     			StrandCommand.PAUSE);
@@ -74,8 +70,8 @@ public class ConcurrentStrandExecutorAllowedCommandsTest {
     	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
     			.parallel("0.0").latched("0.0.0", "0.0.1").build();
     	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	context.entryLatches.get("0.0.0").await();
-    	context.entryLatches.get("0.0.1").await();
+    	context.awaitEntry("0.0.0");
+    	context.awaitEntry("0.0.1");
     	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
     			StrandCommand.PAUSE);       	
     }

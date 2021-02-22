@@ -27,21 +27,21 @@ import io.molr.mole.core.tree.TreeStructure;
  */
 public class TestTreeContext {
 	
-	Set<Block> parallel;
-	Set<Block> breakpoints;
-	Set<Block> toBeIgnored;
-	Set<Block> blocksToFail;
-	Set<String> latched;
-	Map<String, CountDownLatch> entryLatches = new HashMap<>();
-	Map<String, CountDownLatch> pauseLatches = new HashMap<>();
+	private Set<Block> parallel;
+	private Set<Block> breakpoints;
+	private Set<Block> toBeIgnored;
+	private Set<Block> blocksToFail;
+	private Set<String> latched;
+	private Map<String, CountDownLatch> entryLatches = new HashMap<>();
+	private Map<String, CountDownLatch> pauseLatches = new HashMap<>();
 	
-	TreeStructure treeStructure;
-	Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
-	TreeNodeStates nodeStates;
-	MissionOutputCollector otuputCollector = new ConcurrentMissionOutputCollector();
-	LeafExecutor leafExecutor;
-	StrandExecutorFactory strandExecutorFactory;
-	ConcurrentStrandExecutor strandExecutor;
+	private final TreeStructure treeStructure;
+	private final Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
+	private final TreeNodeStates nodeStates;
+	private final MissionOutputCollector otuputCollector = new ConcurrentMissionOutputCollector();
+	private final LeafExecutor leafExecutor;
+	private final StrandExecutorFactory strandExecutorFactory;
+	private final ConcurrentStrandExecutor strandExecutor;
 	
 	private TestTreeContext(Builder builder) {
 		parallel = builder.parallel.build();
@@ -105,6 +105,10 @@ public class TestTreeContext {
 	
 	ConcurrentStrandExecutor strandExecutor() {
 		return strandExecutor;
+	}
+	
+	public TreeNodeStates treeNodeStates() {
+		return this.nodeStates;
 	}
 	
 	public static Builder builder(MissionRepresentation representation) {
@@ -180,6 +184,10 @@ public class TestTreeContext {
 		TestTreeContext build(){
 			return new TestTreeContext(this);
 		}
+	}
+
+	public TreeStructure treeStructure() {
+		return treeStructure;
 	}
 
 }

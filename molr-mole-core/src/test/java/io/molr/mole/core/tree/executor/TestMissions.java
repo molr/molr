@@ -21,12 +21,12 @@ public class TestMissions {
 	public static void main(String args[]) {
 		
 		TestTreeContext testConfig = TestTreeContext.builder(testRepresentation(2, 3)).parallel("0").ignore("0.0", "0.1").build();
-		testConfig.strandExecutor.instruct(StrandCommand.RESUME);
+		testConfig.strandExecutor().instruct(StrandCommand.RESUME);
 
 		
-		System.out.println(TreeStructure.print(testConfig.treeStructure));
+		System.out.println(TreeStructure.print(testConfig.treeStructure()));
 		
-		RunState lastState = testConfig.strandExecutor.getStateStream().blockLast();
+		RunState lastState = testConfig.strandExecutor().getStateStream().blockLast();
 	}
 		
 	public static MissionRepresentation testRepresentation(int depth, int numOfChildrenPerBranch) {

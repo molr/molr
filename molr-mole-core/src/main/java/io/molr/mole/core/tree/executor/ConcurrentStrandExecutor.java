@@ -130,13 +130,13 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         //this.blockStream = blockSink.publishOn(cursorScheduler).doFinally(signal ->{
         //cursorScheduler.dispose();
         //});
-        this.stateSink = ReplayProcessor.cacheLast();
         /*
          * TODO check if the publish on scheduler is necessary
          * and investigate how to cleanup the shared schedulers
          * if needed
          */
-        this.stateStream = stateSink;//stateSink.publishOn(stateStreamscheduler);
+        this.stateSink = ReplayProcessor.cacheLast();
+        this.stateStream = stateSink.publishOn(stateStreamscheduler);//stateSink;
         this.blockSink = ReplayProcessor.cacheLast();
         this.blockStream = blockSink.publishOn(cursorScheduler);
 
@@ -412,7 +412,9 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         //scheduler.dispose kills the scheduler right away. dispose called with flux.doFinally runs on scheduler thread and is defered
         //cursorScheduler.dispose();
         
-        //TODO replace root condition
+        /*
+         * TODO replace root condition or even better move to StrandExecutor Factory
+         */
         if(strandRoot.id().equals("0")) {
             strandExecutorFactory.closeStrandsStream();
         }
