@@ -134,20 +134,11 @@ public class TreeMissionExecutor implements MissionExecutor {
         blocksToBeIgnored.forEach(builder::addIgnoreBlock);
         representation.allBlocks().forEach(block -> {
             boolean isBreakpoint = breakpoints.contains(block);
-            if(isBreakpoint) {
-                builder.addAllowedCommand(block, BlockCommand.UNSET_BREAKPOINT);
-            }
-            else {
-                builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);                
-            }
+            BlockCommand breakPointCommand = isBreakpoint?BlockCommand.UNSET_BREAKPOINT:BlockCommand.SET_BREAKPOINT;
+            builder.addAllowedCommand(block, breakPointCommand);
             boolean ignore = blocksToBeIgnored.contains(block);
-            if(ignore)
-            {
-            	builder.addAllowedCommand(block, BlockCommand.UNSET_IGNORE);
-            }
-            else {
-            	builder.addAllowedCommand(block, BlockCommand.SET_IGNORE);
-            }
+            BlockCommand ignoreCommand = ignore?BlockCommand.UNSET_IGNORE:BlockCommand.SET_IGNORE;
+           	builder.addAllowedCommand(block, ignoreCommand);
         });
 
         if(isDisposable()) {
