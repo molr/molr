@@ -5,7 +5,7 @@ jdk:
 before_install:
 - chmod +x ./gradlew
 script:
-- ./gradlew check -i
+- ./gradlew check
 - ./gradlew javadoc
 - ./gradlew jacocoTestReport
 deploy:
@@ -17,6 +17,6 @@ deploy:
     jdk: openjdk11
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-- bash <(./print_surefire_reports.sh)
+- ./print_surefire_reports.sh
 after_failure:
 - ./print_surefire_reports.sh
