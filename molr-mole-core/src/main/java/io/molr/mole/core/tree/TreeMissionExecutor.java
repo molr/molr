@@ -19,9 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.molr.commons.domain.StrandCommand.STEP_INTO;
-
-
 /**
  * Keeps track of the state of the execution of one mission instance. It assumes a tree of execution blocks, can execute
  * them and keeps track of cursor positions within strands.
@@ -83,9 +80,6 @@ public class TreeMissionExecutor implements MissionExecutor {
 
         rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
 
-        if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
-            rootExecutor.instruct(STEP_INTO);
-        }
         states.subscribe();
     }
 
