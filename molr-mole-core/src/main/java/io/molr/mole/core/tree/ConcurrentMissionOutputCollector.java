@@ -6,6 +6,7 @@ import io.molr.commons.domain.Placeholder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -17,15 +18,21 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
-    private final ReplayProcessor<MissionOutput> outputSink = ReplayProcessor.cacheLast();
     private final Scheduler scheduler = Schedulers.newSingle("output-collector", true);
     /*
      * TODO instead of disposing scheduler we may use permanent shared thread pool
      */
-    private final Flux<MissionOutput> outputStream = outputSink.publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
+    private final Flux<MissionOutput> outputStream;
+    private final FluxSink<MissionOutput> outputSink;
 
     private final Map<Block, Map<String, Object>> blockOutputs = new ConcurrentHashMap<>();
 
+    public ConcurrentMissionOutputCollector() {
+        ReplayProcessor<MissionOutput> outputProcessor = ReplayProcessor.cacheLast();
+        outputSink = outputProcessor.sink();
+        outputStream = outputProcessor.publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
+    }
+    
     @Override
     public void put(Block block, String name, Number value) {
         putIt(block, name, value);
@@ -55,7 +62,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     }
 
     private void publish() {
-        outputSink.onNext(MissionOutput.fromBlocks(this.blockOutputs));
+        outputSink.next(MissionOutput.fromBlocks(this.blockOutputs));
     }
 
     @Override
@@ -65,7 +72,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     @Override
     public void onComplete() {
-        outputSink.onComplete();        
+        outputSink.complete();        
     }
 
 
