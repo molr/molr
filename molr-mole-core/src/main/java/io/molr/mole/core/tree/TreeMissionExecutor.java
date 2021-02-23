@@ -37,7 +37,6 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
-    EmitterProcessor<Object> statesProcessor;
     private final FluxSink<Object> statesSink;
     private final TreeNodeStates nodeStates;
     private final StrandExecutor rootExecutor;
@@ -63,7 +62,7 @@ public class TreeMissionExecutor implements MissionExecutor {
 
 
         //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
-        statesProcessor = EmitterProcessor.create();
+        EmitterProcessor<Object> statesProcessor = EmitterProcessor.create();
         statesSink = statesProcessor.sink();
     	runStateTracker.updatedBlocksStream().subscribe(any -> {
     		statesSink.next(new Object());
