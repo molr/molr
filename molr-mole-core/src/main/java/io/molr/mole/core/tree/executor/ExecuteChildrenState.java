@@ -10,8 +10,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableSet;
-
 import static java.util.Objects.requireNonNull;
 
 import io.molr.commons.domain.Block;
@@ -64,17 +62,16 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 		this.concurrencyLimit = concurrencyLimit;
 	}
 
-	abstract void instructCreatedChild(ConcurrentStrandExecutor executor);
+	abstract RunState initialStateOfCreatedChild();
 	
 	private void instantiateAndAddNewChildExecutors() {
 		//
 		while(!waitingForInstantiation.isEmpty() && runningExecutors.size()<concurrencyLimit) {
 			Block nextChild = waitingForInstantiation.poll();
-			ConcurrentStrandExecutor childExecutor = context.createChildStrandExecutor(nextChild);
+			ConcurrentStrandExecutor childExecutor = context.createChildStrandExecutor(nextChild, initialStateOfCreatedChild());
 			if(childExecutor!=null) {
 				runningExecutors.add(childExecutor);
 				childExecutors.put(nextChild, childExecutor);
-				instructCreatedChild(childExecutor);
 			}
 		}
 	}

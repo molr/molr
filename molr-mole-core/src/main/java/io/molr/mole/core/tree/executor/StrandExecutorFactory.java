@@ -3,6 +3,7 @@ package io.molr.mole.core.tree.executor;
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.Strand;
 import io.molr.mole.core.tree.LeafExecutor;
 import io.molr.mole.core.tree.StrandExecutor;
@@ -62,23 +63,24 @@ public class StrandExecutorFactory{
     }
     
     public ConcurrentStrandExecutor createRootStrandExecutor(TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
-    	ConcurrentStrandExecutor rootExecutor = createStrandExecutor(strandFactory.rootStrand(), structure, breakpoints, blocksToBeIgnored, executionStrategy);
+    	ConcurrentStrandExecutor rootExecutor = createStrandExecutor(strandFactory.rootStrand(), structure, breakpoints, blocksToBeIgnored, executionStrategy, RunState.PAUSED);
     	rootExecutor.getStateStream().subscribe(state->{}, error->this.closeStrandsStream(), this::closeStrandsStream); 
     	return rootExecutor;
     }
     
     public ConcurrentStrandExecutor createChildStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints,
-    		Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
+    		Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy, RunState initialState) {
     	Strand childStrand  = strandFactory.createChildStrand(strand);
-    	return createStrandExecutor(childStrand, structure, breakpoints, blocksToBeIgnored, executionStrategy);
+    	return createStrandExecutor(childStrand, structure, breakpoints, blocksToBeIgnored, executionStrategy, initialState);
     }
 
-    private ConcurrentStrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy) {
+    private ConcurrentStrandExecutor createStrandExecutor(Strand strand, TreeStructure structure, Set<Block> breakpoints, Set<Block> blocksToBeIgnored
+    		, ExecutionStrategy executionStrategy, RunState initialState) {
         synchronized (strandExecutorLock) {
             if (strandExecutors.containsKey(strand)) {
                 throw new IllegalArgumentException(strand + " is already associated with an executor");
             }
-            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, this, leafExecutor, breakpoints, blocksToBeIgnored, executionStrategy, runStates);
+            ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, this, leafExecutor, breakpoints, blocksToBeIgnored, executionStrategy, runStates, initialState);
             strandExecutors.put(strand, strandExecutor);
             newStrandsSink.onNext(strandExecutor);
             return strandExecutor;

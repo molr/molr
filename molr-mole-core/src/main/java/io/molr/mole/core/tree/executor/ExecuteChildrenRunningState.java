@@ -27,11 +27,9 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 		allChildrenPaused = areAllChildrenPaused();
 	}
 	
-	void instructCreatedChild(ConcurrentStrandExecutor childExecutor) {
-		/*
-		 * TODO fails if command queue of child is not empty
-		 */
-		childExecutor.instruct(StrandCommand.RESUME);
+	@Override
+	RunState initialStateOfCreatedChild() {
+		return RunState.RUNNING;
 	}
 	
 	@Override
@@ -72,7 +70,6 @@ public class ExecuteChildrenRunningState extends ExecuteChildrenState{
 	
 	@Override
 	public void onEnterState() {
-		context.updateRunStateForStrandAndStackElements(RunState.RUNNING);
 	}
 
 }

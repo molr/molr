@@ -104,7 +104,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure,
     		StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor,
             Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy,
-            TreeNodeStates treeNodeStates) {
+            TreeNodeStates treeNodeStates, RunState initialState) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
         requireNonNull(treeNodeStates);
         this.runStates = treeNodeStates.getRunStates();
@@ -135,8 +135,15 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         push(actualBlock);
         updateChildrenExecutors(ImmutableList.of());
 
-        state = new PausedState(this);
-        updateLoopState(new PausedState(this));
+        if(initialState == RunState.RUNNING) {
+            state = new NavigatingState(this);
+            updateLoopState(new NavigatingState(this));
+        }
+        else {
+        	state = new PausedState(this);
+        	updateLoopState(new PausedState(this));
+        }
+
         
         this.commandQueue = new LinkedBlockingQueue<>(1);
         this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
@@ -394,11 +401,12 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     	return false;
     }
     
-    ConcurrentStrandExecutor createChildStrandExecutor(Block childBlock) {
+    ConcurrentStrandExecutor createChildStrandExecutor(Block childBlock, RunState initialState) {
     	if(blocksToBeIgnored.contains(childBlock)) {
     		return null;
     	}
-    	ConcurrentStrandExecutor childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy);
+    	ConcurrentStrandExecutor childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock),
+    			breakpoints, blocksToBeIgnored, executionStrategy, initialState);
         addChildExecutor(childExecutor);
         LOGGER.info("[{}] created child strand {}", strand, childExecutor.getStrand());
         return childExecutor;

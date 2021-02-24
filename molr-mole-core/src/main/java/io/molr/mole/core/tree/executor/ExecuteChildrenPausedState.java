@@ -31,15 +31,13 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 	}
 	
 	@Override
-		public Set<StrandCommand> allowedCommands() {
-			return ImmutableSet.of(StrandCommand.RESUME);
-		}
-
+	public Set<StrandCommand> allowedCommands() {
+		return ImmutableSet.of(StrandCommand.RESUME);
+	}
+	
 	@Override
-	void instructCreatedChild(ConcurrentStrandExecutor childExecutor) {
-		/*
-		 * no need for instruction in paused state		
-		 */
+	RunState initialStateOfCreatedChild() {
+		return RunState.PAUSED;
 	}
 	
 	@Override
@@ -70,10 +68,6 @@ public class ExecuteChildrenPausedState extends ExecuteChildrenState{
 	
 	@Override
 	public void onEnterState() {
-		//TODO
-		System.out.println("entered execute children paused "+this.block);
-		context.updateStrandRunState(RunState.PAUSED);
-		context.updateRunStatesForStackElements(RunState.PAUSED);
 	}
 
 }

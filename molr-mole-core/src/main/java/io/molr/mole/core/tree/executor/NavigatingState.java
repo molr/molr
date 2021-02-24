@@ -73,8 +73,6 @@ public class NavigatingState extends StrandExecutionState{
 				 */
 				if(structure.isParallel(current)) {
 					ExecuteChildrenState newExecuteChildrenState = new ExecuteChildrenRunningState(current, context);
-					System.out.println("resume\n\n\n\n");
-					//newExecuteChildrenState.resumeChildren();
 					context.updateLoopState(newExecuteChildrenState);
 					return;
 				}
@@ -97,8 +95,7 @@ public class NavigatingState extends StrandExecutionState{
 	@Override
 	public void onEnterState() {
 		context.log("enter state NavigatingState");
-		context.updateRunStatesForStackElements(RunState.RUNNING);
-		context.updateStrandRunState(RunState.RUNNING);
+		context.updateRunStateForStrandAndStackElements(RunState.RUNNING);
 	}
 	
 	@Override
