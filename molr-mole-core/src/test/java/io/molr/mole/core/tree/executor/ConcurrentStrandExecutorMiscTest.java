@@ -156,13 +156,12 @@ public class ConcurrentStrandExecutorMiscTest extends AbstractSingleMissionStran
 
     @Test
     public void testSkippingLastBlockFinishes() {
-    	System.out.println(FOURTH);
         moveRootStrandToBySkippingLeafsAndParallelNodes(FOURTH, treeStructure());
         waitUntilRootStrandBlockIs(FOURTH);
-        System.out.println("FOURTH reached");
         waitUntilRootStrandStateIs(PAUSED);
 
         instructRootStrandSync(StrandCommand.SKIP);
+        waitUntilRootStrandIsFinished();
         assertThatRootStrandState().as("Skipping the last block should finish the strand").isEqualTo(FINISHED);
     }
 
