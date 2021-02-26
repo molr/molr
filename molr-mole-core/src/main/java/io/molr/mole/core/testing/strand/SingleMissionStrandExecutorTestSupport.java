@@ -58,35 +58,29 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
     @Deprecated
     default void moveRootStrandTo(Block destination) {
     	while(!rootStrandExecutor().getActualBlock().equals(destination)) {
-    		System.out.println("move"+rootStrandExecutor().getActualBlock());
     		if(rootStrandExecutor().getAllowedCommands().contains(StrandCommand.STEP_INTO)){
     			instructRootStrandSync(StrandCommand.STEP_INTO);
     		}
     		else {
-    			System.out.println("skip "+rootStrandExecutor().getActualBlock());
     			instructRootStrandSync(StrandCommand.SKIP);
     		}
     			
     	}
-    	System.out.println("moved");
     	
         //moveTo(rootStrandExecutor(), destination);
     }
 
     default void moveRootStrandToBySkippingLeafsAndParallelNodes(Block destination, TreeStructure structure) {
     	while(!rootStrandExecutor().getActualBlock().equals(destination)) {
-    		System.out.println("move"+rootStrandExecutor().getActualBlock());
     		if(rootStrandExecutor().getAllowedCommands().contains(StrandCommand.STEP_INTO)
     				&& !structure.isParallel(rootStrandExecutor().getActualBlock())){
     			instructRootStrandSync(StrandCommand.STEP_INTO);
     		}
     		else {
-    			System.out.println("skip "+rootStrandExecutor().getActualBlock());
     			instructRootStrandSync(StrandCommand.SKIP);
     		}
     			
     	}
-    	System.out.println("moved");
     	
         //moveTo(rootStrandExecutor(), destination);
     }

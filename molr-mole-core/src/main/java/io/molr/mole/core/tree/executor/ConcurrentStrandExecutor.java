@@ -351,7 +351,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     			return;
     		}
     		
-    		System.out.println(strand + " pop "+stack.peek());
+    		log(strand + " pop "+stack.peek());
     		Block popped = stack.pop();
     		poppedBlocks.add(popped);
     		if(popped!=null) {
@@ -367,7 +367,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         			resultStates.put(popped, blockResult);
         			log("block {} is finished, result:{}, runState:{}", popped, blockResult, runStates.of(popped));
         			if(!allNonIgnoredChildrenWithSuccess) {
-        				System.out.println("overall failed "+popped);
+        				log("overall result is due to failed children, last element popped: "+popped);
         			}
     			}
     		}

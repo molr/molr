@@ -25,7 +25,6 @@ public class TestMissions {
 
 		
 		System.out.println(TreeStructure.print(testConfig.treeStructure()));
-		
 		RunState lastState = testConfig.strandExecutor().getStateStream().blockLast();
 	}
 		

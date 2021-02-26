@@ -17,7 +17,6 @@ public class NavigatingState extends StrandExecutionState{
 	
 	public NavigatingState(ConcurrentStrandExecutor context) {
 		super(context);
-		System.out.println("new NavigatingState");
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class NavigatingState extends StrandExecutionState{
 	@Override
 	protected void executeCommand(StrandCommand command) {
 		if(command == StrandCommand.PAUSE) {
-			System.out.println("execute PAUSE");
+			context.log("execute PAUSE command");
 			context.updateLoopState(new PausedState(context));
 			return;
 		}

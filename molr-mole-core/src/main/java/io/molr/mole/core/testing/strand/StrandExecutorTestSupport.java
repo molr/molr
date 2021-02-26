@@ -53,7 +53,6 @@ public interface StrandExecutorTestSupport {
     static void waitForProcessedCommand(StrandExecutor strandExecutor, long id) {
         ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
                 .filter(cmd -> {
-                	System.out.println("filterFun"+id+" "+cmd.getCommandId());
                 	return cmd.getCommandId() == id;
                 }).blockFirst(TIMEOUT);
     }
