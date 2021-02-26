@@ -1,7 +1,6 @@
 package io.molr.mole.core.runnable;
 
 import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.tree.*;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 
@@ -89,7 +88,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		
     		if(mission.forEachBlocksConfigurations().containsKey(subTree)) {
     			ForEachConfiguration<?, ?> foreachConfig = mission.forEachBlocksConfigurations().get(subTree);
-    			Collection<?> forEachItems = (Collection<?>)missionInput.get(foreachConfig.collectionPlaceholder());
+    			Collection<?> forEachItems = (Collection<?>)scopedInput.get(foreachConfig.collectionPlaceholder());
     			AtomicInteger childIndex = new AtomicInteger(0);
     			forEachItems.forEach(item->{
     				

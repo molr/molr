@@ -13,6 +13,7 @@ import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends AbstractBranch{
 
+	private static final String FOREACH_BRANCH_PREFIX = "forEachItemIn:";
 	private Placeholder<C> contextPlaceholder;
 
 	protected ContextualForeachBranchProvidingAbstractBranch(Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
@@ -22,8 +23,13 @@ public abstract class ContextualForeachBranchProvidingAbstractBranch<C> extends 
 	}
 	
     public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends Collection<T>> itemsPlaceholder/*, String name*/) {
-    	String name = "forEachItemIn:"+itemsPlaceholder.name();
+    	String name = FOREACH_BRANCH_PREFIX+itemsPlaceholder.name();
         return new ContextualForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), parent(), BranchMode.SEQUENTIAL, contextPlaceholder, itemsPlaceholder);
+    }
+    
+    public <T> ContextualForeachBranchRoot<C, T> foreach(Placeholder<? extends Collection<T>> itemsPlaceholder, String collectionName) {
+    	String branchName = FOREACH_BRANCH_PREFIX+collectionName;
+        return new ContextualForeachBranchRoot<>(BlockNameConfiguration.builder().text(branchName).build(), builder(), parent(), BranchMode.SEQUENTIAL, contextPlaceholder, itemsPlaceholder);
     }
 
 }

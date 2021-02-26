@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import static io.molr.commons.domain.Placeholder.*;
@@ -31,10 +32,29 @@ public class DemoRunnableLeafsConfiguration {
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
     
+	@Bean
+	RunnableLeafsMission foreachFromContext() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				root("ForeachWithListFromContext").contextual(in -> {
+					return ImmutableList.of("A", "B");
+				}).as((rootBranch, context) -> {
+					rootBranch.foreach(context, "deviceInContext")
+							.branch("device:{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
+							.as((foreachBranch, itemPlaceholder) -> {
+								foreachBranch.leaf("OperateOn {}", itemPlaceholder).runFor(itemValue -> {
+									System.out.println(itemValue);
+								});
+							});
+				});
+			}
+		}.build();
+	}
+    
     @Bean RunnableLeafsMission parallelRoot() {
     	return new RunnableLeafsMissionSupport() {
     		{
-        		root("ParallelRoot").parallel().as(rootBranch -> {
+        		root("ParallelRoot").parallel(2).as(rootBranch -> {
         			rootBranch.leaf("FirstChild").run(()->{System.out.println("run");});
         			rootBranch.leaf("SecondChild").run(()-> {System.out.println("run "+this);});
         		});	
@@ -48,7 +68,7 @@ public class DemoRunnableLeafsConfiguration {
     		{
         		root("SequentialRoot").sequential().as(rootBranch -> {
         			rootBranch.leaf("A").run(()->{System.out.println("run");});
-        			rootBranch.branch("B").parallel().as(branch-> {
+        			rootBranch.branch("B").sequential().as(branch-> {
         				branch.leaf("B.A").run(()->{System.out.println("run nested");});
         				branch.leaf("B.B").run(()->{System.out.println("run nested");});
         			});
@@ -330,7 +350,7 @@ public class DemoRunnableLeafsConfiguration {
     			 */
     			executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR).allowAll();
     			
-    			root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).map(DeviceDriver::new).parallel().branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
+    			root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).parallel(2).map(DeviceDriver::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
     				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
     				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
     				doWithDeviceBranch.leaf("ThrowException").perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run(()->{throw new RuntimeException("error xy");});
