@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface StrandExecutor {
 
-    void instruct(StrandCommand command);
+    long instruct(StrandCommand command);
 
     Flux<RunState> getStateStream();
 
@@ -29,5 +29,7 @@ public interface StrandExecutor {
     void abort();
     
     boolean aborted();
+    
+    boolean isComplete();
 
 }

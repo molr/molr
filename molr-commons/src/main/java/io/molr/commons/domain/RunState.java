@@ -24,8 +24,10 @@ public enum RunState {
             }
         }
 
-        if (StreamSupport.stream(values.spliterator(), false).allMatch(FINISHED::equals)) {
-            return FINISHED;
+        if (StreamSupport.stream(values.spliterator(), false).allMatch(state -> {
+        	return state.equals(FINISHED);
+        })){
+        	return FINISHED;
         }
         else {
             if (StreamSupport.stream(values.spliterator(), false).allMatch(NOT_STARTED::equals)) {

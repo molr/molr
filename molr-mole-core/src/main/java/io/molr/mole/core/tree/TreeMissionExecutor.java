@@ -2,21 +2,22 @@ package io.molr.mole.core.tree;
 
 import io.molr.commons.domain.*;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
+import io.molr.mole.core.tree.executor.StrandExecutorFactory;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static io.molr.commons.domain.StrandCommand.STEP_INTO;
-
 
 /**
  * Keeps track of the state of the execution of one mission instance. It assumes a tree of execution blocks, can execute
@@ -27,66 +28,69 @@ public class TreeMissionExecutor implements MissionExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeMissionExecutor.class);
     
     private final Flux<MissionState> states;
-    private final StrandFactoryImpl strandFactory;
     private final StrandExecutorFactory strandExecutorFactory;
     private final MissionOutputCollector outputCollector;
     private final Tracker<Result> resultTracker;
-    private final TreeTracker<RunState> runStateTracker;
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
-    EmitterProcessor<Object> statesSink;
-
-    public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker, MissionOutputCollector outputCollector, TreeTracker<RunState> runStateTracker, ExecutionStrategy executionStrategy) {
+    private final Set<Block> blocksToBeIgnored;
+    private final FluxSink<Object> statesSink;
+    private final TreeNodeStates nodeStates;
+    private final StrandExecutor rootExecutor;
+    
+	public TreeMissionExecutor(TreeStructure treeStructure, LeafExecutor leafExecutor, Tracker<Result> resultTracker,
+			MissionOutputCollector outputCollector,
+			TreeTracker<RunState> runStateTracker, ExecutionStrategy executionStrategy) {
         this.breakpoints = ConcurrentHashMap.newKeySet();
-        breakpoints.addAll(treeStructure.missionRepresentation().defaultBreakpoints());
-        
-        this.runStateTracker = runStateTracker;
-        strandFactory = new StrandFactoryImpl();
-        strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
+        this.blocksToBeIgnored = ConcurrentHashMap.newKeySet();
+        treeStructure.missionRepresentation().blockAttributes().forEach((block, attribute)->{
+        	if(attribute==BlockAttribute.IGNORE) {
+        		this.blocksToBeIgnored.add(block);
+        	}
+        	else if(attribute == BlockAttribute.BREAK) {
+        		this.breakpoints.add(block);
+        	}
+        });
+        this.nodeStates = new TreeNodeStates(treeStructure);
+		strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
         this.outputCollector = outputCollector;
         this.resultTracker = resultTracker;
         this.representation = treeStructure.missionRepresentation();
 
 
         //generate a signal for each update in block stream and state stream of all executors and create a flux that is gathering mission states on that events
-        statesSink = EmitterProcessor.create();
+        EmitterProcessor<Object> statesProcessor = EmitterProcessor.create();
+        statesSink = statesProcessor.sink();
     	runStateTracker.updatedBlocksStream().subscribe(any -> {
-    		statesSink.onNext(new Object());
+    		statesSink.next(new Object());
     	});
         strandExecutorFactory.newStrandsStream().subscribe(newExecutor -> {
-        	newExecutor.getBlockStream().subscribe(any -> statesSink.onNext(new Object()));
-            newExecutor.getStateStream().subscribe(any -> {statesSink.onNext(new Object());},
-                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onExecutorStatesStreamComplete);
+        	newExecutor.getBlockStream().subscribe(any -> statesSink.next(new Object()));
+            newExecutor.getStateStream().subscribe(any -> {statesSink.next(new Object());},
+                error->{LOGGER.info("States Stream of strand executor finished with error", error);}, this::onRootExecutorStatesStreamComplete);
         });
-        states = statesSink.map(signal -> gatherMissionState())
+        Scheduler statesSinkScheduler = Schedulers.elastic();
+        states = statesProcessor.map(signal -> gatherMissionState())
                 .cache(1)
                 .sample(Duration.ofMillis(100))
-                .publishOn(Schedulers.elastic());
+                .publishOn(statesSinkScheduler)
+                .doFinally(signal -> {
+                	statesSinkScheduler.dispose();
+                });
 
-        Strand rootStrand = strandFactory.rootStrand();
-        StrandExecutor rootExecutor = strandExecutorFactory.createStrandExecutor(rootStrand, treeStructure, breakpoints, executionStrategy);
+        rootExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, blocksToBeIgnored, executionStrategy);
 
-        if (!treeStructure.isLeaf(treeStructure.rootBlock())) {
-            rootExecutor.instruct(STEP_INTO);
-        }
         states.subscribe();
     }
-    
-    private void onExecutorStatesStreamComplete() {
-        if(isComplete()) {
-            outputCollector.onComplete();
-            statesSink.onComplete();
-        }
-    }
 
-    @Deprecated
-    public Strand getRootStrand() {
-        return strandFactory.rootStrand();
-    }
+    private void onRootExecutorStatesStreamComplete() {
+    	if(rootExecutor.isComplete()) {
+        	LOGGER.info("Complete states sink and output collector.");
+        	outputCollector.onComplete();
+        	//statesSink.onNext(gatherMissionState());
+            statesSink.complete();
+    	}
 
-    @Deprecated
-    public StrandFactoryImpl getStrandFactory() {
-        return strandFactory;
     }
 
     @Override
@@ -104,13 +108,18 @@ public class TreeMissionExecutor implements MissionExecutor {
         return Flux.just(this.representation);
     }
 
+    /*
+     * TODO optimize
+     * - the gathering itself
+     * - and maybe the way how and how often it is triggered by StrandExecutors
+     */
     private MissionState gatherMissionState() {
         Result rootResult = resultTracker.resultFor(representation.rootBlock());
         MissionState.Builder builder = MissionState.builder(rootResult);
         for (StrandExecutor executor : strandExecutorFactory.allStrandExecutors()) {
             RunState runState = executor.getActualState();
             Block cursor = executor.getActualBlock();
-            Optional<Strand> parent = strandFactory.parentOf(executor.getStrand());
+            Optional<Strand> parent = strandExecutorFactory.parentOf(executor.getStrand());
             if (parent.isPresent()) {
                 builder.add(executor.getStrand(), runState, cursor, parent.get(), executor.getAllowedCommands());
             } else {
@@ -118,25 +127,25 @@ public class TreeMissionExecutor implements MissionExecutor {
             }
         }
 
-        resultTracker.blockResults().entrySet().forEach(e -> builder.blockResult(e.getKey(), e.getValue()));
-        runStateTracker.blockResults().entrySet().forEach(e -> builder.blockRunState(e.getKey(), e.getValue()));
+        nodeStates.getResultStates().getSnapshot().forEach((block, state) -> {builder.blockResult(block, state);});
+        nodeStates.getRunStates().getSnapshot().forEach((block, state)-> {builder.blockRunState(block, state);});
         
         breakpoints.forEach(builder::addBreakpoint);
+        blocksToBeIgnored.forEach(builder::addIgnoreBlock);
         representation.allBlocks().forEach(block -> {
             boolean isBreakpoint = breakpoints.contains(block);
-            if(isBreakpoint) {
-                builder.addAllowedCommand(block, BlockCommand.UNSET_BREAKPOINT);
-            }
-            else {
-                builder.addAllowedCommand(block, BlockCommand.SET_BREAKPOINT);                
-            }
+            BlockCommand breakPointCommand = isBreakpoint?BlockCommand.UNSET_BREAKPOINT:BlockCommand.SET_BREAKPOINT;
+            builder.addAllowedCommand(block, breakPointCommand);
+            boolean ignore = blocksToBeIgnored.contains(block);
+            BlockCommand ignoreCommand = ignore?BlockCommand.UNSET_IGNORE:BlockCommand.SET_IGNORE;
+           	builder.addAllowedCommand(block, ignoreCommand);
         });
-        
-        /* TODO we might need to define another criterion when a mission should become disposable*/
+
         if(isDisposable()) {
             builder.addAllowedCommand(MissionCommand.DISPOSE);
         }
-        return builder.build();
+        MissionState missionState = builder.build();
+        return missionState;
     }
 
     @Override
@@ -147,7 +156,7 @@ public class TreeMissionExecutor implements MissionExecutor {
 
     @Override
     public void instructRoot(StrandCommand command) {
-        instruct(strandFactory.rootStrand(), command);
+        instruct(strandExecutorFactory.rootStrand(), command);
     }
 
     @Override
@@ -158,15 +167,27 @@ public class TreeMissionExecutor implements MissionExecutor {
         if(command == BlockCommand.UNSET_BREAKPOINT) {
             boolean breakpointRemoved = breakpoints.removeIf(block -> block.id().equals(blockId));
             if(breakpointRemoved) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
         } else if(command == BlockCommand.SET_BREAKPOINT){
             Block block = representation.blockOfId(blockId).get();
             boolean breakpointAdded = breakpoints.add(block);
             if(breakpointAdded) {
-                statesSink.onNext(new Object());
+                statesSink.next(new Object());
             }
-        }        
+        }
+        if(command == BlockCommand.UNSET_IGNORE) {
+            boolean blockRemoved = blocksToBeIgnored.removeIf(block -> block.id().equals(blockId));
+            if(blockRemoved) {
+                statesSink.next(new Object());
+            }
+        } else if(command == BlockCommand.SET_IGNORE){
+            Block block = representation.blockOfId(blockId).get();
+            boolean added = blocksToBeIgnored.add(block);
+            if(added) {
+                statesSink.next(new Object());
+            }
+        }    
     }
 
     @Override
@@ -174,21 +195,12 @@ public class TreeMissionExecutor implements MissionExecutor {
         if(!isDisposable()) {
             throw new MissionDisposeException();            
         }
-        statesSink.onComplete();
+        statesSink.complete();
         outputCollector.onComplete();
     }
     
-    private boolean isComplete() {
-    	if(strandExecutorFactory.allStrandExecutors().stream().map(StrandExecutor::getActualState).allMatch(runState -> runState.equals(RunState.FINISHED))){
-        	return true;
-        }
-        return false;
-        
-    }
-    
     private boolean isDisposable() {
-        Result rootResult = resultTracker.resultFor(representation.rootBlock());
-        return !rootResult.equals(Result.UNDEFINED);
+    	return rootExecutor.isComplete();
     }
     
     public void abort() {

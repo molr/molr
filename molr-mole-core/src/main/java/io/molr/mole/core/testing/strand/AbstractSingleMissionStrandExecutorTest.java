@@ -4,10 +4,12 @@ import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.MissionInput;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
+import io.molr.mole.core.runnable.RunStates;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.testing.LatchTestSupport;
 import io.molr.mole.core.tree.*;
+import io.molr.mole.core.tree.executor.StrandExecutorFactory;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
@@ -25,7 +27,6 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     private TreeStructure treeStructure;
     private TreeTracker<Result> resultTracker;
     private LeafExecutor leafExecutor;
-    private StrandFactory strandFactory;
     private StrandExecutorFactory strandExecutorFactory;
     private StrandExecutor strandExecutor;
 
@@ -43,10 +44,10 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);
         TreeTracker<RunState> runStateTracker = TreeTracker.create(treeStructure.missionRepresentation(), RunState.NOT_STARTED, RunState::summaryOf);
 
-        leafExecutor = new RunnableBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(), new HashMap<>(),new ConcurrentMissionOutputCollector(), runStateTracker);
-        strandFactory = new StrandFactoryImpl();
-        strandExecutorFactory = new StrandExecutorFactory(strandFactory, leafExecutor);
-        strandExecutor = strandExecutorFactory.createStrandExecutor(strandFactory.rootStrand(), treeStructure, new HashSet<>(), executionStrategy);
+		leafExecutor = new StateTrackingBlockExecutor(resultTracker, mission.runnables(), MissionInput.empty(),
+				new HashMap<>(), new ConcurrentMissionOutputCollector(), runStateTracker);
+        strandExecutorFactory = new StrandExecutorFactory(leafExecutor, new TreeNodeStates(treeStructure));
+        strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, new HashSet<>(), new HashSet<>(), executionStrategy);
     }
 
     @Override
@@ -67,13 +68,9 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
         return leafExecutor;
     }
 
-    protected StrandFactory strandFactory() {
-        return strandFactory;
-    }
-
-    protected StrandExecutorFactory strandExecutorFactory() {
-        return strandExecutorFactory;
-    }
+//    protected StrandExecutorFactory strandExecutorFactory() {
+//        return strandExecutorFactory;
+//    }
 
     public AbstractComparableAssert<?, Result> assertThatRootResult() {
         return Assertions.assertThat(treeResultTracker().resultFor(treeStructure().rootBlock()));

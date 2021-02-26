@@ -1,7 +1,6 @@
 package io.molr.mole.core.runnable;
 
 import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.exec.RunnableBlockExecutor;
 import io.molr.mole.core.tree.*;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 
@@ -64,13 +63,18 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
+    	if(mission.treeStructure().missionRepresentation().blockAttributes().containsKey(subTree)) {
+        	builder.addBlockAttributes(replicatedSubtree, mission.treeStructure().missionRepresentation().blockAttributes().get(subTree));
+    	}
+    	
     	if(mission.treeStructure().childrenOf(subTree).isEmpty()) {
     		builder.addBlockInput(replicatedSubtree, scopedInput);
     		builder.addRunnable(replicatedSubtree, mission.runnables().get(subTree));
     	}
     	else {
     		if(mission.treeStructure().isParallel(subTree)) {
-    			builder.addToParallelBlocks(replicatedSubtree);
+    			int maxConcurrency = mission.maxConcurrency().get(subTree);
+    			builder.addToParallelBlocks(replicatedSubtree, maxConcurrency);
     		}
     		
     		final MissionInput extendedByContext;
@@ -84,7 +88,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     		
     		if(mission.forEachBlocksConfigurations().containsKey(subTree)) {
     			ForEachConfiguration<?, ?> foreachConfig = mission.forEachBlocksConfigurations().get(subTree);
-    			Collection<?> forEachItems = (Collection<?>)missionInput.get(foreachConfig.collectionPlaceholder());
+    			Collection<?> forEachItems = (Collection<?>)scopedInput.get(foreachConfig.collectionPlaceholder());
     			AtomicInteger childIndex = new AtomicInteger(0);
     			forEachItems.forEach(item->{
     				
@@ -147,7 +151,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
         ExecutionStrategy executionStrategy = inferExecutionStrategyFromParameters(missionParameterDescriptionOf(mission), input);
         LOGGER.info("ExecutionStrategy: "+executionStrategy);
-        LeafExecutor leafExecutor = new RunnableBlockExecutor(resultTracker, instantiatedTree.getRunnables(), input, instantiatedTree.getBlockInputs(), outputCollector, runStateTracker);
+        /*
+         * TODO remove tracker
+         */
+        LeafExecutor leafExecutor = new StateTrackingBlockExecutor(resultTracker, instantiatedTree.getRunnables(), input, instantiatedTree.getBlockInputs(), outputCollector, runStateTracker);
         return new TreeMissionExecutor(updatedTreeStructure, leafExecutor, resultTracker, outputCollector, runStateTracker, executionStrategy);
     }
     
@@ -162,6 +169,15 @@ public class RunnableLeafsMole extends AbstractJavaMole {
             if(input.get(Placeholders.EXECUTION_STRATEGY) != null) {
                 String executionStrategyString = input.get(Placeholders.EXECUTION_STRATEGY);
                 executionStrategy = ExecutionStrategy.forName(executionStrategyString);
+            }
+            else {
+            	@SuppressWarnings("unchecked")
+				MissionParameter<String> executionStrategyParam = (MissionParameter<String>) parameterDescription.parameters().stream().filter(parameter -> {
+            		return parameter.placeholder().equals(Placeholders.EXECUTION_STRATEGY);}).findFirst().get();
+            	if(executionStrategyParam.defaultValue()!=null) {
+            		executionStrategy = ExecutionStrategy.forName(executionStrategyParam.defaultValue());
+            	}
+            		
             }
         }
         else {

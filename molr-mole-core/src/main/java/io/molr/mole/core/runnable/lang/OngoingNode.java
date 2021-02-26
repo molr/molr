@@ -2,6 +2,7 @@ package io.molr.mole.core.runnable.lang;
 
 import com.google.common.collect.ImmutableSet;
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 import java.util.EnumSet;

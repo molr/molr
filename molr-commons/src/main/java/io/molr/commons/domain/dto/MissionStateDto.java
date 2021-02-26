@@ -28,9 +28,10 @@ public class MissionStateDto {
     
     public final Map<String, Set<String>> blockIdAllowedCommands;
     public final Set<String> breakpoints;
+    public final Set<String> ignoreBlocks;
     public final Set<String> allowedMissionCommands;
 
-    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, String> strandCursorBlockIds, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates, Map<String, Set<String>> blockIdAllowedCommands, Set<String> breakpoints, Set<String> allowedMissionCommands) {
+    private MissionStateDto(String result, Map<String, Set<String>> strandAllowedCommands, Map<String, String> strandCursorBlockIds, Map<String, String> strandRunStates, Set<StrandDto> strands, Map<String, List<String>> parentToChildrenStrands, Map<String, String> blockResults, Map<String, String> blockRunStates, Map<String, Set<String>> blockIdAllowedCommands, Set<String> breakpoints, Set<String> ignoreBlocks, Set<String> allowedMissionCommands) {
         this.result = result;
         this.strandAllowedCommands = strandAllowedCommands;
         this.strandCursorBlockIds = strandCursorBlockIds;
@@ -41,11 +42,12 @@ public class MissionStateDto {
         this.blockRunStates = blockRunStates;
         this.blockIdAllowedCommands = blockIdAllowedCommands;
         this.breakpoints = breakpoints;
+        this.ignoreBlocks = ignoreBlocks;
         this.allowedMissionCommands = allowedMissionCommands;
     }
 
     public MissionStateDto() {
-        this(null, emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptySet(), emptySet());
+        this(null, emptyMap(), emptyMap(), emptyMap(), emptySet(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptySet(), emptySet(), emptySet());
     }
 
     public static final MissionStateDto from(MissionState missionState) {
@@ -77,10 +79,12 @@ public class MissionStateDto {
             blockIdAllowedCommands.put(id, ImmutableSet.copyOf(allowedCmds.stream().map(cmd -> cmd.name()).collect(Collectors.toSet())));
         });
         Set<String> breakpointBlockIds = missionState.breakpointBlockIds();
+        Set<String> ignoreBlockIds = missionState.ignoreBlockIds();
+        
         
         Set<String> allowedMissionCommands = missionState.allowedMissionCommands().stream().map(MissionCommand::name).collect(toSet());
               
-        return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()), blockIdAllowedCommands, breakpointBlockIds, allowedMissionCommands);
+        return new MissionStateDto(missionState.result().name(), allowedCommands, strandCursors, runStates, strandDtos, parentToChildrenStrands, toNameMap(missionState.blockIdsToResult()), toNameMap(missionState.blockIdsToRunState()), blockIdAllowedCommands, breakpointBlockIds, ignoreBlockIds, allowedMissionCommands);
     }
 
     private static <T extends Enum<T>> Map<String, String> toNameMap(Map<String, T> inMap) {
@@ -110,6 +114,7 @@ public class MissionStateDto {
         blockRunStates.entrySet().forEach(e -> builder.blockRunState(e.getKey(), RunState.valueOf(e.getValue())));
         
         breakpoints.forEach(breakpoint -> builder.addBreakpoint(breakpoint));
+        ignoreBlocks.forEach(ignoreBlock -> builder.addIgnoreBlock(ignoreBlock));
         blockIdAllowedCommands.forEach((blockId, commands) ->{
             commands.stream().forEach(command -> builder.addAllowedCommand(blockId, BlockCommand.valueOf(command)));
         });
@@ -130,7 +135,6 @@ public class MissionStateDto {
         return childrenToParentBuilder.build();
     }
 
-
     @Override
     public String toString() {
         return "MissionStateDto{" +
@@ -144,6 +148,7 @@ public class MissionStateDto {
                 ", blockRunStates=" + blockRunStates +
                 ", blockIdAllowedCommands=" + blockIdAllowedCommands +
                 ", breakpoints=" + breakpoints + 
+                ", ignore=" + ignoreBlocks + 
                 ", allowedMissionCommands=" + allowedMissionCommands +
                 '}';
     }

@@ -93,9 +93,7 @@ public class LenientModeIntegrationTest {
         MissionHandle handle = mole.instantiate(mission, params).block();
         Thread.sleep(100);
         mole.instructRoot(handle, StrandCommand.RESUME);
-
-        Thread.sleep(1000);
-        MissionState latestState = mole.statesFor(handle).blockFirst();
+        MissionState latestState = mole.statesFor(handle).blockLast();
         MissionRepresentation instantiatedRepresentation = mole.representationsFor(handle).blockFirst();
         Map<String, Block> blocksByText = blocksByText(instantiatedRepresentation); 
 

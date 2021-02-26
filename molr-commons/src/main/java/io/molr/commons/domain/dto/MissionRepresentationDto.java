@@ -1,7 +1,10 @@
 package io.molr.commons.domain.dto;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimaps;
+
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ImmutableMissionRepresentation;
 import io.molr.commons.domain.MissionRepresentation;
 
@@ -20,27 +23,26 @@ public class MissionRepresentationDto {
     public final String rootBlockId;
     public final Set<BlockDto> blocks;
     public final Map<String, List<String>> childrenBlockIds;
-    public final Set<String> breakpointBlockIds;
+    public final Map<String, List<BlockAttribute>> blockAttributes;
     
 
-    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds, Set<String> breakpointBlockIds) {
+    public MissionRepresentationDto(String rootBlockId, Set<BlockDto> blocks, Map<String, List<String>> childrenBlockIds, Map<String, List<BlockAttribute>> blockAttributes) {
         this.rootBlockId = rootBlockId;
         this.blocks = blocks;
         this.childrenBlockIds = childrenBlockIds;
-        this.breakpointBlockIds = breakpointBlockIds;
+        this.blockAttributes = blockAttributes;
     }
 
     public MissionRepresentationDto() {
         this.rootBlockId = null;
         this.blocks = Collections.emptySet();
         this.childrenBlockIds = Collections.emptyMap();
-        this.breakpointBlockIds = Collections.emptySet();
+        this.blockAttributes = Collections.emptyMap();
     }
 
     public static final MissionRepresentationDto from(MissionRepresentation representation) {
         Set<Block> allBlocks = representation.allBlocks();
         Set<BlockDto> blockDtos = allBlocks.stream().map(BlockDto::from).collect(toSet());
-        Set<String> breakpointIds = representation.defaultBreakpoints().stream().map(block -> block.id()).collect(Collectors.toSet());
         
         ImmutableMap.Builder<String, List<String>> builder = ImmutableMap.builder();
         for (Block block : allBlocks) {
@@ -50,7 +52,13 @@ public class MissionRepresentationDto {
                 builder.put(block.id(), childrenIds);
             }
         }
-        return new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build(), breakpointIds);
+        
+        ImmutableMap.Builder<String, List<BlockAttribute>> blockAttributes = ImmutableMap.builder();
+        Multimaps.asMap(representation.blockAttributes()).forEach((block, attributes)->{
+        	blockAttributes.put(block.id(), attributes);
+        });
+        MissionRepresentationDto dto = new MissionRepresentationDto(representation.rootBlock().id(), blockDtos, builder.build(), blockAttributes.build());
+        return dto;
     }
 
     public MissionRepresentation toMissionRepresentation() {
@@ -64,9 +72,14 @@ public class MissionRepresentationDto {
                         .map(blockMap::get)
                         .forEach(child -> builder.parentToChild(block, child));
             }
+            
+            if(this.blockAttributes.containsKey(block.id())) {
+	            List<BlockAttribute> attributes = this.blockAttributes.get(block.id());
+	            builder.addBlockAttributes(block, attributes);
+            }
+            
         }
-        
-        breakpointBlockIds.stream().map(blockId -> blockMap.get(blockId)).forEach(builder::addDefaultBreakpoint);
+
         return builder.build();
     }
 

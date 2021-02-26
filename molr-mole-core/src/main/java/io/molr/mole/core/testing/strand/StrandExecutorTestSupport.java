@@ -4,8 +4,8 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
-import io.molr.mole.core.tree.ConcurrentStrandExecutor;
 import io.molr.mole.core.tree.StrandExecutor;
+import io.molr.mole.core.tree.executor.ConcurrentStrandExecutor;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.assertj.core.api.*;
 
@@ -20,7 +20,9 @@ public interface StrandExecutorTestSupport {
     Duration TIMEOUT = Duration.ofSeconds(30);
 
     default void waitUntilStrandStateIs(StrandExecutor strandExecutor, RunState state) {
-        strandExecutor.getStateStream().filter(state::equals).blockFirst(TIMEOUT);
+        strandExecutor.getStateStream().filter(streamedState->{
+        	return state.equals(streamedState);
+        }).blockFirst(TIMEOUT);
         assertThatStateOf(strandExecutor).isEqualTo(state);
     }
 
@@ -39,9 +41,20 @@ public interface StrandExecutorTestSupport {
         assertThatResultOf(resultTracker, block).isEqualTo(result);
     }
 
-    default void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command) {
+//    @Deprecated
+//    static void waitForProcessedCommand(StrandExecutor strandExecutor, StrandCommand command, long id) {
+//        ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
+//                .filter(cmd -> {
+//                	System.out.println("filterFun"+id+" "+cmd.getCommandId());
+//                	return cmd.getCommandId() == id;
+//                }).blockFirst(TIMEOUT);
+//    }
+
+    static void waitForProcessedCommand(StrandExecutor strandExecutor, long id) {
         ((ConcurrentStrandExecutor) strandExecutor).getLastCommandStream()
-                .filter(command::equals).blockFirst(TIMEOUT);
+                .filter(cmd -> {
+                	return cmd.getCommandId() == id;
+                }).blockFirst(TIMEOUT);
     }
 
     default void waitForErrorOfType(StrandErrorsRecorder recorder, Class<? extends Exception> clazz) {
@@ -80,9 +93,9 @@ public interface StrandExecutorTestSupport {
      * Will instruct the specified command on the specified {@link StrandExecutor} and wait for it to be processed
      * processing
      */
-    default void instructSync(StrandExecutor executor, StrandCommand command) {
-        executor.instruct(command);
-        waitForProcessedCommand(executor, command);
+    static void instructSync(StrandExecutor executor, StrandCommand command) {
+        long id = executor.instruct(command);
+        waitForProcessedCommand(executor, id);
     }
 
     /**
@@ -92,10 +105,10 @@ public interface StrandExecutorTestSupport {
         executor.instruct(command);
     }
 
-    @Deprecated
-    default void moveTo(StrandExecutor executor, Block destination) {
-        ((ConcurrentStrandExecutor) executor).moveTo(destination);
-        assertThatBlockOf(executor).isEqualTo(destination);
-    }
+//    @Deprecated
+//    default void moveTo(StrandExecutor executor, Block destination) {
+//        ((ConcurrentStrandExecutor) executor).moveTo(destination);
+//        assertThatBlockOf(executor).isEqualTo(destination);
+//    }
 
 }

@@ -1,24 +1,35 @@
-package io.molr.mole.core.tree;
+package io.molr.mole.core.tree.executor;
 
-import io.molr.commons.domain.Block;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import static io.molr.commons.domain.RunState.PAUSED;
+import static io.molr.commons.domain.RunState.RUNNING;
+import static io.molr.commons.domain.StrandCommand.PAUSE;
+import static io.molr.commons.domain.StrandCommand.RESUME;
+import static io.molr.commons.domain.StrandCommand.SKIP;
+import static io.molr.commons.domain.StrandCommand.STEP_INTO;
+import static io.molr.commons.domain.StrandCommand.STEP_OVER;
+
+import java.util.concurrent.CountDownLatch;
+
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
-
-import static io.molr.commons.domain.RunState.PAUSED;
-import static io.molr.commons.domain.RunState.RUNNING;
-import static io.molr.commons.domain.StrandCommand.*;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import reactor.core.publisher.Flux;
 
 public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStepOverParallelTest.class);
 
+	public static long DEFAULT_TIMEOUT = 5000;
+    
     private Block parallelBlock;
     private Block lastBlock;
     private Block blockA2;
@@ -99,7 +110,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     }
 
     @Test
-    public void testPausedLeafCommands() {
+    public void legacyTestPausedLeafCommands() {
         moveRootStrandTo(leafBlock);
         assertThatRootStrandState().isEqualTo(PAUSED);
 
@@ -159,5 +170,71 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     public Logger logger() {
         return LOGGER;
     }
+	
+    @Test
+    public void testPausedLeafCommands() {
+    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
+    			.breakPoints("0.0.0").build();
+    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0.0"));
+    	context.strandExecutor().instruct(StrandCommand.RESUME);
+    	blocks.blockLast();
+    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
+    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(
+    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER);
+    }
+    
+    @Test
+    public void testRunninLeafCommands() {
+    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
+    			.latched("0.0.0").build();
+    	context.strandExecutor().instruct(StrandCommand.RESUME);
+    	/*
+    	 * TODO the await command might be too late if strand executor is too fast
+    	 */
+		context.awaitEntry("0.0.0");
 
+    	System.out.println("assert");
+    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(
+    			StrandCommand.PAUSE);
+    }
+    
+    @Test
+    public void testPausedSequentialBranch() {
+    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
+    			.breakPoints("0.0").build();
+    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0"));
+    	context.strandExecutor().instruct(StrandCommand.RESUME);
+    	blocks.blockLast();
+    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
+    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
+    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);   	
+    }
+    
+    /*
+     * TODO not test paused but children executed? Possible to pause running?
+     * Open question
+     */
+    @Test
+    public void testPausedParallelBranch() {
+    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
+    			.breakPoints("0.0").parallel("0.0").build();
+    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0"));
+    	context.strandExecutor().instruct(StrandCommand.RESUME);
+    	blocks.blockLast();
+    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
+    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
+    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);   	
+    }
+    
+    @Test
+    public void testRunningParallelBranch() throws InterruptedException {
+    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
+    			.parallel("0.0").latched("0.0.0", "0.0.1").build();
+    	context.strandExecutor().instruct(StrandCommand.RESUME);
+    	context.awaitEntry("0.0.0");
+    	context.awaitEntry("0.0.1");
+    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
+    			StrandCommand.PAUSE);       	
+    }
+	
 }

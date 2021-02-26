@@ -6,7 +6,6 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
 import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.lang.BlockAttribute;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.tree.TreeStructure;
@@ -16,8 +15,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +31,7 @@ public class RunnableLeafsMission {
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final Function<In, ?> contextFactory;
+    private final ImmutableMap<Block, Integer> maxConcurrency;
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
@@ -41,7 +39,8 @@ public class RunnableLeafsMission {
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
         this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
-        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
+        this.maxConcurrency = builder.maxConurrencyConfiguration.build();
+        this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency);
         this.parameterDescription = parameterDescription;
         this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
@@ -75,6 +74,10 @@ public class RunnableLeafsMission {
     public Function<In, ?> contextFactory() {
         return this.contextFactory;
     }
+    
+    public Map<Block, Integer> maxConcurrency(){
+    	return this.maxConcurrency;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -100,6 +103,7 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
+        private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
 
         private Function<In, ?> contextFactory;
 
@@ -113,8 +117,9 @@ public class RunnableLeafsMission {
             }
 
             Block root = block(ROOT_BLOCK_ID, rootName.text());
-            if (PARALLEL == branchMode) {
+            if (BranchMode.Mode.PARALLEL == branchMode.mode()) {
                 parallelBlocksBuilder.add(root);
+                maxConurrencyConfiguration.put(root, branchMode.maxConcurrency());
             }
             this.representationBuilder = ImmutableMissionRepresentation.builder(root);
             apply(root, blockAttributes);
@@ -122,10 +127,11 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode mode, Set<BlockAttribute> blockAttributes) {
+        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, name, blockAttributes);
-            if (mode == PARALLEL) {
+            if (branchMode.mode()==BranchMode.Mode.PARALLEL) {
                 parallelBlocksBuilder.add(child);
+                maxConurrencyConfiguration.put(child, branchMode.maxConcurrency());
             }
             return child;
         }
@@ -159,9 +165,7 @@ public class RunnableLeafsMission {
         }
 
         private void apply(Block block, Set<BlockAttribute> blockAttributes) {
-            if (blockAttributes.contains(BlockAttribute.BREAK)) {
-                representationBuilder.addDefaultBreakpoint(block);
-            }
+        	representationBuilder.addBlockAttributes(block, blockAttributes);
         }
 
         private void assertRootDefined() {

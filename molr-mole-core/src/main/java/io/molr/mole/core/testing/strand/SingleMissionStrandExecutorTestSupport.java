@@ -4,6 +4,7 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.tree.TreeStructure;
 import io.molr.mole.core.tree.StrandExecutor;
 import io.molr.mole.core.tree.tracking.TreeTracker;
 import org.assertj.core.api.AbstractComparableAssert;
@@ -56,9 +57,34 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     @Deprecated
     default void moveRootStrandTo(Block destination) {
-        moveTo(rootStrandExecutor(), destination);
+    	while(!rootStrandExecutor().getActualBlock().equals(destination)) {
+    		if(rootStrandExecutor().getAllowedCommands().contains(StrandCommand.STEP_INTO)){
+    			instructRootStrandSync(StrandCommand.STEP_INTO);
+    		}
+    		else {
+    			instructRootStrandSync(StrandCommand.SKIP);
+    		}
+    			
+    	}
+    	
+        //moveTo(rootStrandExecutor(), destination);
     }
 
+    default void moveRootStrandToBySkippingLeafsAndParallelNodes(Block destination, TreeStructure structure) {
+    	while(!rootStrandExecutor().getActualBlock().equals(destination)) {
+    		if(rootStrandExecutor().getAllowedCommands().contains(StrandCommand.STEP_INTO)
+    				&& !structure.isParallel(rootStrandExecutor().getActualBlock())){
+    			instructRootStrandSync(StrandCommand.STEP_INTO);
+    		}
+    		else {
+    			instructRootStrandSync(StrandCommand.SKIP);
+    		}
+    			
+    	}
+    	
+        //moveTo(rootStrandExecutor(), destination);
+    }
+    
     default StrandErrorsRecorder recordRootStrandErrors() {
         return recordStrandErrors(rootStrandExecutor());
     }
@@ -72,7 +98,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
      */
     default void instructRootStrandSync(StrandCommand command) {
-        instructSync(rootStrandExecutor(), command);
+        StrandExecutorTestSupport.instructSync(rootStrandExecutor(), command);
     }
 
     /**

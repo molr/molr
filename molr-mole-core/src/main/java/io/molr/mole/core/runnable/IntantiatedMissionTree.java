@@ -1,13 +1,14 @@
 package io.molr.mole.core.runnable;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ImmutableMissionRepresentation;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionInput;
@@ -23,7 +24,7 @@ public class IntantiatedMissionTree {
 	
 	private IntantiatedMissionTree(Builder builder) {
 		MissionRepresentation representation = builder.newRepresentationBuilder.build();
-		updatedTreeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build());
+		updatedTreeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), builder.maxConcurrencyBuilder.build());
 		this.runnables = builder.updatedRunnablesAfterTraverseBuilder.build();
 		this.blockInputs = builder.scopedInputs.build();
 	}
@@ -44,6 +45,7 @@ public class IntantiatedMissionTree {
 		
 		private ImmutableMissionRepresentation.Builder newRepresentationBuilder;
 		private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
+		private final ImmutableMap.Builder<Block, Integer> maxConcurrencyBuilder = ImmutableMap.builder();
 		private final ImmutableMap.Builder<Block, MissionInput> scopedInputs = ImmutableMap.builder();
 		private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> updatedRunnablesAfterTraverseBuilder = ImmutableMap.builder();
 		
@@ -54,8 +56,13 @@ public class IntantiatedMissionTree {
 			return new Builder();
 		}
 		
-		public void addToParallelBlocks(Block block) {
+		public void addBlockAttributes(Block block, Collection<BlockAttribute> attributes) {
+			newRepresentationBuilder.addBlockAttributes(block, attributes);
+		}
+		
+		public void addToParallelBlocks(Block block, int maxConcurrency) {
 			this.parallelBlocksBuilder.add(block);
+			this.maxConcurrencyBuilder.put(block, maxConcurrency);
 		}
 		
 		public void addChild(Block parent, Block child) {
