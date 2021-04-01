@@ -89,6 +89,11 @@ public abstract class RunnableLeafsMissionSupport {
         this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
     }
+    
+    protected <T> Placeholder<T> addParameter(MissionParameter<T> missionParameter){
+    	this.parameterBuilder.add(missionParameter);
+    	return missionParameter.placeholder();
+    }
 
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder) {
         this.parameterBuilder.add(MissionParameter.optional(placeholder));
