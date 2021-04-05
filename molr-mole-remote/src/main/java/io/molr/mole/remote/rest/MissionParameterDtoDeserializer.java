@@ -1,6 +1,7 @@
 package io.molr.mole.remote.rest;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -55,7 +57,8 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         return deserializer;
     }
 
-    @Override
+	@SuppressWarnings("unchecked")
+	@Override
     public MissionParameterDto<?> deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
         JsonNode node = p.getCodec().readTree(p);
@@ -72,11 +75,20 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
             JavaType javaType= mapper.getTypeFactory().constructCollectionType(Set.class, valueType);
             ObjectReader allowedValuesReader = mapper.readerFor(javaType);
             Set<Object> allowedValues = allowedValuesReader.readValue(allowedValuesNode);
-            return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues);
+            Map<String, Object> meta = ImmutableMap.of();
+            
+            if(node.has("meta")) {
+                JsonNode metaNode = node.get("meta");
+                if(!metaNode.isEmpty()) {
+    				meta = mapper.treeToValue(metaNode, Map.class);
+    				LOGGER.info("Deserialize parameter meta data: "+meta);
+                }	
+            }
+            return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues, meta);
         }
 
         Object defaultValue = mapper.treeToValue(defaultValueNode, Object.class);
-        return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
+        return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of(), ImmutableMap.of());
     }
     
     public <T> Set<T> readAllowedValues(JsonNode node) throws IOException{

@@ -1,6 +1,7 @@
 package io.molr.mole.server.conf;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -72,11 +74,11 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
             JavaType javaType= mapper.getTypeFactory().constructCollectionType(Set.class, valueType);
             ObjectReader allowedValuesReader = mapper.readerFor(javaType);
             Set<Object> allowedValues = allowedValuesReader.readValue(allowedValuesNode);
-            return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues);
+            return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues, ImmutableMap.of());
         }
 
         Object defaultValue = mapper.treeToValue(defaultValueNode, Object.class);
-        return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of());
+        return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of(), ImmutableMap.of());
 
         // throw new IllegalStateException("Type cannot be deserialized "+type);
     }

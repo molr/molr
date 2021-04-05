@@ -37,6 +37,7 @@ import com.google.common.collect.ImmutableSet;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -128,7 +129,7 @@ public class MolrMoleRestServiceTest {
         MissionParameterDescriptionDto descriptionDto = remoteParameters.block();
         LOGGER.info("descriptionDto: " + descriptionDto.parameters);
         assertThat(descriptionDto.parameters).contains(new MissionParameterDto<>("stringArrayList",
-                MissionParameterDto.TYPE_LIST_OF_STRINGS, true, defaultValue, new HashSet<>()));
+                MissionParameterDto.TYPE_LIST_OF_STRINGS, true, defaultValue, new HashSet<>(), new HashMap<>()));
         descriptionDto.parameters.forEach(paramDto -> {
             LOGGER.info("\n" + paramDto.name);
             // LOGGER.info("defaultValueClass"+paramDto.defaultValue.getClass());

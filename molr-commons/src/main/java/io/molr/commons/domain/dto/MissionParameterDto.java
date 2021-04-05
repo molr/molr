@@ -2,6 +2,7 @@ package io.molr.commons.domain.dto;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
@@ -63,6 +64,7 @@ public class MissionParameterDto<T> {
     public final boolean required;
     public final T defaultValue;
     public final Set<T> allowedValues;
+    public final Map<String, Object> meta;
 
     public MissionParameterDto() {
         this.name = null;
@@ -70,28 +72,30 @@ public class MissionParameterDto<T> {
         this.required = false;
         this.defaultValue = null;
         this.allowedValues = ImmutableSet.of();
+        this.meta = ImmutableMap.of();
     }
 
-    public MissionParameterDto(String name, String type, boolean required, T defaultValue, Set<T> allowedValues) {
+    public MissionParameterDto(String name, String type, boolean required, T defaultValue, Set<T> allowedValues, Map<String, Object> meta) {
         this.name = Objects.requireNonNull(name, "name must not be null");
         this.type = Objects.requireNonNull(type, "type must not be null");
         this.required = required;
         this.defaultValue = defaultValue;
         this.allowedValues = ImmutableSet.copyOf(requireNonNull(allowedValues, "allowedValues must not be null"));
+        this.meta = meta;
     }
 
     public static final <T> MissionParameterDto from(MissionParameter<T> parameter) {
         Placeholder<T> placeholder = parameter.placeholder();
         MissionParameterDto<T> dto = new MissionParameterDto<>(placeholder.name(), typeStringFrom(placeholder.type()),
-                parameter.isRequired(), parameter.defaultValue(), parameter.allowedValues());
+                parameter.isRequired(), parameter.defaultValue(), parameter.allowedValues(), parameter.meta());
         return dto;
     }
 
     public MissionParameter<T> toMissionParameter() {
         if (this.required) {
-            return MissionParameter.required(placeholder()).withDefault(defaultValue).withAllowed(allowedValues);
+            return MissionParameter.required(placeholder()).withDefault(defaultValue).withAllowed(allowedValues).withMeta(meta);
         } else {
-            return MissionParameter.optional(placeholder()).withDefault(defaultValue).withAllowed(allowedValues);
+            return MissionParameter.optional(placeholder()).withDefault(defaultValue).withAllowed(allowedValues).withMeta(meta);
         }
     }
 
