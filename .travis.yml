@@ -1,21 +1,27 @@
-dist: trusty
 language: java
+sudo: false
 jdk:
-- openjdk11
+  - openjdk8
+  - openjdk11
 before_install:
-- chmod +x ./gradlew
+  - chmod +x ./gradlew
 script:
-- ./gradlew check
-- ./gradlew javadoc
-- ./gradlew jacocoTestReport
+  - ./gradlew check --stacktrace
+  - ./gradlew jacocoTestReport
+  - ./gradlew dependencies
+before_deploy:
+  - ./gradlew generateLicenseReport
+  - ./gradlew javadoc
+  - echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
+  - export SIGNING_KEY_PATH=./signing.key.secring
 deploy:
-  provider: script
-  skip_cleanup: true
-  script: ./gradlew bintrayUpload -Ddeployment=true
-  on:
-    tags: true
-    jdk: openjdk11
+  - provider: script
+    skip_cleanup: true
+    script: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
+    on:
+      tags: true
+      jdk: openjdk11
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
 after_failure:
 - ./print_test_reports.sh
