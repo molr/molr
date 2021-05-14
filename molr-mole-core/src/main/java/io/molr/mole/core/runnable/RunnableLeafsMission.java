@@ -24,25 +24,23 @@ public class RunnableLeafsMission {
 	private final static String ROOT_BLOCK_ID = "0";
 	
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
-    private final ImmutableMap<Block, BiConsumer<In, Out>> forEachRunnables;
     private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
     private final ImmutableMap<Block, ContextConfiguration> contexts;
     private final ImmutableMap<Block,List<Placeholder<?>>> blockNameFormatterArgs;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
-    private final Function<In, ?> contextFactory;
+    //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
-        this.forEachRunnables = builder.forEachRunnables.build();
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
         this.blockNameFormatterArgs = builder.blockNameFormatterArgumentBuilder.build();
         MissionRepresentation representation = builder.representationBuilder.build();
         this.maxConcurrency = builder.maxConurrencyConfiguration.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency);
         this.parameterDescription = parameterDescription;
-        this.contextFactory = builder.contextFactory;
+        //this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
     }
 
@@ -57,11 +55,6 @@ public class RunnableLeafsMission {
     public Map<Block, BiConsumer<In, Out>> runnables() {
         return this.runnables;
     }
-    
-
-    public Map<Block, BiConsumer<In, Out>> forEachRunnables() {
-        return this.forEachRunnables;
-    }
 
     public List<Placeholder<?>> blockNameFormatterArgs(Block block){
     	return blockNameFormatterArgs.get(block);
@@ -71,9 +64,9 @@ public class RunnableLeafsMission {
         return this.treeStructure.rootBlock().text();
     }
 
-    public Function<In, ?> contextFactory() {
-        return this.contextFactory;
-    }
+//    public Function<In, ?> contextFactory() {
+//        return this.contextFactory;
+//    }
     
     public Map<Block, Integer> maxConcurrency(){
     	return this.maxConcurrency;
@@ -206,6 +199,15 @@ public class RunnableLeafsMission {
 
 		public <T> void blockTextFormat(Block block, List<Placeholder<?>> placeholders) {
 			blockNameFormatterArgumentBuilder.put(block, placeholders);
+		}
+
+		public void forEachConfig(Block block, ForEachConfiguration<?, ?> config) {
+			forEachBlocksConfigurations.put(block, config);
+			
+		}
+
+		public void addContextConfiguration(Block block, ContextConfiguration contextConfiguration) {
+			contextConfigurations.put(block, contextConfiguration);
 		}
     }
 }

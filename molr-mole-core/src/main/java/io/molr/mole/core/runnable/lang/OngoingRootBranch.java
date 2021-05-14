@@ -2,6 +2,7 @@ package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -50,5 +51,12 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
         Block block = block();
         return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
+
+	public <T> ForeachBranchRoot<T> foreach(Placeholder<T> itemPlaceholder, Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+    	String name = "forEachItemIn:"+itemsPlaceholder.name();
+        Block block = block();
+        
+		return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, itemsPlaceholder);
+	}
 
 }

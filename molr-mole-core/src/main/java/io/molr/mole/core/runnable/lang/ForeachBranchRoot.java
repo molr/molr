@@ -27,6 +27,16 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}
+	
+	@SuppressWarnings("unchecked")
+	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
+			Placeholder<T> itemPlaceholder,
+			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+		super(name, builder, parent, mode);
+		requireNonNull(itemsPlaceholder);
+		this.itemsPlaceholder = itemsPlaceholder;
+		this.itemPlaceholder = itemPlaceholder;
+	}
 
 	private void createAndAddForeachBlock() {
 		this.block = block();

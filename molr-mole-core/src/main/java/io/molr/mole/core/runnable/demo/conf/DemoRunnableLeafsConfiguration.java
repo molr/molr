@@ -32,6 +32,50 @@ public class DemoRunnableLeafsConfiguration {
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
     
+    @Bean
+    RunnableLeafsMission forEach() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
+    				
+    				branch.addMission(simple());
+    			});
+    		}
+    	}.build();
+    }
+    
+	@Bean
+	RunnableLeafsMission takeMission() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				mandatory(devices, new ListOfStrings(), Set.of(items));
+				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
+				RunnableLeafsMission simple=simple();
+				root("nestedMissions").as((branch)->{
+					branch.addMission(simple());
+				});
+			}
+		}.build();
+	}
+	
+	@Bean
+	RunnableLeafsMission simple() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
+				mandatory(devices, new ListOfStrings(), Set.of(items));
+				
+				root("simple").contextual((in->90L)).as((branch, ctx)->{
+					branch.leaf("A").run((in)->{System.out.println("dev:A2"+in.get(device)+"hello"+in.get(ctx));});
+					branch.leaf("B").run(()->{System.out.println("B");});
+					branch.foreach(devices).branch("hell").as((forBranch, dev)->{
+						forBranch.leaf("printName").runFor(System.out::println);
+					});
+				});
+			}
+		}.build();
+	}
+    
 	@Bean
 	RunnableLeafsMission foreachFromContext() {
 		return new RunnableLeafsMissionSupport() {
