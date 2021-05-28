@@ -7,6 +7,8 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
+import io.molr.mole.core.runnable.lang.ctx.OngoingContextualLeaf;
+import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +33,13 @@ public class DemoRunnableLeafsConfiguration {
 
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
-    
+
     @Bean
     RunnableLeafsMission forEach() {
     	return new RunnableLeafsMissionSupport() {
     		{
     			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
-    				
-    				branch.addMission(simple());
+    				branch.addMission(simple(), Placeholder.aString("device2"), devP);
     			});
     		}
     	}.build();
@@ -49,10 +50,10 @@ public class DemoRunnableLeafsConfiguration {
 		return new RunnableLeafsMissionSupport() {
 			{
 				mandatory(devices, new ListOfStrings(), Set.of(items));
-				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
+				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
 				RunnableLeafsMission simple=simple();
 				root("nestedMissions").as((branch)->{
-					branch.addMission(simple());
+					branch.addMission(simple(), device, Placeholder.aString("device2"));
 				});
 			}
 		}.build();
@@ -65,7 +66,7 @@ public class DemoRunnableLeafsConfiguration {
 				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
 				mandatory(devices, new ListOfStrings(), Set.of(items));
 				
-				root("simple").contextual((in->90L)).as((branch, ctx)->{
+				root("simple").let(device, device).contextual((in->90L)).as((branch, ctx)->{
 					branch.leaf("A").run((in)->{System.out.println("dev:A2"+in.get(device)+"hello"+in.get(ctx));});
 					branch.leaf("B").run(()->{System.out.println("B");});
 					branch.foreach(devices).branch("hell").as((forBranch, dev)->{

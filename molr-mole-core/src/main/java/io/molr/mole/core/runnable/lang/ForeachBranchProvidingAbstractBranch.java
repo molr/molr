@@ -4,6 +4,7 @@ import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import io.molr.commons.domain.Block;
@@ -28,20 +29,23 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
         return new ForeachBranchRoot<>(formatter, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
     
-	public void addMission(RunnableLeafsMission simple) {
+	public void addMission(RunnableLeafsMission simple, Placeholder<String> placeholder, Placeholder<String> devP) {
+		System.out.println(devP);
 		System.out.println("simple"+simple.treeStructure());
 		simple.parameterDescription().parameters().forEach(param->{
 			System.out.println(param.placeholder());
 //			MissionParameterDescription desc = in.get(param.placeholder());
 		});
-		addReplicatedTreeToParent(parent(), simple.treeStructure().rootBlock(), simple);
+		
+		Block rootRelica = addReplicatedTreeToParent(parent(), simple.treeStructure().rootBlock(), simple);
+		System.out.println("reli: "+rootRelica+"\n");
+		builder().addBlockScope(rootRelica, Map.of(placeholder, devP));
 	}
 	
-	private void addReplicatedTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
+	private Block addReplicatedTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
 		if(mission.treeStructure().isLeaf(root)) {
 			System.out.println("add child of "+parent);
-			builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), Set.of());
-			return;
+			return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), Set.of());
 		}
 		else {
 			System.out.println("branch as child of "+parent);
@@ -61,8 +65,9 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
 				System.out.println(child);
 				addReplicatedTreeToParent(newParent, child, mission);
 			});
+			return newParent;
 		}
-		System.out.println("foreach"+mission.forEachBlocksConfigurations());
+		//System.out.println("foreach"+mission.forEachBlocksConfigurations());
 
 	}
 

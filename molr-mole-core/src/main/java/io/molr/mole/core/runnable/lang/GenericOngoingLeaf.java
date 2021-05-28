@@ -15,7 +15,7 @@ public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extend
         super(
                 requireNonNull(name, "leafName must not be null"),
                 requireNonNull(builder, "builder must not be null"),
-                requireNonNull(parent, "parent must not be null")
+                parent
         );
     }
     

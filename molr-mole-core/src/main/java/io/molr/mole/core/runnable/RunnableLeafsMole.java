@@ -63,6 +63,18 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
+    	if(mission.blockScopes.containsKey(subTree)) {
+    		System.out.println("found scope update\n\n");
+    		builder.addBlockInput(replicatedSubtree, scopedInput);
+    		Map<Placeholder<?>, Placeholder<?>> updates = mission.blockScopes.get(subTree);
+    		//MissionInput updatedScope = scopedInput;
+    		for(Placeholder<?> p : updates.keySet()) {
+    			System.out.println(scopedInput);
+    			scopedInput = scopedInput.and(updates.get(p).name(), scopedInput.get(updates.get(p)));
+    		}
+    		
+    	}
+    	System.out.println(mission.blockScopes);
     	if(mission.treeStructure().missionRepresentation().blockAttributes().containsKey(subTree)) {
         	builder.addBlockAttributes(replicatedSubtree, mission.treeStructure().missionRepresentation().blockAttributes().get(subTree));
     	}

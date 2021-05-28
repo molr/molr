@@ -31,6 +31,7 @@ public class RunnableLeafsMission {
     private final MissionParameterDescription parameterDescription;
     //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
+    public ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockScopes;
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
@@ -42,6 +43,7 @@ public class RunnableLeafsMission {
         this.parameterDescription = parameterDescription;
         //this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
+        blockScopes = builder.blockScope.build();
     }
 
     public TreeStructure treeStructure() {
@@ -97,6 +99,7 @@ public class RunnableLeafsMission {
         private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
         private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Placeholder<?>>> blockScope= ImmutableMap.builder();
 
         private Function<In, ?> contextFactory;
 
@@ -208,6 +211,10 @@ public class RunnableLeafsMission {
 
 		public void addContextConfiguration(Block block, ContextConfiguration contextConfiguration) {
 			contextConfigurations.put(block, contextConfiguration);
+		}
+		
+		public void addBlockScope(Block block, Map<Placeholder<?>, Placeholder<?>> scope) {
+			this.blockScope.put(block, scope);
 		}
     }
 }

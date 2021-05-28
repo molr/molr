@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
@@ -18,6 +19,10 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
                 parent /* parent may be null (special case for root branch)*/
         );
         this.mode = requireNonNull(mode);
+    }
+    
+    public B let(Placeholder<?> ref, Placeholder<?> val) {
+    	return (B)this;
     }
 
     public B parallel() {
