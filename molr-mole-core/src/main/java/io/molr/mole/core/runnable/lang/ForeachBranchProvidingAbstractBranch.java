@@ -4,6 +4,7 @@ import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,12 +35,29 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
 		System.out.println("simple"+simple.treeStructure());
 		simple.parameterDescription().parameters().forEach(param->{
 			System.out.println(param.placeholder());
+			if(param.isRequired()) {
+				if(!param.placeholder().equals(placeholder)) {
+					//throw new IllegalArgumentException("Missing required parameter.");
+				}
+			}
 //			MissionParameterDescription desc = in.get(param.placeholder());
 		});
-		
+		Map<Placeholder<?>, Placeholder<?>> mappings = new HashMap<>();
+		if(!placeholder.equals(devP)) {
+			mappings.put(placeholder, devP);
+		}
+		else {
+			System.out.println("WARN: non necessary mapping");
+		}
+		addMission(simple, mappings);
+
+	}
+	
+	private void addMission(RunnableLeafsMission simple, Map<Placeholder<?>, Placeholder<?>> mappings) {
 		Block rootRelica = addReplicatedTreeToParent(parent(), simple.treeStructure().rootBlock(), simple);
 		System.out.println("reli: "+rootRelica+"\n");
-		builder().addBlockScope(rootRelica, Map.of(placeholder, devP));
+		builder().addBlockScope(rootRelica, mappings);
+		//builder().addBlockScope(rootRelica, Map.of(placeholder, devP));
 	}
 	
 	private Block addReplicatedTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {

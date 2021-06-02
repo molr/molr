@@ -35,6 +35,32 @@ public class DemoRunnableLeafsConfiguration {
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
 
     @Bean
+    RunnableLeafsMission nestedContextual() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("nestedContext").contextual(in->{return "";}).as((branchDescription, ctx)->{
+    				//ctx;
+    			});
+    		}
+    	}.build();
+    }
+    
+    @Bean
+    RunnableLeafsMission nestedContextua2l() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("nestedContext").foreach(devices).branch("hello").as((branchDescription, ctx)->{
+    				branchDescription.branch("").as((branchDescription2, itm)->{
+    					branchDescription2.branch("ac").contextual(in->{return "";}).as((branchDescription3, ctx3)->{
+
+    					});
+    				});
+    			});
+    		}
+    	}.build();
+    }
+    
+    @Bean
     RunnableLeafsMission forEach() {
     	return new RunnableLeafsMissionSupport() {
     		{
