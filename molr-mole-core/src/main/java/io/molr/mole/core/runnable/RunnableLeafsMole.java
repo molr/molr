@@ -7,6 +7,7 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,14 +64,32 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
+    	System.out.println("replicate "+subTree);
     	if(mission.blockScopes.containsKey(subTree)) {
     		builder.addBlockInput(replicatedSubtree, scopedInput);
     		Map<Placeholder<?>, Placeholder<?>> updates = mission.blockScopes.get(subTree);
     		for(Placeholder<?> p : updates.keySet()) {
     			Placeholder<?> newPlaceholderInScope = p;
     			Object newValue = scopedInput.get(updates.get(p));
-    			scopedInput = scopedInput.and(newPlaceholderInScope.name(), newValue);
-    			LOGGER.info("Block scope has been updated for block="+subTree+"\n"+scopedInput);
+    			if(scopedInput.get(newPlaceholderInScope)==null) {//None update necessary in case of equal placeholders
+        			scopedInput = scopedInput.and(newPlaceholderInScope.name(), newValue);
+        			LOGGER.info("Block scope has been updated for block="+subTree+"\n"+scopedInput);
+    			}
+    			else {
+    				LOGGER.warn("TODO refactor/check mappings\n");
+    				//throw new RuntimeException("identity");
+    			}
+    		}
+    	}
+    	if(mission.blockLetValues.containsKey(subTree)) {
+    		Map<Placeholder<?>, Function<In, ?>> letValues = mission.blockLetValues.get(subTree);
+    		System.out.println("FOUND A LET VALUE");
+    		/*
+    		 * TODO order
+    		 */
+    		for(Placeholder<?> p : letValues.keySet()) {
+    			scopedInput = scopedInput.and(p.name(), letValues.get(p).apply(scopedInput));
+    			System.out.println(p.name()+":"+letValues.get(p).apply(scopedInput));
     		}
     		
     	}

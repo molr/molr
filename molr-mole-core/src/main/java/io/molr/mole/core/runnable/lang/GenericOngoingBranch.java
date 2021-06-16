@@ -41,11 +41,18 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
     }
 
     protected Block block() {
-        if (parent() == null) {
-            return builder().rootBranchNode(name(), mode, blockAttributes());
+        Block block;
+    	if (parent() == null) {
+            block = builder().rootBranchNode(name(), mode, blockAttributes());
         } else {
-            return builder().childBranchNode(parent(), name(), mode, blockAttributes());
+            block = builder().childBranchNode(parent(), name(), mode, blockAttributes());
         }
+    	/*
+    	 * TODO remove?
+    	 */
+        System.out.println(getMappings());
+        builder().addBlockLetValues(block, getMappings());
+        return block;
     }
 
     protected BranchMode mode() {

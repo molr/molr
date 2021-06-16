@@ -32,6 +32,8 @@ public class RunnableLeafsMission {
     //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
     public ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockScopes;
+    public ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
+    
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
@@ -44,6 +46,7 @@ public class RunnableLeafsMission {
         //this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
         blockScopes = builder.blockScope.build();
+        blockLetValues = builder.blockLetValues.build();
     }
 
     public TreeStructure treeStructure() {
@@ -100,6 +103,7 @@ public class RunnableLeafsMission {
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
         private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Placeholder<?>>> blockScope= ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues = ImmutableMap.builder();
 
         private Function<In, ?> contextFactory;
 
@@ -215,6 +219,10 @@ public class RunnableLeafsMission {
 		
 		public void addBlockScope(Block block, Map<Placeholder<?>, Placeholder<?>> scope) {
 			this.blockScope.put(block, scope);
+		}
+		
+		public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {
+			this.blockLetValues.put(block, letValues);
 		}
     }
 }
