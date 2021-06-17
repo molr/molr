@@ -11,7 +11,6 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
-import io.molr.commons.domain.MissionState;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -134,19 +133,18 @@ public class IntegrateMissionTests {
 		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(100));
 		mole.instructRoot(handle, StrandCommand.RESUME);
 		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(100));
-		MissionState lastState = mole.statesFor(handle).blockLast(Duration.ofMillis(100));
 
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("firstName", "MyFirst"));
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("secondName", "MySecond"));
 	}
 	
 	@Test
-	public void integrate_whenTwoOfTwoMandatoryIsMapped_correctMappingIs() {
+	public void integrate_whenTwoOfTwoMandatoryAreMappedAndSwitched_integratedAsExpected() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				mandatory(FIRST_NAME_P);
 				mandatory(SECOND_NAME_P);
-				root("Integrating")/* .let(FIRST_NAME_P, in->"B") */.as(branchDescription -> {
+				root("Integrating").let(FIRST_NAME_P, in->in.get(FIRST_NAME_P)).as(branchDescription -> {
 					branchDescription.integrate(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, SECOND_NAME_P,
 							SECOND_NAME_P, FIRST_NAME_P);
 				});
@@ -158,13 +156,9 @@ public class IntegrateMissionTests {
 		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(100));
 		mole.instructRoot(handle, StrandCommand.RESUME);
 		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(100));
-		MissionState lastState = mole.statesFor(handle).blockLast(Duration.ofMillis(100));
-
-		System.out.println(lastoutput);
 		
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("firstName", "MySecond"));
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("secondName", "MyFirst"));
 	}
-	
 
 }
