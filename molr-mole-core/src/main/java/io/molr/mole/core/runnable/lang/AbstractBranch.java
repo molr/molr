@@ -5,7 +5,6 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.ContextConfiguration;
 import io.molr.mole.core.runnable.ForEachConfiguration;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -19,7 +18,6 @@ import org.assertj.core.api.Assertions;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,79 +54,48 @@ public abstract class AbstractBranch {
 	public <T1, T2> void integrate(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
 			Placeholder<T1> key2, Placeholder<T1> value2) {
 		integrate(simple, Map.of(key1, value1, key2, value2));
-//		System.out.println(devP);
-//		System.out.println("simple"+simple.treeStructure());
-//		simple.parameterDescription().parameters().forEach(param->{
-//			System.out.println(param.placeholder());
-//			if(param.isRequired()) {
-//				if(!param.placeholder().equals(placeholder)) {
-//					throw new IllegalArgumentException("Missing required parameter.");
-//				}
-//			}
-//		});
-//		Map<Placeholder<?>, Placeholder<?>> mappings = new HashMap<>();
-//		if(!placeholder.equals(devP)) {
-//			mappings.put(placeholder, devP);
-//		}
-//		else {
-//			System.out.println("WARN: non necessary mapping");
-//			mappings.put(placeholder, devP);
-//		}
-//		integrate(simple, mappings);
-
 	}
 	
 	/*
 	 * Questions: allow non explicitly mapped placeholders?
+	 * In this case we would need parameter information which is not available at this point
+	 * 
+	 * How to handle optional parameters? Default values (see also issue)
 	 */
-	public void integrate(RunnableLeafsMission mission, Map<Placeholder<?>, Placeholder<?>> mappings) {
-		Block rootRelica = addReplicatedTreeToParent(parent(), mission.treeStructure().rootBlock(), mission);
-		System.out.println("reli: "+rootRelica+"\n");
-		
-		Set<Placeholder<?>> required = mission.parameterDescription().parameters()
+	public void integrate(RunnableLeafsMission otherMission, Map<Placeholder<?>, Placeholder<?>> mappings) {
+		Block integratedRootNode = addIntegratedMissionTreeToParent(parent(), otherMission.treeStructure().rootBlock(), otherMission);
+				
+		Set<Placeholder<?>> requiredParameters = otherMission.parameterDescription().parameters()
 				.stream().filter(MissionParameter::isRequired)
 				.map(p->p.placeholder())
 				.collect(Collectors.toSet());
-		Assertions.assertThat(mappings.keySet()).containsAll(required);
-		
-		mission.parameterDescription().parameters().stream().filter(p->!p.isRequired() && !p.placeholder().equals(Placeholders.EXECUTION_STRATEGY)).forEach(p->{
-			System.out.println("Optional parameter "+p+"\n\n");
-			//throw new RuntimeException("Check for optional and default value?");
-		});
-		
+		Assertions.assertThat(mappings.keySet()).containsAll(requiredParameters);
+		//otherMission.parameterDescription().parameters().stream().filter(p->!p.isRequired() && !p.placeholder().equals(Placeholders.EXECUTION_STRATEGY)).forEach(p->{
+		//});
 		if(!mappings.isEmpty()) {
-			builder().addBlockScope(rootRelica, mappings);
+			builder().addBlockScope(integratedRootNode, mappings);
 		}
-		//builder().addBlockScope(rootRelica, Map.of(placeholder, devP));
 	}
 	
-	private Block addReplicatedTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
+	private Block addIntegratedMissionTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
 		if(mission.treeStructure().isLeaf(root)) {
-			System.out.println("add child of "+parent);
 			return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), Set.of());
 		}
 		else {
-			System.out.println("branch as child of "+parent);
 			Block newParent = builder().childBranchNode(parent, BlockNameConfiguration.builder().text(root.text()).build(), SEQUENTIAL, Set.of());
 			if(mission.forEachBlocksConfigurations().containsKey(root)) {
 				ForEachConfiguration<?, ?> config = mission.forEachBlocksConfigurations().get(root);
 				builder().forEachConfig(newParent, config);
-				System.out.println(config.collectionPlaceholder());
 			}
 			if(mission.contexts().containsKey(root)) {
-				System.out.println("ctxs"+mission.contexts());
 				ContextConfiguration contextCfg = mission.contexts().get(root);
-				System.out.println(contextCfg.contextPlaceholder());
 				builder().addContextConfiguration(newParent, contextCfg);
 			}
 			mission.treeStructure().childrenOf(root).forEach(child->{
-				System.out.println(child);
-				addReplicatedTreeToParent(newParent, child, mission);
+				addIntegratedMissionTreeToParent(newParent, child, mission);
 			});
 			return newParent;
 		}
-		//System.out.println("foreach"+mission.forEachBlocksConfigurations());
-
 	}
     
     public void println(Object object) {
