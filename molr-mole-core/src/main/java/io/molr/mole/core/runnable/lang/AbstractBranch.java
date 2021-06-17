@@ -11,9 +11,12 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.utils.Checkeds;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
+
+import com.google.common.collect.ImmutableMap;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
@@ -58,7 +61,8 @@ public abstract class AbstractBranch {
 	
 	/*
 	 * Questions: allow non explicitly mapped placeholders?
-	 * In this case we would need parameter information which is not available at this point
+	 * In this case we would need parameter information which is not available at this point in order to ensure that placeholders are present
+	 * or we remove checks
 	 * 
 	 * How to handle optional parameters? Default values (see also issue)
 	 */
@@ -73,7 +77,11 @@ public abstract class AbstractBranch {
 		//otherMission.parameterDescription().parameters().stream().filter(p->!p.isRequired() && !p.placeholder().equals(Placeholders.EXECUTION_STRATEGY)).forEach(p->{
 		//});
 		if(!mappings.isEmpty()) {
-			builder().addBlockScope(integratedRootNode, mappings);
+			ImmutableMap.Builder<Placeholder<?>, Function<In,?>> mappingsBuilder = ImmutableMap.builder();
+			mappings.forEach((var, val)->{
+				mappingsBuilder.put(var, in->in.get(val));
+			});
+			builder().addBlockLetValues(integratedRootNode, mappingsBuilder.build());
 		}
 	}
 	

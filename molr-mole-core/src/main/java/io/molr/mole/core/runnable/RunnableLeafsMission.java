@@ -17,7 +17,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 public class RunnableLeafsMission {
@@ -30,9 +29,7 @@ public class RunnableLeafsMission {
     private final ImmutableMap<Block,List<Placeholder<?>>> blockNameFormatterArgs;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
-    //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
-    private final ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockPlaceholderMappings;
     private final ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
     
     
@@ -44,9 +41,7 @@ public class RunnableLeafsMission {
         this.maxConcurrency = builder.maxConurrencyConfiguration.build();
         this.treeStructure = new TreeStructure(representation, builder.parallelBlocksBuilder.build(), maxConcurrency);
         this.parameterDescription = parameterDescription;
-        //this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
-        blockPlaceholderMappings = builder.blockScope.build();
         blockLetValues = builder.blockLetValues.build();
     }
 
@@ -90,10 +85,6 @@ public class RunnableLeafsMission {
 		return this.contexts;
 	}
 	
-	public Map<Block, Map<Placeholder<?>, Placeholder<?>>> placeholderMappings(){
-		return blockPlaceholderMappings; 
-	}
-	
 	public Map<Block, Map<Placeholder<?>, Function<In, ?>>> letValues(){
 		return blockLetValues; 
 	}
@@ -105,13 +96,11 @@ public class RunnableLeafsMission {
         private final ListMultimap<Block, Block> parentToChildren = LinkedListMultimap.create();
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> forEachRunnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ContextConfiguration> contextConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
         private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Placeholder<?>>> blockScope= ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues = ImmutableMap.builder();
 
         private Function<In, ?> contextFactory;
@@ -224,16 +213,6 @@ public class RunnableLeafsMission {
 
 		public void addContextConfiguration(Block block, ContextConfiguration contextConfiguration) {
 			contextConfigurations.put(block, contextConfiguration);
-		}
-		
-		public void addBlockScope(Block block, Map<Placeholder<?>, Placeholder<?>> scope) {
-			this.blockScope.put(block, scope);
-			Map<Placeholder<?>, Function<In, ?>> translatedToLet = new HashMap<>();
-			scope.forEach((var, val)->{
-				translatedToLet.put(var, in->in.get(val));
-			});
-			//TODO
-			this.blockLetValues.put(block, translatedToLet);
 		}
 		
 		public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {
