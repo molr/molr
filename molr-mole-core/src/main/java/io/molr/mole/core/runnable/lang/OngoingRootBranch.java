@@ -2,10 +2,13 @@ package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.ContextConfiguration;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranchWithNewContext;
+import io.molr.mole.core.runnable.lang.ctx.OngoingContextualLeaf;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
@@ -43,6 +46,12 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
         Block block = block();
         SimpleBranch branch = SimpleBranch.withParent(builder(), block);
         branchDescription.accept(branch);
+        
+        /*
+         * TODO here or in block? or?
+         */
+        //System.out.println(getMappings());
+        //builder().addBlockLetValues(block, getMappings());
     }
 
     public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
@@ -50,5 +59,17 @@ public class OngoingRootBranch extends GenericOngoingBranch<OngoingRootBranch> {
         Block block = block();
         return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemsPlaceholder);
     }
+
+	public <T> ForeachBranchRoot<T> foreach(Placeholder<T> itemPlaceholder, Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+    	String name = "forEachItemIn:"+itemsPlaceholder.name();
+        Block block = block();
+        
+		return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, itemsPlaceholder);
+	}
+
+	/*
+	 * public OngoingRootBranch let(Placeholder<?> deviceStatusP, Function<In, ?>
+	 * factory) { throw new RuntimeException("Not implemented"); }
+	 */
 
 }

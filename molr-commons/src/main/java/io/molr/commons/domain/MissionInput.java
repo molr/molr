@@ -12,6 +12,17 @@ public final class MissionInput extends AbstractTypedValueContainer implements I
         super(values);
     }
 
+    public MissionInput addOrOverride(Map<String, Object> values) {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        values().forEach((key, val)->{
+        	if(!values.containsKey(key)) {
+        		builder.put(key, val);
+        	}
+        });
+        builder.putAll(values);
+        return MissionInput.from(builder.build());
+    }
+    
     public MissionInput and(Map<String, Object> values) {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         builder.putAll(values());

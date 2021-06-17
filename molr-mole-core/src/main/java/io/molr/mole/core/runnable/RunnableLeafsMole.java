@@ -7,6 +7,7 @@ import io.molr.mole.core.tree.tracking.TreeTracker;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
-
+import java.util.HashMap;
 import java.util.List;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
@@ -63,6 +64,24 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
+
+    	if(mission.letValues().containsKey(subTree)) {
+    		Map<Placeholder<?>, Function<In, ?>> letValues = mission.letValues().get(subTree);
+    		/*
+    		 * TODO if cross references between same level should be allowed, we need to make sure the map is ordered
+    		 * e.g. branch("").let(p1, (in)->"hello").let(p2, (in)->in.get(p1));
+    		 * In current implementation let always references the scope of the parent block
+    		 */
+    		Map<String, Object> scopeUpdates = new HashMap<>();
+    		for(Placeholder<?> p : letValues.keySet()) {
+    			Object value = letValues.get(p).apply(scopedInput);
+    			scopeUpdates.put(p.name(), value);
+    		}
+    		MissionInput updatedScope = scopedInput.addOrOverride(scopeUpdates);
+    		LOGGER.info("Update scope of {}:\nfrom:{}\nto:{}", subTree.text(), scopedInput, updatedScope);
+    		scopedInput = updatedScope;
+    	}
+    	
     	if(mission.treeStructure().missionRepresentation().blockAttributes().containsKey(subTree)) {
         	builder.addBlockAttributes(replicatedSubtree, mission.treeStructure().missionRepresentation().blockAttributes().get(subTree));
     	}

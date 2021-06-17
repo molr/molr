@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
@@ -36,11 +37,22 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
     }
 
     protected Block block() {
-        if (parent() == null) {
-            return builder().rootBranchNode(name(), mode, blockAttributes());
+        Block block;
+    	if (parent() == null) {
+            block = builder().rootBranchNode(name(), mode, blockAttributes());
         } else {
-            return builder().childBranchNode(parent(), name(), mode, blockAttributes());
+            block = builder().childBranchNode(parent(), name(), mode, blockAttributes());
         }
+    	/*
+    	 * TODO find another place for this method
+    	 */
+        if(!getMappings().isEmpty()) {
+            builder().addBlockLetValues(block, getMappings());
+        }
+        else {
+        	System.out.println("mappings is empty "+block);
+        }
+        return block;
     }
 
     protected BranchMode mode() {
