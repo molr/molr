@@ -20,10 +20,6 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
         );
         this.mode = requireNonNull(mode);
     }
-    
-    public B let(Placeholder<?> ref, Placeholder<?> val) {
-    	return (B)this;
-    }
 
     public B parallel() {
         this.mode = PARALLEL;
@@ -48,10 +44,14 @@ public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> ex
             block = builder().childBranchNode(parent(), name(), mode, blockAttributes());
         }
     	/*
-    	 * TODO remove?
+    	 * TODO find another place for this method
     	 */
-        System.out.println(getMappings());
-        builder().addBlockLetValues(block, getMappings());
+        if(!getMappings().isEmpty()) {
+            builder().addBlockLetValues(block, getMappings());
+        }
+        else {
+        	System.out.println("mappings is empty "+block);
+        }
         return block;
     }
 

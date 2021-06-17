@@ -141,7 +141,7 @@ public class IntegrateMissionTests {
 	}
 	
 	@Test
-	public void integrate_whenTwoOfTwoMandatoryIsMapped_3() {
+	public void integrate_whenTwoOfTwoMandatoryIsMapped_correctMappingIs() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				mandatory(FIRST_NAME_P);

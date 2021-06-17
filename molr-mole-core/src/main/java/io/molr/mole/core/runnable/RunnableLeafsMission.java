@@ -33,7 +33,7 @@ public class RunnableLeafsMission {
     //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
     private final ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockPlaceholderMappings;
-    public ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
+    private final ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
     
     
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
@@ -92,6 +92,10 @@ public class RunnableLeafsMission {
 	
 	public Map<Block, Map<Placeholder<?>, Placeholder<?>>> placeholderMappings(){
 		return blockPlaceholderMappings; 
+	}
+	
+	public Map<Block, Map<Placeholder<?>, Function<In, ?>>> letValues(){
+		return blockLetValues; 
 	}
 
 	public static class Builder {
@@ -229,7 +233,7 @@ public class RunnableLeafsMission {
 				translatedToLet.put(var, in->in.get(val));
 			});
 			//TODO
-			//this.blockLetValues.put(block, translatedToLet);
+			this.blockLetValues.put(block, translatedToLet);
 		}
 		
 		public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {

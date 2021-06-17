@@ -65,7 +65,7 @@ public class DemoRunnableLeafsConfiguration {
     	return new RunnableLeafsMissionSupport() {
     		{
     			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
-    				branch.addMission(simple(), Placeholder.aString("device2"), devP);
+    				branch.integrate(simple(), Placeholder.aString("device2"), devP);
     			});
     		}
     	}.build();
@@ -79,7 +79,7 @@ public class DemoRunnableLeafsConfiguration {
 				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
 				RunnableLeafsMission simple=simple();
 				root("nestedMissions").as((branch)->{
-					branch.addMission(simple(), device, Placeholder.aString("device2"));
+					branch.integrate(simple(), device, Placeholder.aString("device2"));
 				});
 			}
 		}.build();
@@ -92,7 +92,7 @@ public class DemoRunnableLeafsConfiguration {
 				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
 				mandatory(devices, new ListOfStrings(), Set.of(items));
 				
-				root("simple").let(device, device).contextual((in->90L)).as((branch, ctx)->{
+				root("simple")./* let(device, device). */contextual((in->90L)).as((branch, ctx)->{
 					branch.leaf("A").run((in)->{System.out.println("dev:A2"+in.get(device)+"hello"+in.get(ctx));});
 					branch.leaf("B").run(()->{System.out.println("B");});
 					branch.foreach(devices).branch("hell").as((forBranch, dev)->{

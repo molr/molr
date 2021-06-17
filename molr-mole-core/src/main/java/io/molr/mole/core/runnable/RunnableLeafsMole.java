@@ -64,47 +64,24 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
-    	System.out.println("replicate "+subTree);
-    	if(mission.placeholderMappings().containsKey(subTree)) {
-    		builder.addBlockInput(replicatedSubtree, scopedInput);
-    		Map<Placeholder<?>, Placeholder<?>> updates = mission.placeholderMappings().get(subTree);
-    		System.out.println("updates "+updates);
+
+    	if(mission.letValues().containsKey(subTree)) {
+    		Map<Placeholder<?>, Function<In, ?>> letValues = mission.letValues().get(subTree);
+    		/*
+    		 * TODO if cross references between same level should be allowed, we need to make sure the map is ordered
+    		 * e.g. branch("").let(p1, (in)->"hello").let(p2, (in)->in.get(p1));
+    		 * In current implementation let always references the scope of the parent block
+    		 */
     		Map<String, Object> scopeUpdates = new HashMap<>();
-    		for(Placeholder<?> p : updates.keySet()) {
-    			System.out.println("update: "+p);
-    			Placeholder<?> newPlaceholderInScope = p;
-    			Object newValue = scopedInput.get(updates.get(p));
-    			System.out.println("newValue of "+p+""+newValue);
-    			if(scopedInput.get(newPlaceholderInScope)==null) {//None update necessary in case of equal placeholders
-        			scopedInput = scopedInput.and(newPlaceholderInScope.name(), newValue);
-        			scopeUpdates.put(newPlaceholderInScope.name(), newValue);
-        			LOGGER.info("Block scope has been updated for block="+subTree+"\n"+scopedInput);
-        			System.out.println("scope:"+scopedInput);
-    			}
-    			else {
-    				LOGGER.warn("TODO refactor/check mappings\n");
-    				System.out.println(newValue);
-    				//scopedInput = scopedInput.addOrOverride(Map.of());
-    				scopeUpdates.put(newPlaceholderInScope.name(), newValue);
-    				System.out.println("scope:"+scopedInput);
-    			}
+    		for(Placeholder<?> p : letValues.keySet()) {
+    			Object value = letValues.get(p).apply(scopedInput);
+    			scopeUpdates.put(p.name(), value);
     		}
     		MissionInput updatedScope = scopedInput.addOrOverride(scopeUpdates);
     		LOGGER.info("Update scope of {}:\nfrom:{}\nto:{}", subTree.text(), scopedInput, updatedScope);
     		scopedInput = updatedScope;
     	}
-    	if(mission.blockLetValues.containsKey(subTree)) {
-    		Map<Placeholder<?>, Function<In, ?>> letValues = mission.blockLetValues.get(subTree);
-    		System.out.println("FOUND A LET VALUE");
-    		/*
-    		 * TODO order
-    		 */
-    		for(Placeholder<?> p : letValues.keySet()) {
-    			scopedInput = scopedInput.and(p.name(), letValues.get(p).apply(scopedInput));
-    			System.out.println(p.name()+":"+letValues.get(p).apply(scopedInput));
-    		}
-    		
-    	}
+    	
     	if(mission.treeStructure().missionRepresentation().blockAttributes().containsKey(subTree)) {
         	builder.addBlockAttributes(replicatedSubtree, mission.treeStructure().missionRepresentation().blockAttributes().get(subTree));
     	}
