@@ -20,7 +20,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
-
+import java.util.HashMap;
 import java.util.List;
 
 public class RunnableLeafsMole extends AbstractJavaMole {
@@ -65,21 +65,33 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree, Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput, IntantiatedMissionTree.Builder builder) {
     	System.out.println("replicate "+subTree);
-    	if(mission.blockScopes.containsKey(subTree)) {
+    	if(mission.placeholderMappings().containsKey(subTree)) {
     		builder.addBlockInput(replicatedSubtree, scopedInput);
-    		Map<Placeholder<?>, Placeholder<?>> updates = mission.blockScopes.get(subTree);
+    		Map<Placeholder<?>, Placeholder<?>> updates = mission.placeholderMappings().get(subTree);
+    		System.out.println("updates "+updates);
+    		Map<String, Object> scopeUpdates = new HashMap<>();
     		for(Placeholder<?> p : updates.keySet()) {
+    			System.out.println("update: "+p);
     			Placeholder<?> newPlaceholderInScope = p;
     			Object newValue = scopedInput.get(updates.get(p));
+    			System.out.println("newValue of "+p+""+newValue);
     			if(scopedInput.get(newPlaceholderInScope)==null) {//None update necessary in case of equal placeholders
         			scopedInput = scopedInput.and(newPlaceholderInScope.name(), newValue);
+        			scopeUpdates.put(newPlaceholderInScope.name(), newValue);
         			LOGGER.info("Block scope has been updated for block="+subTree+"\n"+scopedInput);
+        			System.out.println("scope:"+scopedInput);
     			}
     			else {
     				LOGGER.warn("TODO refactor/check mappings\n");
-    				//throw new RuntimeException("identity");
+    				System.out.println(newValue);
+    				//scopedInput = scopedInput.addOrOverride(Map.of());
+    				scopeUpdates.put(newPlaceholderInScope.name(), newValue);
+    				System.out.println("scope:"+scopedInput);
     			}
     		}
+    		MissionInput updatedScope = scopedInput.addOrOverride(scopeUpdates);
+    		LOGGER.info("Update scope of {}:\nfrom:{}\nto:{}", subTree.text(), scopedInput, updatedScope);
+    		scopedInput = updatedScope;
     	}
     	if(mission.blockLetValues.containsKey(subTree)) {
     		Map<Placeholder<?>, Function<In, ?>> letValues = mission.blockLetValues.get(subTree);

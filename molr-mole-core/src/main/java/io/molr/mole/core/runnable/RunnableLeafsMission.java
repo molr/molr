@@ -17,6 +17,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class RunnableLeafsMission {
@@ -31,7 +32,7 @@ public class RunnableLeafsMission {
     private final MissionParameterDescription parameterDescription;
     //private final Function<In, ?> contextFactory;
     private final ImmutableMap<Block, Integer> maxConcurrency;
-    public ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockScopes;
+    private final ImmutableMap<Block, Map<Placeholder<?>, Placeholder<?>>> blockPlaceholderMappings;
     public ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
     
     
@@ -45,7 +46,7 @@ public class RunnableLeafsMission {
         this.parameterDescription = parameterDescription;
         //this.contextFactory = builder.contextFactory;
         this.contexts = builder.contextConfigurations.build();
-        blockScopes = builder.blockScope.build();
+        blockPlaceholderMappings = builder.blockScope.build();
         blockLetValues = builder.blockLetValues.build();
     }
 
@@ -87,6 +88,10 @@ public class RunnableLeafsMission {
     
 	public Map<Block, ContextConfiguration> contexts() {
 		return this.contexts;
+	}
+	
+	public Map<Block, Map<Placeholder<?>, Placeholder<?>>> placeholderMappings(){
+		return blockPlaceholderMappings; 
 	}
 
 	public static class Builder {
@@ -219,6 +224,12 @@ public class RunnableLeafsMission {
 		
 		public void addBlockScope(Block block, Map<Placeholder<?>, Placeholder<?>> scope) {
 			this.blockScope.put(block, scope);
+			Map<Placeholder<?>, Function<In, ?>> translatedToLet = new HashMap<>();
+			scope.forEach((var, val)->{
+				translatedToLet.put(var, in->in.get(val));
+			});
+			//TODO
+			//this.blockLetValues.put(block, translatedToLet);
 		}
 		
 		public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {

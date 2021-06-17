@@ -5,6 +5,7 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.ContextConfiguration;
 import io.molr.mole.core.runnable.ForEachConfiguration;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -44,35 +45,43 @@ public abstract class AbstractBranch {
         return this.parent;
     }
 
-    public void addMission(RunnableLeafsMission mission) {
-    	addMission(mission, Map.of());
+    public void integrate(RunnableLeafsMission otherMission) {
+    	integrate(otherMission, Map.of());
     }
+
+	public <T1> void integrate(RunnableLeafsMission simple, Placeholder<T1> key, Placeholder<T1> value) {
+		integrate(simple, Map.of(key, value));
+	}
     
-	public void addMission(RunnableLeafsMission simple, Placeholder<String> placeholder, Placeholder<String> devP) {
-		System.out.println(devP);
-		System.out.println("simple"+simple.treeStructure());
-		simple.parameterDescription().parameters().forEach(param->{
-			System.out.println(param.placeholder());
-			if(param.isRequired()) {
-				if(!param.placeholder().equals(placeholder)) {
-					//throw new IllegalArgumentException("Missing required parameter.");
-				}
-			}
-//			MissionParameterDescription desc = in.get(param.placeholder());
-		});
-		Map<Placeholder<?>, Placeholder<?>> mappings = new HashMap<>();
-		if(!placeholder.equals(devP)) {
-			mappings.put(placeholder, devP);
-		}
-		else {
-			System.out.println("WARN: non necessary mapping");
-			mappings.put(placeholder, devP);
-		}
-		addMission(simple, mappings);
+	public <T1, T2> void integrate(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
+			Placeholder<T1> key2, Placeholder<T1> value2) {
+		integrate(simple, Map.of(key1, value1, key2, value2));
+//		System.out.println(devP);
+//		System.out.println("simple"+simple.treeStructure());
+//		simple.parameterDescription().parameters().forEach(param->{
+//			System.out.println(param.placeholder());
+//			if(param.isRequired()) {
+//				if(!param.placeholder().equals(placeholder)) {
+//					throw new IllegalArgumentException("Missing required parameter.");
+//				}
+//			}
+//		});
+//		Map<Placeholder<?>, Placeholder<?>> mappings = new HashMap<>();
+//		if(!placeholder.equals(devP)) {
+//			mappings.put(placeholder, devP);
+//		}
+//		else {
+//			System.out.println("WARN: non necessary mapping");
+//			mappings.put(placeholder, devP);
+//		}
+//		integrate(simple, mappings);
 
 	}
 	
-	public void addMission(RunnableLeafsMission mission, Map<Placeholder<?>, Placeholder<?>> mappings) {
+	/*
+	 * Questions: allow non explicitly mapped placeholders?
+	 */
+	public void integrate(RunnableLeafsMission mission, Map<Placeholder<?>, Placeholder<?>> mappings) {
 		Block rootRelica = addReplicatedTreeToParent(parent(), mission.treeStructure().rootBlock(), mission);
 		System.out.println("reli: "+rootRelica+"\n");
 		
@@ -82,9 +91,9 @@ public abstract class AbstractBranch {
 				.collect(Collectors.toSet());
 		Assertions.assertThat(mappings.keySet()).containsAll(required);
 		
-		mission.parameterDescription().parameters().stream().filter(p->!p.isRequired()).forEach(p->{
+		mission.parameterDescription().parameters().stream().filter(p->!p.isRequired() && !p.placeholder().equals(Placeholders.EXECUTION_STRATEGY)).forEach(p->{
 			System.out.println("Optional parameter "+p+"\n\n");
-			throw new RuntimeException("Check for optional and default value?");
+			//throw new RuntimeException("Check for optional and default value?");
 		});
 		
 		if(!mappings.isEmpty()) {
