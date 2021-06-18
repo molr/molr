@@ -64,10 +64,6 @@ public class RunnableLeafsMission {
 	public String name() {
         return this.treeStructure.rootBlock().text();
     }
-
-//    public Function<In, ?> contextFactory() {
-//        return this.contextFactory;
-//    }
     
     public Map<Block, Integer> maxConcurrency(){
     	return this.maxConcurrency;

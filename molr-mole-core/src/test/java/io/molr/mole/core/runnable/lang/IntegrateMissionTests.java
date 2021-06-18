@@ -18,6 +18,8 @@ import io.molr.mole.core.runnable.RunnableLeafsMole;
 
 public class IntegrateMissionTests {
 	
+	private final static long DEFAULT_TIMEOUT = 1000;
+	
 	private final static String FIRST_NAME = "firstName";
 	private final static String SECOND_NAME = "secondName";
 	private final static String THIRD_NAME = "thirdName";
@@ -130,9 +132,9 @@ public class IntegrateMissionTests {
 		
 		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
 		Map<String, Object> params = Map.of(FIRST_NAME, "MyFirst", SECOND_NAME, "MySecond");
-		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(100));
+		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(DEFAULT_TIMEOUT));
 		mole.instructRoot(handle, StrandCommand.RESUME);
-		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(100));
+		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(DEFAULT_TIMEOUT));
 
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("firstName", "MyFirst"));
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("secondName", "MySecond"));
@@ -153,9 +155,9 @@ public class IntegrateMissionTests {
 		
 		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
 		Map<String, Object> params = Map.of(FIRST_NAME, "MyFirst", SECOND_NAME, "MySecond");
-		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(100));
+		MissionHandle handle = mole.instantiate(new Mission(mission.name()), params).block(Duration.ofMillis(DEFAULT_TIMEOUT));
 		mole.instructRoot(handle, StrandCommand.RESUME);
-		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(100));
+		MissionOutput lastoutput = mole.outputsFor(handle).blockLast(Duration.ofMillis(DEFAULT_TIMEOUT));
 		
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("firstName", "MySecond"));
 		Assertions.assertThat(lastoutput.content().get("0.0.0")).contains(Map.entry("secondName", "MyFirst"));
