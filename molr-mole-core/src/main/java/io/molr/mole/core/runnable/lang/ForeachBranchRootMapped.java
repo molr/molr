@@ -11,6 +11,7 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
+import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranch;
 
 public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachBranchRootMapped<T, U>> {
 
@@ -39,7 +40,7 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
 	}
 	
-	public OngoingForeachBranch<U> branch(String name, Placeholder<?>... placeholders) {
+	public OngoingContextualBranch<U> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		for (int i = 0; i < placeholders.length; i++) {
 			if(placeholders[i].equals(Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)) {
@@ -47,7 +48,7 @@ public class ForeachBranchRootMapped<T, U> extends GenericOngoingBranch<ForeachB
 			}
 		}
 		BlockNameConfiguration blockNameConfig = BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build();
-		return new OngoingForeachBranch<>(blockNameConfig, builder(), block, BranchMode.SEQUENTIAL, transformedItemPlaceholder);
+		return new OngoingContextualBranch<>(blockNameConfig, builder(), block, BranchMode.SEQUENTIAL, transformedItemPlaceholder);
 	}
 	
 	public OngoingForeachLeaf<U> leaf(String name, Placeholder<?>... placeholders) {

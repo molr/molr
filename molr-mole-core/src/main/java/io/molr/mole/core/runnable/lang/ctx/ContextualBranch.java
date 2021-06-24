@@ -8,13 +8,14 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
+import io.molr.mole.core.runnable.lang.ForeachBranchProvidingAbstractBranch;
+import io.molr.mole.core.runnable.lang.OngoingForeachLeaf;
 
-public class ContextualBranch<C> extends ContextualForeachBranchProvidingAbstractBranch<C> {
-
+public class ContextualBranch<C> extends ForeachBranchProvidingAbstractBranch {
 	Placeholder<C> contextPlaceholder;
 	
     protected ContextualBranch(RunnableLeafsMission.Builder builder, Block parent, Placeholder<C> contextPlaceholder) {
-        super(builder, parent, contextPlaceholder);
+        super(builder, parent);
         requireNonNull(contextPlaceholder);
         this.contextPlaceholder = contextPlaceholder;
     }
@@ -25,8 +26,8 @@ public class ContextualBranch<C> extends ContextualForeachBranchProvidingAbstrac
     }
 
     @Override
-    public OngoingContextualLeaf<C> leaf(String name, Placeholder<?>... placeholders) {
-        return new OngoingContextualLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), contextPlaceholder);
+    public OngoingForeachLeaf<C> leaf(String name, Placeholder<?>... placeholders) {
+        return new OngoingForeachLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), contextPlaceholder);
     }
 
 }

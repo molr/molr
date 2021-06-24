@@ -12,6 +12,7 @@ import io.molr.commons.domain.In;
 import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
+import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranch;
 
 public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot<T>> {
 
@@ -21,7 +22,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
-			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+			Placeholder<? extends Collection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
 		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
@@ -31,7 +32,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<T> itemPlaceholder,
-			Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+			Placeholder<? extends Collection<T>> itemsPlaceholder) {
 		super(name, builder, parent, mode);
 		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
@@ -43,9 +44,9 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		builder().forEachBlock(block, itemsPlaceholder, itemPlaceholder);
 	}
 
-	public OngoingForeachBranch<T> branch(String name, Placeholder<?>... placeholders) {
+	public OngoingContextualBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
-		return new OngoingForeachBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
+		return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
 				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
 	}
 

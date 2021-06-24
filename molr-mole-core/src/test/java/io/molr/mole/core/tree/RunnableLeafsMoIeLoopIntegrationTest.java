@@ -50,12 +50,12 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                                 
                 root("foreachDemo").sequential().as(missionRoot -> {
                 	
-                	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
+                	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runCtx((String item)-> {
                 		System.out.println("switchOn: "+item);
                 	});
 
                 	missionRoot.foreach(someDevices).parallel().branch("configure").sequential().as((branchDescription, itemPlaceholder)-> {
-                		branchDescription.leaf("setValue").runFor((item) -> {
+                		branchDescription.leaf("setValue").runCtx((item) -> {
                 			
                 			System.out.println("setValue of "+item+" to xy");
                 			try {
@@ -69,18 +69,18 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 
                 		});
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runCtx((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
+                		branchDescription.leaf("setAnotherValue").runCtx((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
                 		
-                		branchDescription.leaf("switchOff").runFor((String item) -> {
+                		branchDescription.leaf("switchOff").runCtx((String item) -> {
                 			System.out.println("switchOff "+item);
                 			Thread.sleep(1000);
                 		});
@@ -103,8 +103,8 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
     			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, device)->{
     				doWithDeviceBranch.branch("context").contextual(DemoContext::new, device).as((doWithDeviceContextBranch, deviceContext)->{
     					doWithDeviceContextBranch.leaf("doSommethingWithDevice").runCtx(demoContext -> System.out.println("Let's work with nested devices of "+demoContext));
-						doWithDeviceContextBranch.foreach(moreDevices).branch("nestedDevices").as((nestedDevicesBranch, nestedDevice) -> {
-							nestedDevicesBranch.branch("nestedContext").contextual(DemoContext::new, nestedDevice).as((nestedContextBranch, nestedDeviceContext)->{
+						doWithDeviceContextBranch.foreach(moreDevices).map(DemoContext::new).branch("nestedDevices").as((nestedDevicesBranch, nestedDevice) -> {
+							nestedDevicesBranch.branch("nestedContext").as((nestedContextBranch)->{
 								nestedContextBranch.leaf("doSomeThingInNestedContext").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, deviceContext);
 							});
 						});
@@ -132,11 +132,11 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 				
     			root("foreachDemo").foreach(someDevices).map(DemoContext::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("Do something with device ").runFor(device->{
+    				doWithDeviceBranch.leaf("Do something with device ").runCtx(device->{
     					System.out.println(device);
     				});
     				doWithDeviceBranch.foreach(moreDevices).map(DemoContext::new).branch("workOnDeviceAndNestedDeviceBranch").as((nestedBranch, nestedDevicePlaceholder)->{
-    					nestedBranch.leaf("Do something with both devices").runFor(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
+    					nestedBranch.leaf("Do something with both devices").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
     				});
     			});
     		}
@@ -161,12 +161,12 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 				Placeholder<String> contextParameterPlaceholder = Placeholder.aString("demoContextParameter");
 				
     			root("foreachDemo").foreach(someDevices).map(DemoContext::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("Do something with device ").runFor(device->{
+    				doWithDeviceBranch.leaf("Do something with device ").runCtx(device->{
     					System.out.println(device);
     				});
     				doWithDeviceBranch.branch("context").contextual(String::new, contextParameterPlaceholder).as((ctxBranch, ctxPlaceholder) -> {
     					ctxBranch.foreach(moreDevices).map(DemoContext::new).branch("workOnDeviceAndNestedDeviceBranch").as((nestedBranch, nestedDevicePlaceholder)->{
-        					nestedBranch.leaf("Do something with both devices").runFor(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
+        					nestedBranch.leaf("Do something with both devices").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, nestedDevicePlaceholder);
         					nestedBranch.leaf("Do ...").run((device, nestedDevice, ctx)->{
         						System.out.println(device+" "+nestedDevice+" "+ctx);
         					}, devicePlaceholder, nestedDevicePlaceholder, ctxPlaceholder);
@@ -194,15 +194,15 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 						Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES));
 				Placeholder<ListOfStrings> moreDevices = mandatory(Placeholder.aListOfStrings(PARAMETER_NAME_DEVICE_NAMES_2));
 				
-    			root("foreachDemo").foreach(someDevices).branch("workOnDeviceBranch").contextualFor(DemoContext::new).as((doWithDeviceBranch, ctx)-> {
+    			root("foreachDemo").foreach(someDevices).map(DemoContext::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, ctx)-> {
     				doWithDeviceBranch.leaf("Do something with device ").runCtx(device->{
     					System.out.println(device);
     				});
-    				doWithDeviceBranch.foreach(moreDevices).branch("workOnDeviceAndNestedDeviceBranch").contextualFor(DemoContext::new).as((nestedBranch, nestedContext, nestedItem)->{
+    				doWithDeviceBranch.foreach(moreDevices).map(DemoContext::new).branch("workOnDeviceAndNestedDeviceBranch").as((nestedBranch, nestedItem)->{
     					/**
     					 * Do something on both contexts.
     					 */
-    					nestedBranch.leaf("").runCtx(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, ctx);
+    					nestedBranch.leaf("").run(RunnableLeafsMoIeLoopIntegrationTest::doWithDevices, ctx, nestedItem);
     				});
     			});
     		}
@@ -235,30 +235,33 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
 					root.leaf("").runCtx(demoContext->System.out.println("context:"+demoContext.toString()));
 					root.foreach(someDevices).branch("runCtxForDemoBranch")
 							.as((branchDe, itemPlaceholder) -> {
-								branchDe.leaf("").runCtxFor((demoContext, item) -> {
+								branchDe.leaf("").run((demoContext, item) -> {
 									System.out.println("out " + demoContext + " " + item);
-								});
-								branchDe.leaf("leaf").runCtxFor((demoContext, item, in) -> {
+								}, ctxPlaceholder, itemPlaceholder);
+								/*
+								 * runCtx mixed implicit item and given placeholders seems counter intuitive!
+								 */
+								branchDe.leaf("leaf").runCtx((String item, DemoContext demoContext) -> {
 									System.out.println("out " + demoContext + " " + item);
-									System.out.println(in);
-								});
-								branchDe.leaf("leaf").runCtxFor((demoContext, item, in, out) -> {
+								}, ctxPlaceholder);
+								branchDe.leaf("leaf").runCtx((item, in, out) -> {
+									DemoContext demoContext = in.get(ctxPlaceholder);
 									System.out.println("out " + demoContext + " " + item);
 									out.emit("hello", "world");
 								});
-								branchDe.foreach(moreDevices).branch("som").contextual(String::new, itemPlaceholder).as((branchDescription, branchDeContext, branchDeItem) -> {
+								branchDe.foreach(moreDevices).map(item -> new String(item)).branch("som")
+										.as((branchDescription, branchDeItem) -> {
 									branchDescription.branch("").as(branchDescriptionsd->{
-										branchDescriptionsd.leaf("").runFor(name->{
+										branchDescriptionsd.leaf("").runCtx(name->{
 											System.out.println("hello "+name);
 										});
 									});
-									branchDescription.leaf("").runCtxFor((contextVal, itemVal) -> System.out.println("item"+itemVal + "context: "+contextVal));
+									branchDescription.leaf("").runCtx((contextVal, itemVal) -> System.out.println("item"+itemVal + "context: "+contextVal));
 									branchDescription.foreach(moreDevices).branch("").as((branch12, branch12Device)->{
 										branch12.leaf("a").run(in->{
 											String outer = in.get(branchDeItem);
 											String inner = in.get(branch12Device);
-											String context = in.get(branchDeContext);
-											System.out.println(outer+"+"+inner+"+context:"+context);
+											System.out.println(outer+"+"+inner);
 										});
 									});
 								});;
@@ -284,12 +287,12 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                                 
                 root("foreachDemo").contextual(DemoContext::new, contextParameterPlaceholder).sequential().as((missionRoot, ctx) -> {
                 	
-                	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runFor((String item)-> {
+                	missionRoot.foreach(someDevices).parallel().leaf("switchOn").runCtx((String item)-> {
                 		System.out.println("switchOn: "+item);
                 	});
 
                 	missionRoot.foreach(someDevices).parallel().branch("configure").sequential().as((branchDescription, itemPlaceholder)-> {
-                		branchDescription.leaf("setValue").runCtxFor((context, item) -> {
+                		branchDescription.leaf("setValue").run((context, item) -> {
                 			
                 			System.out.println("setValue of "+item+" to xy, context:" + context);
                 			try {
@@ -301,20 +304,20 @@ public class RunnableLeafsMoIeLoopIntegrationTest {
                 			System.out.println("setValue finished");
                 			
 
-                		});
+                		}, ctx, itemPlaceholder);
                 		
-                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runFor((item, in, out)->{
+                		branchDescription.foreach(moreDevices).leaf("doSomethingInNestedLoop").runCtx((item, in, out)->{
                 			String outerItem = in.get(itemPlaceholder);
                 			System.out.println("nestedTask "+item + " in outerForeach for item "+outerItem);
                 			out.emit("nestedItems", outerItem+":"+item);
                 		});
                 		
-                		branchDescription.leaf("setAnotherValue").runFor((String item) -> {
+                		branchDescription.leaf("setAnotherValue").runCtx((String item) -> {
                 			System.out.println("setValue of "+item+" to xy");
                 			Thread.sleep(1000);
                 		});
                 		
-                		branchDescription.leaf("switchOff").runFor((String item) -> {
+                		branchDescription.leaf("switchOff").runCtx((String item) -> {
                 			System.out.println("switchOff "+item);
                 			Thread.sleep(1000);
                 		});
