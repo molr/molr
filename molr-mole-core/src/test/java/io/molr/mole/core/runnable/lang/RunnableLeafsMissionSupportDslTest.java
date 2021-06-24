@@ -1,11 +1,19 @@
 package io.molr.mole.core.runnable.lang;
 
+import java.time.Duration;
+import java.util.Map;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.RunnableLeafsMole;
 
 public class RunnableLeafsMissionSupportDslTest {
 
@@ -32,40 +40,51 @@ public class RunnableLeafsMissionSupportDslTest {
 	}
 	
 	@Test
-	public void contextualLeafs() {
+	public void checkAvailabilityOfRunCtxSignatures() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
-				root("simple").contextual((in)->"simpleContext").parallel(2).as((rootBranch, ctx_p)->{
+				root("simple").contextual((in)->"simpleContext").sequential().as((rootBranch, ctx_p)->{
 					rootBranch.branch("A").as(a->{
+						int counter = 0;						
+						a.leaf("a.run"+counter++).runCtx((String name, String val1)->{
+							
+						}, "a Value");
 						/*
 						 * run a method with value from context and two values
 						 * NOTE: passed values are evaluated at definition time
 						 */
-						a.leaf("a.run1").runCtx((String name, String val1, String val2)->{
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2)->{
 							
 						}, "anotherValue", "anotherValue");
 
-						a.leaf("a.run2").runCtx((String name, String val1, String val2)->{
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2)->{
+							
+						}, Placeholder.aString("A"), "B");
+						
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2)->{
+							
+						}, "A", Placeholder.aString("B"));
+						
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2)->{
 							
 						}, Placeholder.aString("A"), Placeholder.aString("B"));
 
-						a.leaf("a.run3").runCtx((String name, String val1, String val2, Double val3)->{
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2, Double val3)->{
 							
 						}, Placeholder.aString("A"), Placeholder.aString("B"), Placeholder.aDouble("C"));
 						
-						a.leaf("a.run4").runCtx((String name, String val1, String val2, Double val3, Double val4)->{
+						a.leaf("a.run"+counter++).runCtx((String name, String val1, String val2, Double val3, Double val4)->{
 							
 						}, Placeholder.aString("A"), Placeholder.aString("B"), Placeholder.aDouble("C"), Placeholder.aDouble("D"));
 					});
 				});	
 			}				
 		}.build();
-		Assertions.assertThat(mission.treeStructure().allBlocks())
-			.containsExactlyInAnyOrder(Block.idAndText("0", "simple"), 
-					Block.idAndText("0.0", "A"), Block.idAndText("0.0.0", "a.run1"),
-					Block.idAndText("0.0.1", "a.run2"), Block.idAndText("0.0.2", "a.run3"),
-					Block.idAndText("0.0.3", "a.run4")
-					);
+		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
+		MissionHandle handle = mole.instantiate(new Mission("simple"), Map.of()).block(Duration.ofMillis(3000));
+		mole.instructRoot(handle, StrandCommand.RESUME);
+		mole.statesFor(handle).blockLast();
 	}
+	
 	
 }
