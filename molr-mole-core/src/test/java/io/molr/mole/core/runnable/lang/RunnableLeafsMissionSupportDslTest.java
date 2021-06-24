@@ -31,4 +31,41 @@ public class RunnableLeafsMissionSupportDslTest {
 			.containsExactlyInAnyOrder(Block.idAndText("0", "simple"), Block.idAndText("0.0", "A"), Block.idAndText("0.0.0", "a.run1"),Block.idAndText("0.0.1", "a.run2"));
 	}
 	
+	@Test
+	public void contextualLeafs() {
+		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+			{
+				root("simple").contextual((in)->"simpleContext").parallel(2).as((rootBranch, ctx_p)->{
+					rootBranch.branch("A").as(a->{
+						/*
+						 * run a method with value from context and two values
+						 * NOTE: passed values are evaluated at definition time
+						 */
+						a.leaf("a.run1").runCtx((String name, String val1, String val2)->{
+							
+						}, "anotherValue", "anotherValue");
+
+						a.leaf("a.run2").runCtx((String name, String val1, String val2)->{
+							
+						}, Placeholder.aString("A"), Placeholder.aString("B"));
+
+						a.leaf("a.run3").runCtx((String name, String val1, String val2, Double val3)->{
+							
+						}, Placeholder.aString("A"), Placeholder.aString("B"), Placeholder.aDouble("C"));
+						
+						a.leaf("a.run4").runCtx((String name, String val1, String val2, Double val3, Double val4)->{
+							
+						}, Placeholder.aString("A"), Placeholder.aString("B"), Placeholder.aDouble("C"), Placeholder.aDouble("D"));
+					});
+				});	
+			}				
+		}.build();
+		Assertions.assertThat(mission.treeStructure().allBlocks())
+			.containsExactlyInAnyOrder(Block.idAndText("0", "simple"), 
+					Block.idAndText("0.0", "A"), Block.idAndText("0.0.0", "a.run1"),
+					Block.idAndText("0.0.1", "a.run2"), Block.idAndText("0.0.2", "a.run3"),
+					Block.idAndText("0.0.3", "a.run4")
+					);
+	}
+	
 }
