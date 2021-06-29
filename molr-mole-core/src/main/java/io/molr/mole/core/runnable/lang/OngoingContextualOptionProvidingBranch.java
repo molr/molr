@@ -1,5 +1,6 @@
 package io.molr.mole.core.runnable.lang;
 
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -12,12 +13,12 @@ import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranchWithNewContext
 public class OngoingContextualOptionProvidingBranch<A extends OngoingContextualOptionProvidingBranch<A>> extends GenericOngoingBranch<A>{
 
 	public OngoingContextualOptionProvidingBranch(BlockNameConfiguration name, Builder builder, Block parent,
-			BranchMode mode) {
-		super(name, builder, parent, mode);
+			BranchMode mode, Map<Placeholder<?>, Function<In, ?>> mappings) {
+		super(name, builder, parent, mode, mappings);
 	}
 	
     public <C> OngoingContextualBranchWithNewContext<C> contextual(Function<In, C> contextFactory) {
-        return new OngoingContextualBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory);
+        return new OngoingContextualBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory, getMappings());
     }
 
     public <C, P1> OngoingContextualBranchWithNewContext<C> contextual(Function<P1, C> contextFactory, Placeholder<P1> p1) {

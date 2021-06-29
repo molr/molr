@@ -2,6 +2,8 @@ package io.molr.mole.core.runnable.lang.ctx;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
+
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
 import io.molr.commons.domain.Block;
@@ -22,12 +24,12 @@ public class ContextualBranch<C> extends ForeachBranchProvidingAbstractBranch {
 
     @Override
     public OngoingContextualBranch<C> branch(String name, Placeholder<?>... placeholders) {
-        return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), SEQUENTIAL, contextPlaceholder);
+        return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), SEQUENTIAL, contextPlaceholder, Map.of());
     }
 
     @Override
     public OngoingForeachLeaf<C> leaf(String name, Placeholder<?>... placeholders) {
-        return new OngoingForeachLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), contextPlaceholder);
+        return new OngoingForeachLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), contextPlaceholder, Map.of());
     }
 
 }

@@ -1,6 +1,8 @@
 package io.molr.mole.core.runnable.lang;
 
 import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
 import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
@@ -14,8 +16,8 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
 
 	Placeholder<T> itemPlaceholder;
 	
-	public OngoingForeachLeaf(BlockNameConfiguration name, Builder builder, Block parent, Placeholder<T> item) {
-		super(name, builder, parent);
+	public OngoingForeachLeaf(BlockNameConfiguration name, Builder builder, Block parent, Placeholder<T> item, Map<Placeholder<?>, Function<In, ?>> mappings) {
+		super(name, builder, parent, mappings);
 		requireNonNull(item);
 		this.itemPlaceholder = item;
 	}

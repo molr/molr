@@ -3,6 +3,7 @@ package io.molr.mole.core.runnable.lang;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -22,8 +23,8 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
-			Placeholder<? extends Collection<T>> itemsPlaceholder) {
-		super(name, builder, parent, mode);
+			Placeholder<? extends Collection<T>> itemsPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
+		super(name, builder, parent, mode, mappings);
 		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
@@ -32,8 +33,8 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<T> itemPlaceholder,
-			Placeholder<? extends Collection<T>> itemsPlaceholder) {
-		super(name, builder, parent, mode);
+			Placeholder<? extends Collection<T>> itemsPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
+		super(name, builder, parent, mode, mappings);
 		requireNonNull(itemsPlaceholder);
 		this.itemsPlaceholder = itemsPlaceholder;
 		this.itemPlaceholder = itemPlaceholder;
@@ -47,13 +48,13 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	public OngoingContextualBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
-				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder);
+				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, getMappings());
 	}
 
 	public OngoingForeachLeaf<T> leaf(String name,  Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		return new OngoingForeachLeaf<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
-				builder(), block, itemPlaceholder);
+				builder(), block, itemPlaceholder, getMappings());
 	}
 
     public <C> ForeachBranchRootMapped<T, C> map(Function<T, C> contextFactory) {
@@ -70,6 +71,6 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 
     private <C> ForeachBranchRootMapped<T, C> mapIt(Function<In, C> contextFactory) {
         return new ForeachBranchRootMapped<>(name(), builder(), parent(), mode(), itemsPlaceholder, itemPlaceholder,
-                contextFactory);
+                contextFactory, getMappings());
     }
 }

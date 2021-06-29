@@ -43,8 +43,8 @@ public class RunnableLeafsMissionSupportDslTest {
 	public void checkAvailabilityOfRunCtxSignatures() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
-				root("simple").contextual((in)->"simpleContext").sequential().as((rootBranch, ctx_p)->{
-					rootBranch.branch("A").as(a->{
+				root("simple").let(Placeholder.aString("p1"), in->"hello").contextual((in)->"simpleContext").sequential().as((rootBranch, ctx_p)->{
+					rootBranch.branch("A")./* let(Placeholder.aString("p1"), in->"hello2"). */as(a->{
 						int counter = 0;						
 						a.leaf("a.run"+counter++).runCtx((String name, String val1)->{
 							
