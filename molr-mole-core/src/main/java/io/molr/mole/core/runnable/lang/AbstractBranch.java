@@ -19,10 +19,8 @@ import org.assertj.core.api.Assertions;
 
 import com.google.common.collect.ImmutableMap;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,13 +86,15 @@ public abstract class AbstractBranch {
 	}
 	
 	private Block addIntegratedMissionTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
+		
+		Set<BlockAttribute> blockAttributes = Set.copyOf(
+ 					mission.treeStructure().missionRepresentation().blockAttributes().get(root));
+		
 		if(mission.treeStructure().isLeaf(root)) {
-			return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), Set.of());
+			return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), blockAttributes);
 		}
 		else {
-			/*
-			 * copy branch mode and block attributes
-			 */
+
 			BranchMode branchMode;
  			if(mission.treeStructure().isParallel(root)) {
  				int maxConcurrency = mission.maxConcurrency().get(root);
@@ -103,8 +103,6 @@ public abstract class AbstractBranch {
  			else {
  				branchMode = BranchMode.SEQUENTIAL;
  			}
- 			Set<BlockAttribute> blockAttributes = Set.copyOf(
- 					mission.treeStructure().missionRepresentation().blockAttributes().get(root));
  			
  			Block newParent = builder().childBranchNode(parent, BlockNameConfiguration.builder().text(root.text()).build(), branchMode, blockAttributes);
 			

@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,9 +9,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionRepresentation;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -34,8 +37,8 @@ public class IntegrateMissionTests {
 				Placeholder<String> firstName = mandatory(FIRST_NAME_P);
 				Placeholder<String> secondName = mandatory(SECOND_NAME_P);
 				Placeholder<String> thirdName = optional(THIRD_NAME_P);
-				root("IntegratedFirstName").as(branch->{
-					branch.leaf("Print").run((in,out)->{
+				root("IntegratedFirstName").parallel(2).as(branch->{
+					branch.leaf("Print").perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run((in,out)->{
 						out.emit("firstName", in.get(firstName));
 						out.emit("secondName", in.get(secondName));
 						String third = in.get(thirdName);
@@ -129,6 +132,14 @@ public class IntegrateMissionTests {
 				});
 			}
 		}.build();
+		
+		MissionRepresentation representation = mission.treeStructure().missionRepresentation();
+		Block printBlock = representation.blockOfId("0.0.0").get();
+		List<BlockAttribute> attributes = representation.blockAttributes().get(printBlock);
+		Assertions.assertThat(attributes).containsExactly(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS);
+		
+		Block integratedRoot = representation.blockOfId("0.0").get();
+		Assertions.assertThat(mission.treeStructure().isParallel(integratedRoot)).isTrue();
 		
 		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
 		Map<String, Object> params = Map.of(FIRST_NAME, "MyFirst", SECOND_NAME, "MySecond");
