@@ -1,6 +1,7 @@
 package io.molr.mole.core.runnable.lang;
 
 import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Out;
@@ -21,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,7 +92,22 @@ public abstract class AbstractBranch {
 			return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(), mission.runnables().get(root), Set.of());
 		}
 		else {
-			Block newParent = builder().childBranchNode(parent, BlockNameConfiguration.builder().text(root.text()).build(), SEQUENTIAL, Set.of());
+			/*
+			 * copy branch mode and block attributes
+			 */
+			BranchMode branchMode;
+ 			if(mission.treeStructure().isParallel(root)) {
+ 				int maxConcurrency = mission.maxConcurrency().get(root);
+ 				branchMode = BranchMode.newParallel(maxConcurrency);
+ 			}
+ 			else {
+ 				branchMode = BranchMode.SEQUENTIAL;
+ 			}
+ 			Set<BlockAttribute> blockAttributes = Set.copyOf(
+ 					mission.treeStructure().missionRepresentation().blockAttributes().get(root));
+ 			
+ 			Block newParent = builder().childBranchNode(parent, BlockNameConfiguration.builder().text(root.text()).build(), branchMode, blockAttributes);
+			
 			if(mission.forEachBlocksConfigurations().containsKey(root)) {
 				ForEachConfiguration<?, ?> config = mission.forEachBlocksConfigurations().get(root);
 				builder().forEachConfig(newParent, config);
