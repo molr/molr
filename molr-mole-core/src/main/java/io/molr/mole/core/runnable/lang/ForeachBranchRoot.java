@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
-import io.molr.commons.domain.MolrCollection;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission.Builder;
 import io.molr.mole.core.runnable.lang.ctx.OngoingContextualBranch;
@@ -30,7 +29,6 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 		this.itemPlaceholder = (Placeholder<T>) Placeholder.of(Object.class, UUID.randomUUID().toString());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<T> itemPlaceholder,
 			Placeholder<? extends Collection<T>> itemsPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
