@@ -94,7 +94,7 @@ public class DemoRunnableLeafsConfiguration {
     	return new RunnableLeafsMissionSupport() {
     		{
     			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
-    				branch.integrate(simple(), Placeholder.aString("device2"), devP);
+    				branch.embed(simple(), Placeholder.aString("device2"), devP);
     			});
     		}
     	}.build();
@@ -108,7 +108,7 @@ public class DemoRunnableLeafsConfiguration {
 				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
 				RunnableLeafsMission simple=simple();
 				root("nestedMissions").as((branch)->{
-					branch.integrate(simple(), device, Placeholder.aString("device2"));
+					branch.embed(simple(), device, Placeholder.aString("device2"));
 				});
 			}
 		}.build();

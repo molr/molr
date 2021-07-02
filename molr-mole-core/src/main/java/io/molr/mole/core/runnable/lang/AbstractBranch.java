@@ -46,15 +46,15 @@ public abstract class AbstractBranch {
         return this.parent;
     }
 
-    public void integrate(RunnableLeafsMission otherMission) {
+    public void embed(RunnableLeafsMission otherMission) {
     	integrate(otherMission, Map.of());
     }
 
-	public <T1> void integrate(RunnableLeafsMission simple, Placeholder<T1> key, Placeholder<T1> value) {
+	public <T1> void embed(RunnableLeafsMission simple, Placeholder<T1> key, Placeholder<T1> value) {
 		integrate(simple, Map.of(key, value));
 	}
     
-	public <T1, T2> void integrate(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
+	public <T1, T2> void embed(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
 			Placeholder<T1> key2, Placeholder<T1> value2) {
 		integrate(simple, Map.of(key1, value1, key2, value2));
 	}

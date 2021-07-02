@@ -75,12 +75,12 @@ public class IntegrateMissionTests {
 	}
 	
 	@Test
-	public void integrate_whenIntegratedMissionIsParameterless_treeIsBuildAsIntended() {
+	public void embed_whenIntegratedMissionIsParameterless_treeIsBuildAsIntended() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				root("Integrating").as(topLevel->{
 					topLevel.branch("level2Branch").as(level2->{
-						level2.integrate(parameterlessMission());
+						level2.embed(parameterlessMission());
 					});
 				});
 			}
@@ -91,12 +91,12 @@ public class IntegrateMissionTests {
 	
 	
 	@Test
-	public void integrate_whenMandatoryParameterIsNotMapped_exceptionIsThrown() {
+	public void embed_whenMandatoryParameterIsNotMapped_exceptionIsThrown() {
 		Assertions.assertThatExceptionOfType(AssertionError.class).isThrownBy(()->{
 			new RunnableLeafsMissionSupport() {
 				{
 					root("Integrating").as(branchDescription->{
-						branchDescription.integrate(singleMandatoryParameterMission());
+						branchDescription.embed(singleMandatoryParameterMission());
 					});
 				}
 			}.build();
@@ -104,13 +104,13 @@ public class IntegrateMissionTests {
 	}
 	
 	@Test
-	public void integrate_whenOnlyOneOfTwoMandatoryIsMapped_exceptionIsThrown() {
+	public void embed_whenOnlyOneOfTwoMandatoryIsMapped_exceptionIsThrown() {
 		Assertions.assertThatExceptionOfType(AssertionError.class).isThrownBy(()->{
 			new RunnableLeafsMissionSupport() {
 				{
 					mandatory(FIRST_NAME_P);
 					root("Integrating").as(branchDescription->{
-						branchDescription.integrate(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, FIRST_NAME_P);
+						branchDescription.embed(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, FIRST_NAME_P);
 					});
 				}
 			}.build();
@@ -118,13 +118,13 @@ public class IntegrateMissionTests {
 	}
 	
 	@Test
-	public void integrate_whenTwoOfTwoMandatoryIsMappedIdentity_() {
+	public void embed_whenTwoOfTwoMandatoryIsMappedIdentity_() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				mandatory(FIRST_NAME_P);
 				mandatory(SECOND_NAME_P);
 				root("Integrating").as(branchDescription -> {
-					branchDescription.integrate(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, FIRST_NAME_P,
+					branchDescription.embed(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, FIRST_NAME_P,
 							SECOND_NAME_P, SECOND_NAME_P);
 				});
 			}
@@ -141,13 +141,13 @@ public class IntegrateMissionTests {
 	}
 	
 	@Test
-	public void integrate_whenTwoOfTwoMandatoryAreMappedAndSwitched_integratedAsExpected() {
+	public void embed_whenTwoOfTwoMandatoryAreMappedAndSwitched_integratedAsExpected() {
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				mandatory(FIRST_NAME_P);
 				mandatory(SECOND_NAME_P);
 				root("Integrating").let(FIRST_NAME_P, in->in.get(FIRST_NAME_P)).as(branchDescription -> {
-					branchDescription.integrate(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, SECOND_NAME_P,
+					branchDescription.embed(twoMandatoryOneOptionalParameterMission(), FIRST_NAME_P, SECOND_NAME_P,
 							SECOND_NAME_P, FIRST_NAME_P);
 				});
 			}
