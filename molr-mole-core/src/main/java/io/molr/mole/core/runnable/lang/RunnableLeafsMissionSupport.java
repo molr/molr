@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.Set;
 
 /**

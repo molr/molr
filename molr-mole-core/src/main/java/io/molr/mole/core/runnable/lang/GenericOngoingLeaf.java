@@ -9,13 +9,16 @@ import io.molr.mole.core.utils.Checkeds;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
+import java.util.function.Function;
+
 public abstract class GenericOngoingLeaf<L extends GenericOngoingLeaf<L>> extends OngoingNode<L> {
 
-    public GenericOngoingLeaf(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent) {
+    public GenericOngoingLeaf(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, Map<Placeholder<?>, Function<In, ?>> mappings) {
         super(
                 requireNonNull(name, "leafName must not be null"),
                 requireNonNull(builder, "builder must not be null"),
-                requireNonNull(parent, "parent must not be null")
+                parent, mappings
         );
     }
     

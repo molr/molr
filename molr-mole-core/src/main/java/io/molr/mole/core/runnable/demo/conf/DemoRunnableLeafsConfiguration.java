@@ -7,6 +7,7 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
+import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,105 @@ public class DemoRunnableLeafsConfiguration {
 
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
+
+	@Bean
+	RunnableLeafsMission ctxTests() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<ListOfStrings> names = mandatory(devices);
+				
+				root("ctxTests").foreach(devices).branch("for {}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branchDescription, itm)->{
+					branchDescription.leaf("hello").run((in)->{
+						System.out.println("devices:"+in.get(names));
+					});
+				});
+			}
+		}.build();
+	}
+	
+	@Bean
+	RunnableLeafsMission withoutAllowedValues() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<ListOfStrings> names = mandatory(Placeholder.aListOfStrings("names"));
+				
+				root("noALlowed").as(branchDescription->{
+					branchDescription.leaf("hello").run((in)->{
+						System.out.println("devices:"+in.get(names));
+					});
+				});
+			}
+		}.build();
+	}
+    
+    @Bean
+    RunnableLeafsMission nestedContextual() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("nestedContext").contextual(in->{return "";}).as((branchDescription, ctx)->{
+    				//ctx;
+    			});
+    		}
+    	}.build();
+    }
+    
+    @Bean
+    RunnableLeafsMission nestedContextua2l() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("nestedContext").foreach(devices).branch("hello").as((branchDescription, ctx)->{
+    				branchDescription.branch("").as((branchDescription2, itm)->{
+    					branchDescription2.branch("ac").contextual(in->{return "";}).as((branchDescription3, ctx3)->{
+
+    					});
+    				});
+    			});
+    		}
+    	}.build();
+    }
+    
+    @Bean
+    RunnableLeafsMission forEach() {
+    	return new RunnableLeafsMissionSupport() {
+    		{
+    			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
+    				branch.embed(simple(), Placeholder.aString("device2"), devP);
+    			});
+    		}
+    	}.build();
+    }
+    
+	@Bean
+	RunnableLeafsMission takeMission() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				mandatory(devices, new ListOfStrings(), Set.of(items));
+				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
+				RunnableLeafsMission simple=simple();
+				root("nestedMissions").as((branch)->{
+					branch.embed(simple(), device, Placeholder.aString("device2"));
+				});
+			}
+		}.build();
+	}
+	
+	@Bean
+	RunnableLeafsMission simple() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
+				mandatory(devices, new ListOfStrings(), Set.of(items));
+				
+				root("simple")./* let(device, device). */contextual((in->90L)).as((branch, ctx)->{
+					branch.leaf("A").run((in)->{System.out.println("dev:A2"+in.get(device)+"hello"+in.get(ctx));});
+					branch.leaf("B").run(()->{System.out.println("B");});
+					branch.foreach(devices).branch("hell").as((forBranch, dev)->{
+						forBranch.leaf("printName").runFor(System.out::println);
+					});
+				});
+			}
+		}.build();
+	}
     
 	@Bean
 	RunnableLeafsMission foreachFromContext() {
@@ -39,7 +139,7 @@ public class DemoRunnableLeafsConfiguration {
 				root("ForeachWithListFromContext").contextual(in -> {
 					return ImmutableList.of("A", "B");
 				}).as((rootBranch, context) -> {
-					rootBranch.foreach(context, "deviceInContext")
+					rootBranch.foreach(context)
 							.branch("device:{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
 							.as((foreachBranch, itemPlaceholder) -> {
 								foreachBranch.leaf("OperateOn {}", itemPlaceholder).runFor(itemValue -> {
