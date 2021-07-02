@@ -7,7 +7,6 @@ import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
-import io.molr.mole.core.runnable.lang.ctx.OngoingContextualLeaf;
 import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import org.slf4j.Logger;
@@ -34,6 +33,36 @@ public class DemoRunnableLeafsConfiguration {
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
 
+	@Bean
+	RunnableLeafsMission ctxTests() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<ListOfStrings> names = mandatory(devices);
+				
+				root("ctxTests").foreach(devices).branch("for {}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branchDescription, itm)->{
+					branchDescription.leaf("hello").run((in)->{
+						System.out.println("devices:"+in.get(names));
+					});
+				});
+			}
+		}.build();
+	}
+	
+	@Bean
+	RunnableLeafsMission withoutAllowedValues() {
+		return new RunnableLeafsMissionSupport() {
+			{
+				Placeholder<ListOfStrings> names = mandatory(Placeholder.aListOfStrings("names"));
+				
+				root("noALlowed").as(branchDescription->{
+					branchDescription.leaf("hello").run((in)->{
+						System.out.println("devices:"+in.get(names));
+					});
+				});
+			}
+		}.build();
+	}
+    
     @Bean
     RunnableLeafsMission nestedContextual() {
     	return new RunnableLeafsMissionSupport() {
@@ -65,7 +94,7 @@ public class DemoRunnableLeafsConfiguration {
     	return new RunnableLeafsMissionSupport() {
     		{
     			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
-    				branch.integrate(simple(), Placeholder.aString("device2"), devP);
+    				branch.embed(simple(), Placeholder.aString("device2"), devP);
     			});
     		}
     	}.build();
@@ -79,7 +108,7 @@ public class DemoRunnableLeafsConfiguration {
 				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
 				RunnableLeafsMission simple=simple();
 				root("nestedMissions").as((branch)->{
-					branch.integrate(simple(), device, Placeholder.aString("device2"));
+					branch.embed(simple(), device, Placeholder.aString("device2"));
 				});
 			}
 		}.build();
@@ -110,7 +139,7 @@ public class DemoRunnableLeafsConfiguration {
 				root("ForeachWithListFromContext").contextual(in -> {
 					return ImmutableList.of("A", "B");
 				}).as((rootBranch, context) -> {
-					rootBranch.foreach(context, "deviceInContext")
+					rootBranch.foreach(context)
 							.branch("device:{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
 							.as((foreachBranch, itemPlaceholder) -> {
 								foreachBranch.leaf("OperateOn {}", itemPlaceholder).runFor(itemValue -> {

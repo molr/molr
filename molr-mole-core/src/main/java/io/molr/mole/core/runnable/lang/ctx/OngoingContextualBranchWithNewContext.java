@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBranch<OngoingContextualBranchWithNewContext<C>> {
@@ -21,8 +22,9 @@ public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBran
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
     Function<In,C> contextFactory;
 
-    public OngoingContextualBranchWithNewContext(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode, Function<In,C> contextFactory) {
-        super(name, builder, parent, mode);
+    public OngoingContextualBranchWithNewContext(BlockNameConfiguration name, RunnableLeafsMission.Builder builder,
+    		Block parent, BranchMode mode, Function<In,C> contextFactory, Map<Placeholder<?>, Function<In, ?>> mappings) {
+        super(name, builder, parent, mode, mappings);
         requireNonNull(contextFactory);
         this.contextFactory = contextFactory;
     }
