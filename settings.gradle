@@ -1,3 +1,4 @@
 include 'molr-commons'
 include "molr-mole-server", "molr-mole-core", "molr-mole-remote"
+include "molr-demo-missions"
 
