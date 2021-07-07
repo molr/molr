@@ -55,7 +55,7 @@ public abstract class AbstractBranch {
 	}
     
 	public <T1, T2> void embed(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
-			Placeholder<T1> key2, Placeholder<T1> value2) {
+			Placeholder<T2> key2, Placeholder<T2> value2) {
 		integrate(simple, Map.of(key1, value1, key2, value2));
 	}
 	
