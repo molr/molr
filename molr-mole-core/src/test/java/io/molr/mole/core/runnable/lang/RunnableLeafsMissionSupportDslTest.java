@@ -88,8 +88,9 @@ public class RunnableLeafsMissionSupportDslTest {
 	}
 	
 	@Test
-	public void asWithoutContext() {
+	public void asWithoutContextPlaceholderInOngoingContextualBranchWithNewContext() {
 		AtomicInteger counter = new AtomicInteger();
+		
 		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
 			{
 				root("mission").contextual(in->counter).as(branch->{
@@ -100,12 +101,35 @@ public class RunnableLeafsMissionSupportDslTest {
 			}
 		}.build();
 			
+		executeAndWaitForLastState(mission);
+		Assertions.assertThat(counter.get()).isEqualTo(1);
+	}
+	
+	@Test
+	public void asWithoutContextPlaceholderInOngoingContextualBranch() {
+		AtomicInteger counter = new AtomicInteger();
+		
+		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+			{
+				root("mission").contextual(in->counter).as(branch->{
+					branch.branch("2ndLevel").as(secondLevelBranch->{
+						secondLevelBranch.leaf("aLeaf").runCtx(ctxObj->{
+							counter.incrementAndGet();
+						});
+					});
+				});
+			}
+		}.build();
+			
+		executeAndWaitForLastState(mission);
+		Assertions.assertThat(counter.get()).isEqualTo(1);
+	}
+
+	private void executeAndWaitForLastState(RunnableLeafsMission mission) {
 		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
-		MissionHandle handle = mole.instantiate(new Mission("mission"), Map.of()).block(Duration.ofMillis(3000));
+		MissionHandle handle = mole.instantiate(new Mission(mission.name()), Map.of()).block(Duration.ofMillis(3000));
 		mole.instructRoot(handle, StrandCommand.RESUME);
 		mole.statesFor(handle).blockLast(Duration.ofMillis(3000));
-		
-		Assertions.assertThat(counter.get()).isEqualTo(1);
 	}
 	
 	
