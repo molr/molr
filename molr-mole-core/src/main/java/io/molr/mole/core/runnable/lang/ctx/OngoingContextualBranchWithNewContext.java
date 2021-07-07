@@ -46,18 +46,7 @@ public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBran
     }
 
     public void as(Consumer<ContextualBranch<C>> branchDescription) {
-        if (asCalled.getAndSet(true)) {
-            throw new IllegalStateException("as() method must only be called once!");
-        }
-        requireNonNull(branchDescription, "branchDescription must not be null.");
-                
-        Block block = block();
-        @SuppressWarnings("unchecked")
-		Placeholder<C> contextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
-        builder().contextFactory(block, contextPlaceholder, contextFactory);
-        
-        ContextualBranch<C> branch = new ContextualBranch<>(builder(), block, contextPlaceholder);
-        branchDescription.accept(branch);
+        as((branch,ctxPlaceholder)-> branchDescription.accept(branch));
     }
     
 }
