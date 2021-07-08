@@ -47,16 +47,16 @@ public abstract class AbstractBranch {
     }
 
     public void embed(RunnableLeafsMission otherMission) {
-    	integrate(otherMission, Map.of());
+    	embed(otherMission, Map.of());
     }
 
 	public <T1> void embed(RunnableLeafsMission simple, Placeholder<T1> key, Placeholder<T1> value) {
-		integrate(simple, Map.of(key, value));
+		embed(simple, Map.of(key, value));
 	}
     
 	public <T1, T2> void embed(RunnableLeafsMission simple, Placeholder<T1> key1, Placeholder<T1> value1,
-			Placeholder<T1> key2, Placeholder<T1> value2) {
-		integrate(simple, Map.of(key1, value1, key2, value2));
+			Placeholder<T2> key2, Placeholder<T2> value2) {
+		embed(simple, Map.of(key1, value1, key2, value2));
 	}
 	
 	/*
@@ -66,7 +66,7 @@ public abstract class AbstractBranch {
 	 * 
 	 * How to handle optional parameters? Default values (see also issue)
 	 */
-	public void integrate(RunnableLeafsMission otherMission, Map<Placeholder<?>, Placeholder<?>> mappings) {
+	public void embed(RunnableLeafsMission otherMission, Map<Placeholder<?>, Placeholder<?>> mappings) {
 		Block integratedRootNode = addIntegratedMissionTreeToParent(parent(), otherMission.treeStructure().rootBlock(), otherMission);
 				
 		Set<Placeholder<?>> requiredParameters = otherMission.parameterDescription().parameters()

@@ -10,6 +10,7 @@ import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -43,4 +44,9 @@ public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBran
         ContextualBranch<C> branch = new ContextualBranch<>(builder(), block, contextPlaceholder);
         branchDescription.accept(branch, contextPlaceholder);
     }
+
+    public void as(Consumer<ContextualBranch<C>> branchDescription) {
+        as((branch,ctxPlaceholder)-> branchDescription.accept(branch));
+    }
+    
 }

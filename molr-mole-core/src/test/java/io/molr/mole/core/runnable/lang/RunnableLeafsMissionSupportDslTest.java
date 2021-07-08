@@ -3,6 +3,7 @@ package io.molr.mole.core.runnable.lang;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -83,8 +84,54 @@ public class RunnableLeafsMissionSupportDslTest {
 		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
 		MissionHandle handle = mole.instantiate(new Mission("simple"), Map.of()).block(Duration.ofMillis(3000));
 		mole.instructRoot(handle, StrandCommand.RESUME);
-		mole.statesFor(handle).blockLast();
+		mole.statesFor(handle).blockLast(Duration.ofMillis(3000));
 	}
+	
+	@Test
+	public void asWithoutContextPlaceholderInOngoingContextualBranchWithNewContext() {
+		AtomicInteger counter = new AtomicInteger();
+		
+		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+			{
+				root("mission").contextual(in->counter).as(branch->{
+					branch.leaf("aLeaf").runCtx(ctxObj->{
+						counter.incrementAndGet();
+					});
+				});
+			}
+		}.build();
+			
+		executeAndWaitForLastState(mission);
+		Assertions.assertThat(counter.get()).isEqualTo(1);
+	}
+	
+	@Test
+	public void asWithoutContextPlaceholderInOngoingContextualBranch() {
+		AtomicInteger counter = new AtomicInteger();
+		
+		RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+			{
+				root("mission").contextual(in->counter).as(branch->{
+					branch.branch("2ndLevel").as(secondLevelBranch->{
+						secondLevelBranch.leaf("aLeaf").runCtx(ctxObj->{
+							counter.incrementAndGet();
+						});
+					});
+				});
+			}
+		}.build();
+			
+		executeAndWaitForLastState(mission);
+		Assertions.assertThat(counter.get()).isEqualTo(1);
+	}
+
+	private void executeAndWaitForLastState(RunnableLeafsMission mission) {
+		RunnableLeafsMole mole = new RunnableLeafsMole(Set.of(mission));
+		MissionHandle handle = mole.instantiate(new Mission(mission.name()), Map.of()).block(Duration.ofMillis(3000));
+		mole.instructRoot(handle, StrandCommand.RESUME);
+		mole.statesFor(handle).blockLast(Duration.ofMillis(3000));
+	}
+	
 	
 	
 }

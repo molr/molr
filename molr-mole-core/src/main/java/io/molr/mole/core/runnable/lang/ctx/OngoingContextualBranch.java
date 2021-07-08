@@ -30,14 +30,7 @@ public class OngoingContextualBranch<C> extends OngoingContextualOptionProviding
     }
 
     public void as(Consumer<ContextualBranch<C>> branchDescription) {
-        if (asCalled.getAndSet(true)) {
-            throw new IllegalStateException("as() method must only be called once!");
-        }
-        requireNonNull(branchDescription, "branchDescription must not be null.");
-
-        Block block = block();
-        ContextualBranch<C> branch = new ContextualBranch<>(builder(), block, contextPlaceholder);
-        branchDescription.accept(branch);
+        as((branch, contextPlaceholder)->branchDescription.accept(branch));
     }
     
     public void as(BiConsumer<ContextualBranch<C>, Placeholder<C>> branchDescription) {
