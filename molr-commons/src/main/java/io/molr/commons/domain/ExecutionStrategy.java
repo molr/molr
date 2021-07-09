@@ -6,7 +6,7 @@ import java.util.Map;
 
 public enum ExecutionStrategy {
 
-    PAUSE_ON_ERROR, PROCEED_ON_ERROR, ABORT_ON_ERROR;
+    PAUSE_ON_ERROR, PROCEED_ON_ERROR, ABORT_ON_ERROR, ABORT_ON_ERROR_LENIENT;
     
     private static final Map<String, ExecutionStrategy> namesToStrategy = new HashMap<>();
     

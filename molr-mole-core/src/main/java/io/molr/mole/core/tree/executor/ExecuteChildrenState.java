@@ -103,13 +103,21 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 				};
 			});
 			//remove
+			System.out.println("context.abortParent "+context.abortParent.get());
 			if(hasErrors.get()) {
 				context.log("failed {}", block);
 				//context.clearStackElementsAndSetResult();
-				if(context.executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR) {
+				childExecutors.forEach((block,childExecutor)->{
+					if(childExecutor.abortParent.get()) {
+						context.abortParent.set(true);
+						System.out.println(block+" forces parent to quit");
+					}
+				});
+				if(context.executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR || context.abortParent.get()) {
 					context.clearStackElementsAndSetResult();
 					return;
 				}
+				System.out.println("\n\n\n\n");
 			}
 			//
 			context.popUntilNextChildAvailableAndPush();

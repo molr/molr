@@ -83,6 +83,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private ImmutableList<StrandExecutor> childExecutors;
     private ExecutionStrategy executionStrategy;
+    public AtomicBoolean abortParent = new AtomicBoolean(false);
     private AtomicBoolean aborted = new AtomicBoolean(false);
     private AtomicLong commandId = new AtomicLong(0);
     //TODO remove field after refactoring

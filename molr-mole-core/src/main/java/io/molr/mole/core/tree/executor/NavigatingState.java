@@ -47,6 +47,8 @@ public class NavigatingState extends StrandExecutionState{
 				return;
 			}
 						
+			System.out.println(context.getStrand().id()+" current"+current);
+			
 			if(structure.isLeaf(current)) {
 				Result result = context.runLeaf(current);
 				if(result==Result.FAILED) {
@@ -59,10 +61,17 @@ public class NavigatingState extends StrandExecutionState{
 						return;
 					}
 					List<BlockAttribute> attributes = context.structure.missionRepresentation().blockAttributes().get(current);
+					System.out.println(attributes);
+					if(attributes.contains(BlockAttribute.ON_ERROR_FORCE_QUIT)) {
+						context.clearStackElementsAndSetResult();
+						context.abortParent.set(true);
+						return;
+					}
 					if(attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
 						context.popAndMoveChildIndexToLast();
 					}
 				}
+				System.out.println("call popUntil"+current);
 				context.popUntilNextChildAvailableAndPush();
 				//must be pop and next otherwise we would pause again if parent is breakpoint
 			}
