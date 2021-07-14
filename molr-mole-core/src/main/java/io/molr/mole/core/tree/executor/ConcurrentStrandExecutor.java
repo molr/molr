@@ -344,12 +344,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     	childIndices.put(block, structure.childrenOf(block).size()-1);
     }
     
-    void popAndMoveChildIndexToLast() {
-    	popStackElement();
-    	Block parent = stack.peek();
-    	childIndices.put(stack.peek(), structure.childrenOf(parent).size()-1);
-    }
-    
     private void popUntilNext() {
     	while(!stack.isEmpty()){//!hasUnfinishedChild(stack.peek())) {
     		if(moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {
