@@ -96,30 +96,12 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 //		});
 				
 		if(finishedChildren.size() == childExecutors.size()) {
-			AtomicBoolean hasErrors = new AtomicBoolean(false);
-			childExecutors.forEach((childBlock, child)->{
-				if(context.resultStates().of(childBlock)==Result.FAILED) {
-					hasErrors.set(true);
-				};
-			});
-			//remove
-			System.out.println("context.abortParent "+context.abortParent.get());
-			if(hasErrors.get()) {
-				context.log("failed {}", block);
-				//context.clearStackElementsAndSetResult();
-				childExecutors.forEach((block,childExecutor)->{
-					if(childExecutor.abortParent.get()) {
-						context.abortParent.set(true);
-						System.out.println(block+" forces parent to quit");
-					}
-				});
-				if(context.executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR || context.abortParent.get()) {
-					context.clearStackElementsAndSetResult();
-					return;
-				}
-				System.out.println("\n\n\n\n");
-			}
-			//
+			/*
+			 * AtomicBoolean hasErrors = new AtomicBoolean(false);
+			 * childExecutors.forEach((childBlock, child)->{
+			 * if(context.resultStates().of(childBlock)==Result.FAILED) {
+			 * hasErrors.set(true); }; });
+			 */
 			context.popUntilNextChildAvailableAndPush();
 			context.updateRunStates(Map.of(block, RunState.FINISHED));
 			/**

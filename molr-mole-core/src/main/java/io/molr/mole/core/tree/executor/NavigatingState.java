@@ -51,27 +51,7 @@ public class NavigatingState extends StrandExecutionState{
 			
 			if(structure.isLeaf(current)) {
 				Result result = context.runLeaf(current);
-				if(result==Result.FAILED) {
-					if(context.executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR) {
-						context.clearStackElementsAndSetResult();
-						return;
-					}
-					if(context.executionStrategy()==ExecutionStrategy.PAUSE_ON_ERROR) {
-						context.updateLoopState(new PausedState(context));
-						return;
-					}
-					List<BlockAttribute> attributes = context.structure.missionRepresentation().blockAttributes().get(current);
-					System.out.println(attributes);
-					if(attributes.contains(BlockAttribute.ON_ERROR_FORCE_QUIT)) {
-						context.clearStackElementsAndSetResult();
-						context.abortParent.set(true);
-						return;
-					}
-					if(attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
-						context.popAndMoveChildIndexToLast();
-					}
-				}
-				System.out.println("call popUntil"+current);
+
 				context.popUntilNextChildAvailableAndPush();
 				//must be pop and next otherwise we would pause again if parent is breakpoint
 			}

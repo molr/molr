@@ -7,6 +7,7 @@ import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.OngoingSimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 
@@ -34,15 +35,24 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
     
     @Override
     protected RunnableLeafsMission mission() {
+        return mission(false);
+    }
+
+    private RunnableLeafsMission mission(boolean forceParallelBranchToQuit) {
         return new RunnableLeafsMissionSupport() {
             {
-                
+                executionStrategy().allowAll().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);
                 root("TestMission").as(rootBranch -> {//0
-                	rootBranch.branch("parallelBranch").parallel().as(parallel->{//0.0
+                	OngoingSimpleBranch parallelBranch = rootBranch.branch("parallelBranch").parallel();
+                	if(forceParallelBranchToQuit) {
+                		parallelBranch = parallelBranch.perDefault(BlockAttribute.ON_ERROR_FORCE_QUIT);
+                	}
+                	
+                	parallelBranch.as(parallel->{//0.0
                         parallel.leaf("task1").run(()->{//0.0.0
                             LOGGER.info("run task 1");
                         });
-						parallel.leaf("task2").perDefault(BlockAttribute.ON_ERROR_FORCE_QUIT).run(()->{
+								parallel.leaf("task2")/* .perDefault(BlockAttribute.ON_ERROR_FORCE_QUIT) */.run(()->{
                             LOGGER.info("run task 2");
                             throw new RuntimeException("Task2 failed");
                         });
@@ -59,8 +69,8 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
     }
     
     @Test
-    public void singleStrandProceedOnErrorTest() {
-        setUpAbstract(ExecutionStrategy.PROCEED_ON_ERROR);
+    public void abortOnError_abortOnErrorAtParallelBranch_missionIsAbortedAfterParallelBranchExecution() {
+        setUpAbstract(ExecutionStrategy.ABORT_ON_ERROR);
         instructRootStrandSync(StrandCommand.RESUME);
         System.out.println("instructed");
         
@@ -71,8 +81,35 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
         assertThatResultOf(Block.builder("0.0.0", "task1").build()).isEqualTo(Result.SUCCESS);
         assertThatResultOf(Block.builder("0.0.1", "task2").build()).isEqualTo(Result.FAILED);
         assertThatResultOf(Block.builder("0.0.2", "task3").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.1", "task4").build()).isEqualTo(Result.UNDEFINED);
+    }
+    
+    @Test
+    public void singleStrandProceedOnError_parallelBranchIsNotForcedToQuit_missionRunsThrough() {
+        setUpAbstract(ExecutionStrategy.PROCEED_ON_ERROR, mission(false));
+        instructRootStrandSync(StrandCommand.RESUME);
+        
+        waitUntilRootStrandStateIs(RunState.FINISHED);
+        
+        assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.0.0", "task1").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.0.1", "task2").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.0.2", "task3").build()).isEqualTo(Result.SUCCESS);
         assertThatResultOf(Block.builder("0.1", "task4").build()).isEqualTo(Result.SUCCESS);
-        System.out.println("ready");
+    }
+    
+    @Test
+    public void singleStrandProceedOnErrorButForceQuit_parallelBranchIsForcedToQuit_missionIsAbortedAfterParallelBranchExecution() {
+        setUpAbstract(ExecutionStrategy.PROCEED_ON_ERROR, mission(true));
+        instructRootStrandSync(StrandCommand.RESUME);
+        
+        waitUntilRootStrandStateIs(RunState.FINISHED);
+        
+        assertThatResultOf(Block.builder("0", "TestMission").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.0.0", "task1").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.0.1", "task2").build()).isEqualTo(Result.FAILED);
+        assertThatResultOf(Block.builder("0.0.2", "task3").build()).isEqualTo(Result.SUCCESS);
+        assertThatResultOf(Block.builder("0.1", "task4").build()).isEqualTo(Result.UNDEFINED);
     }
     
 }
