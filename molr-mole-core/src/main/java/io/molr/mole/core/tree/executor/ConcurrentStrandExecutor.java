@@ -370,7 +370,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         			}
     			}
     			else {
-    				System.out.println("popped leaf " + runStates.of(popped)+" "+resultStates.of(popped));
+    				log("bock {} finished: popped leaf "+popped + runStates.of(popped)+" result: "+resultStates.of(popped));
     			}
     			
     			Result result = resultStates.of(popped);
