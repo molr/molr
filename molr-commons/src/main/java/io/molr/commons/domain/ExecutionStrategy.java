@@ -1,12 +1,11 @@
 package io.molr.commons.domain;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public enum ExecutionStrategy {
 
-    PAUSE_ON_ERROR, PROCEED_ON_ERROR, ABORT_ON_ERROR, ABORT_ON_ERROR_LENIENT;
+    PAUSE_ON_ERROR, PROCEED_ON_ERROR, ABORT_ON_ERROR;
     
     private static final Map<String, ExecutionStrategy> namesToStrategy = new HashMap<>();
     
