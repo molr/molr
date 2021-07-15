@@ -16,6 +16,9 @@ public enum ExecutionStrategy {
     }
     
     public static ExecutionStrategy forName(String strategyName) {
+    	if(namesToStrategy.containsKey(strategyName)) {
+    		throw new IllegalArgumentException("Cannot find execution strategy for name");
+    	}
         return namesToStrategy.get(strategyName);
     }
     
