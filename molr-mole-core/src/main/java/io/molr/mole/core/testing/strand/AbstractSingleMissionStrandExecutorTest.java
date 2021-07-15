@@ -38,7 +38,10 @@ public abstract class AbstractSingleMissionStrandExecutorTest implements SingleM
     }
     
     public void setUpAbstract(ExecutionStrategy executionStrategy) {
-        RunnableLeafsMission mission = mission();
+        setUpAbstract(executionStrategy, mission());
+    }
+    
+    public void setUpAbstract(ExecutionStrategy executionStrategy, RunnableLeafsMission mission) {
 
         treeStructure = mission.treeStructure();
         resultTracker = TreeTracker.create(treeStructure.missionRepresentation(), Result.UNDEFINED, Result::summaryOf);

@@ -299,7 +299,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
     
     Block popStackElement() {
-    	return this.stack.pop();
+    	Block popped = this.stack.pop();
+    	return popped;
     }
     
     boolean isStackEmpty() {
@@ -339,10 +340,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     	return Optional.empty();
     }
 
-    void popAndMoveChildIndexToLast() {
-    	stack.pop();
-    	Block parent = stack.peek();
-    	childIndices.put(stack.peek(), structure.childrenOf(parent).size()-1);
+    void childIndexToLast(Block block) {
+    	childIndices.put(block, structure.childrenOf(block).size()-1);
     }
     
     private void popUntilNext() {
@@ -352,7 +351,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     		}
     		
     		log(strand + " pop "+stack.peek());
-    		Block popped = stack.pop();
+    		Block popped = popStackElement();
     		poppedBlocks.add(popped);
     		if(popped!=null) {
     			runStates.put(popped, RunState.FINISHED);
@@ -370,6 +369,37 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         				log("overall result is due to failed children, last element popped: "+popped);
         			}
     			}
+    			else {
+    				log("bock {} finished: popped leaf "+popped + runStates.of(popped)+" result: "+resultStates.of(popped));
+    			}
+    			
+    			Result result = resultStates.of(popped);
+				if(result==Result.FAILED) {
+					if(executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR) {
+						LOGGER.info("Abort Strand execution onError "+popped);
+						clearStackElementsAndSetResult();
+						return;
+					}
+					if(executionStrategy()==ExecutionStrategy.PAUSE_ON_ERROR) {
+						LOGGER.info("Pause Strand execution onError "+popped);
+						updateLoopState(new PausedState(this));
+						return;
+					}
+					LOGGER.info("Proceed Strand execution onError");
+					List<BlockAttribute> attributes = structure.missionRepresentation().blockAttributes().get(popped);
+					if(attributes.contains(BlockAttribute.FORCE_ABORT_ON_ERROR)) {
+						LOGGER.info("Strand execution has been forced to quit at block "+popped);
+						clearStackElementsAndSetResult();
+						return;
+					}
+					if(attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
+						if(!stack.isEmpty()) {
+							Block parent = stack.peek();
+							childIndexToLast(parent);
+							LOGGER.info("Siblings of failed block will be skipped.(next children of "+parent+")");
+						}
+					}
+				}
     		}
     	}
     }
