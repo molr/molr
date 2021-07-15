@@ -46,11 +46,9 @@ public class NavigatingState extends StrandExecutionState{
 				context.updateLoopState(new PausedState(context));
 				return;
 			}
-						
-			System.out.println(context.getStrand().id()+" current"+current);
 			
 			if(structure.isLeaf(current)) {
-				Result result = context.runLeaf(current);
+				context.runLeaf(current);
 
 				context.popUntilNextChildAvailableAndPush();
 				//must be pop and next otherwise we would pause again if parent is breakpoint

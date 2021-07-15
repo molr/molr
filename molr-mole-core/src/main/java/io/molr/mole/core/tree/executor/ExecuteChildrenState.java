@@ -88,20 +88,8 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 
 		removeCompletedChildExecutors();
 		instantiateAndAddNewChildExecutors();
-		//resumeChildren();//TODO
-//		childExecutors.forEach((block, childExecutor) -> {
-//			if(childExecutor.isComplete()) {
-//				finishedChildren.add(childExecutor);
-//			}
-//		});
 				
 		if(finishedChildren.size() == childExecutors.size()) {
-			/*
-			 * AtomicBoolean hasErrors = new AtomicBoolean(false);
-			 * childExecutors.forEach((childBlock, child)->{
-			 * if(context.resultStates().of(childBlock)==Result.FAILED) {
-			 * hasErrors.set(true); }; });
-			 */
 			context.popUntilNextChildAvailableAndPush();
 			context.updateRunStates(Map.of(block, RunState.FINISHED));
 			/**
@@ -116,12 +104,9 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	}
 
 	protected boolean isAnyChildrenRunning() {
-//		return runningExecutors.stream().map(ConcurrentStrandExecutor::getActualState)
-//				.anyMatch(RunState.RUNNING::equals);
 		return runningExecutors.stream()
 				.map(ConcurrentStrandExecutor::getActualState)
 				.anyMatch(runState -> {
-					//System.out.println("anyMatch: "+runState);
 					return runState.equals(RunState.RUNNING);
 				});
 	}
