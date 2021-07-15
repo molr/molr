@@ -74,7 +74,7 @@ public class OnErrorForceQuitTest extends AbstractSingleMissionStrandExecutorTes
             {
                 
 				root("TestMission").as(rootBranch -> {// 0
-					rootBranch.branch("0.0").perDefault(BlockAttribute.ON_ERROR_FORCE_QUIT).as(zeroDotZero->{
+					rootBranch.branch("0.0").perDefault(BlockAttribute.FORCE_ABORT_ON_ERROR).as(zeroDotZero->{
 						zeroDotZero.leaf("task1").run(() -> {});
 						zeroDotZero.leaf("task2").perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run(() -> {
 							throw new RuntimeException("Task2 failed");

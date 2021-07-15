@@ -45,7 +45,7 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
                 root("TestMission").as(rootBranch -> {//0
                 	OngoingSimpleBranch parallelBranch = rootBranch.branch("parallelBranch").parallel();
                 	if(forceParallelBranchToQuit) {
-                		parallelBranch = parallelBranch.perDefault(BlockAttribute.ON_ERROR_FORCE_QUIT);
+                		parallelBranch = parallelBranch.perDefault(BlockAttribute.FORCE_ABORT_ON_ERROR);
                 	}
                 	
                 	parallelBranch.as(parallel->{//0.0

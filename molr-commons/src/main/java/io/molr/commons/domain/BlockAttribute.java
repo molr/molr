@@ -7,5 +7,5 @@ public enum BlockAttribute {
 	/*
 	 * If execution strategy is PROCEED_ON_ERROR blocks marked with attribute will still cause strand execution being abort
 	 */
-	ON_ERROR_FORCE_QUIT
+	FORCE_ABORT_ON_ERROR
 }

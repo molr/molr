@@ -387,7 +387,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 					}
 					LOGGER.info("Proceed Strand execution onError");
 					List<BlockAttribute> attributes = structure.missionRepresentation().blockAttributes().get(popped);
-					if(attributes.contains(BlockAttribute.ON_ERROR_FORCE_QUIT)) {
+					if(attributes.contains(BlockAttribute.FORCE_ABORT_ON_ERROR)) {
 						LOGGER.info("Strand execution has been forced to quit at block "+popped);
 						clearStackElementsAndSetResult();
 						return;
