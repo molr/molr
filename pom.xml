@@ -19,6 +19,22 @@
 		</repository>
 	</repositories>
 
+	<developers>
+		<developer>
+			<name>Molr Developers</name>
+			<email>molr-developers@googlegroups.com</email>
+			<organization>molr</organization>
+			<organizationUrl>http://www.molr.io</organizationUrl>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
