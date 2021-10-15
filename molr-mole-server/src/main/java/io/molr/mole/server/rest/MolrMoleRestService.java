@@ -68,7 +68,7 @@ public class MolrMoleRestService {
     }
 
     /*
-        GET mappings
+     * GET mappings
      */
 
     @GetMapping(path = "/states", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -104,41 +104,44 @@ public class MolrMoleRestService {
     @SuppressWarnings("static-method")
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
-        return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))
-                .take(count)
+        return Flux.interval(Duration.of(1, ChronoUnit.SECONDS)).take(count)
                 .map(i -> new TestValueDto("Test output " + i));
     }
 
     /*
-        POST mappings
+     * POST mappings
      */
 
     @PostMapping(path = INSTANTIATE_MISSION_PATH)
-    public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName, @RequestBody String paramsJson) {
-        LOGGER.info("json: "+paramsJson);
-        
-        Mono<Map<String, Object>> parameterMap = mole.parameterDescriptionOf(new Mission(missionName)).flatMap(parameterDescription -> {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleModule simpleModule = new SimpleModule();
-            simpleModule.addDeserializer(Map.class, ParameterValueDeserializer.with(mapper, parameterDescription));
-            mapper.registerModule(simpleModule);
-            Map<String, Object> parameterValues = null;
-            try {
-                parameterValues = mapper.readValue(paramsJson, Map.class);
-            } catch (JsonParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return Mono.just(parameterValues);
-        });
-        
-        return parameterMap.flatMap(parameterMap1 -> (mole.instantiate(new Mission(missionName), parameterMap1).map(MissionHandleDto::from)));
+    public Mono<MissionHandleDto> instantiate(@PathVariable(MISSION_NAME) String missionName,
+            @RequestBody String paramsJson) {
+        LOGGER.info("json: " + paramsJson);
+
+        Mono<Map<String, Object>> parameterMap = mole.parameterDescriptionOf(new Mission(missionName))
+                .flatMap(parameterDescription -> {
+                    ObjectMapper mapper = new ObjectMapper();
+                    SimpleModule simpleModule = new SimpleModule();
+                    simpleModule.addDeserializer(Map.class,
+                            ParameterValueDeserializer.with(mapper, parameterDescription));
+                    mapper.registerModule(simpleModule);
+                    Map<String, Object> parameterValues = null;
+                    try {
+                        parameterValues = mapper.readValue(paramsJson, Map.class);
+                    } catch (JsonParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (JsonMappingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    return Mono.just(parameterValues);
+                });
+
+        return parameterMap.flatMap(parameterMap1 -> (mole.instantiate(new Mission(missionName), parameterMap1)
+                .map(MissionHandleDto::from)));
     }
 
     @PostMapping(path = INSTANCE_INSTRUCT_MISSION_PATH)
@@ -148,24 +151,26 @@ public class MolrMoleRestService {
     }
 
     @PostMapping(path = INSTANCE_INSTRUCT_PATH)
-    public void instruct(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(STRAND_ID) String strandId, @PathVariable(COMMAND_NAME) String commandName) {
+    public void instruct(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(STRAND_ID) String strandId,
+            @PathVariable(COMMAND_NAME) String commandName) {
         mole.instruct(MissionHandle.ofId(missionHandle), Strand.ofId(strandId), StrandCommand.valueOf(commandName));
     }
 
-
     @PostMapping(path = INSTANCE_INSTRUCT_ROOT_PATH)
-    public void instructRoot(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(COMMAND_NAME) String commandName) {
+    public void instructRoot(@PathVariable(MISSION_HANDLE) String missionHandle,
+            @PathVariable(COMMAND_NAME) String commandName) {
         mole.instructRoot(MissionHandle.ofId(missionHandle), StrandCommand.valueOf(commandName));
     }
-    
+
     @PostMapping(path = INSTANCE_INSTRUCT_BLOCK_PATH)
-    public void instructBlock(@PathVariable(MISSION_HANDLE) String missionHandle, @PathVariable(BLOCK_ID) String blockId, @PathVariable(COMMAND_NAME) String commandName) {
+    public void instructBlock(@PathVariable(MISSION_HANDLE) String missionHandle,
+            @PathVariable(BLOCK_ID) String blockId, @PathVariable(COMMAND_NAME) String commandName) {
         mole.instructBlock(MissionHandle.ofId(missionHandle), blockId, BlockCommand.valueOf(commandName));
     }
 
-    @ExceptionHandler({Exception.class})
-    public @ResponseBody
-    ResponseEntity<?> handleException(Exception e) {
+    @SuppressWarnings("static-method")
+    @ExceptionHandler({ Exception.class })
+    public @ResponseBody ResponseEntity<?> handleException(Exception e) {
         LOGGER.error("Error: {}", e.getMessage(), e);
         return ResponseEntity.badRequest().body(e.getMessage());
     }
