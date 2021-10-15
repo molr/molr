@@ -6,7 +6,9 @@ before_install:
 - chmod +x mvn-demo.sh
 install: true
 script:
-  mvn clean install
+- echo "before install"
+- mvn clean install
+- echo "after install"
 #- ./mvn-demo.sh
 deploy:
   - provider: script
@@ -15,6 +17,8 @@ deploy:
       tags: true
   - provider: script
     script: "mvn clean deploy"
+    on:
+      branch: aligned-spring
 #- mvn clean deploy
 #  on:
 #    branch: aligned-spring
