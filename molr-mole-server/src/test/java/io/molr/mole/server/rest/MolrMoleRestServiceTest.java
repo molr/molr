@@ -1,20 +1,20 @@
 package io.molr.mole.server.rest;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionParameter;
-import io.molr.commons.domain.MissionParameterDescription;
-import io.molr.commons.domain.ParameterRestriction;
-import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.ListOfStrings;
-import io.molr.commons.domain.dto.MissionParameterDescriptionDto;
-import io.molr.commons.domain.dto.MissionParameterDto;
-import io.molr.commons.domain.dto.MissionRepresentationDto;
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.server.conf.ObjectMapperConfig;
+import static io.molr.commons.domain.MissionParameter.required;
+import static io.molr.commons.domain.Placeholder.anInteger;
+import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Lists;
-import org.assertj.core.util.Maps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -34,24 +34,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.common.collect.ImmutableSet;
 
+import io.molr.commons.domain.ListOfStrings;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionParameter;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import io.molr.commons.domain.dto.MissionParameterDto;
+import io.molr.commons.domain.dto.MissionRepresentationDto;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.server.conf.ObjectMapperConfig;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import static io.molr.commons.domain.MissionParameter.required;
-import static io.molr.commons.domain.Placeholder.anInteger;
-import static java.util.Collections.singleton;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = DEFINED_PORT)
-@ContextConfiguration(classes = {MolrMoleRestService.class, ObjectMapperConfig.class})
+@ContextConfiguration(classes = { MolrMoleRestService.class, ObjectMapperConfig.class })
 @EnableAutoConfiguration
 public class MolrMoleRestServiceTest {
 
@@ -61,8 +58,7 @@ public class MolrMoleRestServiceTest {
 
     @Autowired
     ExchangeStrategies exchangeStrategies;
-    
-    
+
     @MockBean
     Mole mole;
 
@@ -75,17 +71,16 @@ public class MolrMoleRestServiceTest {
         MissionParameterDescription parameterDescription = new MissionParameterDescription(singleton(parameter));
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription));
 
-        Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_STREAM_JSON)
-                .exchange()
+        Mono<MissionParameterDescriptionDto> remoteParameters = client.get().uri(uri)
+                .accept(MediaType.APPLICATION_STREAM_JSON).exchange()
                 .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
 
         MissionParameterDescriptionDto description = remoteParameters.block(Duration.ofSeconds(5));
         assertThat(description.parameters).hasSize(1);
-        assertThat(description.parameters).as("it should have null default value").anyMatch(param -> param.defaultValue == null);
+        assertThat(description.parameters).as("it should have null default value")
+                .anyMatch(param -> param.defaultValue == null);
     }
-    
+
     @Test
     public void testTransportedMissionParametersSupportRetrieveExtendedParameterDescription() {
 
@@ -107,13 +102,14 @@ public class MolrMoleRestServiceTest {
         MissionParameter<String[]> stringArrayParameter = required(
                 Placeholder.of(String[].class, "stringArrayParameter")).withDefault(Arrays.array("A", "B"))
                         .withAllowed(ImmutableSet.of(Arrays.array("A", "B")));
-        MissionParameter<String> stringParameter = required(Placeholder.of(String.class, "device")).withDefault("hello");
+        MissionParameter<String> stringParameter = required(Placeholder.of(String.class, "device"))
+                .withDefault("hello");
         MissionParameter<Integer> intParameter = required(Placeholder.of(Integer.class, "anInt")).withDefault(1);
-        MissionParameter<Long> longParameter = MissionParameter.optional(Placeholder.of(Long.class, "aLong")).withDefault(5L);
-        
+        MissionParameter<Long> longParameter = MissionParameter.optional(Placeholder.of(Long.class, "aLong"))
+                .withDefault(5L);
+
         MissionParameterDescription parameterDescription = new MissionParameterDescription(
-                ImmutableSet.of(stringArrayParameter, stringListParam, stringParameter, intParameter, longParameter),
-                Maps.newHashMap("strings", new ParameterRestriction("myRestriction")));
+                ImmutableSet.of(stringArrayParameter, stringListParam, stringParameter, intParameter, longParameter));
 
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription));
 
@@ -141,37 +137,36 @@ public class MolrMoleRestServiceTest {
             LOGGER.info(param.defaultValue().getClass().toString());
         });
 
+        //TODO remove on merge
+        //MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
 
-//TODO remove on merge
-//MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
-        
-//        Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
-//                .uri(uri)
-//                .accept(MediaType.APPLICATION_STREAM_JSON)
-//                .exchange()
-//                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
-//
-//        MissionParameterDescriptionDto retrievedDescriptionDto = remoteParameters.block();
-//        MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
-        
-//        System.out.println("dto: "+retrievedDescriptionDto.parameters);
-//        System.out.println("dto: "+retrievedDescription.parameters());
-//        
-//        assertThat(retrievedDescriptionDto.parameters).hasSize(1);
-//        retrievedDescription.parameters().forEach(param -> {
-//            
-//            System.out.println(param.placeholder().toString());
-//            LinkedHashMap<String, Object> linkedMap = (LinkedHashMap<String, Object>) param.defaultValue();
-//            System.out.println(linkedMap.get("values")+" "+linkedMap.get("values").getClass());
-//            System.out.println(param.defaultValue().getClass());
-////            System.out.println();
-//            ListOfStrings castedParams = (ListOfStrings) param.placeholder().type().cast(param.defaultValue());
-//            System.out.println("casted: "+castedParams.getName()+" "+castedParams.getValues());
-//            System.out.println(new ListOfStrings("hello"));
-//            System.out.println(param.defaultValue().getClass()+" "+param.defaultValue().equals(new ListOfStrings("hello")));
-//        });
-////        System.out.println(retrievedDescription.parameters();
-//        assertThat(retrievedDescription.parameters()).as("it should have null default value").anyMatch(param -> param.defaultValue().equals(new ListOfStrings("hello")));
+        //        Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
+        //                .uri(uri)
+        //                .accept(MediaType.APPLICATION_STREAM_JSON)
+        //                .exchange()
+        //                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
+        //
+        //        MissionParameterDescriptionDto retrievedDescriptionDto = remoteParameters.block();
+        //        MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
+
+        //        System.out.println("dto: "+retrievedDescriptionDto.parameters);
+        //        System.out.println("dto: "+retrievedDescription.parameters());
+        //        
+        //        assertThat(retrievedDescriptionDto.parameters).hasSize(1);
+        //        retrievedDescription.parameters().forEach(param -> {
+        //            
+        //            System.out.println(param.placeholder().toString());
+        //            LinkedHashMap<String, Object> linkedMap = (LinkedHashMap<String, Object>) param.defaultValue();
+        //            System.out.println(linkedMap.get("values")+" "+linkedMap.get("values").getClass());
+        //            System.out.println(param.defaultValue().getClass());
+        ////            System.out.println();
+        //            ListOfStrings castedParams = (ListOfStrings) param.placeholder().type().cast(param.defaultValue());
+        //            System.out.println("casted: "+castedParams.getName()+" "+castedParams.getValues());
+        //            System.out.println(new ListOfStrings("hello"));
+        //            System.out.println(param.defaultValue().getClass()+" "+param.defaultValue().equals(new ListOfStrings("hello")));
+        //        });
+        ////        System.out.println(retrievedDescription.parameters();
+        //        assertThat(retrievedDescription.parameters()).as("it should have null default value").anyMatch(param -> param.defaultValue().equals(new ListOfStrings("hello")));
     }
 
     @Test
@@ -180,12 +175,8 @@ public class MolrMoleRestServiceTest {
         WebClient client = WebClient.create(baseUrl);
         String uri = "mission/aMission/instantiate";
 
-        HttpStatus response = client.post()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(params))
-                .exchange()
-                .map(ClientResponse::statusCode).block();
+        HttpStatus response = client.post().uri(uri).accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromObject(params)).exchange().map(ClientResponse::statusCode).block();
         assertThat(response).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -194,11 +185,10 @@ public class MolrMoleRestServiceTest {
         String uri = "mission/aMission/representation";
         MissionRepresentationDto representation;
         WebClient client = WebClient.create(baseUrl);
-        when(mole.representationOf(any(Mission.class))).thenThrow(new IllegalArgumentException("No mission of that name for this mole"));
+        when(mole.representationOf(any(Mission.class)))
+                .thenThrow(new IllegalArgumentException("No mission of that name for this mole"));
 
-        HttpStatus responseStatus = client.get().uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
+        HttpStatus responseStatus = client.get().uri(uri).accept(MediaType.APPLICATION_JSON).exchange()
                 .map(ClientResponse::statusCode).block();
 
         assertThat(responseStatus).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -208,13 +198,9 @@ public class MolrMoleRestServiceTest {
     public void accessServerWithWrongUri() {
         WebClient client = WebClient.create(baseUrl);
         String uri = "mission/avail";
-        HttpStatus response = client.get()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
+        HttpStatus response = client.get().uri(uri).accept(MediaType.APPLICATION_JSON).exchange()
                 .map(ClientResponse::statusCode).block();
         assertThat(response).isEqualTo(HttpStatus.NOT_FOUND);
     }
-
 
 }

@@ -1,27 +1,17 @@
 package io.molr.commons.domain;
 
-import com.google.common.collect.ImmutableSet;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
+import com.google.common.collect.ImmutableSet;
 
 public final class MissionParameterDescription {
 
     private final Set<MissionParameter<?>> parameters;
-    
-    public final Map<String, ParameterRestriction> restrictions;
 
     public MissionParameterDescription(Set<MissionParameter<?>> parameters) {
-        this.restrictions = null;
-        this.parameters = ImmutableSet.copyOf(requireNonNull(parameters, "parameters must not be null"));
-    }
-    
-    public MissionParameterDescription(Set<MissionParameter<?>> parameters, Map<String, ParameterRestriction> restrictions) {
-        this.restrictions = restrictions;
         this.parameters = ImmutableSet.copyOf(requireNonNull(parameters, "parameters must not be null"));
     }
 
@@ -39,8 +29,10 @@ public final class MissionParameterDescription {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         MissionParameterDescription that = (MissionParameterDescription) o;
         return Objects.equals(parameters, that.parameters);
     }
@@ -52,8 +44,6 @@ public final class MissionParameterDescription {
 
     @Override
     public String toString() {
-        return "MissionParameterDescription{" +
-                "parameters=" + parameters +
-                '}';
+        return "MissionParameterDescription{" + "parameters=" + parameters + '}';
     }
 }
