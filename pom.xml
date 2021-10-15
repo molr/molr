@@ -1,77 +1,76 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>io.molr</groupId>
-    <artifactId>molr</artifactId>
-    <version>${revision}</version>
-    <packaging>pom</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.molr</groupId>
+	<artifactId>molr</artifactId>
+	<version>${revision}</version>
+	<packaging>pom</packaging>
 
-    <name>molr</name>
-    <url>http://maven.apache.org</url>
+	<name>molr</name>
+	<url>http://maven.apache.org</url>
 
 
-    <repositories>
-        <repository>
-            <id>jcenter</id>
-            <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<repository>
+			<id>jcenter</id>
+			<name>bintray</name>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
 
 	<distributionManagement>
-		<repository>
-			<id>csco</id>
-			<name>GSI CSCO</name>
-			<url>https://artifacts.acc.gsi.de/nexus/content/repositories/csco</url>
-		</repository>
 		<snapshotRepository>
-			<id>csco-snapshot</id>
-			<name>GSI CSCO snapshot</name>
-			<url>https://artifacts.acc.gsi.de/nexus/content/repositories/csco-snapshot</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
 	</distributionManagement>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>0.3.14-GSI-SNAPSHOT</revision>
-        <spring.version>5.2.9.RELEASE</spring.version>
-        <spring.boot.version>2.2.10.RELEASE</spring.boot.version>
-        <reactor.version>3.3.10.RELEASE</reactor.version>
-    </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<revision>0.3.14-GSI-SNAPSHOT</revision>
+		<spring.version>5.2.9.RELEASE</spring.version>
+		<spring.boot.version>2.2.10.RELEASE</spring.boot.version>
+		<reactor.version>3.3.10.RELEASE</reactor.version>
+	</properties>
 
 
-    <modules>
-        <module>molr-commons</module>
-        <module>molr-mole-core</module>
-        <module>molr-mole-remote</module>
-        <module>molr-mole-server</module>
-    </modules>
+	<modules>
+		<module>molr-commons</module>
+		<module>molr-mole-core</module>
+		<module>molr-mole-remote</module>
+		<module>molr-mole-server</module>
+	</modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.openjdk.jol</groupId>
-            <artifactId>jol-core</artifactId>
-            <version>0.9</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.openjdk.jol</groupId>
+			<artifactId>jol-core</artifactId>
+			<version>0.9</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.6.1</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>detect</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-		    <plugin>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.6.1</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>detect</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
 				<version>1.1.0</version>
@@ -95,19 +94,19 @@
 						</goals>
 					</execution>
 				</executions>
-	    	</plugin>
-	    	
-	    	<plugin>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -121,27 +120,27 @@
 					</execution>
 				</executions>
 			</plugin>
-        </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
-                </plugin>
-	                <plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<configuration>
-						<source>8</source>					
+						<source>8</source>
 					</configuration>
 				</plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 </project>
 
