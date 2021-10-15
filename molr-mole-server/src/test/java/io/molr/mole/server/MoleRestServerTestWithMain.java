@@ -1,10 +1,11 @@
 package io.molr.mole.server;
 
-import io.molr.commons.domain.dto.TestValueDto;
+import java.io.IOException;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.IOException;
+import io.molr.commons.domain.dto.TestValueDto;
 
 public class MoleRestServerTestWithMain {
 

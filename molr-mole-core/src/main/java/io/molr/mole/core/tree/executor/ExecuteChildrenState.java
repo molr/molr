@@ -1,5 +1,7 @@
 package io.molr.mole.core.tree.executor;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,14 +9,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.ExecutionStrategy;
-import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 

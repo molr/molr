@@ -1,8 +1,8 @@
 package io.molr.commons.domain;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.Objects;
 
 public final class MissionInstance {
 

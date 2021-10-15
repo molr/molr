@@ -1,15 +1,17 @@
 package io.molr.mole.core.runnable.exec;
 
-import com.google.common.collect.ImmutableMap;
-import io.molr.commons.domain.*;
-import io.molr.mole.core.tree.LeafExecutor;
-import io.molr.mole.core.tree.MissionOutputCollector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.function.BiConsumer;
+
+import com.google.common.collect.ImmutableMap;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.MissionInput;
+import io.molr.commons.domain.Out;
+import io.molr.commons.domain.Result;
+import io.molr.mole.core.tree.LeafExecutor;
+import io.molr.mole.core.tree.MissionOutputCollector;
 
 /**
  * Leaf executor that relates {@link Runnable} with {@link Block} for the leaf execution logic.

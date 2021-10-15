@@ -1,12 +1,12 @@
 package io.molr.commons.domain;
 
-import com.google.common.collect.ImmutableMap;
+import static java.util.Collections.emptyMap;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Collections.emptyMap;
+import com.google.common.collect.ImmutableMap;
 
 public final class MissionOutput {
 

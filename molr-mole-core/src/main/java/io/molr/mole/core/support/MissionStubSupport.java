@@ -1,7 +1,12 @@
 package io.molr.mole.core.support;
 
 import io.molr.commons.domain.Mission;
-import io.molr.mole.core.support.domain.*;
+import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub1;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
+import io.molr.mole.core.support.domain.VoidStub1;
+import io.molr.mole.core.support.domain.VoidStub2;
 
 
 /**

@@ -1,9 +1,5 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.ImmutableMissionRepresentation;
-import io.molr.commons.domain.MissionRepresentation;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ImmutableMissionRepresentation;
+import io.molr.commons.domain.MissionRepresentation;
 
 /**
  * TODO #1 consider merging with MissionRepresentation

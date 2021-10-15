@@ -1,14 +1,16 @@
 package io.molr.mole.core.runnable.demo.conf;
 
-import io.molr.commons.domain.BlockAttribute;
-import io.molr.commons.domain.ExecutionStrategy;
-import io.molr.commons.domain.ListOfStrings;
-import io.molr.commons.domain.Placeholder;
-import io.molr.commons.domain.Placeholders;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.SimpleBranch;
-import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
-import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import static io.molr.commons.domain.BlockAttribute.BREAK;
+import static io.molr.commons.domain.BlockAttribute.IGNORE;
+import static io.molr.commons.domain.Placeholder.aDouble;
+import static io.molr.commons.domain.Placeholder.aLong;
+import static io.molr.commons.domain.Placeholder.aString;
+import static io.molr.commons.domain.Placeholder.anInteger;
+
+import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -17,13 +19,14 @@ import org.springframework.context.annotation.Configuration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import static io.molr.commons.domain.Placeholder.*;
-import static io.molr.commons.domain.BlockAttribute.BREAK;
-import static io.molr.commons.domain.BlockAttribute.IGNORE;
-
-import java.text.MessageFormat;
-import java.util.HashSet;
-import java.util.Set;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.ListOfStrings;
+import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 
 @Configuration
 public class DemoRunnableLeafsConfiguration {

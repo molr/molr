@@ -1,14 +1,14 @@
 package io.molr.mole.core.testing.strand;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.common.collect.ImmutableList;
 
 import io.molr.mole.core.tree.StrandExecutor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Simple class that keeps track of the exceptions published by a {@link StrandExecutor}

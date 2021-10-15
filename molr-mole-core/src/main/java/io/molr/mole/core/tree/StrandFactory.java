@@ -1,8 +1,8 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.Strand;
-
 import java.util.Optional;
+
+import io.molr.commons.domain.Strand;
 
 public interface StrandFactory {
 

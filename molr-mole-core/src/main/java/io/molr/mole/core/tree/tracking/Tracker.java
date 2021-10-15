@@ -1,8 +1,8 @@
 package io.molr.mole.core.tree.tracking;
 
-import io.molr.commons.domain.Block;
-
 import java.util.Map;
+
+import io.molr.commons.domain.Block;
 
 public interface Tracker<T> {
 

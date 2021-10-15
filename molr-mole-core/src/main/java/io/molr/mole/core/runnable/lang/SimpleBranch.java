@@ -1,13 +1,13 @@
 package io.molr.mole.core.runnable.lang;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.Placeholder;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
 

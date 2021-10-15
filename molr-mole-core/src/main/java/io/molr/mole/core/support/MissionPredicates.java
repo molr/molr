@@ -1,8 +1,8 @@
 package io.molr.mole.core.support;
 
-import io.molr.commons.domain.RunState;
-
 import java.util.function.Predicate;
+
+import io.molr.commons.domain.RunState;
 
 /**
  * A general purpose validator for objects.

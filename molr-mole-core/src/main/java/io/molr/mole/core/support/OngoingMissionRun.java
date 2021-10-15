@@ -1,17 +1,22 @@
 package io.molr.mole.core.support;
 
 
-import io.molr.commons.domain.*;
-import io.molr.mole.core.api.Mole;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
+import static java.util.Objects.requireNonNull;
 
 import java.time.Duration;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
-import static java.util.Objects.requireNonNull;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.api.Mole;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Provides capabilities to control an ongoing mission run

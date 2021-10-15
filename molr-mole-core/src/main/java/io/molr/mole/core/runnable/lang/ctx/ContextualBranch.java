@@ -1,18 +1,15 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
-
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Placeholder;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.runnable.lang.ForeachBranchProvidingAbstractBranch;
-import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
-import io.molr.mole.core.runnable.lang.GenericOngoingLeaf;
 import io.molr.mole.core.runnable.lang.OngoingForeachLeaf;
 
 public class ContextualBranch<C> extends ForeachBranchProvidingAbstractBranch {

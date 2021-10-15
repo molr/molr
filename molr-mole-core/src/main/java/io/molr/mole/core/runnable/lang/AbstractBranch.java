@@ -1,5 +1,17 @@
 package io.molr.mole.core.runnable.lang;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.assertj.core.api.Assertions;
+
+import com.google.common.collect.ImmutableMap;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.In;
@@ -10,19 +22,6 @@ import io.molr.mole.core.runnable.ContextConfiguration;
 import io.molr.mole.core.runnable.ForEachConfiguration;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.utils.Checkeds;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.assertj.core.api.Assertions;
-
-import com.google.common.collect.ImmutableMap;
-
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
-import java.util.Set;
 
 public abstract class AbstractBranch {
 

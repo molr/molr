@@ -1,15 +1,20 @@
 package io.molr.mole.core.support;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
+
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.support.domain.*;
+import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub1;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
+import io.molr.mole.core.support.domain.VoidStub1;
+import io.molr.mole.core.support.domain.VoidStub2;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Provides convenience methods for simple ways of running missions. It might have to be seen later, if some of them

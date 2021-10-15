@@ -1,26 +1,31 @@
 package io.molr.mole.core.support;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionHandle;
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.single.SingleNodeMission;
-import io.molr.mole.core.single.SingleNodeMole;
-import io.molr.mole.core.support.domain.*;
-
-import org.assertj.core.util.Maps;
-import org.junit.Before;
-import org.junit.Test;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-
 import static io.molr.commons.domain.Placeholder.aDouble;
 import static io.molr.commons.domain.Placeholder.aString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.assertj.core.util.Maps;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.single.SingleNodeMission;
+import io.molr.mole.core.single.SingleNodeMole;
+import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub1;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
+import io.molr.mole.core.support.domain.VoidStub1;
+import io.molr.mole.core.support.domain.VoidStub2;
+import reactor.core.publisher.Mono;
 
 public class MissionControlSupportTest {
 

@@ -1,14 +1,14 @@
 package io.molr.mole.core.support.domain;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.Placeholder;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Objects.requireNonNull;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.Placeholder;
 
 /**
  * Provides capabilities to Missions Stubs for accessing data and generating parameters

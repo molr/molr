@@ -1,16 +1,16 @@
 package io.molr.mole.core.runnable.lang;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.In;
-import io.molr.commons.domain.Placeholder;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-
 import static io.molr.mole.core.runnable.lang.BranchMode.PARALLEL;
 import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
 import java.util.function.Function;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 public abstract class GenericOngoingBranch<B extends GenericOngoingBranch<B>> extends OngoingNode<B> {
 

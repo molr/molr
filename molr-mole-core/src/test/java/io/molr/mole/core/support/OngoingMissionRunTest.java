@@ -1,5 +1,19 @@
 package io.molr.mole.core.support;
 
+import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.MissionState;
 import io.molr.commons.domain.Result;
@@ -7,17 +21,6 @@ import io.molr.commons.domain.RunState;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.single.SingleNodeMission;
 import io.molr.mole.core.single.SingleNodeMole;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 public class OngoingMissionRunTest {
 

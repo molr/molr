@@ -4,11 +4,20 @@
 
 package io.molr.commons.domain;
 
-import com.google.common.collect.*;
-
-import java.util.*;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 
 public final class MissionState {
     private final Result result;

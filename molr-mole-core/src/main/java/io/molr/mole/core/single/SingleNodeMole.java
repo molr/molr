@@ -1,19 +1,19 @@
 package io.molr.mole.core.single;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionParameterDescription;
-import io.molr.commons.domain.MissionRepresentation;
-import io.molr.mole.core.tree.AbstractJavaMole;
-import io.molr.mole.core.tree.MissionExecutor;
+import static com.google.common.collect.ImmutableMap.copyOf;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableMap.copyOf;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.mole.core.tree.AbstractJavaMole;
+import io.molr.mole.core.tree.MissionExecutor;
 
 public class SingleNodeMole extends AbstractJavaMole {
 

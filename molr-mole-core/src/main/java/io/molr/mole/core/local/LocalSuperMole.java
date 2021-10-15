@@ -4,12 +4,11 @@
 
 package io.molr.mole.core.local;
 
-import io.molr.commons.domain.*;
-import io.molr.mole.core.api.Mole;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
+import static io.molr.commons.util.Exceptions.illegalArgumentException;
+import static io.molr.mole.core.utils.ThreadFactories.namedDaemonThreadFactory;
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,11 +20,24 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static io.molr.commons.util.Exceptions.illegalArgumentException;
-import static io.molr.mole.core.utils.ThreadFactories.namedDaemonThreadFactory;
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import io.molr.commons.domain.AgencyState;
+import io.molr.commons.domain.BlockCommand;
+import io.molr.commons.domain.ImmutableAgencyState;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionCommand;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.commons.domain.MissionInstance;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.api.Mole;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * This is probably the most simple agency possible: it is employing several moles, instantiating a mission on the first

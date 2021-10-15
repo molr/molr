@@ -1,18 +1,19 @@
 package io.molr.mole.core.tree;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.Placeholder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.ReplayProcessor;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ConcurrentMissionOutputCollector implements MissionOutputCollector {
 

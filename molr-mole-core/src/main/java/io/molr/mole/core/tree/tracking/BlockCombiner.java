@@ -1,13 +1,13 @@
 package io.molr.mole.core.tree.tracking;
 
-import reactor.core.publisher.Flux;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
+import reactor.core.publisher.Flux;
 
 public class BlockCombiner<T> implements BlockTracker<T> {
 

@@ -1,14 +1,18 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static io.molr.commons.domain.Result.FAILED;
 import static io.molr.commons.domain.Result.SUCCESS;
 import static io.molr.commons.util.Exceptions.stackTraceFrom;
 
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.MissionInput;
+import io.molr.commons.domain.Placeholders;
+import io.molr.commons.domain.Result;
 
 public abstract class LeafExecutor {
 

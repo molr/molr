@@ -1,17 +1,16 @@
 package io.molr.mole.core.runnable.lang;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.In;
-import io.molr.commons.domain.Placeholder;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
+import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 public class OngoingSimpleBranch extends OngoingContextualOptionProvidingBranch<OngoingSimpleBranch> {
 

@@ -1,5 +1,15 @@
 package io.molr.mole.core.runnable.lang;
 
+import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
@@ -9,18 +19,6 @@ import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.Placeholders;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An abstract class which is intended to describe a tree of runnables, which can be used as simple test case for

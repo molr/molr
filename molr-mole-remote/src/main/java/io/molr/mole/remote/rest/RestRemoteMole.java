@@ -1,21 +1,37 @@
 package io.molr.mole.remote.rest;
 
-import io.molr.commons.domain.*;
-import io.molr.commons.domain.dto.*;
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.api.MoleWebApi;
+import static java.util.Objects.requireNonNull;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
+import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
+
+import io.molr.commons.domain.AgencyState;
+import io.molr.commons.domain.BlockCommand;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionCommand;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.commons.domain.dto.AgencyStateDto;
+import io.molr.commons.domain.dto.MissionHandleDto;
+import io.molr.commons.domain.dto.MissionOutputDto;
+import io.molr.commons.domain.dto.MissionParameterDescriptionDto;
+import io.molr.commons.domain.dto.MissionRepresentationDto;
+import io.molr.commons.domain.dto.MissionStateDto;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.api.MoleWebApi;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
-import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
 public class RestRemoteMole implements Mole {
 

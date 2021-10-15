@@ -1,15 +1,16 @@
 package io.molr.mole.core.utils;
 
-import io.molr.commons.domain.Block;
-import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.tracking.TreeTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.molr.commons.domain.Block;
+import io.molr.mole.core.tree.TreeStructure;
+import io.molr.mole.core.tree.tracking.TreeTracker;
 
 public class Trees {
 

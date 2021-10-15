@@ -1,13 +1,25 @@
 package io.molr.mole.core.support;
 
-import io.molr.mole.core.support.domain.*;
-import org.junit.Test;
+import static io.molr.commons.domain.Placeholder.aBoolean;
+import static io.molr.commons.domain.Placeholder.aDouble;
+import static io.molr.commons.domain.Placeholder.aString;
+import static io.molr.commons.domain.Placeholder.anInteger;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import static io.molr.commons.domain.Placeholder.*;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub1;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
+import io.molr.mole.core.support.domain.VoidStub1;
+import io.molr.mole.core.support.domain.VoidStub2;
 
 public class MissionStubsTest {
 

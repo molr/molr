@@ -1,7 +1,9 @@
 package io.molr.mole.remote.rest;
 
-import io.molr.commons.domain.dto.MissionParameterDto;
-import io.molr.commons.exception.MolrRemoteException;
+import static io.molr.commons.util.Exceptions.exception;
+import static java.util.Objects.requireNonNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +20,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import io.molr.commons.domain.dto.MissionParameterDto;
+import io.molr.commons.exception.MolrRemoteException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.PrematureCloseException;
-
-import static io.molr.commons.util.Exceptions.exception;
-import static java.util.Objects.requireNonNull;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 
 public class MoleWebClient {
 

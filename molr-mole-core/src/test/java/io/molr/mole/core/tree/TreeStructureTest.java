@@ -1,15 +1,16 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.Block;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import io.molr.mole.core.utils.Trees;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import io.molr.commons.domain.Block;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import io.molr.mole.core.utils.Trees;
 
 public class TreeStructureTest {
 

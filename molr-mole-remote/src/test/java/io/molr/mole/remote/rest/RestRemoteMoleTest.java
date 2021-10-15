@@ -1,10 +1,22 @@
 package io.molr.mole.remote.rest;
 
-import io.molr.commons.domain.*;
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
-import io.molr.mole.core.tree.MissionOutputCollector;
-import io.molr.mole.server.rest.MolrMoleRestService;
+import static io.molr.commons.domain.Placeholder.aString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,20 +31,27 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.Lists;
 
+import io.molr.commons.domain.AgencyState;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.ImmutableAgencyState;
+import io.molr.commons.domain.ImmutableMissionRepresentation;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionParameter;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
+import io.molr.mole.core.tree.MissionOutputCollector;
+import io.molr.mole.server.rest.MolrMoleRestService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static io.molr.commons.domain.Placeholder.aString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = DEFINED_PORT)

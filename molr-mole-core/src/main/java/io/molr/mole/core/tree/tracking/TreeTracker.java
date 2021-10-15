@@ -1,16 +1,22 @@
 package io.molr.mole.core.tree.tracking;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.MissionRepresentation;
-import reactor.core.publisher.Flux;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.MissionRepresentation;
+import reactor.core.publisher.Flux;
 
 public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 

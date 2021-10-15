@@ -1,13 +1,14 @@
 package io.molr.mole.core.conf;
 
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.local.LocalSuperMole;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.util.Set;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.local.LocalSuperMole;
 
 @Configuration
 public class LocalSuperMoleConfiguration {

@@ -1,5 +1,14 @@
 package io.molr.mole.core.testing.strand;
 
+import java.time.Duration;
+import java.util.Set;
+
+import org.assertj.core.api.AbstractComparableAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.IterableAssert;
+import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.ObjectAssert;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
@@ -7,10 +16,6 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.tree.StrandExecutor;
 import io.molr.mole.core.tree.executor.ConcurrentStrandExecutor;
 import io.molr.mole.core.tree.tracking.TreeTracker;
-import org.assertj.core.api.*;
-
-import java.time.Duration;
-import java.util.Set;
 
 /**
  * Provides support default methods for testing strand executor behaviour

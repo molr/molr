@@ -4,9 +4,9 @@
 
 package io.molr.commons.domain;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.Objects;
 
 /**
  * One 'story line' within a mission. A mission might split up in different strands, of which each of them can have its

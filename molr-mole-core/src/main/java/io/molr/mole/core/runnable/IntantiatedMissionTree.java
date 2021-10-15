@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.BlockAttribute;

@@ -1,17 +1,18 @@
 package io.molr.mole.core.testing.strand;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.Result;
-import io.molr.commons.domain.RunState;
-import io.molr.commons.domain.StrandCommand;
-import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.StrandExecutor;
-import io.molr.mole.core.tree.tracking.TreeTracker;
+import java.util.Set;
+
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.IterableAssert;
 import org.assertj.core.api.ObjectAssert;
 
-import java.util.Set;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.tree.StrandExecutor;
+import io.molr.mole.core.tree.TreeStructure;
+import io.molr.mole.core.tree.tracking.TreeTracker;
 
 /**
  * Provides support methods for tests that act on one specific {@link StrandExecutor} and mission. This condition makes

@@ -1,5 +1,14 @@
 package io.molr.commons.domain.dto;
 
+import static io.molr.commons.util.Exceptions.illegalArgumentException;
+import static io.molr.commons.util.Exceptions.illegalStateException;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
@@ -9,17 +18,6 @@ import com.google.common.collect.Maps;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Placeholder;
-
-import java.util.Map;
-import java.util.Objects;
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-
-import static io.molr.commons.util.Exceptions.illegalArgumentException;
-import static io.molr.commons.util.Exceptions.illegalStateException;
 
 public class MissionParameterDto<T> {
 

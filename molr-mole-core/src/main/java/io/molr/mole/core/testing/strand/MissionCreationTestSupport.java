@@ -1,7 +1,8 @@
 package io.molr.mole.core.testing.strand;
 
-import io.molr.mole.core.runnable.lang.SimpleBranch;
 import org.slf4j.Logger;
+
+import io.molr.mole.core.runnable.lang.SimpleBranch;
 
 public interface MissionCreationTestSupport {
 

@@ -1,10 +1,10 @@
 package io.molr.commons.domain;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.google.common.collect.ImmutableMap;
 
 public abstract class AbstractTypedValueContainer implements TypedValueContainer {
 

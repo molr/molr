@@ -1,12 +1,8 @@
 package io.molr.mole.core.tree.executor;
 
-import java.util.List;
 import java.util.Set;
 
 import io.molr.commons.domain.Block;
-import io.molr.commons.domain.BlockAttribute;
-import io.molr.commons.domain.ExecutionStrategy;
-import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.tree.TreeStructure;

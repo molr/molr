@@ -1,21 +1,20 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.In;
-import io.molr.commons.domain.Placeholder;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.BranchMode;
-import io.molr.mole.core.runnable.lang.OngoingContextualOptionProvidingBranch;
-import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
+import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
+import io.molr.mole.core.runnable.lang.BranchMode;
+import io.molr.mole.core.runnable.lang.OngoingContextualOptionProvidingBranch;
 
 public class OngoingContextualBranch<C> extends OngoingContextualOptionProvidingBranch<OngoingContextualBranch<C>> {
 

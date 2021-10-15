@@ -1,12 +1,12 @@
 package io.molr.commons.util;
 
-import org.slf4j.helpers.FormattingTuple;
+import static org.slf4j.helpers.MessageFormatter.arrayFormat;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 
-import static org.slf4j.helpers.MessageFormatter.arrayFormat;
+import org.slf4j.helpers.FormattingTuple;
 
 public class Exceptions {
 

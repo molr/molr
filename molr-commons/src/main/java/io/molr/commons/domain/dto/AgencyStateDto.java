@@ -1,14 +1,14 @@
 package io.molr.commons.domain.dto;
 
-import io.molr.commons.domain.AgencyState;
-import io.molr.commons.domain.ImmutableAgencyState;
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.MissionInstance;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import io.molr.commons.domain.AgencyState;
+import io.molr.commons.domain.ImmutableAgencyState;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionInstance;
 
 public class AgencyStateDto {
 

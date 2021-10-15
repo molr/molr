@@ -1,15 +1,14 @@
 package io.molr.commons.domain;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
-import static java.util.Objects.requireNonNull;
-
-import java.util.Collection;
-import java.util.Map;
 
 public final class MissionParameter<T> {
 

@@ -1,10 +1,10 @@
 package io.molr.mole.core.tree;
 
+import static java.util.Objects.requireNonNull;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Out;
 import io.molr.commons.domain.Placeholder;
-
-import static java.util.Objects.requireNonNull;
 
 public class BlockOutputCollector implements Out {
 

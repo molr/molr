@@ -1,23 +1,34 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.*;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.BlockCommand;
+import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.MissionCommand;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.tree.executor.StrandExecutorFactory;
 import io.molr.mole.core.tree.tracking.Tracker;
 import io.molr.mole.core.tree.tracking.TreeTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-
-import java.time.Duration;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Keeps track of the state of the execution of one mission instance. It assumes a tree of execution blocks, can execute

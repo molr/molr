@@ -1,12 +1,13 @@
 package io.molr.mole.core.single.conf;
 
-import io.molr.mole.core.single.SingleNodeMission;
-import io.molr.mole.core.single.SingleNodeMole;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Set;
+import io.molr.mole.core.single.SingleNodeMission;
+import io.molr.mole.core.single.SingleNodeMole;
 
 @Configuration
 public class SingleNodeMoleConfiguration {

@@ -1,30 +1,14 @@
 package io.molr.mole.core.tree.executor;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.ResultStates;
-import io.molr.mole.core.runnable.RunStates;
-import io.molr.mole.core.tree.LeafExecutor;
-import io.molr.mole.core.tree.QueuedCommand;
-import io.molr.mole.core.tree.StrandExecutor;
-import io.molr.mole.core.tree.TreeNodeStates;
-import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.exception.RejectedCommandException;
-import io.molr.mole.core.utils.ThreadFactories;
+import static io.molr.commons.domain.RunState.FINISHED;
+import static io.molr.commons.util.Exceptions.exception;
+import static java.util.Objects.requireNonNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.EmitterProcessor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
-import java.util.Map;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -35,11 +19,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.molr.commons.domain.RunState.*;
-import static io.molr.commons.util.Exceptions.exception;
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.runnable.ResultStates;
+import io.molr.mole.core.runnable.RunStates;
+import io.molr.mole.core.tree.LeafExecutor;
+import io.molr.mole.core.tree.QueuedCommand;
+import io.molr.mole.core.tree.StrandExecutor;
+import io.molr.mole.core.tree.TreeNodeStates;
+import io.molr.mole.core.tree.TreeStructure;
+import io.molr.mole.core.tree.exception.RejectedCommandException;
+import io.molr.mole.core.utils.ThreadFactories;
+import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate

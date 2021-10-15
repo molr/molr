@@ -2,13 +2,10 @@ package io.molr.mole.core.tree.executor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;

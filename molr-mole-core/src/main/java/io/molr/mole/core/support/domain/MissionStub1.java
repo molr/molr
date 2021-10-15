@@ -1,9 +1,9 @@
 package io.molr.mole.core.support.domain;
 
+import java.util.Map;
+
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.Placeholder;
-
-import java.util.Map;
 
 /**
  * Represents a {@link Mission} which accepts one parameter and returns a value

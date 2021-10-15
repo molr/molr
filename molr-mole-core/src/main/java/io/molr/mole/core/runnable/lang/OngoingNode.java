@@ -1,19 +1,20 @@
 package io.molr.mole.core.runnable.lang;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.BlockAttribute;
-import io.molr.commons.domain.In;
-import io.molr.commons.domain.Placeholder;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
+import static java.util.Objects.requireNonNull;
 
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.In;
+import io.molr.commons.domain.Placeholder;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
 
 public class OngoingNode<N extends OngoingNode<N>> {
 
