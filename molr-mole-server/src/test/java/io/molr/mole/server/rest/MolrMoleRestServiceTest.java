@@ -89,16 +89,10 @@ public class MolrMoleRestServiceTest {
 
         Placeholder.of(ListOfStrings.class, "anArrayListOfStrings");
 
-        // MissionParameter<List<String>> stringListParam = required(Placeholder.of((Class<List<String>>)new
-        // ArrayList<String>().getClass(), "stringArrayList")).withDefault(Lists.newArrayList("hello"));
         ListOfStrings defaultValue = new ListOfStrings(Lists.newArrayList("hello"));
         MissionParameter<ListOfStrings> stringListParam = required(Placeholder.aListOfStrings("stringArrayList"))
                 .withDefault(defaultValue);
-        // MissionParameter<ListOfStringsFirstApproach> parameter =
-        // required(Placeholder.of(ListOfStringsFirstApproach.class, "devices")).withDefault(new
-        // ListOfStringsFirstApproach("hello")).withAllowed(ImmutableSet.of());
-        // MissionParameter<String[]> parameter2 = required(Placeholder.of(String[].class,
-        // "devices2")).withDefault(Arrays.array("hellos", "mello"));
+
         MissionParameter<String[]> stringArrayParameter = required(
                 Placeholder.of(String[].class, "stringArrayParameter")).withDefault(Arrays.array("A", "B"))
                         .withAllowed(ImmutableSet.of(Arrays.array("A", "B")));
@@ -137,36 +131,6 @@ public class MolrMoleRestServiceTest {
             LOGGER.info(param.defaultValue().getClass().toString());
         });
 
-        //TODO remove on merge
-        //MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
-
-        //        Mono<MissionParameterDescriptionDto> remoteParameters = client.get()
-        //                .uri(uri)
-        //                .accept(MediaType.APPLICATION_STREAM_JSON)
-        //                .exchange()
-        //                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
-        //
-        //        MissionParameterDescriptionDto retrievedDescriptionDto = remoteParameters.block();
-        //        MissionParameterDescription retrievedDescription = retrievedDescriptionDto.toMissionParameterDescription();
-
-        //        System.out.println("dto: "+retrievedDescriptionDto.parameters);
-        //        System.out.println("dto: "+retrievedDescription.parameters());
-        //        
-        //        assertThat(retrievedDescriptionDto.parameters).hasSize(1);
-        //        retrievedDescription.parameters().forEach(param -> {
-        //            
-        //            System.out.println(param.placeholder().toString());
-        //            LinkedHashMap<String, Object> linkedMap = (LinkedHashMap<String, Object>) param.defaultValue();
-        //            System.out.println(linkedMap.get("values")+" "+linkedMap.get("values").getClass());
-        //            System.out.println(param.defaultValue().getClass());
-        ////            System.out.println();
-        //            ListOfStrings castedParams = (ListOfStrings) param.placeholder().type().cast(param.defaultValue());
-        //            System.out.println("casted: "+castedParams.getName()+" "+castedParams.getValues());
-        //            System.out.println(new ListOfStrings("hello"));
-        //            System.out.println(param.defaultValue().getClass()+" "+param.defaultValue().equals(new ListOfStrings("hello")));
-        //        });
-        ////        System.out.println(retrievedDescription.parameters();
-        //        assertThat(retrievedDescription.parameters()).as("it should have null default value").anyMatch(param -> param.defaultValue().equals(new ListOfStrings("hello")));
     }
 
     @Test
