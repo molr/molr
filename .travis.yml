@@ -6,7 +6,8 @@ before_install:
 - chmod +x mvn-demo.sh
 script:
 - ./mvn-demo.sh
-deploy: skip
+deploy:
+- mvn clean deploy 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
