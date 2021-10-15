@@ -64,8 +64,8 @@ public class RestRemoteMoleTest {
     public static final Block BLOCK1 = Block.idAndText("blockId1", "text");
     public static final Strand STRAND1 = Strand.ofId("strandId");
     public static final Strand STRAND2 = Strand.ofId("strandId2");
-    public static final MissionRepresentation AN_EMPTY_REPRESENTATION = ImmutableMissionRepresentation.empty("anEmpty representation");
-
+    public static final MissionRepresentation AN_EMPTY_REPRESENTATION = ImmutableMissionRepresentation
+            .empty("anEmpty representation");
 
     private final String baseUrl = "http://localhost:8800";
 
@@ -77,11 +77,14 @@ public class RestRemoteMoleTest {
         Set<Mission> missions = new HashSet<>();
         missions.add(new Mission("run a Marathon"));
         missions.add(new Mission("swim 10km"));
-        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter").withAllowed(Lists.newArrayList("Test parameter"));
-        MissionParameterDescription parameterDescription = new MissionParameterDescription(Collections.singleton(param));
+        MissionParameter<?> param = MissionParameter.required(aString("testValue")).withDefault("Test parameter")
+                .withAllowed(Lists.newArrayList("Test parameter"));
+        MissionParameterDescription parameterDescription = new MissionParameterDescription(
+                Collections.singleton(param));
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription).cache());
 
-        when(mole.states()).thenReturn(Flux.<AgencyState>just(ImmutableAgencyState.of(missions, Collections.emptySet())).cache());
+        when(mole.states())
+                .thenReturn(Flux.<AgencyState> just(ImmutableAgencyState.of(missions, Collections.emptySet())).cache());
         when(mole.representationOf(any(Mission.class))).thenReturn(Mono.just(AN_EMPTY_REPRESENTATION).cache());
 
         when(mole.representationsFor(any(MissionHandle.class))).thenReturn(Flux.just(AN_EMPTY_REPRESENTATION));
@@ -100,7 +103,6 @@ public class RestRemoteMoleTest {
         Flux<MissionOutput> outputValue = outputCollector.asStream();
         when(mole.outputsFor(any(MissionHandle.class))).thenReturn(outputValue);
     }
-
 
     @Test
     public void availableMissions() {
@@ -144,7 +146,8 @@ public class RestRemoteMoleTest {
     @Test
     public void parameterDescriptionOf() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        MissionParameterDescription parameterDescription = remoteMole.parameterDescriptionOf(new Mission("run a Marathon")).block();
+        MissionParameterDescription parameterDescription = remoteMole
+                .parameterDescriptionOf(new Mission("run a Marathon")).block();
         Optional<MissionParameter<?>> parameter = parameterDescription.parameters().stream().findFirst();
         assertThat(parameter.isPresent()).isTrue();
         assertThat(parameter.get().isRequired()).isTrue();
@@ -155,7 +158,8 @@ public class RestRemoteMoleTest {
     @Test(expected = IllegalArgumentException.class)
     public void parameterDescriptionReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        when(mole.parameterDescriptionOf(any())).thenThrow(new IllegalArgumentException("the mole is returning an error"));
+        when(mole.parameterDescriptionOf(any()))
+                .thenThrow(new IllegalArgumentException("the mole is returning an error"));
         remoteMole.parameterDescriptionOf(new Mission("run a Marathon"));
     }
 
@@ -173,8 +177,7 @@ public class RestRemoteMoleTest {
     @Test(expected = IllegalArgumentException.class)
     public void instantiateReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        doThrow(new IllegalArgumentException("the mole is returning an error"))
-                .when(mole).instantiate(any(), any());
+        doThrow(new IllegalArgumentException("the mole is returning an error")).when(mole).instantiate(any(), any());
         remoteMole.instantiate(new Mission("a mission"), Collections.emptyMap());
     }
 
@@ -198,7 +201,7 @@ public class RestRemoteMoleTest {
     public void statesForReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         when(mole.statesFor(any())).thenThrow(new IllegalArgumentException("the mole is returning an error"));
-        Flux<MissionState> states = remoteMole.statesFor(MissionHandle.ofId("anything"));
+        remoteMole.statesFor(MissionHandle.ofId("anything"));
     }
 
     @Test
@@ -207,7 +210,8 @@ public class RestRemoteMoleTest {
         Flux<MissionOutput> outputs = remoteMole.outputsFor(MissionHandle.ofId("missionHandleId"));
         assertThat(outputs.hasElements().block()).isTrue();
         System.out.println(outputs.blockFirst(Duration.ofSeconds(1)).get(BLOCK1, aString("example")));
-        assertThat(outputs.blockFirst(Duration.ofSeconds(1)).get(BLOCK1, aString("example"))).isEqualTo("this is an output example");
+        assertThat(outputs.blockFirst(Duration.ofSeconds(1)).get(BLOCK1, aString("example")))
+                .isEqualTo("this is an output example");
     }
 
     @Ignore
@@ -215,7 +219,7 @@ public class RestRemoteMoleTest {
     public void outputsForReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
         when(mole.outputsFor(any())).thenThrow(new IllegalArgumentException("the mole is returning an error"));
-        Flux<MissionOutput> outputs = remoteMole.outputsFor(MissionHandle.ofId("anything"));
+        remoteMole.outputsFor(MissionHandle.ofId("anything"));
     }
 
     @Test
@@ -229,17 +233,17 @@ public class RestRemoteMoleTest {
     @Test(expected = IllegalArgumentException.class)
     public void instructReturnsError() {
         RestRemoteMole remoteMole = new RestRemoteMole(baseUrl);
-        doThrow(new IllegalArgumentException("the mole is returning an error"))
-                .when(mole).instruct(any(), any(), any());
+        doThrow(new IllegalArgumentException("the mole is returning an error")).when(mole).instruct(any(), any(),
+                any());
         remoteMole.instruct(MissionHandle.ofId("missionId"), Strand.ofId("strandId"), StrandCommand.RESUME);
     }
 
+    @SuppressWarnings("static-method")
     @Ignore
     @Test(expected = Exception.class)
     public void testWrongUriThrows() {
         RestRemoteMole remoteMole = new RestRemoteMole("http://wrongUri");
         remoteMole.states().blockFirst();
     }
-
 
 }

@@ -6,8 +6,6 @@ import static org.springframework.web.reactive.function.BodyInserters.fromObject
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 
@@ -34,8 +32,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class RestRemoteMole implements Mole {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(RestRemoteMole.class);
 
     private final MoleWebClient clientUtils;
 

@@ -29,7 +29,7 @@ import io.molr.commons.domain.dto.MissionParameterDto;
 public class MissionParameterDtoDeserializer extends StdDeserializer<MissionParameterDto<?>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MissionParameterDtoDeserializer.class);
-    
+
     private static final long serialVersionUID = 1L;
 
     private ObjectMapper mapper;
@@ -37,10 +37,10 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
     public static final BiMap<Class<?>, String> TYPE_NAMES = HashBiMap.create();
 
     /**
-     * @param vc
+     * @param valueClass the type of the value to deserialize
      */
-    protected MissionParameterDtoDeserializer(Class<?> vc) {
-        super(vc);
+    protected MissionParameterDtoDeserializer(Class<?> valueClass) {
+        super(valueClass);
     }
 
     public MissionParameterDtoDeserializer() {
@@ -57,32 +57,32 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         return deserializer;
     }
 
-	@SuppressWarnings("unchecked")
-	@Override
+    @Override
     public MissionParameterDto<?> deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
         JsonNode node = p.getCodec().readTree(p);
-        LOGGER.info("deserialize "+node);
+        LOGGER.info("deserialize " + node);
         String name = node.get("name").asText();
         String type = node.get("type").asText();
         boolean required = node.get("required").asBoolean();
         JsonNode defaultValueNode = node.get("defaultValue");
         JsonNode allowedValuesNode = node.get("allowedValues");
-        
+
         Class<?> valueType = MissionParameterDto.TYPE_NAMES.inverse().get(type);
-        if(valueType != null) {
-            Object defaultVal = mapper.treeToValue(defaultValueNode, MissionParameterDto.TYPE_NAMES.inverse().get(type));
-            JavaType javaType= mapper.getTypeFactory().constructCollectionType(Set.class, valueType);
+        if (valueType != null) {
+            Object defaultVal = mapper.treeToValue(defaultValueNode,
+                    MissionParameterDto.TYPE_NAMES.inverse().get(type));
+            JavaType javaType = mapper.getTypeFactory().constructCollectionType(Set.class, valueType);
             ObjectReader allowedValuesReader = mapper.readerFor(javaType);
             Set<Object> allowedValues = allowedValuesReader.readValue(allowedValuesNode);
             Map<String, Object> meta = ImmutableMap.of();
-            
-            if(node.has("meta")) {
+
+            if (node.has("meta")) {
                 JsonNode metaNode = node.get("meta");
-                if(!metaNode.isEmpty()) {
-    				meta = mapper.treeToValue(metaNode, Map.class);
-    				LOGGER.info("Deserialize parameter meta data: "+meta);
-                }	
+                if (!metaNode.isEmpty()) {
+                    meta = mapper.treeToValue(metaNode, Map.class);
+                    LOGGER.info("Deserialize parameter meta data: " + meta);
+                }
             }
             return new MissionParameterDto<>(name, type, required, defaultVal, allowedValues, meta);
         }
@@ -90,8 +90,8 @@ public class MissionParameterDtoDeserializer extends StdDeserializer<MissionPara
         Object defaultValue = mapper.treeToValue(defaultValueNode, Object.class);
         return new MissionParameterDto<>(name, type, required, defaultValue, ImmutableSet.of(), ImmutableMap.of());
     }
-    
-    public <T> Set<T> readAllowedValues(JsonNode node) throws IOException{
+
+    public <T> Set<T> readAllowedValues(JsonNode node) throws IOException {
         TypeReference<Set<T>> typeRef = new TypeReference<Set<T>>() {
             /*
              * nothing to do here
