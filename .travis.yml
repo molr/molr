@@ -4,12 +4,13 @@ jdk:
 - openjdk11
 before_install:
 - chmod +x mvn-demo.sh
-script:
-- ./mvn-demo.sh
-deploy:
-- mvn clean deploy
-  on:
-    branch: aligned-spring
+install: skip
+script: skip
+#- ./mvn-demo.sh
+deploy: skip
+#- mvn clean deploy
+#  on:
+#    branch: aligned-spring
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
