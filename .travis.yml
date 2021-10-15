@@ -3,10 +3,7 @@ language: java
 jdk:
 - openjdk11
 before_install:
-- ./mvn-demo.sh
-#- ./gradlew javadoc
-#- ./gradlew jacocoTestReport
-
+ script: ./mvn-demo.sh
 deploy:
   provider: script
   skip_cleanup: true
