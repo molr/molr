@@ -5,7 +5,7 @@ jdk:
 - openjdk11
 before_install:
 - chmod -x mvn-demo.sh
-install: mvn-demo.sh
+install: ./mvn-demo.sh
 deploy:
   provider: script
   skip_cleanup: true
