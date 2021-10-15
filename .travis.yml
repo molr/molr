@@ -5,17 +5,8 @@ jdk:
 before_install:
 - chmod +x mvn-demo.sh
 install:
-  provider: script
-  script: ./mvn-demo.sh
-#  on:
-#    branch: aligned-spring
-deploy:
-  provider: script
-  skip_cleanup: true
-  script: ./gradlew bintrayUpload -Ddeployment=true
-  on:
-    tags: true
-    jdk: openjdk11
+- ./mvn-demo.sh
+deploy: skip
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
