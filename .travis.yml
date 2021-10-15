@@ -4,7 +4,9 @@ jdk:
 - openjdk11
 before_install:
 - chmod +x mvn-demo.sh
-install:
+script:
+  on:
+    branch: aligned-spring
 - ./mvn-demo.sh
 deploy: skip
 after_success:
