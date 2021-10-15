@@ -16,7 +16,7 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: "mvn clean deploy"
+    script: "mvn --settings .travis/mvn-settings.xml clean deploy"
     on:
       branch: aligned-spring
 #- mvn clean deploy
