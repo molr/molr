@@ -12,6 +12,7 @@ import io.molr.mole.server.demo.DemoConfiguration;
 @Import({LocalSuperMoleConfiguration.class, SingleMoleRestServiceConfiguration.class, DemoConfiguration.class})
 public class DemoMolrServerMain {
 
+    @SuppressWarnings("resource")
     public static void main(String... args) {
         if (System.getProperty("server.port") == null) {
             System.setProperty("server.port", "8800");

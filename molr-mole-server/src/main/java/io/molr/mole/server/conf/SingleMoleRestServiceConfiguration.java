@@ -13,7 +13,7 @@ import io.molr.mole.server.rest.MolrMoleRestService;
 public class SingleMoleRestServiceConfiguration {
 
     @Bean
-    public MolrMoleRestService agencyResService(Mole mole) {
+    public static MolrMoleRestService agencyResService(Mole mole) {
         return new MolrMoleRestService(mole);
     }
 }

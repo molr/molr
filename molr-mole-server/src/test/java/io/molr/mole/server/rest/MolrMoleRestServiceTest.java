@@ -41,7 +41,6 @@ import io.molr.commons.domain.MissionParameterDescription;
 import io.molr.commons.domain.Placeholder;
 import io.molr.commons.domain.dto.MissionParameterDescriptionDto;
 import io.molr.commons.domain.dto.MissionParameterDto;
-import io.molr.commons.domain.dto.MissionRepresentationDto;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.server.conf.ObjectMapperConfig;
 import reactor.core.publisher.Mono;
@@ -147,7 +146,6 @@ public class MolrMoleRestServiceTest {
     @Test
     public void testErrorIsThrownWhenMoleThrows() {
         String uri = "mission/aMission/representation";
-        MissionRepresentationDto representation;
         WebClient client = WebClient.create(baseUrl);
         when(mole.representationOf(any(Mission.class)))
                 .thenThrow(new IllegalArgumentException("No mission of that name for this mole"));

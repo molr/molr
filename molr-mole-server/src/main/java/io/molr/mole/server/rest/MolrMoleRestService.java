@@ -101,6 +101,7 @@ public class MolrMoleRestService {
         return mole.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
     }
 
+    @SuppressWarnings("static-method")
     @GetMapping(path = "/test-stream/{count}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<TestValueDto> testResponse(@PathVariable("count") int count) {
         return Flux.interval(Duration.of(1, ChronoUnit.SECONDS))

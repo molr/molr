@@ -32,7 +32,7 @@ public class ParameterValueDeserializer extends StdDeserializer<Map<String, Obje
     MissionParameterDescription parameterDescription;
 
     /**
-     * @param vc
+     * @param vc the class of the values to be deserialized
      */
     protected ParameterValueDeserializer(Class<?> vc) {
         super(vc);

@@ -22,12 +22,12 @@ public class ObjectMapperConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectMapperConfig.class);
     
     @Bean
-    public ObjectMapper objectMapper(){
+    public static ObjectMapper objectMapper(){
         return createObjectMapper();
     }
     
     @Bean
-    public Jackson2JsonDecoder jsonDecoder(ObjectMapper mapper) {
+    public static Jackson2JsonDecoder jsonDecoder(ObjectMapper mapper) {
         return jsonDecoderWith(mapper);
     }
     
@@ -37,7 +37,7 @@ public class ObjectMapperConfig {
     }
     
     @Bean
-    public Jackson2JsonEncoder jsonEncoder(ObjectMapper mapper) {
+    public static Jackson2JsonEncoder jsonEncoder(ObjectMapper mapper) {
         return jsonEncoderWithMapper(mapper);
     }
     
@@ -47,7 +47,7 @@ public class ObjectMapperConfig {
     }
     
     @Bean 
-    public ExchangeStrategies exchangeStrategies(ObjectMapper mapper) {
+    public static ExchangeStrategies exchangeStrategies(ObjectMapper mapper) {
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder().codecs(clientCodecConfigurer -> {
             Jackson2JsonDecoder decoder = new Jackson2JsonDecoder(mapper);
             Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(mapper);
