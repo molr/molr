@@ -22,6 +22,13 @@ public class ListOfStrings extends ArrayList<String> implements MolrCollection<S
         return new ListOfStrings();
     }
 
+    /*
+     * Default constructor required for gson.
+     */
+    public ListOfStrings() {
+        super();
+    }
+    
     public ListOfStrings(Collection<String> values) {
         super(values);
     }

@@ -20,13 +20,27 @@ public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
     }
 
     @Override
+    public OngoingSimpleBranch branch(String name) {
+        return branch(name, new Placeholder<?>[] {});
+    }
+
+    @Override
+    public OngoingSimpleLeaf leaf(String name) {
+        return leaf(name, new Placeholder<?>[] {});
+    }
+
+    @Override
     public OngoingSimpleBranch branch(String name, Placeholder<?>... placeholders) {
-        return new OngoingSimpleBranch(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), SEQUENTIAL, Map.of());
+        return new OngoingSimpleBranch(
+                BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(),
+                parent(), SEQUENTIAL, Map.of());
     }
 
     @Override
     public OngoingSimpleLeaf leaf(String name, Placeholder<?>... placeholders) {
-        return new OngoingSimpleLeaf(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(), parent(), Map.of());
+        return new OngoingSimpleLeaf(
+                BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(),
+                parent(), Map.of());
     }
 
     @Deprecated
@@ -37,6 +51,6 @@ public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
     @Deprecated
     public void parallel(String name, Consumer<SimpleBranch> branchDefiner) {
         branch(name).parallel().as(branchDefiner);
-    }	    
+    }
 
 }

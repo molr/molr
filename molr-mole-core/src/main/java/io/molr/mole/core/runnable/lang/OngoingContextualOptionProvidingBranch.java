@@ -3,6 +3,7 @@ package io.molr.mole.core.runnable.lang;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.In;
@@ -16,6 +17,10 @@ public class OngoingContextualOptionProvidingBranch<A extends OngoingContextualO
 			BranchMode mode, Map<Placeholder<?>, Function<In, ?>> mappings) {
 		super(name, builder, parent, mode, mappings);
 	}
+	
+    public <C> OngoingContextualBranchWithNewContext<C> contextual(Supplier<C> contextFactory) {
+        return contextual(in -> contextFactory.get());
+    }
 	
     public <C> OngoingContextualBranchWithNewContext<C> contextual(Function<In, C> contextFactory) {
         return new OngoingContextualBranchWithNewContext<>(name(), builder(), parent(), mode(), contextFactory, getMappings());
