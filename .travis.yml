@@ -1,9 +1,11 @@
+#https://docs.travis-ci.com/user/job-lifecycle/
 dist: trusty
 language: java
 jdk:
 - openjdk11
 before_install:
- script: ./mvn-demo.sh
+- chmod -x mvn-demo.sh
+install: mvn-demo.sh
 deploy:
   provider: script
   skip_cleanup: true
