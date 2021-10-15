@@ -3,9 +3,10 @@ language: java
 jdk:
 - openjdk11
 before_install:
+- chmod +x mvn-demo.sh
 install:
   provider: script
-  script: chmod +x mvn-demo.sh && ./mvn-demo.sh
+  script: ./mvn-demo.sh
   on:
     branch: aligned-spring
 script:
