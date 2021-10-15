@@ -25,10 +25,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -71,7 +71,8 @@ public class MolrMoleRestServiceTest {
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription));
 
         Mono<MissionParameterDescriptionDto> remoteParameters = client.get().uri(uri)
-                .accept(MediaType.APPLICATION_NDJSON).exchangeToMono(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
+                .accept(MediaType.APPLICATION_STREAM_JSON).exchange()
+                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
 
         MissionParameterDescriptionDto description = remoteParameters.block(Duration.ofSeconds(5));
         assertThat(description.parameters).hasSize(1);
@@ -105,14 +106,14 @@ public class MolrMoleRestServiceTest {
 
         when(mole.parameterDescriptionOf(any(Mission.class))).thenReturn(Mono.just(parameterDescription));
 
-        Mono<String> rawRemoteParameters = client.get().uri(uri).accept(MediaType.APPLICATION_NDJSON)
-                .exchangeToMono(c -> c.bodyToMono(String.class));
+        Mono<String> rawRemoteParameters = client.get().uri(uri).accept(MediaType.APPLICATION_STREAM_JSON).exchange()
+                .flatMap(c -> c.bodyToMono(String.class));
 
         LOGGER.info("raw: " + rawRemoteParameters.block());
 
         Mono<MissionParameterDescriptionDto> remoteParameters = client.get().uri(uri)
-                .accept(MediaType.APPLICATION_NDJSON)
-                .exchangeToMono(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
+                .accept(MediaType.APPLICATION_STREAM_JSON).exchange()
+                .flatMap(c -> c.bodyToMono(MissionParameterDescriptionDto.class));
 
         MissionParameterDescriptionDto descriptionDto = remoteParameters.block();
         LOGGER.info("descriptionDto: " + descriptionDto.parameters);
@@ -138,8 +139,7 @@ public class MolrMoleRestServiceTest {
         String uri = "mission/aMission/instantiate";
 
         HttpStatus response = client.post().uri(uri).accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(params)).retrieve().toBodilessEntity().map(ResponseEntity::getStatusCode)
-                .block();
+                .body(BodyInserters.fromObject(params)).exchange().map(ClientResponse::statusCode).block();
         assertThat(response).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -150,8 +150,8 @@ public class MolrMoleRestServiceTest {
         when(mole.representationOf(any(Mission.class)))
                 .thenThrow(new IllegalArgumentException("No mission of that name for this mole"));
 
-        HttpStatus responseStatus = client.post().uri(uri).accept(MediaType.APPLICATION_JSON).retrieve()
-                .toBodilessEntity().map(ResponseEntity::getStatusCode).block();
+        HttpStatus responseStatus = client.get().uri(uri).accept(MediaType.APPLICATION_JSON).exchange()
+                .map(ClientResponse::statusCode).block();
 
         assertThat(responseStatus).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -160,8 +160,8 @@ public class MolrMoleRestServiceTest {
     public void accessServerWithWrongUri() {
         WebClient client = WebClient.create(baseUrl);
         String uri = "mission/avail";
-        HttpStatus response = client.post().uri(uri).accept(MediaType.APPLICATION_JSON).retrieve().toBodilessEntity()
-                .map(ResponseEntity::getStatusCode).block();
+        HttpStatus response = client.get().uri(uri).accept(MediaType.APPLICATION_JSON).exchange()
+                .map(ClientResponse::statusCode).block();
         assertThat(response).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
