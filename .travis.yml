@@ -3,11 +3,10 @@ language: java
 jdk:
 - openjdk11
 before_install:
-- chmod +x ./gradlew
-script:
-- ./gradlew check
-- ./gradlew javadoc
-- ./gradlew jacocoTestReport
+- ./mvn-demo.sh
+#- ./gradlew javadoc
+#- ./gradlew jacocoTestReport
+
 deploy:
   provider: script
   skip_cleanup: true
