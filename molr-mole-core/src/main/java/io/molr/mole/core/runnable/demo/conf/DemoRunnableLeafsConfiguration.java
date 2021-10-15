@@ -36,206 +36,225 @@ public class DemoRunnableLeafsConfiguration {
     ListOfStrings items = new ListOfStrings("A", "B", "C", "D", "E", "F");
     Placeholder<ListOfStrings> devices = Placeholder.aListOfStrings("items");
 
-	@Bean
-	RunnableLeafsMission ctxTests() {
-		return new RunnableLeafsMissionSupport() {
-			{
-				Placeholder<ListOfStrings> names = mandatory(devices);
-				
-				root("ctxTests").foreach(devices).branch("for {}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branchDescription, itm)->{
-					branchDescription.leaf("hello").run((in)->{
-						System.out.println("devices:"+in.get(names));
-					});
-				});
-			}
-		}.build();
-	}
-	
-	@Bean
-	RunnableLeafsMission withoutAllowedValues() {
-		return new RunnableLeafsMissionSupport() {
-			{
-				Placeholder<ListOfStrings> names = mandatory(Placeholder.aListOfStrings("names"));
-				
-				root("noALlowed").as(branchDescription->{
-					branchDescription.leaf("hello").run((in)->{
-						System.out.println("devices:"+in.get(names));
-					});
-				});
-			}
-		}.build();
-	}
-    
     @Bean
-    RunnableLeafsMission nestedContextual() {
-    	return new RunnableLeafsMissionSupport() {
-    		{
-    			root("nestedContext").contextual(in->{return "";}).as((branchDescription, ctx)->{
-    				//ctx;
-    			});
-    		}
-    	}.build();
-    }
-    
-    @Bean
-    RunnableLeafsMission nestedContextua2l() {
-    	return new RunnableLeafsMissionSupport() {
-    		{
-    			root("nestedContext").foreach(devices).branch("hello").as((branchDescription, ctx)->{
-    				branchDescription.branch("").as((branchDescription2, itm)->{
-    					branchDescription2.branch("ac").contextual(in->{return "";}).as((branchDescription3, ctx3)->{
-
-    					});
-    				});
-    			});
-    		}
-    	}.build();
-    }
-    
-    @Bean
-    RunnableLeafsMission forEach() {
-    	return new RunnableLeafsMissionSupport() {
-    		{
-    			root("forDevice").foreach(Placeholder.aString("device"), devices).branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP)->{
-    				branch.embed(simple(), Placeholder.aString("device2"), devP);
-    			});
-    		}
-    	}.build();
-    }
-    
-	@Bean
-	RunnableLeafsMission takeMission() {
-		return new RunnableLeafsMissionSupport() {
-			{
-				mandatory(devices, new ListOfStrings(), Set.of(items));
-				Placeholder<String> device = mandatory(Placeholder.aString("device1"));
-				RunnableLeafsMission simple=simple();
-				root("nestedMissions").as((branch)->{
-					branch.embed(simple(), device, Placeholder.aString("device2"));
-				});
-			}
-		}.build();
-	}
-	
-	@Bean
-	RunnableLeafsMission simple() {
-		return new RunnableLeafsMissionSupport() {
-			{
-				Placeholder<String> device = mandatory(Placeholder.aString("device2"));
-				mandatory(devices, new ListOfStrings(), Set.of(items));
-				
-				root("simple")./* let(device, device). */contextual((in->90L)).as((branch, ctx)->{
-					branch.leaf("A").run((in)->{System.out.println("dev:A2"+in.get(device)+"hello"+in.get(ctx));});
-					branch.leaf("B").run(()->{System.out.println("B");});
-					branch.foreach(devices).branch("hell").as((forBranch, dev)->{
-						forBranch.leaf("printName").runFor(System.out::println);
-					});
-				});
-			}
-		}.build();
-	}
-    
-	@Bean
-	RunnableLeafsMission foreachFromContext() {
-		return new RunnableLeafsMissionSupport() {
-			{
-				root("ForeachWithListFromContext").contextual(in -> {
-					return ImmutableList.of("A", "B");
-				}).as((rootBranch, context) -> {
-					rootBranch.foreach(context)
-							.branch("device:{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
-							.as((foreachBranch, itemPlaceholder) -> {
-								foreachBranch.leaf("OperateOn {}", itemPlaceholder).runFor(itemValue -> {
-									System.out.println(itemValue);
-								});
-							});
-				});
-			}
-		}.build();
-	}
-    
-    @Bean RunnableLeafsMission parallelRoot() {
-    	return new RunnableLeafsMissionSupport() {
-    		{
-        		root("ParallelRoot").parallel(2).as(rootBranch -> {
-        			rootBranch.leaf("FirstChild").run(()->{System.out.println("run");});
-        			rootBranch.leaf("SecondChild").run(()-> {System.out.println("run "+this);});
-        		});	
-        		
-    		}
-    	}.build();
-    }
-    
-    @Bean RunnableLeafsMission sequentialRoot() {
-    	return new RunnableLeafsMissionSupport() {
-    		{
-        		root("SequentialRoot").sequential().as(rootBranch -> {
-        			rootBranch.leaf("A").run(()->{System.out.println("run");});
-        			rootBranch.branch("B").sequential().as(branch-> {
-        				branch.leaf("B.A").run(()->{System.out.println("run nested");});
-        				branch.leaf("B.B").run(()->{System.out.println("run nested");});
-        			});
-        		});	
-        		
-    		}
-    	}.build();
-    }
-    
-    @Bean
-    public RunnableLeafsMission runStateMission() {
+    RunnableLeafsMission ctxTests() {
         return new RunnableLeafsMissionSupport() {
             {
-            	executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
-            	
+                Placeholder<ListOfStrings> names = mandatory(devices);
+
+                root("ctxTests").foreach(devices).branch("for {}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
+                        .as((branchDescription, itm) -> {
+                            branchDescription.leaf("hello").run((in) -> {
+                                System.out.println("devices:" + in.get(names));
+                            });
+                        });
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission withoutAllowedValues() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                Placeholder<ListOfStrings> names = mandatory(Placeholder.aListOfStrings("names"));
+
+                root("noALlowed").as(branchDescription -> {
+                    branchDescription.leaf("hello").run((in) -> {
+                        System.out.println("devices:" + in.get(names));
+                    });
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission nestedContextual() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("nestedContext").contextual(in -> {
+                    return "";
+                }).as((branchDescription, ctx) -> {
+                    /* can use ctx */
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    public RunnableLeafsMission nestedContextua2l() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("nestedContext").foreach(devices).branch("hello").as((branchDescription, ctx) -> {
+                    branchDescription.branch("").as((branchDescription2, itm) -> {
+                        branchDescription2.branch("ac").contextual(in -> {
+                            return "";
+                        }).as((branchDescription3, ctx3) -> {
+                            /* nothing */
+                        });
+                    });
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    public RunnableLeafsMission forEach() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("forDevice").foreach(Placeholder.aString("device"), devices)
+                        .branch("{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((branch, devP) -> {
+                            branch.embed(simple(), Placeholder.aString("device2"), devP);
+                        });
+            }
+        }.build();
+    }
+
+    @Bean
+    RunnableLeafsMission takeMission() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                mandatory(devices, new ListOfStrings(), Set.of(items));
+                Placeholder<String> device = mandatory(Placeholder.aString("device1"));
+                root("nestedMissions").as((branch) -> {
+                    branch.embed(simple(), device, Placeholder.aString("device2"));
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    RunnableLeafsMission simple() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                Placeholder<String> device = mandatory(Placeholder.aString("device2"));
+                mandatory(devices, new ListOfStrings(), Set.of(items));
+
+                root("simple")./* let(device, device). */contextual((in -> 90L)).as((branch, ctx) -> {
+                    branch.leaf("A").run((in) -> {
+                        System.out.println("dev:A2" + in.get(device) + "hello" + in.get(ctx));
+                    });
+                    branch.leaf("B").run(() -> {
+                        System.out.println("B");
+                    });
+                    branch.foreach(devices).branch("hell").as((forBranch, dev) -> {
+                        forBranch.leaf("printName").runCtx(System.out::println);
+                    });
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission foreachFromContext() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("ForeachWithListFromContext").contextual(in -> {
+                    return ImmutableList.of("A", "B");
+                }).as((rootBranch, context) -> {
+                    rootBranch.foreach(context).branch("device:{}", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
+                            .as((foreachBranch, itemPlaceholder) -> {
+                                foreachBranch.leaf("OperateOn {}", itemPlaceholder).runCtx(itemValue -> {
+                                    System.out.println(itemValue);
+                                });
+                            });
+                });
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission parallelRoot() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("ParallelRoot").parallel(2).as(rootBranch -> {
+                    rootBranch.leaf("FirstChild").run(() -> {
+                        System.out.println("run");
+                    });
+                    rootBranch.leaf("SecondChild").run(() -> {
+                        System.out.println("run " + this);
+                    });
+                });
+
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission sequentialRoot() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                root("SequentialRoot").sequential().as(rootBranch -> {
+                    rootBranch.leaf("A").run(() -> {
+                        System.out.println("run");
+                    });
+                    rootBranch.branch("B").sequential().as(branch -> {
+                        branch.leaf("B.A").run(() -> {
+                            System.out.println("run nested");
+                        });
+                        branch.leaf("B.B").run(() -> {
+                            System.out.println("run nested");
+                        });
+                    });
+                });
+
+            }
+        }.build();
+    }
+
+    @Bean
+    public static RunnableLeafsMission runStateMission() {
+        return new RunnableLeafsMissionSupport() {
+            {
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
+
                 root("RunStates").sequential().as(root -> {
 
-                	
                     root.branch("Zero").sequential().as(b1 -> {
-                    	b1.branch("YeroA_First").as(subB1 -> {
-                    		subB1.leaf("ZAA").run(()->{});
-                    		subB1.leaf("ZAB").run(()->{});
-                    	});
-                    	
-                        b1.leaf("ZFirst A")
-                                .run(() -> LOGGER.info("{} executed", "First A"));
-                        b1.leaf("ZFirstB").run(()->{});
+                        b1.branch("YeroA_First").as(subB1 -> {
+                            subB1.leaf("ZAA").run(() -> {/* nothing */});
+                            subB1.leaf("ZAB").run(() -> {/* nothing */});
+                        });
+
+                        b1.leaf("ZFirst A").run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("ZFirstB").run(() -> {/* nothing */});
                     });
-                	
+
                     root.branch("First").parallel().as(b1 -> {
-                    	b1.branch("FirstA_First").as(subB1 -> {
-                    		subB1.leaf("AA").run(()->{});
-                    		subB1.leaf("AB").run(()->{throw new IllegalStateException("e");});
-                    		
-                    	});
-                    	
-                        b1.leaf("First A")
-                                .run(() -> LOGGER.info("{} executed", "First A"));
-                        b1.leaf("FirstB").run(()->{});
+                        b1.branch("FirstA_First").as(subB1 -> {
+                            subB1.leaf("AA").run(() -> {/* nothing */});
+                            subB1.leaf("AB").run(() -> {
+                                throw new IllegalStateException("e");
+                            });
+
+                        });
+
+                        b1.leaf("First A").run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("FirstB").run(() -> {/* nothing */});
                     });
                 });
 
             }
         }.build();
     }
-    
+
     @Bean
-    public RunnableLeafsMission runStateMission2() {
+    public static RunnableLeafsMission runStateMission2() {
         return new RunnableLeafsMissionSupport() {
             {
-            	executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
-            	
+                executionStrategy().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR).allowed(ExecutionStrategy.values());
+
                 root("RunStates2").sequential().as(root -> {
 
-                	
                     root.branch("ParallelParallel").sequential().as(b1 -> {
-                    	b1.branch("YeroA_First").sequential().as(subB1 -> {
-                    		subB1.leaf("ZAA").run(()->{});
-                    		subB1.leaf("ZAB").run(()->{throw new RuntimeException("error");});
-                        	});
-                    	
-                        b1.leaf("ZFirst A")
-                                .run(() -> LOGGER.info("{} executed", "First A"));
-                        b1.leaf("ZFirstB").run(()->{});
+                        b1.branch("YeroA_First").sequential().as(subB1 -> {
+                            subB1.leaf("ZAA").run(() -> {/* nothing */});
+                            subB1.leaf("ZAB").run(() -> {
+                                throw new RuntimeException("error");
+                            });
+                        });
+
+                        b1.leaf("ZFirst A").run(() -> LOGGER.info("{} executed", "First A"));
+                        b1.leaf("ZFirstB").run(() -> {/* nothing */});
                     });
 
                 });
@@ -243,13 +262,13 @@ public class DemoRunnableLeafsConfiguration {
             }
         }.build();
     }
-    
+
     @Bean
-    public RunnableLeafsMission demoMission() {
+    public static RunnableLeafsMission demoMission() {
         return new RunnableLeafsMissionSupport() {
             {
-            	executionStrategy().defaultsTo(ExecutionStrategy.PAUSE_ON_ERROR).allowed(ExecutionStrategy.values());
-            	
+                executionStrategy().defaultsTo(ExecutionStrategy.PAUSE_ON_ERROR).allowed(ExecutionStrategy.values());
+
                 root("Executable Leafs Demo Mission").sequential().as(root -> {
 
                     root.branch("First").sequential().as(b1 -> {
@@ -277,39 +296,42 @@ public class DemoRunnableLeafsConfiguration {
         }.build();
     }
 
-
     @Bean
-    public RunnableLeafsMission parametrizedDemoMission() {
+    public static RunnableLeafsMission parametrizedDemoMission() {
         return new RunnableLeafsMissionSupport() {
             {
                 Placeholder<Integer> iterations = mandatory(anInteger("iterations"), 5);
-                Set<Integer> allowedSleepTimes = ImmutableSet.of(0, 100,200,300, 400, 500);
+                Set<Integer> allowedSleepTimes = ImmutableSet.of(0, 100, 200, 300, 400, 500);
                 /**
                  * optionally add a collection of allowed values in order to restrict parameter values to those values
-                 * if allowed parameters is used explicitly, but empty the parameter values are considered to be unrestricted
+                 * if allowed parameters is used explicitly, but empty the parameter values are considered to be
+                 * unrestricted
                  */
                 Placeholder<Integer> sleepMilis = mandatory(anInteger("sleepMillis"), 500, allowedSleepTimes);
                 Placeholder<Long> sleepAsLongPlaceholder = mandatory(aLong("sleepMillis2"), 999L);
                 Set<String> allowedMessages = ImmutableSet.of("Hello World", "Hello Molr");
                 Placeholder<String> message = mandatory(aString("aMessage"), "Hello World", allowedMessages);
 
-    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
-    			/*
-    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
-    			 * This issue will be addressed in upcoming releases 
-    			 */
-    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
-    			wrappedAllowedValues.add(allowedItems);
-    			ListOfStrings defaultItems = new ListOfStrings("B");
-                Placeholder<ListOfStrings> devices = mandatory(Placeholder.aListOfStrings("devices"), defaultItems, wrappedAllowedValues);
-                
-                Placeholder<String> device = optional(aString("deviceName"), "TEST_DEVCIE_1", ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
+                ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+                /*
+                 * For the moment the collection containing allowed items have to be wrapped into a set since allowed
+                 * values has originally been created for non-collection types
+                 * This issue will be addressed in upcoming releases
+                 */
+                Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+                wrappedAllowedValues.add(allowedItems);
+                ListOfStrings defaultItems = new ListOfStrings("B");
+                Placeholder<ListOfStrings> devs = mandatory(Placeholder.aListOfStrings("devices"), defaultItems,
+                        wrappedAllowedValues);
+
+                Placeholder<String> device = optional(aString("deviceName"), "TEST_DEVCIE_1",
+                        ImmutableSet.of("TEST_DEVCIE_1", "TEST_DEVICE_2"));
                 Placeholder<Double> betax = optional(aDouble("betax"), 180.5);
 
                 root("Executable Leafs Demo Mission (parametrized)").sequential().as(root -> {
 
                     root.leaf("print messages").run((in1, out1) -> {
-                        ListOfStrings deviceNames = in1.get(devices);
+                        ListOfStrings deviceNames = in1.get(devs);
                         Long sleepAsLong = in1.get(sleepAsLongPlaceholder);
                         LOGGER.info(sleepAsLong.toString());
                         LOGGER.info(deviceNames.toString());
@@ -336,7 +358,7 @@ public class DemoRunnableLeafsConfiguration {
                         log(b1, "First B");
                     });
 
-                    root.branch("Second {}", devices).sequential().as(b1 -> {
+                    root.branch("Second {}", devs).sequential().as(b1 -> {
                         log(b1, "second A");
                         log(b1, "second B");
                     });
@@ -355,21 +377,21 @@ public class DemoRunnableLeafsConfiguration {
     }
 
     @Bean
-    public RunnableLeafsMission parallelBlocksMission() {
-    	
+    public static RunnableLeafsMission parallelBlocksMission() {
+
         return new RunnableLeafsMissionSupport() {
             {
                 root("Parallel Blocks").sequential().as(root -> {
 
-                    root.branch("Parallel 1").parallel().as( b1 -> {
+                    root.branch("Parallel 1").parallel().as(b1 -> {
                         log(b1, "Parallel 1A");
                         log(b1, "parallel 1B");
                     });
 
-                    root.branch("Parallel 2").parallel().as( b -> {
+                    root.branch("Parallel 2").parallel().as(b -> {
                         log(b, "Parallel 2A");
                         log(b, "parallel 2B");
-                        
+
                     });
                 });
 
@@ -378,109 +400,128 @@ public class DemoRunnableLeafsConfiguration {
     }
 
     @Bean
-    public RunnableLeafsMission foreachMission(){
-    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
-    		{
-    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
-    			for (int i = 0; i < 250; i++) {
-					allowedItems.add("A"+i);
-				}
-    			/*
-    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
-    			 * This issue will be addressed in upcoming releases 
-    			 */
-    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
-    			wrappedAllowedValues.add(allowedItems);
-    			ListOfStrings defaultItems = new ListOfStrings("B");
-    			Placeholder<ListOfStrings> someDevices = mandatory(
-    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
-    			/*
-    			 * map called on foreach will map/transform each item into an object created by the given factory
-    			 */
-    			root("foreachDemo").foreach(someDevices).parallel().map(DeviceDriver::new).branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER).as((doWithDeviceBranch, devicePlaceholder)-> {
-					doWithDeviceBranch.leaf("SwitchOn ").perDefault(IGNORE).runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").perDefault(IGNORE).run(()->Thread.sleep(1000));
-    				doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runFor(device->{device.switchOff();});
-    			});
-    		}
-    	}.build();
-    	return mission;
+    public static RunnableLeafsMission foreachMission() {
+        RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+            {
+                ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+                for (int i = 0; i < 250; i++) {
+                    allowedItems.add("A" + i);
+                }
+                /*
+                 * For the moment the collection containing allowed items have to be wrapped into a set since allowed
+                 * values has originally been created for non-collection types
+                 * This issue will be addressed in upcoming releases
+                 */
+                Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+                wrappedAllowedValues.add(allowedItems);
+                ListOfStrings defaultItems = new ListOfStrings("B");
+                Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings("deviceNames"),
+                        defaultItems, wrappedAllowedValues);
+                /*
+                 * map called on foreach will map/transform each item into an object created by the given factory
+                 */
+                root("foreachDemo").foreach(someDevices).parallel().map(DeviceDriver::new)
+                        .branch("work on device {} branch", Placeholders.LATEST_FOREACH_ITEM_PLACEHOLDER)
+                        .as((doWithDeviceBranch, devicePlaceholder) -> {
+                            doWithDeviceBranch.leaf("SwitchOn ").perDefault(IGNORE).runCtx(device -> {
+                                device.switchOn();
+                            });
+                            doWithDeviceBranch.leaf("Pause").perDefault(IGNORE).run(() -> Thread.sleep(1000));
+                            doWithDeviceBranch.leaf("SwitchOff {}", devicePlaceholder).runCtx(device -> {
+                                device.switchOff();
+                            });
+                        });
+            }
+        }.build();
+        return mission;
     }
-    
-    @Bean
-    public RunnableLeafsMission foreachMissionWithoutMappedItem(){
-    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
-    		{
-    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
-    			/*
-    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
-    			 * This issue will be addressed in upcoming releases 
-    			 */
-    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
-    			wrappedAllowedValues.add(allowedItems);
-    			ListOfStrings defaultItems = new ListOfStrings("B", "C", "F");
-    			Placeholder<ListOfStrings> someDevices = mandatory(
-    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
-    			
-    			root("foreachDemoWithoutMappedItem").foreach(someDevices).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{});
-    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
-    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{});
-    			});
-    		}
-    	}.build();
-    	return mission;
-    }
-    
-    
-    @Bean
-    public RunnableLeafsMission foreachMissionThrowingException(){
-    	RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
-    		{
-    			ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
-    			/*
-    			 * For the moment the collection containing allowed items have to be wrapped into a set since allowed values has originally been created for non-collection types
-    			 * This issue will be addressed in upcoming releases 
-    			 */
-    			Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
-    			wrappedAllowedValues.add(allowedItems);
-    			ListOfStrings defaultItems = new ListOfStrings("B");
-    			Placeholder<ListOfStrings> someDevices = mandatory(
-    					Placeholder.aListOfStrings("deviceNames"),defaultItems, wrappedAllowedValues);
 
-    			/*
-    			 * optionally configure allowed and default execution strategies.
-    			 */
-    			executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR).allowAll();
-    			
-    			root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).parallel(2).map(DeviceDriver::new).branch("workOnDeviceBranch").as((doWithDeviceBranch, devicePlaceholder)-> {
-    				doWithDeviceBranch.leaf("SwitchOn ").runFor(device->{device.switchOn();});
-    				doWithDeviceBranch.leaf("Pause").run(()->Thread.sleep(1000));
-    				doWithDeviceBranch.leaf("ThrowException").perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run(()->{throw new RuntimeException("error xy");});
-    				doWithDeviceBranch.leaf("SwitchOff ").runFor(device->{device.switchOff();});
-    			});
-    		}
-    	}.build();
-    	return mission;
-    }
-    
     @Bean
-    public RunnableLeafsMission contextualRunnableLeafsMission() {
+    public static RunnableLeafsMission foreachMissionWithoutMappedItem() {
+        RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+            {
+                ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+                /*
+                 * For the moment the collection containing allowed items have to be wrapped into a set since allowed
+                 * values has originally been created for non-collection types
+                 * This issue will be addressed in upcoming releases
+                 */
+                Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+                wrappedAllowedValues.add(allowedItems);
+                ListOfStrings defaultItems = new ListOfStrings("B", "C", "F");
+                Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings("deviceNames"),
+                        defaultItems, wrappedAllowedValues);
+
+                root("foreachDemoWithoutMappedItem").foreach(someDevices).branch("workOnDeviceBranch")
+                        .as((doWithDeviceBranch, devicePlaceholder) -> {
+                            doWithDeviceBranch.leaf("SwitchOn ").runCtx(device -> {/* nothing */});
+                            doWithDeviceBranch.leaf("Pause").run(() -> Thread.sleep(1000));
+                            doWithDeviceBranch.leaf("SwitchOff ").runCtx(device -> {/* nothing */});
+                        });
+            }
+        }.build();
+        return mission;
+    }
+
+    @Bean
+    public static RunnableLeafsMission foreachMissionThrowingException() {
+        RunnableLeafsMission mission = new RunnableLeafsMissionSupport() {
+            {
+                ListOfStrings allowedItems = new ListOfStrings("A", "B", "C", "D", "E", "F");
+                /*
+                 * For the moment the collection containing allowed items have to be wrapped into a set since allowed
+                 * values has originally been created for non-collection types
+                 * This issue will be addressed in upcoming releases
+                 */
+                Set<ListOfStrings> wrappedAllowedValues = new HashSet<>();
+                wrappedAllowedValues.add(allowedItems);
+                ListOfStrings defaultItems = new ListOfStrings("B");
+                Placeholder<ListOfStrings> someDevices = mandatory(Placeholder.aListOfStrings("deviceNames"),
+                        defaultItems, wrappedAllowedValues);
+
+                /*
+                 * optionally configure allowed and default execution strategies.
+                 */
+                executionStrategy().defaultsTo(ExecutionStrategy.PROCEED_ON_ERROR).allowAll();
+
+                root("foreachDemoWithSelectableExecutionStrategy").foreach(someDevices).parallel(2)
+                        .map(DeviceDriver::new).branch("workOnDeviceBranch")
+                        .as((doWithDeviceBranch, devicePlaceholder) -> {
+                            doWithDeviceBranch.leaf("SwitchOn ").runCtx(device -> {
+                                device.switchOn();
+                            });
+                            doWithDeviceBranch.leaf("Pause").run(() -> Thread.sleep(1000));
+                            doWithDeviceBranch.leaf("ThrowException")
+                                    .perDefault(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS).run(() -> {
+                                        throw new RuntimeException("error xy");
+                                    });
+                            doWithDeviceBranch.leaf("SwitchOff ").runCtx(device -> {
+                                device.switchOff();
+                            });
+                        });
+            }
+        }.build();
+        return mission;
+    }
+
+    @Bean
+    public static RunnableLeafsMission contextualRunnableLeafsMission() {
         return new RunnableLeafsMissionSupport() {
             {
                 Placeholder<String> device = mandatory(aString("deviceName"));
                 Placeholder<String> a = mandatory(aString("a"));
                 Placeholder<String> b = mandatory(aString("b"));
 
-                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device).as((root, ctx) -> {
-                    root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
-                    root.leaf("switch off {}", device).runCtx(DeviceDriver::switchOff);
-                    root.leaf("do").runCtx((DeviceDriver dev, String A, String B) -> {
+                root("contextual mission").sequential().perDefaultDont(BREAK).contextual(DeviceDriver::new, device)
+                        .as((root, ctx) -> {
+                            root.leaf("switch on").perDefault(BREAK).runCtx(DeviceDriver::switchOn);
+                            root.leaf("switch off {}", device).runCtx(DeviceDriver::switchOff);
+                            root.leaf("do").runCtx((DeviceDriver dev, String A, String B) -> {
 
-                    		System.out.println("run");
+                                System.out.println("run");
 
-                    }, a, b);
-                });
+                            }, a, b);
+                        });
 
             }
         }.build();
@@ -501,12 +542,11 @@ public class DemoRunnableLeafsConfiguration {
         public void switchOff() {
             System.out.println("Switched OFF device " + deviceName + ".");
         }
-        
+
         @Override
         public String toString() {
-        	return MessageFormat.format("'{'deviceName={0}'}'", deviceName);
+            return MessageFormat.format("'{'deviceName={0}'}'", deviceName);
         }
-
 
     }
 

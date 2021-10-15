@@ -1,6 +1,6 @@
 package io.molr.mole.core.runnable.lang.ctx;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
+import static io.molr.mole.core.runnable.lang.BranchMode.sequential;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
@@ -35,7 +35,7 @@ public class ContextualBranch<C> extends ForeachBranchProvidingAbstractBranch {
     public OngoingContextualBranch<C> branch(String name, Placeholder<?>... placeholders) {
         return new OngoingContextualBranch<>(
                 BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(),
-                parent(), SEQUENTIAL, contextPlaceholder, Map.of());
+                parent(), sequential(), contextPlaceholder, Map.of());
     }
 
     @Override

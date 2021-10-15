@@ -62,8 +62,8 @@ public final class Block {
             this.text = requireNonNull(text, "text must not be null");
         }
         
-        public Builder navigable(boolean navigable) {
-            this.navigable = navigable;
+        public Builder navigable(boolean newNavigable) {
+            this.navigable = newNavigable;
             return this;
         }
 

@@ -19,19 +19,18 @@ import io.molr.mole.core.runnable.lang.OngoingContextualOptionProvidingBranch;
 public class OngoingContextualBranch<C> extends OngoingContextualOptionProvidingBranch<OngoingContextualBranch<C>> {
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
-    Placeholder<C> contextPlaceholder;
+    private final Placeholder<C> contextPlaceholder;
 
-    public OngoingContextualBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder,
-    		Block parent, BranchMode mode, Placeholder<C> contextPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
+    public OngoingContextualBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent,
+            BranchMode mode, Placeholder<C> contextPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
         super(name, builder, parent, mode, mappings);
-        requireNonNull(contextPlaceholder);
-        this.contextPlaceholder = contextPlaceholder;
+        this.contextPlaceholder = requireNonNull(contextPlaceholder);
     }
 
     public void as(Consumer<ContextualBranch<C>> branchDescription) {
-        as((branch, contextPlaceholder)->branchDescription.accept(branch));
+        as((branch, ctxPlaceholder) -> branchDescription.accept(branch));
     }
-    
+
     public void as(BiConsumer<ContextualBranch<C>, Placeholder<C>> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");

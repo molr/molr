@@ -10,7 +10,7 @@ public class VoidStub3<P1, P2, P3> extends MissionStub3<P1, P2, P3, Void> {
     }
 
     public <R> MissionStub3<P1, P2, P3, R> returning(Class<R> returnType) {
-        return new MissionStub3<P1, P2, P3, R>(mission(), returnType,
-                (Placeholder<P1>) parameterAt(0), (Placeholder<P2>) parameterAt(1), (Placeholder<P3>) parameterAt(2));
+        return new MissionStub3<>(mission(), returnType, (Placeholder<P1>) parameterAt(0),
+                (Placeholder<P2>) parameterAt(1), (Placeholder<P3>) parameterAt(2));
     }
 }

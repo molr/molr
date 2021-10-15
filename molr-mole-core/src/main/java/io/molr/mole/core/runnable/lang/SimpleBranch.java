@@ -1,7 +1,5 @@
 package io.molr.mole.core.runnable.lang;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
-
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -33,7 +31,7 @@ public class SimpleBranch extends ForeachBranchProvidingAbstractBranch {
     public OngoingSimpleBranch branch(String name, Placeholder<?>... placeholders) {
         return new OngoingSimpleBranch(
                 BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).build(), builder(),
-                parent(), SEQUENTIAL, Map.of());
+                parent(), BranchMode.sequential(), Map.of());
     }
 
     @Override

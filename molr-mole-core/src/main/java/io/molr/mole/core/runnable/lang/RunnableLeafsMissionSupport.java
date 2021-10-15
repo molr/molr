@@ -1,14 +1,10 @@
 package io.molr.mole.core.runnable.lang;
 
-import static io.molr.mole.core.runnable.lang.BranchMode.SEQUENTIAL;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -26,8 +22,6 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
  */
 public abstract class RunnableLeafsMissionSupport {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RunnableLeafsMissionSupport.class);
-
     private RunnableLeafsMission.Builder builder;
     private ImmutableSet.Builder<MissionParameter<?>> parameterBuilder = ImmutableSet.builder();
     private ExecutionStrategyConfiguration.Builder executionStrategyConfigurationBuilder = null;
@@ -36,7 +30,8 @@ public abstract class RunnableLeafsMissionSupport {
         requireNonNull(missionName, "name must not be null.");
         assertNoBuilderYet();
         this.builder = RunnableLeafsMission.builder();
-        return new OngoingRootBranch(BlockNameConfiguration.builder().text(missionName).build(), builder, null, SEQUENTIAL);
+        return new OngoingRootBranch(BlockNameConfiguration.builder().text(missionName).build(), builder, null,
+                BranchMode.sequential());
     }
 
     @Deprecated
@@ -54,19 +49,21 @@ public abstract class RunnableLeafsMissionSupport {
             throw new IllegalStateException("Root can only be defined once! Use either sequential() or parallel().");
         }
     }
-    
+
     /**
-     * Configure the execution strategies that can be used for that mission. This includes the default execution strategy and allowed execution strategies 
-     * that can be selected during mission instantiation. If the configuration is omitted the the default configuration is used.
+     * Configure the execution strategies that can be used for that mission. This includes the default execution
+     * strategy and allowed execution strategies
+     * that can be selected during mission instantiation. If the configuration is omitted the the default configuration
+     * is used.
      * 
      * @return an configuration object for execution strategy configuration
      */
     protected OngoingExecutionStrategyConfiguration executionStrategy() {
-    	if(executionStrategyConfigurationBuilder!=null) {
-    		throw new IllegalStateException("Execution strategies can only be defined once.");
-    	}
-    	this.executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
-    	return new OngoingExecutionStrategyConfiguration(executionStrategyConfigurationBuilder);
+        if (executionStrategyConfigurationBuilder != null) {
+            throw new IllegalStateException("Execution strategies can only be defined once.");
+        }
+        this.executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+        return new OngoingExecutionStrategyConfiguration(executionStrategyConfigurationBuilder);
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder) {
@@ -85,13 +82,14 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     protected <T> Placeholder<T> mandatory(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
-        this.parameterBuilder.add(MissionParameter.required(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
+        this.parameterBuilder
+                .add(MissionParameter.required(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
     }
-    
-    protected <T> Placeholder<T> addParameter(MissionParameter<T> missionParameter){
-    	this.parameterBuilder.add(missionParameter);
-    	return missionParameter.placeholder();
+
+    protected <T> Placeholder<T> addParameter(MissionParameter<T> missionParameter) {
+        this.parameterBuilder.add(missionParameter);
+        return missionParameter.placeholder();
     }
 
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder) {
@@ -110,7 +108,8 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     protected <T> Placeholder<T> optional(Placeholder<T> placeholder, T defaultValue, Set<T> allowedValues) {
-        this.parameterBuilder.add(MissionParameter.optional(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
+        this.parameterBuilder
+                .add(MissionParameter.optional(placeholder).withDefault(defaultValue).withAllowed(allowedValues));
         return placeholder;
     }
 
@@ -124,19 +123,20 @@ public abstract class RunnableLeafsMissionSupport {
     }
 
     public RunnableLeafsMission build() {
-    	if(executionStrategyConfigurationBuilder == null) {
-    		executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
-    	}
-    	ExecutionStrategyConfiguration executionStrategyConfig = executionStrategyConfigurationBuilder.build();
+        if (executionStrategyConfigurationBuilder == null) {
+            executionStrategyConfigurationBuilder = ExecutionStrategyConfiguration.Builder.builder();
+        }
+        ExecutionStrategyConfiguration executionStrategyConfig = executionStrategyConfigurationBuilder.build();
         /*
-         * if we want to exclude the strategy parameter when allowed strategies size is 1 we need to put strategy definitions somewhere else
+         * if we want to exclude the strategy parameter when allowed strategies size is 1 we need to put strategy
+         * definitions somewhere else
          */
-    	MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
-        			.withDefault(executionStrategyConfig.defaultStrategy().name()).withAllowed(executionStrategyConfig.allowedStrategies().stream().map(ExecutionStrategy::name).collect(Collectors.toSet()));
+        MissionParameter<String> executionStrategyParameter = MissionParameter.optional(Placeholders.EXECUTION_STRATEGY)
+                .withDefault(executionStrategyConfig.defaultStrategy().name()).withAllowed(executionStrategyConfig
+                        .allowedStrategies().stream().map(ExecutionStrategy::name).collect(Collectors.toSet()));
         parameterBuilder.add(executionStrategyParameter);
         MissionParameterDescription parameterDescription = new MissionParameterDescription(parameterBuilder.build());
         return builder.build(parameterDescription);
     }
-
 
 }

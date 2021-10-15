@@ -13,19 +13,19 @@ import io.molr.commons.domain.MissionParameterDescription;
 
 public class MissionParameterDescriptionDto {
 
-    public final Set<MissionParameterDto> parameters;
+    public final Set<MissionParameterDto<?>> parameters;
     
     public MissionParameterDescriptionDto() {
         this.parameters = Collections.emptySet();
     }
 
-    private MissionParameterDescriptionDto(Set<MissionParameterDto> missionParameters) {
+    private MissionParameterDescriptionDto(Set<MissionParameterDto<?>> missionParameters) {
         this.parameters = Objects.requireNonNull(missionParameters, "missionParameters must not be null");
     }
     
 
     public static final MissionParameterDescriptionDto from(MissionParameterDescription description) {
-        Set<MissionParameterDto> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toSet());
+        Set<MissionParameterDto<?>> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toSet());
         return new MissionParameterDescriptionDto(parameterDtos);
     }
 

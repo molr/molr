@@ -20,7 +20,7 @@ public abstract class ForeachBranchProvidingAbstractBranch extends AbstractBranc
         requireNonNull(itemsPlaceholder);
         String name = "forEachItemIn:" + itemsPlaceholder.name();
         BlockNameConfiguration formatter = BlockNameConfiguration.builder().text(name).build();
-        return new ForeachBranchRoot<>(formatter, builder(), parent(), BranchMode.SEQUENTIAL, itemsPlaceholder,
+        return new ForeachBranchRoot<>(formatter, builder(), parent(), BranchMode.sequential(), itemsPlaceholder,
                 Map.of());
     }
 

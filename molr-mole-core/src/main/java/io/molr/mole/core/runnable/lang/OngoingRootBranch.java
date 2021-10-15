@@ -15,13 +15,14 @@ public class OngoingRootBranch extends OngoingContextualOptionProvidingBranch<On
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
 
-    public OngoingRootBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent, BranchMode mode) {
+    public OngoingRootBranch(BlockNameConfiguration name, RunnableLeafsMission.Builder builder, Block parent,
+            BranchMode mode) {
         super(name, builder, parent, mode, Map.of());
     }
 
     public void as(Consumer<SimpleBranch> branchDescription) {
-    	//let is ignored when branch is modified
-    	if (asCalled.getAndSet(true)) {
+        /* let is ignored when branch is modified */
+        if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
         requireNonNull(branchDescription, "branchDescription must not be null.");
@@ -33,16 +34,19 @@ public class OngoingRootBranch extends OngoingContextualOptionProvidingBranch<On
     }
 
     public <T> ForeachBranchRoot<T> foreach(Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
-    	String name = "forEachItemIn:"+itemsPlaceholder.name();
+        String name = "forEachItemIn:" + itemsPlaceholder.name();
         Block block = block();
-        return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemsPlaceholder, getMappings());
+        return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block,
+                BranchMode.sequential(), itemsPlaceholder, getMappings());
     }
 
-	public <T> ForeachBranchRoot<T> foreach(Placeholder<T> itemPlaceholder, Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
-    	String name = "forEachItemIn:"+itemsPlaceholder.name();
+    public <T> ForeachBranchRoot<T> foreach(Placeholder<T> itemPlaceholder,
+            Placeholder<? extends MolrCollection<T>> itemsPlaceholder) {
+        String name = "forEachItemIn:" + itemsPlaceholder.name();
         Block block = block();
-        
-		return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, itemsPlaceholder, getMappings());
-	}
+
+        return new ForeachBranchRoot<>(BlockNameConfiguration.builder().text(name).build(), builder(), block,
+                BranchMode.sequential(), itemPlaceholder, itemsPlaceholder, getMappings());
+    }
 
 }

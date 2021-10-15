@@ -1,6 +1,5 @@
 package io.molr.mole.core.support;
 
-
 import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
 import static java.util.Objects.requireNonNull;
 
@@ -27,7 +26,7 @@ public class OngoingMissionRun {
     private final Mono<MissionHandle> handle;
 
     /**
-     * @param mole   the {@link Mole} which has missions registered
+     * @param mole the {@link Mole} which has missions registered
      * @param handle the {@link MissionHandle} of running {@link Mission}
      */
     public OngoingMissionRun(Mole mole, Mono<MissionHandle> handle) {
@@ -48,6 +47,7 @@ public class OngoingMissionRun {
      * Gives meaning to method chaining when the user just wants to trigger a {@link Mission} and does not want control
      */
     public void forget() {
+        /* nothing to do here */
     }
 
     protected Mole mole() {
@@ -66,10 +66,7 @@ public class OngoingMissionRun {
      * @return a {@link Mono} of {@link Result}
      */
     public Mono<Result> awaitFinished() {
-        return handle
-                .flatMapMany(mole::statesFor)
-                .filter(s -> RunState.FINISHED.equals(s.runState()))
-                .elementAt(0)
+        return handle.flatMapMany(mole::statesFor).filter(s -> RunState.FINISHED.equals(s.runState())).elementAt(0)
                 .map(MissionState::result);
     }
 
@@ -98,46 +95,42 @@ public class OngoingMissionRun {
      * @param runStateValidator a {@link Predicate} for {@link RunState}
      */
     public void await(Predicate<RunState> runStateValidator) {
-        filterState(runStateValidator, handle, mole)
-                .blockFirst();
+        filterState(runStateValidator, handle, mole).blockFirst();
     }
 
     /**
      * @param runStateValidator a {@link Predicate} for {@link RunState}
-     * @param timeout           the timeout before onNext signal
+     * @param timeout the timeout before onNext signal
      */
     public void await(Predicate<RunState> runStateValidator, Duration timeout) {
-        filterState(runStateValidator, handle, mole)
-                .blockFirst(timeout);
+        filterState(runStateValidator, handle, mole).blockFirst(timeout);
     }
 
     /**
      * Filters the {@link MissionState}s matching the {@link RunState} {@link Predicate}
      *
      * @param runStateValidator a {@link Predicate} for {@link RunState}
-     * @param handle            the {@link MissionHandle} of running {@link Mission}
-     * @param mole              the {@link Mole} which has missions registered
+     * @param handle the {@link MissionHandle} of running {@link Mission}
+     * @param mole the {@link Mole} which has missions registered
      * @return a {@link Flux} of {@link MissionState}
      */
-    private static Flux<MissionState> filterState(Predicate<RunState> runStateValidator,
-                                                  Mono<MissionHandle> handle, Mole mole) {
-        return handle
-                .flatMapMany(mole::statesFor)
-                .filter(s -> runStateValidator.test(s.runState()));
+    private static Flux<MissionState> filterState(Predicate<RunState> runStateValidator, Mono<MissionHandle> handle,
+            Mole mole) {
+        return handle.flatMapMany(mole::statesFor).filter(s -> runStateValidator.test(s.runState()));
     }
 
     /**
      * @return the {@link ReturnHelper} to get {@link Result}
      */
     public ReturnHelper<Result> returnResult() {
-        return new ReturnHelper<Result>(new ReturnResult());
+        return new ReturnHelper<>(new ReturnResult());
     }
 
     /**
      * @return the {@link ReturnHelper} to get {@link MissionState}
      */
     public ReturnHelper<MissionState> returnState() {
-        return new ReturnHelper<MissionState>(new ReturnState());
+        return new ReturnHelper<>(new ReturnState());
     }
 
     /**
@@ -160,7 +153,7 @@ public class OngoingMissionRun {
          * {@link Predicate}
          *
          * @param runStateValidator a {@link Predicate} for {@link RunState}
-         * @return the return value {@link T}
+         * @return the return value
          */
         public T when(Predicate<RunState> runStateValidator) {
             return returnValue(filterState(runStateValidator, handle, mole).blockFirst());
@@ -171,8 +164,8 @@ public class OngoingMissionRun {
          * {@link Predicate} with a timeout
          *
          * @param runStateValidator a {@link Predicate} for {@link RunState}
-         * @param timeout           the timeout before onNext signal
-         * @return the return value {@link T}
+         * @param timeout the timeout before onNext signal
+         * @return the return value
          */
         public T when(Predicate<RunState> runStateValidator, Duration timeout) {
             return returnValue(filterState(runStateValidator, handle, mole).blockFirst(timeout));
@@ -182,7 +175,7 @@ public class OngoingMissionRun {
          * Returns the output of {@link Function} applied on {@link MissionState} filtered when {@link RunState} is
          * FINISHED
          *
-         * @return the return value {@link T}
+         * @return the return value
          */
         public T whenFinished() {
             return when(runStateEquals(RunState.FINISHED));
@@ -193,7 +186,7 @@ public class OngoingMissionRun {
          * FINISHED with a timeout
          *
          * @param timeout the timeout before onNext signal
-         * @return the return value {@link T}
+         * @return the return value
          */
         public T whenFinished(Duration timeout) {
             return when(runStateEquals(RunState.FINISHED), timeout);
@@ -203,7 +196,7 @@ public class OngoingMissionRun {
          * Returns the output of {@link Function} applied on {@link MissionState} filtered when {@link RunState} is
          * PAUSED
          *
-         * @return the return value {@link T}
+         * @return the return value
          */
         public T whenPaused() {
             return when(runStateEquals(RunState.PAUSED));
@@ -214,7 +207,7 @@ public class OngoingMissionRun {
          * PAUSED with a timeout
          *
          * @param timeout the timeout before onNext signal
-         * @return the return value {@link T}
+         * @return the return value
          */
         public T whenPaused(Duration timeout) {
             return when(runStateEquals(RunState.PAUSED), timeout);
@@ -224,7 +217,7 @@ public class OngoingMissionRun {
          * Returns the output of {@link Function} applied on {@link MissionState}
          *
          * @param missionState the {@link MissionState}
-         * @return the return value {@link T}
+         * @return the return value
          */
         private T returnValue(MissionState missionState) {
             return function.apply(missionState);

@@ -190,13 +190,13 @@ public final class MissionState {
             return this.add(strand, runState, cursor, null, allowedCommands);
         }
 
-        public Builder blockResult(String blockId, Result result) {
-            blockIdsToResult.put(blockId, result);
+        public Builder blockResult(String blockId, Result newResult) {
+            blockIdsToResult.put(blockId, newResult);
             return this;
         }
 
-        public Builder blockResult(Block block, Result result) {
-            return blockResult(block.id(), result);
+        public Builder blockResult(Block block, Result newResult) {
+            return blockResult(block.id(), newResult);
         }
 
         public Builder blockRunState(String blockId, RunState runState) {

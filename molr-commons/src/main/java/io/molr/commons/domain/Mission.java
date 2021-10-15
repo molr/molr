@@ -60,6 +60,4 @@ public final class Mission {
         return "Mission [name=" + name + "]";
     }
 
-    ;
-
 }

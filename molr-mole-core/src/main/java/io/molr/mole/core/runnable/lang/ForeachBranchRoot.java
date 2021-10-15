@@ -46,7 +46,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	public OngoingContextualBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
-				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, getMappings());
+				builder(), block, BranchMode.sequential(), itemPlaceholder, getMappings());
 	}
 
 	public OngoingForeachLeaf<T> leaf(String name,  Placeholder<?>... placeholders) {

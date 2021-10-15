@@ -46,8 +46,8 @@ public final class MissionParameter<T> {
         return new MissionParameter<>(placeholder, defaultValue, required, ImmutableSet.copyOf(newAllowedValues), meta);
     }
     
-    public MissionParameter<T> withMeta(Map<String, Object> meta){
-    	return new MissionParameter<>(placeholder, defaultValue, required, allowedValues, meta);
+    public MissionParameter<T> withMeta(Map<String, Object> newMeta){
+    	return new MissionParameter<>(placeholder, defaultValue, required, allowedValues, newMeta);
     }
     
     public boolean isRequired() {

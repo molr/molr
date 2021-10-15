@@ -46,6 +46,7 @@ public class MissionStub3<P1, P2, P3, R> {
      *
      * @param p1 the parameter 1
      * @param p2 the parameter 2
+     * @param p3 the parameter 3
      * @return the parameter map constructed with the arguments provided
      */
     public Map<String, Object> parameters(P1 p1, P2 p2, P3 p3) {

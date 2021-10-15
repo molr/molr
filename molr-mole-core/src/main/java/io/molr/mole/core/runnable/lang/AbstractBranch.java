@@ -79,8 +79,7 @@ public abstract class AbstractBranch {
         Set<Placeholder<?>> requiredParameters = otherMission.parameterDescription().parameters().stream()
                 .filter(MissionParameter::isRequired).map(p -> p.placeholder()).collect(Collectors.toSet());
         Assertions.assertThat(mappings.keySet()).containsAll(requiredParameters);
-        //otherMission.parameterDescription().parameters().stream().filter(p->!p.isRequired() && !p.placeholder().equals(Placeholders.EXECUTION_STRATEGY)).forEach(p->{
-        //});
+
         if (!mappings.isEmpty()) {
             ImmutableMap.Builder<Placeholder<?>, Function<In, ?>> mappingsBuilder = ImmutableMap.builder();
             mappings.forEach((var, val) -> {
@@ -90,26 +89,26 @@ public abstract class AbstractBranch {
         }
     }
 
-    private Block addIntegratedMissionTreeToParent(Block parent, Block root, RunnableLeafsMission mission) {
+    private Block addIntegratedMissionTreeToParent(Block newTreeParent, Block root, RunnableLeafsMission mission) {
 
         Set<BlockAttribute> blockAttributes = Set
                 .copyOf(mission.treeStructure().missionRepresentation().blockAttributes().get(root));
 
         if (mission.treeStructure().isLeaf(root)) {
-            return builder().leafChild(parent, BlockNameConfiguration.builder().text(root.text()).build(),
+            return builder().leafChild(newTreeParent, BlockNameConfiguration.builder().text(root.text()).build(),
                     mission.runnables().get(root), blockAttributes);
         }
 
         BranchMode branchMode;
         if (mission.treeStructure().isParallel(root)) {
             int maxConcurrency = mission.maxConcurrency().get(root);
-            branchMode = BranchMode.newParallel(maxConcurrency);
+            branchMode = BranchMode.parallel(maxConcurrency);
         } else {
-            branchMode = BranchMode.SEQUENTIAL;
+            branchMode = BranchMode.sequential();
         }
 
-        Block newParent = builder().childBranchNode(parent, BlockNameConfiguration.builder().text(root.text()).build(),
-                branchMode, blockAttributes);
+        Block newParent = builder().childBranchNode(newTreeParent,
+                BlockNameConfiguration.builder().text(root.text()).build(), branchMode, blockAttributes);
 
         if (mission.forEachBlocksConfigurations().containsKey(root)) {
             ForEachConfiguration<?, ?> config = mission.forEachBlocksConfigurations().get(root);

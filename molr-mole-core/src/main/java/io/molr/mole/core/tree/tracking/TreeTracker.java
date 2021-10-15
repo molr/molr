@@ -41,11 +41,11 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
     }
 
     public static <T> TreeTracker<T> create(MissionRepresentation representation, T defaultValue, Function<Iterable<T>, T> summarizer) {
-        return new Builder(representation, defaultValue, summarizer, null).build();
+        return new Builder<>(representation, defaultValue, summarizer, null).build();
     }
 
     public static <T> TreeTracker<T> create(MissionRepresentation representation, TreeTracker<T> oldTracker) {
-        return new Builder(representation, oldTracker.defaultValue, oldTracker.summarizer, oldTracker).build();
+        return new Builder<>(representation, oldTracker.defaultValue, oldTracker.summarizer, oldTracker).build();
     }
 
 
@@ -54,12 +54,12 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
         if (!representation.isLeaf(node)) {
             throw new IllegalArgumentException("publishing results is only allowed for leaves.");
         }
-        BlockTracker blockTracker = blockResultTrackers.get(node);
+        BlockTracker<T> blockTracker = blockResultTrackers.get(node);
         if (blockTracker == null) {
             throw new IllegalStateException("No block tracker found for block '" + node + "'.");
         }
         if (blockTracker instanceof LeafTracker) {
-            ((LeafTracker) blockTracker).push(result);
+            ((LeafTracker<T>) blockTracker).push(result);
         } else {
             throw new IllegalStateException("Block tracker for block '" + node + "' is not a leaf tracker.");
         }
@@ -111,7 +111,7 @@ public class TreeTracker<T> implements Bucket<T>, Tracker<T> {
 
         private void addTrackerForBlock(Block block, Map<Block, BlockTracker<T>> map) {
             if (representation.isLeaf(block)) {
-                map.put(block, new LeafTracker(initialValueFor(block)));
+                map.put(block, new LeafTracker<>(initialValueFor(block)));
             } else {
                 representation.childrenOf(block).forEach(b -> addTrackerForBlock(b, map));
                 List<Flux<T>> childrenResults = representation.childrenOf(block).stream()

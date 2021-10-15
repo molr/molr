@@ -17,35 +17,36 @@ import io.molr.mole.core.runnable.lang.BlockNameConfiguration;
 import io.molr.mole.core.runnable.lang.BranchMode;
 import io.molr.mole.core.runnable.lang.GenericOngoingBranch;
 
-public class OngoingContextualBranchWithNewContext<C> extends GenericOngoingBranch<OngoingContextualBranchWithNewContext<C>> {
+public class OngoingContextualBranchWithNewContext<C>
+        extends GenericOngoingBranch<OngoingContextualBranchWithNewContext<C>> {
 
     private final AtomicBoolean asCalled = new AtomicBoolean(false);
-    Function<In,C> contextFactory;
+    Function<In, C> contextFactory;
 
     public OngoingContextualBranchWithNewContext(BlockNameConfiguration name, RunnableLeafsMission.Builder builder,
-    		Block parent, BranchMode mode, Function<In,C> contextFactory, Map<Placeholder<?>, Function<In, ?>> mappings) {
+            Block parent, BranchMode mode, Function<In, C> contextFactory,
+            Map<Placeholder<?>, Function<In, ?>> mappings) {
         super(name, builder, parent, mode, mappings);
         requireNonNull(contextFactory);
         this.contextFactory = contextFactory;
     }
 
-    public void as(BiConsumer<ContextualBranch<C>,Placeholder<C>> branchDescription) {
+    public void as(BiConsumer<ContextualBranch<C>, Placeholder<C>> branchDescription) {
         if (asCalled.getAndSet(true)) {
             throw new IllegalStateException("as() method must only be called once!");
         }
         requireNonNull(branchDescription, "branchDescription must not be null.");
-                
+
         Block block = block();
-        @SuppressWarnings("unchecked")
-		Placeholder<C> contextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
+        Placeholder<C> contextPlaceholder = (Placeholder<C>) Placeholder.of(Object.class, UUID.randomUUID().toString());
         builder().contextFactory(block, contextPlaceholder, contextFactory);
-        
+
         ContextualBranch<C> branch = new ContextualBranch<>(builder(), block, contextPlaceholder);
         branchDescription.accept(branch, contextPlaceholder);
     }
 
     public void as(Consumer<ContextualBranch<C>> branchDescription) {
-        as((branch,ctxPlaceholder)-> branchDescription.accept(branch));
+        as((branch, ctxPlaceholder) -> branchDescription.accept(branch));
     }
-    
+
 }
