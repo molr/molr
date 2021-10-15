@@ -5,7 +5,7 @@ jdk:
 before_install:
 install:
   provider: script
-  script: chmod +x ./mvn-demo.sh && ./mvn-demo.sh
+  script: chmod +x mvn-demo.sh && ./mvn-demo.sh
   on:
     branch: aligned-spring
 script:
