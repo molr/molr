@@ -60,7 +60,7 @@ public class ConcurrentStrandExecutorTest extends TimeoutEnabledTest{
 	}
 	
 	@Test
-	public void parallelChildIsNotExecutedWhenIgnored() throws InterruptedException {
+	public void parallelChildIsNotExecutedWhenIgnored()  {
 
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(), ImmutableMap.of());
 		//TODO scoped input refactoring necessary?
@@ -95,13 +95,13 @@ public class ConcurrentStrandExecutorTest extends TimeoutEnabledTest{
 	}
 	
 	@Test
-	public void parallelChildIsIgnoredOnStepInto() throws InterruptedException {
+	public void parallelChildIsIgnoredOnStepInto() {
 
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
-		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
+		MissionOutputCollector localOutputCollector = new ConcurrentMissionOutputCollector();
 
-		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
+		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), localOutputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
 		StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		
@@ -119,14 +119,14 @@ public class ConcurrentStrandExecutorTest extends TimeoutEnabledTest{
 	}
 	
 	@Test
-	public void stepOverRoot() throws InterruptedException {
+	public void stepOverRoot()  {
 
 		TreeStructure structure = new TreeStructure(representation, ImmutableSet.of(root), ImmutableMap.of());
 		
-		MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
+		MissionOutputCollector localOutputCollector = new ConcurrentMissionOutputCollector();
 		
 		//TODO scoped input refactoring necessary?
-		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), outputCollector);
+		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), localOutputCollector);
         TreeNodeStates nodeStates = new TreeNodeStates(structure);
 		StrandExecutorFactory strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
 		

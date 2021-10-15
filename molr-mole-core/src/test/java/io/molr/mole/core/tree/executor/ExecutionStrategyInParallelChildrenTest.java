@@ -38,7 +38,7 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
         return mission(false);
     }
 
-    private RunnableLeafsMission mission(boolean forceParallelBranchToQuit) {
+    private static RunnableLeafsMission mission(boolean forceParallelBranchToQuit) {
         return new RunnableLeafsMissionSupport() {
             {
                 executionStrategy().allowAll().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);

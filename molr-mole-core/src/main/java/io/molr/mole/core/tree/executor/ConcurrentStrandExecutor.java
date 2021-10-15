@@ -180,8 +180,8 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     if (!state.allowedCommands().contains(command.getStrandCommand())) {
                         LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),
                                 state.getClass());
-                        errorSink.onNext(new RejectedCommandException(command.getStrandCommand(),
-                                "not allowed " + command.getCommandId()));
+                        errorSink.onNext(new RejectedCommandException("command '{}' not allowed (id={})",
+                                command.getStrandCommand(), command.getCommandId()));
                     }
                     state.executeCommand(command.getStrandCommand());
                     log("Command {} with id={} has been processed ", command.getStrandCommand(),

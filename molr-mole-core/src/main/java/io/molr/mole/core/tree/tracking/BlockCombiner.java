@@ -23,8 +23,9 @@ public class BlockCombiner<T> implements BlockTracker<T> {
         summary.subscribe(this.result::set);
     }
 
-    public static <T> BlockCombiner<T> combine(List<Flux<T>> inputs, T defaultValue, Function<Iterable<T>, T> summarizer) {
-        return new BlockCombiner<T>(inputs, defaultValue, summarizer);
+    public static <T> BlockCombiner<T> combine(List<Flux<T>> inputs, T defaultValue,
+            Function<Iterable<T>, T> summarizer) {
+        return new BlockCombiner<>(inputs, defaultValue, summarizer);
     }
 
     @Override

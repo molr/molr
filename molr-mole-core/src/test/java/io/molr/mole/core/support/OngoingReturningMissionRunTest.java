@@ -28,8 +28,8 @@ import io.molr.mole.core.support.domain.VoidStub0;
 public class OngoingReturningMissionRunTest {
 
     private MissionControlSupport support;
-    private String voidMission0;
-    private String booleanMission2;
+    private String voidMission0Name;
+    private String booleanMission2Name;
     private OngoingReturningMissionRun<Boolean> run;
 
     @Before
@@ -38,10 +38,10 @@ public class OngoingReturningMissionRunTest {
         SingleNodeMission<Void> voidMission0 = SingleNodeMission.from(() -> {
             // void return type
         });
-        this.voidMission0 = voidMission0.name();
+        this.voidMission0Name = voidMission0.name();
         SingleNodeMission<Boolean> booleanMission2 = SingleNodeMission.from(Boolean.class, (p1, p2) -> TRUE,
                 aDouble("doubleParam"), aString("stringParam"));
-        this.booleanMission2 = booleanMission2.name();
+        this.booleanMission2Name = booleanMission2.name();
         Mole mole = new SingleNodeMole(new HashSet<>(Arrays.asList(booleanMission0, voidMission0, booleanMission2)));
         support = MissionControlSupport.from(mole);
         MissionStub0<Boolean> missionStub0 = MissionStubs.stub(booleanMission0.name()).returning(Boolean.class);
@@ -89,7 +89,7 @@ public class OngoingReturningMissionRunTest {
 
     @Test
     public void startAndAwaitOutputValue() {
-        MissionStub2<Double, String, Boolean> missionStub2 = MissionStubs.stub(booleanMission2).returning(Boolean.class)
+        MissionStub2<Double, String, Boolean> missionStub2 = MissionStubs.stub(booleanMission2Name).returning(Boolean.class)
                 .withParameters(aDouble("doubleParam"), aString("stringParam"));
         Boolean success = support.start(missionStub2, 0.1, "We did it!")
                 .and().awaitOuputValue();
@@ -98,7 +98,7 @@ public class OngoingReturningMissionRunTest {
 
     @Test
     public void startAndForget() {
-        VoidStub0 voidStub0 = MissionStubs.stub(voidMission0);
+        VoidStub0 voidStub0 = MissionStubs.stub(voidMission0Name);
         support.start(voidStub0).and().forget();
     }
 }

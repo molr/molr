@@ -19,6 +19,7 @@ import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.RunnableLeafsMole;
 
+@SuppressWarnings("static-method")
 public class IntegrateMissionTests {
 	
 	private final static long DEFAULT_TIMEOUT = 1000;

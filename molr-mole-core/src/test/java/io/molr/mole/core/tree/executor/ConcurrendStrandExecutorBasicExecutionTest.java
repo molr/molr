@@ -7,6 +7,7 @@ import org.junit.Test;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.testing.strand.StrandExecutorTestSupport;
 
+@SuppressWarnings("static-method")
 public class ConcurrendStrandExecutorBasicExecutionTest {
 
 	

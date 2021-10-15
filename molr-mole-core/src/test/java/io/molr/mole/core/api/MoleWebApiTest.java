@@ -3,6 +3,7 @@ package io.molr.mole.core.api;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+@SuppressWarnings("static-method")
 public class MoleWebApiTest {
 
     @Test

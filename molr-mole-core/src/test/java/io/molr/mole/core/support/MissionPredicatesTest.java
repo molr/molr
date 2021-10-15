@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import io.molr.commons.domain.RunState;
 
+@SuppressWarnings("static-method")
 public class MissionPredicatesTest {
 
     @Test

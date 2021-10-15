@@ -96,7 +96,7 @@ public class ConcurrentStrandExecutorIgnoreBlocksTest extends TimeoutEnabledTest
 		verifier.get();
 	}
 	
-	private void resumeAndWaitForRootStrandComplete(TestTreeContext context) {
+	private static void resumeAndWaitForRootStrandComplete(TestTreeContext context) {
 		context.strandExecutor().instruct(StrandCommand.RESUME);
 		context.strandExecutor().getStateStream().blockLast();
 	}

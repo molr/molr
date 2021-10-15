@@ -45,7 +45,7 @@ public class ConcurrentStrandExecutorPauseTest extends AbstractSingleMissionStra
                     });
                     TASK_2 = latestBlock();
 
-                    root.leaf("NOOP").run(() -> {
+                    root.leaf("NOOP").run(() -> { /* nothing */
                     });
                     TASK_3 = latestBlock();
                 });

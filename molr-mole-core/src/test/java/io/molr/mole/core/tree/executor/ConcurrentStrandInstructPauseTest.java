@@ -57,7 +57,7 @@ public class ConcurrentStrandInstructPauseTest extends TimeoutEnabledTest{
 		Assertions.assertThat(context.treeNodeStates().getRunStates().getSnapshot()).containsAllEntriesOf(expectedRunStates);
 	}
 
-	private void waitForBlockAndRunstate(ConcurrentStrandExecutor executor, String blockId, RunState runState) {
+	private static void waitForBlockAndRunstate(ConcurrentStrandExecutor executor, String blockId, RunState runState) {
 		executor.getBlockStream().map(Block::id).takeUntil(blockId::equals).blockLast();
 		executor.getStateStream().takeUntil(runState::equals).blockLast();
 	}

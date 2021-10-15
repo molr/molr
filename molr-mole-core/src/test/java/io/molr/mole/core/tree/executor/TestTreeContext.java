@@ -39,7 +39,8 @@ public class TestTreeContext {
 	private final Map<Block, BiConsumer<In, Out>> runnables = new HashMap<>();
 	private final TreeNodeStates nodeStates;
 	private final MissionOutputCollector otuputCollector = new ConcurrentMissionOutputCollector();
-	private final LeafExecutor leafExecutor;
+	@SuppressWarnings("unused")
+    private final LeafExecutor leafExecutor;
 	private final StrandExecutorFactory strandExecutorFactory;
 	private final ConcurrentStrandExecutor strandExecutor;
 	
@@ -66,7 +67,7 @@ public class TestTreeContext {
 				CountDownLatch pauseLatch = new CountDownLatch(1);
 				pauseLatches.put(block.id(), pauseLatch);
 				
-				BiConsumer<In,Out> latched = (in, out) -> {
+				BiConsumer<In,Out> latchedConsumer = (in, out) -> {
 					entryMarkerLatch.countDown();
 					
 					try {
@@ -76,14 +77,14 @@ public class TestTreeContext {
 					}
 					toBeLatched.accept(in, out);
 				};
-				runnables.put(block, latched);
+				runnables.put(block, latchedConsumer);
 			}
 		});
 		nodeStates = new TreeNodeStates(treeStructure);
-		LatchedBlockExecutor leafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), otuputCollector);
-		leafExecutor.unlatchAll();
-		this.leafExecutor = leafExecutor;
-		strandExecutorFactory = new StrandExecutorFactory(leafExecutor, nodeStates);
+		LatchedBlockExecutor newLeafExecutor = new LatchedBlockExecutor(runnables, MissionInput.empty(), Map.of(), otuputCollector);
+		newLeafExecutor.unlatchAll();
+		this.leafExecutor = newLeafExecutor;
+		strandExecutorFactory = new StrandExecutorFactory(newLeafExecutor, nodeStates);
 		strandExecutor = strandExecutorFactory.createRootStrandExecutor(treeStructure, breakpoints, toBeIgnored, ExecutionStrategy.PROCEED_ON_ERROR);
 	}
 	

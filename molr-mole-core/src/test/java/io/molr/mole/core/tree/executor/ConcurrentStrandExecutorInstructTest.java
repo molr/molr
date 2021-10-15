@@ -7,8 +7,9 @@ import io.molr.commons.domain.StrandCommand;
 
 public class ConcurrentStrandExecutorInstructTest extends TimeoutEnabledTest{
 	
-	@Test
-	public void instruct_whileAnotherCommandIsEnqueued_runtimeExceptionIsThrown() throws InterruptedException {
+	@SuppressWarnings("static-method")
+    @Test
+	public void instruct_whileAnotherCommandIsEnqueued_runtimeExceptionIsThrown()  {
 		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).latched("0.0.0").build();
 		boolean catchedRuntimeException = false;
 		context.strandExecutor().instruct(StrandCommand.RESUME);

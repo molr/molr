@@ -27,7 +27,7 @@ public abstract class ExecuteChildrenState extends StrandExecutionState{
 	
 	public ExecuteChildrenState(Block block, ConcurrentStrandExecutor context) {
 		super(context);
-		childExecutors = new HashMap<Block, ConcurrentStrandExecutor>();
+		childExecutors = new HashMap<>();
 		finishedChildren = new HashSet<>();
 		toBeExecuted = new HashSet<>();
 		waitingForInstantiation = new LinkedBlockingQueue<>();
