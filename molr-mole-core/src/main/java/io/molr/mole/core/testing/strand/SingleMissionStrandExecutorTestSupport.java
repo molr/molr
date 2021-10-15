@@ -97,6 +97,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and wait for it to be processed
+     * @param command the command to execute on the root strand
      */
     default void instructRootStrandSync(StrandCommand command) {
         StrandExecutorTestSupport.instructSync(rootStrandExecutor(), command);
@@ -104,6 +105,7 @@ public interface SingleMissionStrandExecutorTestSupport extends StrandExecutorTe
 
     /**
      * Will instruct the specified command on the {@link #rootStrandExecutor()} and return immediately
+     * @param command the command to execute on the root strand
      */
     default void instructRootStrandAsync(StrandCommand command) {
         instructAsync(rootStrandExecutor(), command);

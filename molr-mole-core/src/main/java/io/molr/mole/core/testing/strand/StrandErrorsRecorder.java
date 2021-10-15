@@ -25,7 +25,7 @@ public class StrandErrorsRecorder {
         errorsStream = errorsSink.publishOn(Schedulers.elastic());
 
         executor.getErrorsStream()
-                .subscribe(e -> errorsSink.onNext(exceptions.updateAndGet(exceptions -> addTo(exceptions, e))));
+                .subscribe(e -> errorsSink.onNext(exceptions.updateAndGet(exs -> addTo(exs, e))));
     }
 
     private static ImmutableList<Exception> addTo(ImmutableList<Exception> currentExceptions, Exception newException) {

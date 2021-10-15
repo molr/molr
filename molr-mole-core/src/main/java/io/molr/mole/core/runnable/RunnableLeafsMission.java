@@ -27,18 +27,17 @@ import io.molr.mole.core.tree.TreeStructure;
 
 public class RunnableLeafsMission {
 
-	private final static String ROOT_BLOCK_ID = "0";
-	
+    private final static String ROOT_BLOCK_ID = "0";
+
     private final ImmutableMap<Block, BiConsumer<In, Out>> runnables;
-    private final ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations;
+    private final ImmutableMap<Block, ForEachConfiguration<?, ?>> forEachBlocksConfigurations;
     private final ImmutableMap<Block, ContextConfiguration> contexts;
-    private final ImmutableMap<Block,List<Placeholder<?>>> blockNameFormatterArgs;
+    private final ImmutableMap<Block, List<Placeholder<?>>> blockNameFormatterArgs;
     private final TreeStructure treeStructure;
     private final MissionParameterDescription parameterDescription;
     private final ImmutableMap<Block, Integer> maxConcurrency;
     private final ImmutableMap<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues;
-    
-    
+
     private RunnableLeafsMission(Builder builder, MissionParameterDescription parameterDescription) {
         this.runnables = builder.runnables.build();
         this.forEachBlocksConfigurations = builder.forEachBlocksConfigurations.build();
@@ -63,35 +62,35 @@ public class RunnableLeafsMission {
         return this.runnables;
     }
 
-    public List<Placeholder<?>> blockNameFormatterArgs(Block block){
-    	return blockNameFormatterArgs.get(block);
+    public List<Placeholder<?>> blockNameFormatterArgs(Block block) {
+        return blockNameFormatterArgs.get(block);
     }
-    
-	public String name() {
+
+    public String name() {
         return this.treeStructure.rootBlock().text();
     }
-    
-    public Map<Block, Integer> maxConcurrency(){
-    	return this.maxConcurrency;
+
+    public Map<Block, Integer> maxConcurrency() {
+        return this.maxConcurrency;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public ImmutableMap<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations() {
-		return forEachBlocksConfigurations;
-	}
-    
-	public Map<Block, ContextConfiguration> contexts() {
-		return this.contexts;
-	}
-	
-	public Map<Block, Map<Placeholder<?>, Function<In, ?>>> letValues(){
-		return blockLetValues; 
-	}
+    public ImmutableMap<Block, ForEachConfiguration<?, ?>> forEachBlocksConfigurations() {
+        return forEachBlocksConfigurations;
+    }
 
-	public static class Builder {
+    public Map<Block, ContextConfiguration> contexts() {
+        return this.contexts;
+    }
+
+    public Map<Block, Map<Placeholder<?>, Function<In, ?>>> letValues() {
+        return blockLetValues;
+    }
+
+    public static class Builder {
 
         private final AtomicReference<Block> latest = new AtomicReference<>();
 
@@ -99,11 +98,14 @@ public class RunnableLeafsMission {
         private ImmutableMissionRepresentation.Builder representationBuilder;
         private final ImmutableMap.Builder<Block, BiConsumer<In, Out>> runnables = ImmutableMap.builder();
         private final ImmutableMap.Builder<Block, ContextConfiguration> contextConfigurations = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, ForEachConfiguration<?,?>> forEachBlocksConfigurations = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, ForEachConfiguration<?, ?>> forEachBlocksConfigurations = ImmutableMap
+                .builder();
+        private final ImmutableMap.Builder<Block, List<Placeholder<?>>> blockNameFormatterArgumentBuilder = ImmutableMap
+                .builder();
         private final ImmutableSet.Builder<Block> parallelBlocksBuilder = ImmutableSet.builder();
         private final ImmutableMap.Builder<Block, Integer> maxConurrencyConfiguration = ImmutableMap.builder();
-        private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues = ImmutableMap.builder();
+        private final ImmutableMap.Builder<Block, Map<Placeholder<?>, Function<In, ?>>> blockLetValues = ImmutableMap
+                .builder();
 
         private Function<In, ?> contextFactory;
 
@@ -111,7 +113,8 @@ public class RunnableLeafsMission {
             /* use static factory method */
         }
 
-        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
+        public Block rootBranchNode(BlockNameConfiguration rootName, BranchMode branchMode,
+                Set<BlockAttribute> blockAttributes) {
             if (representationBuilder != null) {
                 throw new IllegalStateException("root cannot be defined twice!");
             }
@@ -127,16 +130,18 @@ public class RunnableLeafsMission {
             return root;
         }
 
-        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode branchMode, Set<BlockAttribute> blockAttributes) {
+        public Block childBranchNode(Block parent, BlockNameConfiguration name, BranchMode branchMode,
+                Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, name, blockAttributes);
-            if (branchMode.mode()==BranchMode.Mode.PARALLEL) {
+            if (branchMode.mode() == BranchMode.Mode.PARALLEL) {
                 parallelBlocksBuilder.add(child);
                 maxConurrencyConfiguration.put(child, branchMode.maxConcurrency());
             }
             return child;
         }
 
-        public Block leafChild(Block parent, BlockNameConfiguration childName, BiConsumer<In, Out> runnable, Set<BlockAttribute> blockAttributes) {
+        public Block leafChild(Block parent, BlockNameConfiguration childName, BiConsumer<In, Out> runnable,
+                Set<BlockAttribute> blockAttributes) {
             Block child = addChild(parent, childName, blockAttributes);
             runnables.put(child, runnable);
             return child;
@@ -155,7 +160,7 @@ public class RunnableLeafsMission {
             assertRootDefined();
 
             int childId = parentToChildren.get(parent).size();
-            Block child = block(parent.id()+"."+childId, childName.text());
+            Block child = block(parent.id() + "." + childId, childName.text());
             blockNameFormatterArgumentBuilder.put(child, childName.placeholders());
             parentToChildren.put(parent, child);
             representationBuilder.parentToChild(parent, child);
@@ -165,7 +170,7 @@ public class RunnableLeafsMission {
         }
 
         private void apply(Block block, Set<BlockAttribute> blockAttributes) {
-        	representationBuilder.addBlockAttributes(block, blockAttributes);
+            representationBuilder.addBlockAttributes(block, blockAttributes);
         }
 
         private void assertRootDefined() {
@@ -174,11 +179,11 @@ public class RunnableLeafsMission {
             }
         }
 
-        public void contextFactory(Block block, Placeholder<?> contextPlaceholder, Function<In, ?> contextFactory) {
+        public void contextFactory(Block block, Placeholder<?> contextPlaceholder, Function<In, ?> newContextFactory) {
             if (this.contextFactory != null) {
                 throw new IllegalStateException("contextFactory already set! Only allowed once!");
             }
-            this.contextConfigurations.put(block, new ContextConfiguration(contextFactory, contextPlaceholder));
+            this.contextConfigurations.put(block, new ContextConfiguration(newContextFactory, contextPlaceholder));
         }
 
         /**
@@ -190,35 +195,40 @@ public class RunnableLeafsMission {
             return latest.get();
         }
 
-        private Block block(String id, String name) {
+        private static Block block(String id, String name) {
             return Block.idAndText(id, name);
         }
-        
-		public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder) {
-			forEachBlock(block, collectionPlaceholder, itemPlaceholder, itemPlaceholder, (in)->{return in.get(itemPlaceholder);});            
-		}
-        
-		public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder, Placeholder<T> itemPlaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
-            ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder, itemPlaceholder, transformedItemPlaceholder, function);
+
+        public <T> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder,
+                Placeholder<T> itemPlaceholder) {
+            forEachBlock(block, collectionPlaceholder, itemPlaceholder, itemPlaceholder, (in) -> {
+                return in.get(itemPlaceholder);
+            });
+        }
+
+        public <T, U> void forEachBlock(Block block, Placeholder<? extends Collection<T>> collectionPlaceholder,
+                Placeholder<T> itemPlaceholder, Placeholder<U> transformedItemPlaceholder, Function<In, U> function) {
+            ForEachConfiguration<T, U> forEachBlockConfiguration = new ForEachConfiguration<>(collectionPlaceholder,
+                    itemPlaceholder, transformedItemPlaceholder, function);
             forEachBlocksConfigurations.put(block, forEachBlockConfiguration);
-            
-		}
 
-		public <T> void blockTextFormat(Block block, List<Placeholder<?>> placeholders) {
-			blockNameFormatterArgumentBuilder.put(block, placeholders);
-		}
+        }
 
-		public void forEachConfig(Block block, ForEachConfiguration<?, ?> config) {
-			forEachBlocksConfigurations.put(block, config);
-			
-		}
+        public void blockTextFormat(Block block, List<Placeholder<?>> placeholders) {
+            blockNameFormatterArgumentBuilder.put(block, placeholders);
+        }
 
-		public void addContextConfiguration(Block block, ContextConfiguration contextConfiguration) {
-			contextConfigurations.put(block, contextConfiguration);
-		}
-		
-		public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {
-			this.blockLetValues.put(block, letValues);
-		}
+        public void forEachConfig(Block block, ForEachConfiguration<?, ?> config) {
+            forEachBlocksConfigurations.put(block, config);
+
+        }
+
+        public void addContextConfiguration(Block block, ContextConfiguration contextConfiguration) {
+            contextConfigurations.put(block, contextConfiguration);
+        }
+
+        public void addBlockLetValues(Block block, Map<Placeholder<?>, Function<In, ?>> letValues) {
+            this.blockLetValues.put(block, letValues);
+        }
     }
 }

@@ -21,8 +21,8 @@ public class LeafTracker<T> implements BlockTracker<T> {
         return this.summary;
     }
 
-    public void push(T result) {
-        summary.onNext(result);
+    public void push(T newResult) {
+        summary.onNext(newResult);
     }
 
 

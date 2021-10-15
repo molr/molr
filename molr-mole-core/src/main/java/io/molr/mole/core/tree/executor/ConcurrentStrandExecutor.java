@@ -268,14 +268,14 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
-        runStateUpdates.forEach((block, state) -> runStates.put(block, state));
+        runStateUpdates.forEach((block, st) -> runStates.put(block, st));
         stateSink.onNext(
                 RunState.NOT_STARTED);/* TODO remove dummy and find better way to update/trigger gatherMissionState */
     }
 
     @Deprecated
-    void updateStrandRunState(RunState state) {
-        this.strandRunState.set(state);
+    void updateStrandRunState(RunState st) {
+        this.strandRunState.set(st);
     }
 
     void updateRunStateForStrandAndStackElements(RunState stateUpdate) {

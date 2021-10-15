@@ -20,7 +20,6 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	Placeholder<T> itemPlaceholder;
 	Placeholder<? extends Collection<T>> itemsPlaceholder;
 
-	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends Collection<T>> itemsPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
 		super(name, builder, parent, mode, mappings);

@@ -24,6 +24,7 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import reactor.core.publisher.Flux;
 
+@SuppressWarnings("static-method")
 public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStepOverParallelTest.class);
@@ -76,7 +77,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                                 await(latchA1End);
                                 System.out.println();
                             });
-                            bA.leaf("A.2").run(() -> {});
+                            bA.leaf("A.2").run(() -> {/* nothing */});
                             blockA2 = latestBlock();
                         });
                         b.branch("sequential branch B").sequential().as(bB -> {
@@ -174,6 +175,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
         return LOGGER;
     }
 
+    
     @Test
     public void testPausedLeafCommands() {
         TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).breakPoints("0.0.0")
@@ -232,7 +234,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     }
 
     @Test
-    public void testRunningParallelBranch() throws InterruptedException {
+    public void testRunningParallelBranch() {
         TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).parallel("0.0")
                 .latched("0.0.0", "0.0.1").build();
         context.strandExecutor().instruct(StrandCommand.RESUME);

@@ -91,7 +91,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     }
 
     @Test
-    public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() throws InterruptedException {
+    public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() {
         moveRootStrandTo(parallelBlock);
         System.out.println("MOVED to "+rootStrandExecutor().getActualBlock());
         instructRootStrandSync(STEP_INTO);

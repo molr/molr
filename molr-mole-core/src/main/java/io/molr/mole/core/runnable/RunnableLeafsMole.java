@@ -78,9 +78,10 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     }
 
     private static void replicateAndExpandMissionTree(RunnableLeafsMission mission, Block subTree,
-            Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInput,
+            Block replicatedSubtree, int level, MissionInput missionInput, MissionInput scopedInputIn,
             IntantiatedMissionTree.Builder builder) {
 
+        MissionInput scopedInput;
         if (mission.letValues().containsKey(subTree)) {
             Map<Placeholder<?>, Function<In, ?>> letValues = mission.letValues().get(subTree);
             /*
@@ -90,12 +91,14 @@ public class RunnableLeafsMole extends AbstractJavaMole {
              */
             Map<String, Object> scopeUpdates = new HashMap<>();
             for (Placeholder<?> p : letValues.keySet()) {
-                Object value = letValues.get(p).apply(scopedInput);
+                Object value = letValues.get(p).apply(scopedInputIn);
                 scopeUpdates.put(p.name(), value);
             }
-            MissionInput updatedScope = scopedInput.addOrOverride(scopeUpdates);
-            LOGGER.info("Update scope of {}:\nfrom:{}\nto:{}", subTree.text(), scopedInput, updatedScope);
+            MissionInput updatedScope = scopedInputIn.addOrOverride(scopeUpdates);
+            LOGGER.info("Update scope of {}:\nfrom:{}\nto:{}", subTree.text(), scopedInputIn, updatedScope);
             scopedInput = updatedScope;
+        } else {
+            scopedInput = scopedInputIn;
         }
 
         if (mission.treeStructure().missionRepresentation().blockAttributes().containsKey(subTree)) {
@@ -123,7 +126,7 @@ public class RunnableLeafsMole extends AbstractJavaMole {
 
             if (mission.forEachBlocksConfigurations().containsKey(subTree)) {
                 ForEachConfiguration<?, ?> foreachConfig = mission.forEachBlocksConfigurations().get(subTree);
-                Collection<?> forEachItems = (Collection<?>) scopedInput.get(foreachConfig.collectionPlaceholder());
+                Collection<?> forEachItems = scopedInput.get(foreachConfig.collectionPlaceholder());
                 AtomicInteger childIndex = new AtomicInteger(0);
                 forEachItems.forEach(item -> {
 
@@ -172,7 +175,8 @@ public class RunnableLeafsMole extends AbstractJavaMole {
     @Override
     protected MissionExecutor executorFor(Mission mission, Map<String, Object> params) {
         RunnableLeafsMission runnableLeafMission = missions.get(mission);
-        MissionInput input = missionInput(runnableLeafMission, params);
+        MissionInput in = MissionInput.from(params);
+        MissionInput input = in;
 
         /*
          * create structure with expanded foreach blocks
@@ -203,11 +207,6 @@ public class RunnableLeafsMole extends AbstractJavaMole {
                 runStateTracker, executionStrategy);
     }
 
-    private static MissionInput missionInput(RunnableLeafsMission mission, Map<String, Object> params) {
-        MissionInput in = MissionInput.from(params);
-        return in;
-    }
-
     private static ExecutionStrategy inferExecutionStrategyFromParameters(
             MissionParameterDescription parameterDescription, MissionInput input) {
         ExecutionStrategy executionStrategy = ExecutionStrategy.PAUSE_ON_ERROR;
@@ -216,7 +215,6 @@ public class RunnableLeafsMole extends AbstractJavaMole {
                 String executionStrategyString = input.get(Placeholders.EXECUTION_STRATEGY);
                 executionStrategy = ExecutionStrategy.forName(executionStrategyString);
             } else {
-                @SuppressWarnings("unchecked")
                 MissionParameter<String> executionStrategyParam = (MissionParameter<String>) parameterDescription
                         .parameters().stream().filter(parameter -> {
                             return parameter.placeholder().equals(Placeholders.EXECUTION_STRATEGY);
