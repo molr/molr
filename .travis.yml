@@ -9,11 +9,12 @@ script:
   mvn clean install
 #- ./mvn-demo.sh
 deploy:
-  provider: script
-  script: "mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG} && mvn --settings travis/settings.xml clean deploy -DskipITs=true -DskipTests=true -B -U -P release"
-     on:
+  - provider: script
+    script: "mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG} && mvn --settings travis/settings.xml clean deploy -DskipITs=true -DskipTests=true -B -U -P release"
+    on:
       tags: true
-deploy: skip
+  - provider: script
+    script: "mvn clean deploy"
 #- mvn clean deploy
 #  on:
 #    branch: aligned-spring
