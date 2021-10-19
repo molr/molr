@@ -10,10 +10,11 @@ before_install:
 - ls
 - echo "finished before install"
 install: true
+- echo "phase_install"
 script:
-- echo "before install"
-- mvn -DskipTests=true clean install
-- echo "after install"
+- echo "phase_script"
+- mvn -DskipTests=true -Dgpg.skip=true clean install
+- echo "phase_script_last"
 deploy:
 - provider: script
   script: mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG}
@@ -22,7 +23,7 @@ deploy:
   on:
     tags: true
 - provider: script
-  script: mvn --settings .travis/mvn-settings.xml -DskipTests=true clean deploy
+  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST clean deploy
   on:
     branch: aligned-spring
 after_success:
