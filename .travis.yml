@@ -12,7 +12,6 @@ before_install:
 install: true
 script:
 - echo "phase-script"
-- echo $PASSPHRASE
 - mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
@@ -23,6 +22,7 @@ deploy:
   on:
     tags: true
 - provider: script
+  skip_cleanup: true
   script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST2 clean deploy
   on:
     branch: aligned-spring
