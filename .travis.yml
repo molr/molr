@@ -23,7 +23,7 @@ deploy:
     tags: true
 - provider: script
   skip_cleanup: true
-  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST2 clean deploy
+  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST3 clean deploy
   on:
     branch: aligned-spring
 after_success:
