@@ -7,12 +7,9 @@ before_install:
   -in .ci/signingkey.asc.enc -out .ci/signingkey.asc -d
 - chmod +x mvn-demo.sh
 - gpg --fast-import .ci/signingkey.asc
-- ls
-- echo "phase-before-install-last"
-install: true
 script:
 - echo "phase-script"
-- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST6 -Dgpg.skip=true clean deploy
+- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST14 -Dgpg.skip=true clean deploy
 - echo "phase-script-last"
 deploy:
 after_success:
