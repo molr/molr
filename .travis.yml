@@ -12,7 +12,8 @@ before_install:
 install: true
 script:
 - echo "phase-script"
-- mvn -DskipTests=true -Dgpg.skip=true clean install
+- echo $env.PASSPHRASE
+- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
 - provider: script
