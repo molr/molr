@@ -10,7 +10,6 @@ before_install:
 - ls
 - echo "phase-before-install-last"
 install: true
-- echo "phase-install"
 script:
 - echo "phase-script"
 - mvn -DskipTests=true -Dgpg.skip=true clean install
