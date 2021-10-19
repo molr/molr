@@ -6,6 +6,9 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_171b1c559d7b_key -iv $encrypted_171b1c559d7b_iv
   -in .ci/signingkey.asc.enc -out signingkey.asc -d
 - chmod +x mvn-demo.sh
+- gpg2 --keyring=$TRAVIS_BUILD_DIR/pubring.gpg --no-default-keyring --import .ci/signingkey.asc
+- gpg2 --allow-secret-key-import --keyring=$TRAVIS_BUILD_DIR/secring.gpg --no-default-keyring
+  --import .ci/signingkey.asc
 - ls
 - echo "finished before install"
 install: true
@@ -25,9 +28,6 @@ deploy:
   on:
     branch: aligned-spring
 after_success:
-- gpg2 --keyring=$TRAVIS_BUILD_DIR/pubring.gpg --no-default-keyring --import .ci/signingkey.asc
-- gpg2 --allow-secret-key-import --keyring=$TRAVIS_BUILD_DIR/secring.gpg --no-default-keyring
-  --import .ci/signingkey.asc
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
 - "./print_test_reports.sh"
