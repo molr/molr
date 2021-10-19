@@ -8,7 +8,7 @@ before_install:
 - chmod +x mvn-demo.sh
 - gpg --fast-import .ci/signingkey.asc
 - ls
-- echo "finished before install"
+- echo "phase_before_install_last"
 install: true
 - echo "phase_install"
 script:
