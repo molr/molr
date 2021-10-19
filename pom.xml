@@ -55,6 +55,11 @@
 	</distributionManagement>
 
 	<properties>
+	        <properties>
+            <gpg.keyname>A0451693</gpg.keyname>
+            <gpg.passphrase>${env.PASSPHRASE}</gpg.passphrase>
+        </properties>
+	
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<revision>0.3.14-GSI-SNAPSHOT</revision>
 		<spring.version>5.2.9.RELEASE</spring.version>
