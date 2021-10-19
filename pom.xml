@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 
 	<name>molr</name>
-	<url>http://maven.apache.org</url>
-
+	<description>A Modular Distributed Execution and Debugging Framework.</description>
+	<url>http://molr.io</url>
 
 	<repositories>
 		<repository>
@@ -18,6 +18,14 @@
 			<url>http://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
+
+
+	<scm>
+		<connection>scm:git:git://github.com/molr/molr.git</connection>
+		<developerConnection>scm:git:ssh://github.com:molr/molr.git</developerConnection>
+		<url>http://github.com/molr/molr/tree/master</url>
+	</scm>
+
 
 	<developers>
 		<developer>
