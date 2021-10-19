@@ -8,13 +8,13 @@ before_install:
 - chmod +x mvn-demo.sh
 - gpg --fast-import .ci/signingkey.asc
 - ls
-- echo "phase_before_install_last"
+- echo "phase-before-install-last"
 install: true
-- echo "phase_install"
+- echo "phase-install"
 script:
-- echo "phase_script"
+- echo "phase-script"
 - mvn -DskipTests=true -Dgpg.skip=true clean install
-- echo "phase_script_last"
+- echo "phase-script-last"
 deploy:
 - provider: script
   script: mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG}
