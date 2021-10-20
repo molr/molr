@@ -1,17 +1,29 @@
-dist: trusty
+dist: focal
 language: java
 jdk:
 - openjdk11
 before_install:
 - openssl aes-256-cbc -K $encrypted_171b1c559d7b_key -iv $encrypted_171b1c559d7b_iv
-  -in .ci/signingkey.asc.enc -out .ci/signingkey.asc -d
-- chmod +x mvn-demo.sh
+- in .ci/signingkey.asc.enc -out .ci/signingkey.asc -d
 - gpg --fast-import .ci/signingkey.asc
+- echo "phase-before-install-last"
+install: true
 script:
 - echo "phase-script"
-- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST14 -Dgpg.skip=true clean deploy
+- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
+- provider: script
+  script: mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG}
+    && mvn --settings travis/settings.xml clean deploy -DskipITs=true -DskipTests=true
+    -B -U -P release
+  on:
+    tags: true
+- provider: script
+  skip_cleanup: true
+  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 clean deploy
+  on:
+    branch: aligned-spring
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
