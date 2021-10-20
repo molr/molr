@@ -20,7 +20,7 @@ deploy:
     tags: true
 - provider: script
   skip_cleanup: true
-  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 clean deploy
+  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 -Dgpg.skip=true clean deploy
   on:
     branch: aligned-spring
 after_success:
