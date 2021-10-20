@@ -9,7 +9,7 @@ before_install:
 install: true
 script:
 - echo "phase-script"
-- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
+#- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
 - provider: script
@@ -20,7 +20,7 @@ deploy:
     tags: true
 - provider: script
   skip_cleanup: true
-  script: mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 -Dgpg.executable=gpg clean deploy
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 clean deploy
   on:
     branch: aligned-spring
 after_success:
