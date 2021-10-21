@@ -10,18 +10,17 @@ before_install:
 install: true
 script:
 - echo "phase-script"
-#- mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dgpg.skip=true clean install
+- mvn --settings .ci/mvn-settings.xml -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
 - provider: script
-  script: mvn --settings travis/settings.xml versions:set -DnewVersion=${TRAVIS_TAG}
-    && mvn --settings travis/settings.xml clean deploy -DskipITs=true -DskipTests=true
-    -B -U -P release
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG} clean deploy
+  skip_cleanup: true
   on:
     tags: true
 - provider: script
   skip_cleanup: true
-  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=0.0.0-TEST20 clean deploy
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true clean deploy
   on:
     branch: aligned-spring
 after_success:
