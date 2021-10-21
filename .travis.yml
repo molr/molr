@@ -24,8 +24,11 @@ deploy:
   on:
     branch: aligned-spring
 after_success:
+- echo "afterSuccess"
 - bash <(curl -s https://codecov.io/bash)
+- "./print_test_reports.sh"
 after_failure:
+- echo "afterFailure"
 - "./print_test_reports.sh"
 env:
   global:
