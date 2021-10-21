@@ -10,17 +10,17 @@ before_install:
 install: true
 script:
 - echo "phase-script"
-- mvn --settings .ci/mvn-settings.xml -DskipTests=false -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dgpg.skip=true clean install
+- mvn --settings .ci/mvn-settings.xml -DskipTests=false -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error -Dgpg.skip=true clean install
 - echo "phase-script-last"
 deploy:
 - provider: script
-  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG} clean deploy
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG} -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
   skip_cleanup: true
   on:
     tags: true
 - provider: script
   skip_cleanup: true
-  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true clean deploy
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
   on:
     branch: aligned-spring
 after_success:
