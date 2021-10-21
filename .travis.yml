@@ -1,21 +1,33 @@
-dist: trusty
+dist: focal
 language: java
 jdk:
 - openjdk11
 before_install:
-- chmod +x ./gradlew
+- openssl aes-256-cbc -K $encrypted_171b1c559d7b_key -iv $encrypted_171b1c559d7b_iv -in .ci/signingkey.asc.enc -out .ci/signingkey.asc -d
+- gpg --batch --fast-import .ci/signingkey.asc
+- gpg --version
+- echo "phase-before-install-last"
+install: true
 script:
-- ./gradlew check
-- ./gradlew javadoc
-- ./gradlew jacocoTestReport
+- echo "phase-script"
+- mvn --settings .ci/mvn-settings.xml -DskipTests=false -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error -Dgpg.skip=true clean install
+- echo "phase-script-last"
 deploy:
-  provider: script
+- provider: script
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG} -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
   skip_cleanup: true
-  script: ./gradlew bintrayUpload -Ddeployment=true
   on:
     tags: true
-    jdk: openjdk11
+- provider: script
+  skip_cleanup: true
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
+  on:
+    branch: aligned-spring
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 after_failure:
-- ./print_test_reports.sh
+- "./print_test_reports.sh"
+env:
+  global:
+    - LOG_LEVEL=WARN
+    - secure: WgwCxkNgRN+tw8kwH8rJsBEiUE2mh3u96CbyN42jae7+YuiC8ki1EJitAQz4u7aCiWxfk6Pzf1v7DMFD0p2D15NKGOqT7fO9Lf3Hg+qakjke9BIBIHurwdfGe4AI3Uwbp4L4f++qcOgWyCCKZEel5P4x18Ya1L7/q+vg4bCV/3uFOYJuJ0l1s4oUNGeB8n3c1y3EOTd9k7wFPzAkMDatTsJ/kIS/+OOFlgM4RuAYMyLGTTr8K9723KrfcsBaPvPZb+pde/H2w1+eUPO0eiRoyBGjcqvAQqHzAv00zRbrPYGZGFydvEngbkOHrnBpt2dMyN/iCvLyaOqxtiIiWHdqM5WLf/HCqHQBDJMmICgIeaXGgcXCHnsczM83vymtTzrC46uzKBrflX59ihFMh9RegEcTmv7wi9PxDqET0BYE93lnb8vuOaAFGqd3i5F/QoSwVV2NhRRdcjjCRvMd8MBn9R+p07VhQF+aatYZ/ykU98OkOj9pJOCiB33UVLvvums2uDqUnA4l4V5R2D4uApNadDjUH9ZwsCByD1yR1lnZjsp7S1pAeT/UJLbXDyBNXNON+2RK4b4Saim3s4c2qLeR0vm/o8g+YeZUqHXVUkCvJ/iWy5wkh3hc7f1t2TUoAu4qXScc14+msdC/x4+NQtTnVOiF3EG5hvOfO3mHpgFq9qE=

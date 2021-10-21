@@ -2,6 +2,7 @@ package io.molr.commons.util;
 
 import com.google.common.collect.Iterables;
 
+import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MissionParameter;
 
 public final class MissionParameters {
@@ -26,11 +27,17 @@ public final class MissionParameters {
         if (param.placeholder().type().equals(Integer.class)) {
             return (T) Integer.valueOf(0);
         }
+        if (param.placeholder().type().equals(Long.class)) {
+        	return (T) Long.valueOf(0);
+        }
         if (param.placeholder().type().equals(Double.class)) {
             return (T) Double.valueOf(0.0);
         }
         if (param.placeholder().type().equals(Boolean.class)) {
-            return (T) Boolean.FALSE;
+            return (T) Boolean.valueOf(false);
+        }
+        if(param.placeholder().type().equals(ListOfStrings.class)) {
+        	return (T) new ListOfStrings();
         }
         return null;
     }

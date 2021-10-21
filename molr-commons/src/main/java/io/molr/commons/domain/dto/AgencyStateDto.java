@@ -40,7 +40,7 @@ public class AgencyStateDto {
     @Override
     public String toString() {
         return "AgencyStateDto{" +
-                "activeMissions=" + activeMissions +
+                "availableMissions="+availableMissions+", activeMissions=" + activeMissions +
                 '}';
     }
 }

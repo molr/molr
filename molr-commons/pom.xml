@@ -6,11 +6,10 @@
     <parent>
         <groupId>io.molr</groupId>
         <artifactId>molr</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <groupId>io.molr</groupId>
     <artifactId>molr-commons</artifactId>
-    <version>unspecified</version>
     <inceptionYear>2019</inceptionYear>
     <licenses>
         <license>
