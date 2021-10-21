@@ -1,9 +1,10 @@
 package io.molr.mole.server.conf;
 
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.server.rest.MolrMoleRestService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.server.rest.MolrMoleRestService;
 
 /**
  * Configuration that creates a REST service with the ONLY {@link Mole} in the context
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class SingleMoleRestServiceConfiguration {
 
     @Bean
-    public MolrMoleRestService agencyResService(Mole mole) {
+    public static MolrMoleRestService agencyResService(Mole mole) {
         return new MolrMoleRestService(mole);
     }
 }

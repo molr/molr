@@ -1,30 +1,14 @@
 package io.molr.mole.core.tree.executor;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.*;
-import io.molr.mole.core.runnable.ResultStates;
-import io.molr.mole.core.runnable.RunStates;
-import io.molr.mole.core.tree.LeafExecutor;
-import io.molr.mole.core.tree.QueuedCommand;
-import io.molr.mole.core.tree.StrandExecutor;
-import io.molr.mole.core.tree.TreeNodeStates;
-import io.molr.mole.core.tree.TreeStructure;
-import io.molr.mole.core.tree.exception.RejectedCommandException;
-import io.molr.mole.core.utils.ThreadFactories;
+import static io.molr.commons.domain.RunState.FINISHED;
+import static io.molr.commons.util.Exceptions.exception;
+import static java.util.Objects.requireNonNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.EmitterProcessor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
-import java.util.Map;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -35,11 +19,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.molr.commons.domain.RunState.*;
-import static io.molr.commons.util.Exceptions.exception;
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.ExecutionStrategy;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.runnable.ResultStates;
+import io.molr.mole.core.runnable.RunStates;
+import io.molr.mole.core.tree.LeafExecutor;
+import io.molr.mole.core.tree.QueuedCommand;
+import io.molr.mole.core.tree.StrandExecutor;
+import io.molr.mole.core.tree.TreeNodeStates;
+import io.molr.mole.core.tree.TreeStructure;
+import io.molr.mole.core.tree.exception.RejectedCommandException;
+import io.molr.mole.core.utils.ThreadFactories;
+import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Concurrent (non-blocking) implementation of a {@link StrandExecutor}. Internally all the operations run on a separate
@@ -48,17 +54,15 @@ import java.text.MessageFormat;
  * This class is thread safe
  */
 public class ConcurrentStrandExecutor implements StrandExecutor {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutor.class);
-    //private static final int EXECUTOR_SLEEP_MS_IDLE = 50;
     private static final int EXECUTOR_SLEEP_MS_DEFAULT = 10;
-    //private static final int EXECUTOR_SLEEP_MS_WAITING_FOR_CHILDREN = 25;
 
     private final Object cycleLock = new Object();
 
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
-    
+
     private final ExecutorService executor;
     private final LinkedBlockingQueue<QueuedCommand> commandQueue;
     final TreeStructure structure;//TODO
@@ -89,22 +93,22 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private AtomicBoolean complete = new AtomicBoolean();
     private RunStates runStates;
     private ResultStates resultStates;
-    
+
     private static Scheduler cursorScheduler = Schedulers.newParallel("shared-cursor-scheduler", 12);
     private static Scheduler stateStreamscheduler = Schedulers.newParallel("shared-state-stream-scheduler", 12);
-    
+
     private Stack<Block> stack = new Stack<>();
     private Map<Block, Integer> childIndices = new HashMap<>();
     private StrandExecutionState state = null;
     private AtomicReference<RunState> strandRunState = new AtomicReference<>(RunState.NOT_STARTED);
-    
+
     private AtomicReference<Block> stepOverBlock = new AtomicReference<>();
     private Set<Block> poppedBlocks = new HashSet<>();
 
     public ConcurrentStrandExecutor(Strand strand, Block actualBlock, TreeStructure structure,
-    		StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor,
-            Set<Block> breakpoints, Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy,
-            TreeNodeStates treeNodeStates, RunState initialState) {
+            StrandExecutorFactory strandExecutorFactory, LeafExecutor leafExecutor, Set<Block> breakpoints,
+            Set<Block> blocksToBeIgnored, ExecutionStrategy executionStrategy, TreeNodeStates treeNodeStates,
+            RunState initialState) {
         requireNonNull(actualBlock, "actualBlock cannot be null");
         requireNonNull(treeNodeStates);
         this.runStates = treeNodeStates.getRunStates();
@@ -135,315 +139,318 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         push(actualBlock);
         updateChildrenExecutors(ImmutableList.of());
 
-        if(initialState == RunState.RUNNING) {
+        if (initialState == RunState.RUNNING) {
             state = new NavigatingState(this);
             updateLoopState(new NavigatingState(this));
-        }
-        else {
-        	state = new PausedState(this);
-        	updateLoopState(new PausedState(this));
+        } else {
+            state = new PausedState(this);
+            updateLoopState(new PausedState(this));
         }
 
-        
         this.commandQueue = new LinkedBlockingQueue<>(1);
-        this.executor = Executors.newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
+        this.executor = Executors
+                .newSingleThreadExecutor(ThreadFactories.namedDaemonThreadFactory("strand" + strand.id() + "-exec-%d"));
         this.executor.submit(this::lifecyleChecked);
     }
-        
+
     @Override
     public long instruct(StrandCommand command) {
-    	long id = commandId.getAndIncrement();
+        long id = commandId.getAndIncrement();
         if (!commandQueue.offer(new QueuedCommand(command, id))) {
-        	String message = MessageFormat.format("Command {0} cannot be accepted by strand {1} because it is processing another command",
-        			command, strand);
+            String message = MessageFormat.format(
+                    "Command {0} cannot be accepted by strand {1} because it is processing another command", command,
+                    strand);
             LOGGER.warn(message);
             throw new RuntimeException(message);
         }
-        
+
         log("Instructed with ", command);
         return id;
     }
-    
+
     private void lifecycle() {
-        LOGGER.info("Start lifecycle for "+ strand);
+        LOGGER.debug("Start lifecycle for " + strand);
 
         while (!stack.isEmpty()) {
-         	
+
             synchronized (cycleLock) {
 
-            	QueuedCommand command = commandQueue.poll();
-            	if(command!=null) {
-            		if(!state.allowedCommands().contains(command.getStrandCommand())) {
-            			LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),state.getClass());
-            			errorSink.onNext(new RejectedCommandException(command.getStrandCommand(), "not allowed "+command.getCommandId()));
-            		}
-                	state.executeCommand(command.getStrandCommand());
-                	log("Command {} with id={} has been processed ", command.getStrandCommand(), command.getCommandId());
-                	lastCommandSink.onNext(command);
-                	lastCommand.set(command);
-            	}
+                QueuedCommand command = commandQueue.poll();
+                if (command != null) {
+                    if (!state.allowedCommands().contains(command.getStrandCommand())) {
+                        LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),
+                                state.getClass());
+                        errorSink.onNext(new RejectedCommandException("command '{}' not allowed (id={})",
+                                command.getStrandCommand(), command.getCommandId()));
+                    }
+                    state.executeCommand(command.getStrandCommand());
+                    log("Command {} with id={} has been processed ", command.getStrandCommand(),
+                            command.getCommandId());
+                    lastCommandSink.onNext(command);
+                    lastCommand.set(command);
+                }
                 state.run();
 
-            	if(stack.empty()) {
-            		updateLoopState(new CompletedState(this));
-            		break;
-            	}
+                if (stack.empty()) {
+                    updateLoopState(new CompletedState(this));
+                    break;
+                }
             }
 
             cycleSleep();
         }
 
-        
-        LOGGER.info("Executor for strand {} is finished", strand);
+        LOGGER.debug("Executor for strand {} is finished", strand);
         executor.shutdown();
         complete.set(true);
         closeStreams();
     }
-    
-	private void closeStreams() {
-        LOGGER.info("Close streams for strand {}", strand);
+
+    private void closeStreams() {
+        LOGGER.debug("Close streams for strand {}", strand);
         blockSink.onComplete();
         errorSink.onComplete();
         lastCommandSink.onComplete();
-		stateSink.onNext(FINISHED);
+        stateSink.onNext(FINISHED);
         stateSink.onComplete();
-        LOGGER.info(strand + ": all streams closed");
-	}
-    
+        LOGGER.debug(strand + ": all streams closed");
+    }
+
     private void lifecyleChecked() {
-    	try {
-			lifecycle();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+        try {
+            lifecycle();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
-    
+
+    @Override
     public boolean isComplete() {
-    	return complete.get();
+        return complete.get();
     }
-    
+
     boolean toBeIgnored(Block block) {
-    	return this.blocksToBeIgnored.contains(block);
+        return this.blocksToBeIgnored.contains(block);
     }
-    
+
     boolean isBreakpointSet(Block block) {
-    	return this.breakpoints.contains(block);
+        return this.breakpoints.contains(block);
     }
-    
+
     ExecutionStrategy executionStrategy() {
-    	return this.executionStrategy;
+        return this.executionStrategy;
     }
-    
-    ResultStates resultStates(){
-    	return resultStates;
+
+    ResultStates resultStates() {
+        return resultStates;
     }
-    
+
     Result runLeaf(Block block) {
-    	runStates.put(block, RunState.RUNNING);
-    	log("run leaf {}", block);
-    	Result result = leafExecutor.execute(block);
-    	resultStates.put(block, result);
-    	runStates.put(block, RunState.FINISHED);
-    	return result;
+        runStates.put(block, RunState.RUNNING);
+        log("run leaf {}", block);
+        Result result = leafExecutor.execute(block);
+        resultStates.put(block, result);
+        runStates.put(block, RunState.FINISHED);
+        return result;
     }
-    
+
     void updateLoopState(StrandExecutionState newState) {
-    	log("updateLoopState from {} to {}", state, newState);
-    	state = newState;
-    	setAllowedCommands(newState.allowedCommands());
-    	state.onEnterState();
+        log("updateLoopState from {} to {}", state, newState);
+        state = newState;
+        setAllowedCommands(newState.allowedCommands());
+        state.onEnterState();
     }
-    
+
     void updateRunStatesForStackElements(RunState stateUpdate) {
-    	stack.forEach(block -> runStates.put(block, stateUpdate));
-    	stateSink.onNext(stateUpdate);/*TODO replace*/
+        stack.forEach(block -> runStates.put(block, stateUpdate));
+        stateSink.onNext(stateUpdate);/* TODO replace */
     }
 
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
-    	runStateUpdates.forEach((block, state)->runStates.put(block, state));
-    	stateSink.onNext(RunState.NOT_STARTED);/*TODO remove dummy and find better way to update/trigger gatherMissionState */
+        runStateUpdates.forEach((block, st) -> runStates.put(block, st));
+        stateSink.onNext(
+                RunState.NOT_STARTED);/* TODO remove dummy and find better way to update/trigger gatherMissionState */
     }
-    
+
     @Deprecated
-    void updateStrandRunState(RunState state) {
-    	this.strandRunState.set(state);
+    void updateStrandRunState(RunState st) {
+        this.strandRunState.set(st);
     }
-    
+
     void updateRunStateForStrandAndStackElements(RunState stateUpdate) {
-    	this.strandRunState.set(stateUpdate);
-    	stack.forEach(block -> runStates.put(block, stateUpdate));
-    	stateSink.onNext(stateUpdate);
+        this.strandRunState.set(stateUpdate);
+        stack.forEach(block -> runStates.put(block, stateUpdate));
+        stateSink.onNext(stateUpdate);
     }
-    
+
     Block currentStackElement() {
-    	return this.stack.peek();
+        return this.stack.peek();
     }
-    
+
     boolean currentStackElementIsLeave() {
-    	Block currentElement = currentStackElement();
-    	if(currentElement == null) {
-    		LOGGER.warn("Ask for type of current stack element but was null");
-    		return false;
-    	}
-    	return structure.isLeaf(currentElement);
+        Block currentElement = currentStackElement();
+        if (currentElement == null) {
+            LOGGER.warn("Ask for type of current stack element but was null");
+            return false;
+        }
+        return structure.isLeaf(currentElement);
     }
-    
-    void clearStackElementsAndSetResult(){
-    	log("clear stack");
-    	stack.forEach(block-> {
-    		resultStates.put(block, Result.FAILED);
-    		runStates.put(block, FINISHED);
-    	});
-    	this.stack.clear();
+
+    void clearStackElementsAndSetResult() {
+        log("clear stack");
+        stack.forEach(block -> {
+            resultStates.put(block, Result.FAILED);
+            runStates.put(block, FINISHED);
+        });
+        this.stack.clear();
     }
-    
+
     Block popStackElement() {
-    	Block popped = this.stack.pop();
-    	return popped;
+        Block popped = this.stack.pop();
+        return popped;
     }
-    
+
     boolean isStackEmpty() {
-    	return stack.isEmpty();
+        return stack.isEmpty();
     }
-    
+
     void push(Block block) {
-    	childIndices.put(block, -1);
-    	stack.push(block);
-    	updateActualBlock(block);
+        childIndices.put(block, -1);
+        stack.push(block);
+        updateActualBlock(block);
     }
-    
+
     void addBreakpoint(Block block) {
-    	breakpoints.add(block);
-    	stateSink.onNext(null);//TODO
+        breakpoints.add(block);
+        stateSink.onNext(null);//TODO
     }
-    
+
     Optional<Block> moveChildIndexAndPushNextChild(Block block) {
-    	if(structure.isLeaf(block) || structure.isParallel(block)) {
-    		return Optional.empty();
-    	}
-    	int currentChildIndex = childIndices.get(block);
-    	List<Block> children = structure.childrenOf(block);
-    	while(currentChildIndex < children.size()-1) {
-    		currentChildIndex++;
-    		childIndices.put(block, currentChildIndex);
-    		Block childCandidate = children.get(currentChildIndex);
-    		if(!blocksToBeIgnored.contains(childCandidate)) {
-    			push(childCandidate);
-    			LOGGER.info(strand + " Found next child for block "+block+" child: "+childCandidate);
-    			return Optional.of(childCandidate);
-    		}
-    		else {
-    			LOGGER.info(strand + " Ignore block "+childCandidate);
-    		}
-    	}
-    	return Optional.empty();
+        if (structure.isLeaf(block) || structure.isParallel(block)) {
+            return Optional.empty();
+        }
+        int currentChildIndex = childIndices.get(block);
+        List<Block> children = structure.childrenOf(block);
+        while (currentChildIndex < children.size() - 1) {
+            currentChildIndex++;
+            childIndices.put(block, currentChildIndex);
+            Block childCandidate = children.get(currentChildIndex);
+            if (!blocksToBeIgnored.contains(childCandidate)) {
+                push(childCandidate);
+                LOGGER.debug(strand + " Found next child for block " + block + " child: " + childCandidate);
+                return Optional.of(childCandidate);
+            }
+            LOGGER.debug(strand + " Ignore block " + childCandidate);
+        }
+        return Optional.empty();
     }
 
     void childIndexToLast(Block block) {
-    	childIndices.put(block, structure.childrenOf(block).size()-1);
+        childIndices.put(block, structure.childrenOf(block).size() - 1);
     }
-    
+
     private void popUntilNext() {
-    	while(!stack.isEmpty()){//!hasUnfinishedChild(stack.peek())) {
-    		if(moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {
-    			return;
-    		}
-    		
-    		log(strand + " pop "+stack.peek());
-    		Block popped = popStackElement();
-    		poppedBlocks.add(popped);
-    		if(popped!=null) {
-    			runStates.put(popped, RunState.FINISHED);
-    			if(!structure.isLeaf(popped)) {
-        			boolean allNonIgnoredChildrenWithSuccess = structure.childrenOf(popped).stream().filter(block -> {
-        				/* NOTE: this that RunState of aborted missions must be set to FINISHED*/
-        				return (runStates.of(block) == RunState.FINISHED);
-        			}).allMatch(block -> {
-        				return resultStates.of(block) == Result.SUCCESS;
-        			});
-        			Result blockResult = allNonIgnoredChildrenWithSuccess?Result.SUCCESS:Result.FAILED;
-        			resultStates.put(popped, blockResult);
-        			log("block {} is finished, result:{}, runState:{}", popped, blockResult, runStates.of(popped));
-        			if(!allNonIgnoredChildrenWithSuccess) {
-        				log("overall result is due to failed children, last element popped: "+popped);
-        			}
-    			}
-    			else {
-    				log("bock {} finished: popped leaf "+popped + runStates.of(popped)+" result: "+resultStates.of(popped));
-    			}
-    			
-    			Result result = resultStates.of(popped);
-				if(result==Result.FAILED) {
-					if(executionStrategy()==ExecutionStrategy.ABORT_ON_ERROR) {
-						LOGGER.info("Abort Strand execution onError "+popped);
-						clearStackElementsAndSetResult();
-						return;
-					}
-					if(executionStrategy()==ExecutionStrategy.PAUSE_ON_ERROR) {
-						LOGGER.info("Pause Strand execution onError "+popped);
-						updateLoopState(new PausedState(this));
-						return;
-					}
-					LOGGER.info("Proceed Strand execution onError");
-					List<BlockAttribute> attributes = structure.missionRepresentation().blockAttributes().get(popped);
-					if(attributes.contains(BlockAttribute.FORCE_ABORT_ON_ERROR)) {
-						LOGGER.info("Strand execution has been forced to quit at block "+popped);
-						clearStackElementsAndSetResult();
-						return;
-					}
-					if(attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
-						if(!stack.isEmpty()) {
-							Block parent = stack.peek();
-							childIndexToLast(parent);
-							LOGGER.info("Siblings of failed block will be skipped.(next children of "+parent+")");
-						}
-					}
-				}
-    		}
-    	}
+        while (!stack.isEmpty()) {//!hasUnfinishedChild(stack.peek())) {
+            if (moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {
+                return;
+            }
+
+            log(strand + " pop " + stack.peek());
+            Block popped = popStackElement();
+            poppedBlocks.add(popped);
+            if (popped != null) {
+                runStates.put(popped, RunState.FINISHED);
+                if (!structure.isLeaf(popped)) {
+                    boolean allNonIgnoredChildrenWithSuccess = structure.childrenOf(popped).stream().filter(block -> {
+                        /* NOTE: this that RunState of aborted missions must be set to FINISHED */
+                        return (runStates.of(block) == RunState.FINISHED);
+                    }).allMatch(block -> {
+                        return resultStates.of(block) == Result.SUCCESS;
+                    });
+                    Result blockResult = allNonIgnoredChildrenWithSuccess ? Result.SUCCESS : Result.FAILED;
+                    resultStates.put(popped, blockResult);
+                    log("block {} is finished, result:{}, runState:{}", popped, blockResult, runStates.of(popped));
+                    if (!allNonIgnoredChildrenWithSuccess) {
+                        log("overall result is due to failed children, last element popped: " + popped);
+                    }
+                } else {
+                    log("bock {} finished: popped leaf " + popped + runStates.of(popped) + " result: "
+                            + resultStates.of(popped));
+                }
+
+                Result result = resultStates.of(popped);
+                if (result == Result.FAILED) {
+                    if (executionStrategy() == ExecutionStrategy.ABORT_ON_ERROR) {
+                        LOGGER.debug("Abort Strand execution onError " + popped);
+                        clearStackElementsAndSetResult();
+                        return;
+                    }
+                    if (executionStrategy() == ExecutionStrategy.PAUSE_ON_ERROR) {
+                        LOGGER.debug("Pause Strand execution onError " + popped);
+                        updateLoopState(new PausedState(this));
+                        return;
+                    }
+                    LOGGER.debug("Proceed Strand execution onError");
+                    List<BlockAttribute> attributes = structure.missionRepresentation().blockAttributes().get(popped);
+                    if (attributes.contains(BlockAttribute.FORCE_ABORT_ON_ERROR)) {
+                        LOGGER.debug("Strand execution has been forced to quit at block " + popped);
+                        clearStackElementsAndSetResult();
+                        return;
+                    }
+                    if (attributes.contains(BlockAttribute.ON_ERROR_SKIP_SEQUENTIAL_SIBLINGS)) {
+                        if (!stack.isEmpty()) {
+                            Block parent = stack.peek();
+                            childIndexToLast(parent);
+                            LOGGER.debug("Siblings of failed block will be skipped.(next children of " + parent + ")");
+                        }
+                    }
+                }
+            }
+        }
     }
-    
+
     Optional<Block> popUntilNextChildAvailableAndPush() {
-    	popUntilNext();
-    	if(stack.isEmpty()) {
-    		return Optional.empty();
-    	}
-    	return Optional.of(stack.peek());
+        popUntilNext();
+        if (stack.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(stack.peek());
     }
-    
+
     void addStepOverBlock(Block block) {
-    	stepOverBlock.set(block);
+        stepOverBlock.set(block);
     }
-    
+
     Block removeCurrentStepOverBlock() {
-    	Block currentStepOverBlock = stepOverBlock.get();
-    	stepOverBlock.set(null);
-    	return currentStepOverBlock;
+        Block currentStepOverBlock = stepOverBlock.get();
+        stepOverBlock.set(null);
+        return currentStepOverBlock;
     }
-    
+
     boolean steppingOverFinished() {
-    	if(stepOverBlock.get()!=null) {
-    		if(poppedBlocks.contains(stepOverBlock.get())) {
-    			return true;
-    		}
-    	}
-    	return false;
+        if (stepOverBlock.get() != null) {
+            if (poppedBlocks.contains(stepOverBlock.get())) {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     ConcurrentStrandExecutor createChildStrandExecutor(Block childBlock, RunState initialState) {
-    	if(blocksToBeIgnored.contains(childBlock)) {
-    		return null;
-    	}
-    	ConcurrentStrandExecutor childExecutor = strandExecutorFactory.createChildStrandExecutor(strand, structure.substructure(childBlock),
-    			breakpoints, blocksToBeIgnored, executionStrategy, initialState);
+        if (blocksToBeIgnored.contains(childBlock)) {
+            return null;
+        }
+        ConcurrentStrandExecutor childExecutor = strandExecutorFactory.createChildStrandExecutor(strand,
+                structure.substructure(childBlock), breakpoints, blocksToBeIgnored, executionStrategy, initialState);
         addChildExecutor(childExecutor);
-        LOGGER.info("[{}] created child strand {}", strand, childExecutor.getStrand());
+        LOGGER.debug("[{}] created child strand {}", strand, childExecutor.getStrand());
         return childExecutor;
     }
 
     private void addChildExecutor(StrandExecutor childExecutor) {
-        updateChildrenExecutors(ImmutableList.<StrandExecutor>builder().addAll(childExecutors).add(childExecutor).build());
+        updateChildrenExecutors(
+                ImmutableList.<StrandExecutor> builder().addAll(childExecutors).add(childExecutor).build());
     }
 
     private void updateChildrenExecutors(ImmutableList<StrandExecutor> newChildren) {
@@ -463,20 +470,20 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     }
 
     private void setAllowedCommands(Set<StrandCommand> allowedCommandSet) {
-    	allowedCommands.set(allowedCommandSet);
-    	log("updated allowed commands to {}", allowedCommandSet);
+        allowedCommands.set(allowedCommandSet);
+        log("updated allowed commands to {}", allowedCommandSet);
     }
-    
+
     private void updateAllowedCommands() {
-		if (actualBlock() == null/* || actualState() == null */) {
-			setAllowedCommands(ImmutableSet.of());
+        if (actualBlock() == null/* || actualState() == null */) {
+            setAllowedCommands(ImmutableSet.of());
             LOGGER.warn("called updateAllowedCommands while current block is empty -> setAllowedTo []");
             return;
         }
-		/*TODO remove after fixing init and updateAllowedCommands flow*/
-        if(state==null) {
-        	LOGGER.warn("called updateAllowedCommands while state is null");
-        	return;
+        /* TODO remove after fixing init and updateAllowedCommands flow */
+        if (state == null) {
+            LOGGER.warn("called updateAllowedCommands while state is null");
+            return;
         }
         log("Legacy updateAllowedCommands() called", state.allowedCommands());
         setAllowedCommands(state.allowedCommands());
@@ -504,7 +511,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     @Override
     public RunState getActualState() {
-    	return this.strandRunState.get();
+        return this.strandRunState.get();
     }
 
     @Override
@@ -541,7 +548,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
      */
     private void cycleSleep() {
         try {
-        	Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
+            Thread.sleep(EXECUTOR_SLEEP_MS_DEFAULT);
         } catch (InterruptedException e) {
             throw exception(IllegalStateException.class, "Strand {} thread interrupted!", strand.id(), e);
         }
@@ -549,41 +556,39 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     @Override
     public String toString() {
-        return "ConcurrentStrandExecutor{" +
-                "strand=" + strand +
-                '}';
+        return "ConcurrentStrandExecutor{" + "strand=" + strand + '}';
     }
 
     @Override
     public void abort() {
         this.aborted.set(true);
-        getChildrenStrandExecutors().forEach(child->child.abort());
-        
+        getChildrenStrandExecutors().forEach(child -> child.abort());
+
     }
 
     @Override
     public boolean aborted() {
         return aborted.get();
     }
-    
-    void log(String message, Object ... objects){
-    	Object[] concatenated = new Object[objects.length+1];
-    	concatenated[0] = strand;
-    	for (int i = 0; i < objects.length; i++) {
-			concatenated[i+1] = objects[i];
-		}
-    	LOGGER.info("[{}]:"+message, concatenated);
-    }
-    
-    int maxConcurrency(Block block) {
-    	return this.structure.maxConcurrency(block);
-    }
-    
-    Block strandRoot() {
-    	return this.strandRoot;
+
+    void log(String message, Object... objects) {
+        Object[] concatenated = new Object[objects.length + 1];
+        concatenated[0] = strand;
+        for (int i = 0; i < objects.length; i++) {
+            concatenated[i + 1] = objects[i];
+        }
+        LOGGER.debug("[{}]:" + message, concatenated);
     }
 
-	public Flux<QueuedCommand> getLastCommandStream() {
-		return lastCommandStream;
-	}
+    int maxConcurrency(Block block) {
+        return this.structure.maxConcurrency(block);
+    }
+
+    Block strandRoot() {
+        return this.strandRoot;
+    }
+
+    public Flux<QueuedCommand> getLastCommandStream() {
+        return lastCommandStream;
+    }
 }

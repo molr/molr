@@ -1,14 +1,19 @@
 package io.molr.mole.core.support;
 
-import io.molr.commons.domain.RunState;
-import org.junit.Test;
+import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.function.Predicate;
 
-import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
+import io.molr.commons.domain.RunState;
+
+@SuppressWarnings("static-method")
 public class MissionPredicatesTest {
 
     @Test

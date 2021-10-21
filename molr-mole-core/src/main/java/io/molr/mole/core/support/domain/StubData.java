@@ -1,14 +1,14 @@
 package io.molr.mole.core.support.domain;
 
-import io.molr.commons.domain.Mission;
-import io.molr.commons.domain.Placeholder;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Objects.requireNonNull;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.Placeholder;
 
 /**
  * Provides capabilities to Missions Stubs for accessing data and generating parameters
@@ -67,7 +67,7 @@ public final class StubData {
      * @return the parameter map constructed with the arguments provided
      */
     public Map<String, Object> parameters(Object... objects) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         for (int i = 0; i < objects.length; i++) {
             params.put(parameters.get(i).name(), objects[i]);
         }
@@ -80,7 +80,7 @@ public final class StubData {
     public static class Builder {
         private final Mission mission;
         private Class<?> returnType;
-        private List<Placeholder<?>> parameters = new ArrayList<Placeholder<?>>();
+        private List<Placeholder<?>> parameters = new ArrayList<>();
 
         /**
          * @param mission the {@link Mission} being represented

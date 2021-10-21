@@ -20,7 +20,6 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	Placeholder<T> itemPlaceholder;
 	Placeholder<? extends Collection<T>> itemsPlaceholder;
 
-	@SuppressWarnings("unchecked")
 	public ForeachBranchRoot(BlockNameConfiguration name, Builder builder, Block parent, BranchMode mode,
 			Placeholder<? extends Collection<T>> itemsPlaceholder, Map<Placeholder<?>, Function<In, ?>> mappings) {
 		super(name, builder, parent, mode, mappings);
@@ -46,7 +45,7 @@ public class ForeachBranchRoot<T> extends GenericOngoingBranch<ForeachBranchRoot
 	public OngoingContextualBranch<T> branch(String name, Placeholder<?>... placeholders) {
 		createAndAddForeachBlock();
 		return new OngoingContextualBranch<>(BlockNameConfiguration.builder().text(name).formatterPlaceholders(placeholders).foreachItemPlaceholder(itemPlaceholder).build(),
-				builder(), block, BranchMode.SEQUENTIAL, itemPlaceholder, getMappings());
+				builder(), block, BranchMode.sequential(), itemPlaceholder, getMappings());
 	}
 
 	public OngoingForeachLeaf<T> leaf(String name,  Placeholder<?>... placeholders) {

@@ -26,8 +26,8 @@ public class OngoingForeachLeaf<T> extends GenericOngoingLeaf<OngoingForeachLeaf
 		return itemPlaceholder;
 	}
 	
-	private T item(In in, Placeholder<T> itemPlaceholder) {
-		return in.get(itemPlaceholder);
+	private T item(In in, Placeholder<T> item) {
+		return in.get(item);
 	}
 
 	@Deprecated

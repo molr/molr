@@ -1,9 +1,9 @@
 package io.molr.mole.core.tree.tracking;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ReplayProcessor;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LeafTracker<T> implements BlockTracker<T> {
 
@@ -21,8 +21,8 @@ public class LeafTracker<T> implements BlockTracker<T> {
         return this.summary;
     }
 
-    public void push(T result) {
-        summary.onNext(result);
+    public void push(T newResult) {
+        summary.onNext(newResult);
     }
 
 

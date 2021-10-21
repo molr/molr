@@ -32,7 +32,7 @@ public class VoidStub0 extends MissionStub0<Void> {
      * @return an instance of {@link MissionStub0}
      */
     public <R> MissionStub0<R> returning(Class<R> returnType) {
-        return new MissionStub0<R>(mission(), returnType);
+        return new MissionStub0<>(mission(), returnType);
     }
 
     /**
@@ -44,7 +44,7 @@ public class VoidStub0 extends MissionStub0<Void> {
      */
     @Override
     public <P1> VoidStub1<P1> withParameters(Placeholder<P1> p1) {
-        return new VoidStub1<P1>(mission(), p1);
+        return new VoidStub1<>(mission(), p1);
     }
 
     /**
@@ -56,8 +56,9 @@ public class VoidStub0 extends MissionStub0<Void> {
      * @param <P2> the type of parameter 1
      * @return an instance of {@link VoidStub2}
      */
+    @Override
     public <P1, P2> VoidStub2<P1, P2> withParameters(Placeholder<P1> p1, Placeholder<P2> p2) {
-        return new VoidStub2<P1, P2>(mission(), p1, p2);
+        return new VoidStub2<>(mission(), p1, p2);
     }
 
     public <P1, P2, P3> VoidStub3<P1,P2, P3> withParameters(Placeholder<P1> p1, Placeholder<P2> p2, Placeholder<P3> p3) {

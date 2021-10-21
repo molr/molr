@@ -1,9 +1,9 @@
 package io.molr.commons.domain.dto;
 
-import io.molr.commons.domain.MissionOutput;
-
 import java.util.Collections;
 import java.util.Map;
+
+import io.molr.commons.domain.MissionOutput;
 
 public class MissionOutputDto {
 

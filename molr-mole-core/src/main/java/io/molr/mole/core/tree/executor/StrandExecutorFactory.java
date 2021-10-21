@@ -1,6 +1,18 @@
 package io.molr.mole.core.tree.executor;
 
+import static io.molr.commons.domain.RunState.FINISHED;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.ExecutionStrategy;
 import io.molr.commons.domain.RunState;
@@ -15,18 +27,6 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static io.molr.commons.domain.RunState.FINISHED;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.Optional;
 
 /**
  * FIXME to be merged most probably with StrandFactory...

@@ -1,15 +1,20 @@
 package io.molr.mole.core.support;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
+
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.MissionHandle;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.support.domain.*;
+import io.molr.mole.core.support.domain.MissionStub0;
+import io.molr.mole.core.support.domain.MissionStub1;
+import io.molr.mole.core.support.domain.MissionStub2;
+import io.molr.mole.core.support.domain.VoidStub0;
+import io.molr.mole.core.support.domain.VoidStub1;
+import io.molr.mole.core.support.domain.VoidStub2;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Provides convenience methods for simple ways of running missions. It might have to be seen later, if some of them
@@ -37,7 +42,7 @@ public class MissionControlSupport implements MissionStubSupport {
     }
 
     /**
-     * @param mission           the {@link Mission} which has been registered with the {@link Mole}
+     * @param mission the {@link Mission} which has been registered with the {@link Mole}
      * @param missionParameters the mission parameters required by the {@link Mission} during it's execution
      * @return control to the running {@link Mission}
      */
@@ -48,7 +53,7 @@ public class MissionControlSupport implements MissionStubSupport {
     }
 
     /**
-     * @param missionName       the mission name
+     * @param missionName the mission name
      * @param missionParameters the mission parameters required by the {@link Mission} during it's execution
      * @return control to the running {@link Mission}
      */
@@ -80,10 +85,11 @@ public class MissionControlSupport implements MissionStubSupport {
     @Override
     public <R> OngoingReturningMissionRun<R> start(MissionStub0<R> stub) {
         OngoingMissionRun ongoingMissionRun = start(stub.mission(), stub.parameters());
-        return new OngoingReturningMissionRun<R>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
+        return new OngoingReturningMissionRun<>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
                 stub.returnType());
     }
 
+    @Override
     public <P1> OngoingMissionRun start(VoidStub1<P1> stub, P1 p1) {
         return start(stub.mission(), stub.parameters(p1));
     }
@@ -91,10 +97,11 @@ public class MissionControlSupport implements MissionStubSupport {
     @Override
     public <P1, R> OngoingReturningMissionRun<R> start(MissionStub1<P1, R> stub, P1 p1) {
         OngoingMissionRun ongoingMissionRun = start(stub.mission(), stub.parameters(p1));
-        return new OngoingReturningMissionRun<R>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
+        return new OngoingReturningMissionRun<>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
                 stub.returnType());
     }
 
+    @Override
     public <P1, P2> OngoingMissionRun start(VoidStub2<P1, P2> stub, P1 p1, P2 p2) {
         return start(stub.mission(), stub.parameters(p1, p2));
     }
@@ -102,7 +109,7 @@ public class MissionControlSupport implements MissionStubSupport {
     @Override
     public <P1, P2, R> OngoingReturningMissionRun<R> start(MissionStub2<P1, P2, R> stub, P1 p1, P2 p2) {
         OngoingMissionRun ongoingMissionRun = start(stub.mission(), stub.parameters(p1, p2));
-        return new OngoingReturningMissionRun<R>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
+        return new OngoingReturningMissionRun<>(ongoingMissionRun.mole(), ongoingMissionRun.asyncHandle(),
                 stub.returnType());
     }
 }

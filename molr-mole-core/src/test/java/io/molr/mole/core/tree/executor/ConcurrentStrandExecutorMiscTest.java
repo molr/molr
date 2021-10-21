@@ -1,13 +1,12 @@
 package io.molr.mole.core.tree.executor;
 
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.RunState;
-import io.molr.commons.domain.StrandCommand;
-import io.molr.mole.core.runnable.RunnableLeafsMission;
-import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
-import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
-import io.molr.mole.core.utils.Trees;
-import reactor.core.publisher.SynchronousSink;
+import static io.molr.commons.domain.Result.SUCCESS;
+import static io.molr.commons.domain.Result.UNDEFINED;
+import static io.molr.commons.domain.RunState.FINISHED;
+import static io.molr.commons.domain.RunState.PAUSED;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -15,13 +14,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static io.molr.commons.domain.Result.SUCCESS;
-import static io.molr.commons.domain.Result.UNDEFINED;
-import static io.molr.commons.domain.RunState.FINISHED;
-import static io.molr.commons.domain.RunState.PAUSED;
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.runnable.RunnableLeafsMission;
+import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
+import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
+import io.molr.mole.core.utils.Trees;
 
 @SuppressWarnings("unused")
 public class ConcurrentStrandExecutorMiscTest extends AbstractSingleMissionStrandExecutorTest {

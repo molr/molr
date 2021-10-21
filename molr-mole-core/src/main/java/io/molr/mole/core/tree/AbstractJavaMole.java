@@ -1,18 +1,8 @@
 package io.molr.mole.core.tree;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.*;
-import io.molr.mole.core.api.Mole;
-import io.molr.mole.core.tree.exception.MissionDisposeException;
-import io.molr.mole.core.utils.ThreadFactories;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.ReplayProcessor;
-import reactor.core.scheduler.Schedulers;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -23,9 +13,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.AgencyState;
+import io.molr.commons.domain.AtomicIncrementMissionHandleFactory;
+import io.molr.commons.domain.BlockCommand;
+import io.molr.commons.domain.ImmutableAgencyState;
+import io.molr.commons.domain.Mission;
+import io.molr.commons.domain.MissionCommand;
+import io.molr.commons.domain.MissionHandle;
+import io.molr.commons.domain.MissionHandleFactory;
+import io.molr.commons.domain.MissionInstance;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionParameterDescription;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.mole.core.api.Mole;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
+import io.molr.mole.core.utils.ThreadFactories;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Schedulers;
 
 public abstract class AbstractJavaMole implements Mole {
 
@@ -131,6 +146,7 @@ public abstract class AbstractJavaMole implements Mole {
                 .ifPresent(e -> e.instruct(strand, command));
     }
 
+    @Override
     public final void instructRoot(MissionHandle handle, StrandCommand command) {
         Optional.ofNullable(executors.get(handle))
                 .ifPresent(e -> e.instructRoot(command));

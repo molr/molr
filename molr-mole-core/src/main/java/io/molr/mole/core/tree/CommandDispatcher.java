@@ -1,8 +1,8 @@
 package io.molr.mole.core.tree;
 
-import io.molr.commons.domain.StrandCommand;
-
 import java.util.function.Consumer;
+
+import io.molr.commons.domain.StrandCommand;
 
 public abstract class CommandDispatcher {
 

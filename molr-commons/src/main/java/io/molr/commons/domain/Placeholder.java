@@ -1,12 +1,10 @@
 package io.molr.commons.domain;
 
-import java.util.Objects;
-import java.util.function.Function;
-
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

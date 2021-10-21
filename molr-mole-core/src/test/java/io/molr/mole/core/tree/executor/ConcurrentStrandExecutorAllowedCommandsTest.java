@@ -24,15 +24,19 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import reactor.core.publisher.Flux;
 
+@SuppressWarnings("static-method")
 public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleMissionStrandExecutorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentStrandExecutorStepOverParallelTest.class);
 
-	public static long DEFAULT_TIMEOUT = 5000;
-    
+    public static long DEFAULT_TIMEOUT = 5000;
+
     private Block parallelBlock;
+    @SuppressWarnings("unused")
     private Block lastBlock;
+    @SuppressWarnings("unused")
     private Block blockA2;
+    @SuppressWarnings("unused")
     private Block blockB2;
     private Block leafBlock;
     private Block sequentialBlock;
@@ -60,6 +64,7 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                     root.branch("sequential-block").sequential().as(seq -> {
                         sequentialBlock = latestBlock();
                         seq.leaf("sequence-leaf").run(() -> {
+                            /* nothing */
                         });
                     });
 
@@ -72,11 +77,10 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
                                 await(latchA1End);
                                 System.out.println();
                             });
-                            bA.leaf("A.2").run(() -> {
-                            });
+                            bA.leaf("A.2").run(() -> {/* nothing */});
                             blockA2 = latestBlock();
                         });
-                        b.branch("sequential branch B").sequential().as( bB -> {
+                        b.branch("sequential branch B").sequential().as(bB -> {
                             bB.leaf("B.1").run(() -> {
                                 unlatch(latchB1Start);
                                 await(latchB1End);
@@ -170,71 +174,74 @@ public class ConcurrentStrandExecutorAllowedCommandsTest extends AbstractSingleM
     public Logger logger() {
         return LOGGER;
     }
-	
+
+    
     @Test
     public void testPausedLeafCommands() {
-    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
-    			.breakPoints("0.0.0").build();
-    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0.0"));
-    	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	blocks.blockLast();
-    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
-    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(
-    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER);
+        TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).breakPoints("0.0.0")
+                .build();
+        Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id)
+                .takeUntil(block -> block.equals("0.0.0"));
+        context.strandExecutor().instruct(StrandCommand.RESUME);
+        blocks.blockLast();
+        context.strandExecutor().getStateStream().takeUntil(state -> state.equals(RunState.PAUSED)).blockLast();
+        Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(StrandCommand.RESUME,
+                StrandCommand.SKIP, StrandCommand.STEP_OVER);
     }
-    
+
     @Test
     public void testRunninLeafCommands() {
-    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
-    			.latched("0.0.0").build();
-    	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	/*
-    	 * TODO the await command might be too late if strand executor is too fast
-    	 */
-		context.awaitEntry("0.0.0");
+        TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).latched("0.0.0")
+                .build();
+        context.strandExecutor().instruct(StrandCommand.RESUME);
+        /*
+         * TODO the await command might be too late if strand executor is too fast
+         */
+        context.awaitEntry("0.0.0");
 
-    	System.out.println("assert");
-    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(
-    			StrandCommand.PAUSE);
+        System.out.println("assert");
+        Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactly(StrandCommand.PAUSE);
     }
-    
+
     @Test
     public void testPausedSequentialBranch() {
-    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
-    			.breakPoints("0.0").build();
-    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0"));
-    	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	blocks.blockLast();
-    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
-    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
-    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);   	
+        TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).breakPoints("0.0")
+                .build();
+        Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id)
+                .takeUntil(block -> block.equals("0.0"));
+        context.strandExecutor().instruct(StrandCommand.RESUME);
+        blocks.blockLast();
+        context.strandExecutor().getStateStream().takeUntil(state -> state.equals(RunState.PAUSED)).blockLast();
+        Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
+                StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);
     }
-    
+
     /*
      * TODO not test paused but children executed? Possible to pause running?
      * Open question
      */
     @Test
     public void testPausedParallelBranch() {
-    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
-    			.breakPoints("0.0").parallel("0.0").build();
-    	Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id).takeUntil(block->block.equals("0.0"));
-    	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	blocks.blockLast();
-    	context.strandExecutor().getStateStream().takeUntil(state ->state.equals(RunState.PAUSED)).blockLast();
-    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
-    			StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);   	
+        TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).breakPoints("0.0")
+                .parallel("0.0").build();
+        Flux<String> blocks = context.strandExecutor().getBlockStream().map(Block::id)
+                .takeUntil(block -> block.equals("0.0"));
+        context.strandExecutor().instruct(StrandCommand.RESUME);
+        blocks.blockLast();
+        context.strandExecutor().getStateStream().takeUntil(state -> state.equals(RunState.PAUSED)).blockLast();
+        Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
+                StrandCommand.RESUME, StrandCommand.SKIP, StrandCommand.STEP_OVER, StrandCommand.STEP_INTO);
     }
-    
+
     @Test
-    public void testRunningParallelBranch() throws InterruptedException {
-    	TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3))
-    			.parallel("0.0").latched("0.0.0", "0.0.1").build();
-    	context.strandExecutor().instruct(StrandCommand.RESUME);
-    	context.awaitEntry("0.0.0");
-    	context.awaitEntry("0.0.1");
-    	Assertions.assertThat(context.strandExecutor().getAllowedCommands()).containsExactlyInAnyOrder(
-    			StrandCommand.PAUSE);       	
+    public void testRunningParallelBranch() {
+        TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).parallel("0.0")
+                .latched("0.0.0", "0.0.1").build();
+        context.strandExecutor().instruct(StrandCommand.RESUME);
+        context.awaitEntry("0.0.0");
+        context.awaitEntry("0.0.1");
+        Assertions.assertThat(context.strandExecutor().getAllowedCommands())
+                .containsExactlyInAnyOrder(StrandCommand.PAUSE);
     }
-	
+
 }

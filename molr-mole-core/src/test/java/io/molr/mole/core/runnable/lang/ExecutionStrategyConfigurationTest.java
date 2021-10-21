@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 
 import io.molr.commons.domain.ExecutionStrategy;
 
+@SuppressWarnings("static-method")
 public class ExecutionStrategyConfigurationTest {
 	
 	@Test

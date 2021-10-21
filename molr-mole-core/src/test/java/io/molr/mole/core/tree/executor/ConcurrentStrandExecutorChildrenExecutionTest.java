@@ -1,5 +1,22 @@
 package io.molr.mole.core.tree.executor;
 
+import static io.molr.commons.domain.RunState.FINISHED;
+import static io.molr.commons.domain.RunState.PAUSED;
+import static io.molr.commons.domain.RunState.RUNNING;
+import static io.molr.commons.domain.StrandCommand.PAUSE;
+import static io.molr.commons.domain.StrandCommand.RESUME;
+import static io.molr.commons.domain.StrandCommand.STEP_INTO;
+import static io.molr.commons.domain.StrandCommand.STEP_OVER;
+
+import java.util.concurrent.CountDownLatch;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
@@ -7,19 +24,6 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
 import io.molr.mole.core.testing.strand.StrandExecutorTestSupport;
 import io.molr.mole.core.tree.StrandExecutor;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CountDownLatch;
-
-import static io.molr.commons.domain.RunState.*;
-import static io.molr.commons.domain.StrandCommand.*;
 
 public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingleMissionStrandExecutorTest {
 
@@ -87,7 +91,7 @@ public class ConcurrentStrandExecutorChildrenExecutionTest extends AbstractSingl
     }
 
     @Test
-    public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() throws InterruptedException {
+    public void testStepOverLastChildrenAfterStepIntoPausesAtParentSibling() {
         moveRootStrandTo(parallelBlock);
         System.out.println("MOVED to "+rootStrandExecutor().getActualBlock());
         instructRootStrandSync(STEP_INTO);

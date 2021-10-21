@@ -1,13 +1,13 @@
 package io.molr.commons.domain;
 
-import com.google.common.collect.ImmutableSet;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toSet;
+import com.google.common.collect.ImmutableSet;
 
 public final class ImmutableAgencyState implements AgencyState {
 

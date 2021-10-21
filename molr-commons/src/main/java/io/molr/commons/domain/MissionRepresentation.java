@@ -4,12 +4,12 @@
 
 package io.molr.commons.domain;
 
-import com.google.common.collect.ListMultimap;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import com.google.common.collect.ListMultimap;
 
 public interface MissionRepresentation {
 

@@ -5,13 +5,26 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- *
+ * Currently, the only collection in molar for which placeholders can be created.
+ * 
  * @author krepp
  */
-public class ListOfStrings extends ArrayList<String> implements MolrCollection<String>{
+/*
+ * TODO: This still has to be reviewed, if this is the ideal solution. In particular inheriting from List does not feel
+ * good. Potentially, there is a solution using type token or similar...
+ */
+public class ListOfStrings extends ArrayList<String> implements MolrCollection<String> {
 
     private static final long serialVersionUID = 1L;
 
+    public static final ListOfStrings empty() {
+        /* As the list is mutable, it seems to be advisable to always return a new instance. */
+        return new ListOfStrings();
+    }
+
+    /*
+     * Default constructor required for gson.
+     */
     public ListOfStrings() {
         super();
     }
@@ -20,11 +33,10 @@ public class ListOfStrings extends ArrayList<String> implements MolrCollection<S
         super(values);
     }
 
-    
     public ListOfStrings(String... values) {
         super(Arrays.asList(values));
     }
-    
+
     @Override
     public int hashCode() {
         return super.hashCode();
@@ -41,17 +53,9 @@ public class ListOfStrings extends ArrayList<String> implements MolrCollection<S
         return true;
     }
 
-	@Override
-	public Placeholder<String> itemPlaceholder(String name) {
-		return Placeholder.aString(name);
-	}
-	
-	/*
-	 * public static Placeholder<String> itemPlaceholderS(String name) { return
-	 * Placeholder.aString(name); }
-	 */
-
-	
+    @Override
+    public Placeholder<String> itemPlaceholder(String name) {
+        return Placeholder.aString(name);
+    }
 
 }
-

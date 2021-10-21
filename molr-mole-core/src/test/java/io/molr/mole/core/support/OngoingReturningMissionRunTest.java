@@ -1,5 +1,22 @@
 package io.molr.mole.core.support;
 
+import static io.molr.commons.domain.Placeholder.aDouble;
+import static io.molr.commons.domain.Placeholder.aString;
+import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
+import static java.lang.Boolean.TRUE;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.molr.commons.domain.RunState;
 import io.molr.mole.core.api.Mole;
 import io.molr.mole.core.single.SingleNodeMission;
@@ -7,25 +24,12 @@ import io.molr.mole.core.single.SingleNodeMole;
 import io.molr.mole.core.support.domain.MissionStub0;
 import io.molr.mole.core.support.domain.MissionStub2;
 import io.molr.mole.core.support.domain.VoidStub0;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
-
-import static io.molr.commons.domain.Placeholder.aDouble;
-import static io.molr.commons.domain.Placeholder.aString;
-import static io.molr.mole.core.support.MissionPredicates.runStateEquals;
-import static java.lang.Boolean.TRUE;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 public class OngoingReturningMissionRunTest {
 
     private MissionControlSupport support;
-    private String voidMission0;
-    private String booleanMission2;
+    private String voidMission0Name;
+    private String booleanMission2Name;
     private OngoingReturningMissionRun<Boolean> run;
 
     @Before
@@ -34,10 +38,10 @@ public class OngoingReturningMissionRunTest {
         SingleNodeMission<Void> voidMission0 = SingleNodeMission.from(() -> {
             // void return type
         });
-        this.voidMission0 = voidMission0.name();
+        this.voidMission0Name = voidMission0.name();
         SingleNodeMission<Boolean> booleanMission2 = SingleNodeMission.from(Boolean.class, (p1, p2) -> TRUE,
                 aDouble("doubleParam"), aString("stringParam"));
-        this.booleanMission2 = booleanMission2.name();
+        this.booleanMission2Name = booleanMission2.name();
         Mole mole = new SingleNodeMole(new HashSet<>(Arrays.asList(booleanMission0, voidMission0, booleanMission2)));
         support = MissionControlSupport.from(mole);
         MissionStub0<Boolean> missionStub0 = MissionStubs.stub(booleanMission0.name()).returning(Boolean.class);
@@ -85,7 +89,7 @@ public class OngoingReturningMissionRunTest {
 
     @Test
     public void startAndAwaitOutputValue() {
-        MissionStub2<Double, String, Boolean> missionStub2 = MissionStubs.stub(booleanMission2).returning(Boolean.class)
+        MissionStub2<Double, String, Boolean> missionStub2 = MissionStubs.stub(booleanMission2Name).returning(Boolean.class)
                 .withParameters(aDouble("doubleParam"), aString("stringParam"));
         Boolean success = support.start(missionStub2, 0.1, "We did it!")
                 .and().awaitOuputValue();
@@ -94,7 +98,7 @@ public class OngoingReturningMissionRunTest {
 
     @Test
     public void startAndForget() {
-        VoidStub0 voidStub0 = MissionStubs.stub(voidMission0);
+        VoidStub0 voidStub0 = MissionStubs.stub(voidMission0Name);
         support.start(voidStub0).and().forget();
     }
 }

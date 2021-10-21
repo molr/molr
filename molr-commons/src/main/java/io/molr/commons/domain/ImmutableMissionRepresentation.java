@@ -1,12 +1,18 @@
 package io.molr.commons.domain;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
-
-import java.util.*;
-
-import static java.util.Objects.requireNonNull;
 
 public final class ImmutableMissionRepresentation implements MissionRepresentation {
 

@@ -1,15 +1,15 @@
 package io.molr.mole.core.support.domain;
 
+import java.util.Map;
+
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.Placeholder;
-
-import java.util.Map;
 
 /**
  * Represents a {@link Mission} which accepts one parameter and returns a value
  *
  * @param <P1> the type for parameter 1
- * @param <R>  the type for return value of {@link Mission} being represented
+ * @param <R> the type for return value of {@link Mission} being represented
  * @author HimanshuSahu31
  */
 public class MissionStub1<P1, R> {
@@ -17,14 +17,12 @@ public class MissionStub1<P1, R> {
     private StubData data;
 
     /**
-     * @param mission    the {@link Mission} being represented
+     * @param mission the {@link Mission} being represented
      * @param returnType the type for return value of {@link Mission} being represented
+     * @param p1 the placeholder for the first parameter
      */
     MissionStub1(Mission mission, Class<R> returnType, Placeholder<P1> p1) {
-        data = StubData.from(mission)
-                .setReturnType(returnType)
-                .addParameter(p1)
-                .build();
+        data = StubData.from(mission).setReturnType(returnType).addParameter(p1).build();
     }
 
     /**

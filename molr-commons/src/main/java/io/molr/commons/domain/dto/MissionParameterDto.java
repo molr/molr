@@ -1,5 +1,14 @@
 package io.molr.commons.domain.dto;
 
+import static io.molr.commons.util.Exceptions.illegalArgumentException;
+import static io.molr.commons.util.Exceptions.illegalStateException;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
@@ -9,17 +18,6 @@ import com.google.common.collect.Maps;
 import io.molr.commons.domain.ListOfStrings;
 import io.molr.commons.domain.MissionParameter;
 import io.molr.commons.domain.Placeholder;
-
-import java.util.Map;
-import java.util.Objects;
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-
-import static io.molr.commons.util.Exceptions.illegalArgumentException;
-import static io.molr.commons.util.Exceptions.illegalStateException;
 
 public class MissionParameterDto<T> {
 
@@ -84,7 +82,7 @@ public class MissionParameterDto<T> {
         this.meta = meta;
     }
 
-    public static final <T> MissionParameterDto from(MissionParameter<T> parameter) {
+    public static final <T> MissionParameterDto<T> from(MissionParameter<T> parameter) {
         Placeholder<T> placeholder = parameter.placeholder();
         MissionParameterDto<T> dto = new MissionParameterDto<>(placeholder.name(), typeStringFrom(placeholder.type()),
                 parameter.isRequired(), parameter.defaultValue(), parameter.allowedValues(), parameter.meta());
@@ -94,9 +92,8 @@ public class MissionParameterDto<T> {
     public MissionParameter<T> toMissionParameter() {
         if (this.required) {
             return MissionParameter.required(placeholder()).withDefault(defaultValue).withAllowed(allowedValues).withMeta(meta);
-        } else {
+        } 
             return MissionParameter.optional(placeholder()).withDefault(defaultValue).withAllowed(allowedValues).withMeta(meta);
-        }
     }
 
     private Placeholder<T> placeholder() {
@@ -123,7 +120,7 @@ public class MissionParameterDto<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MissionParameterDto that = (MissionParameterDto) o;
+        MissionParameterDto<?> that = (MissionParameterDto<?>) o;
         return required == that.required &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(type, that.type) &&

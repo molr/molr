@@ -65,8 +65,8 @@ public class BlockNameConfiguration {
 			return new BlockNameConfiguration(name);
 		}
 		
-		public Builder text(String name) {
-			this.name = name;
+		public Builder text(String newText) {
+			this.name = newText;
 			return this;
 		}
 		

@@ -1,9 +1,9 @@
 package io.molr.commons.domain;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Optional;
 import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 public final class Placeholders {
 

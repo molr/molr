@@ -1,41 +1,32 @@
 package io.molr.commons.domain.dto;
 
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.MissionParameter;
-import io.molr.commons.domain.MissionParameterDescription;
-import io.molr.commons.domain.ParameterRestriction;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.MissionParameter;
+import io.molr.commons.domain.MissionParameterDescription;
 
 public class MissionParameterDescriptionDto {
 
-    public final Set<MissionParameterDto> parameters;
+    public final Set<MissionParameterDto<?>> parameters;
     
-    public Map<String, ParameterRestriction> parameterRestrictions = new HashMap<>();
-
     public MissionParameterDescriptionDto() {
         this.parameters = Collections.emptySet();
     }
 
-    private MissionParameterDescriptionDto(Set<MissionParameterDto> missionParameters) {
+    private MissionParameterDescriptionDto(Set<MissionParameterDto<?>> missionParameters) {
         this.parameters = Objects.requireNonNull(missionParameters, "missionParameters must not be null");
     }
     
-    public MissionParameterDescriptionDto(Set<MissionParameterDto> parameters, Map<String, ParameterRestriction> restrictions) {
-        this.parameters = parameters;
-        this.parameterRestrictions = restrictions;
-    }
 
     public static final MissionParameterDescriptionDto from(MissionParameterDescription description) {
-        Set<MissionParameterDto> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toSet());
-        return new MissionParameterDescriptionDto(parameterDtos, description.restrictions);
+        Set<MissionParameterDto<?>> parameterDtos = description.parameters().stream().map(MissionParameterDto::from).collect(toSet());
+        return new MissionParameterDescriptionDto(parameterDtos);
     }
 
     public MissionParameterDescription toMissionParameterDescription() {

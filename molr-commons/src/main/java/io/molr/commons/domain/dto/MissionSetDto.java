@@ -1,10 +1,10 @@
 package io.molr.commons.domain.dto;
 
-import io.molr.commons.domain.Mission;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import io.molr.commons.domain.Mission;
 
 public class MissionSetDto {
 

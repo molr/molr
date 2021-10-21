@@ -1,20 +1,16 @@
 package io.molr.mole.server.conf;
 
-import io.molr.commons.domain.dto.*;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.codec.ServerCodecConfigurer;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-
-import com.fasterxml.jackson.databind.module.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import io.molr.commons.domain.dto.MissionParameterDto;
 
 /**
  *
@@ -26,12 +22,12 @@ public class ObjectMapperConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectMapperConfig.class);
     
     @Bean
-    public ObjectMapper objectMapper(){
+    public static ObjectMapper objectMapper(){
         return createObjectMapper();
     }
     
     @Bean
-    public Jackson2JsonDecoder jsonDecoder(ObjectMapper mapper) {
+    public static Jackson2JsonDecoder jsonDecoder(ObjectMapper mapper) {
         return jsonDecoderWith(mapper);
     }
     
@@ -41,7 +37,7 @@ public class ObjectMapperConfig {
     }
     
     @Bean
-    public Jackson2JsonEncoder jsonEncoder(ObjectMapper mapper) {
+    public static Jackson2JsonEncoder jsonEncoder(ObjectMapper mapper) {
         return jsonEncoderWithMapper(mapper);
     }
     
@@ -51,7 +47,7 @@ public class ObjectMapperConfig {
     }
     
     @Bean 
-    public ExchangeStrategies exchangeStrategies(ObjectMapper mapper) {
+    public static ExchangeStrategies exchangeStrategies(ObjectMapper mapper) {
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder().codecs(clientCodecConfigurer -> {
             Jackson2JsonDecoder decoder = new Jackson2JsonDecoder(mapper);
             Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(mapper);

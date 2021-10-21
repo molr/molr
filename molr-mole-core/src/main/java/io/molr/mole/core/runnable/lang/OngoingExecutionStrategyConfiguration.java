@@ -1,7 +1,8 @@
 package io.molr.mole.core.runnable.lang;
 
-import java.util.Set;
 import static java.util.Objects.requireNonNull;
+
+import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 

@@ -1,8 +1,8 @@
 package io.molr.commons.domain.dto;
 
-import io.molr.commons.domain.Strand;
-
 import static java.util.Objects.requireNonNull;
+
+import io.molr.commons.domain.Strand;
 
 public class StrandDto {
 

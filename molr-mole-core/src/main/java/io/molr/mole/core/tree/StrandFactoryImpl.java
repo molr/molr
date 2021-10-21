@@ -1,14 +1,16 @@
 package io.molr.mole.core.tree;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import io.molr.commons.domain.Strand;
-
-import javax.annotation.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.concurrent.GuardedBy;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+
+import io.molr.commons.domain.Strand;
 
 public class StrandFactoryImpl implements StrandFactory {
 

@@ -1,13 +1,13 @@
 package io.molr.mole.core.tree.exception;
 
-import io.molr.commons.domain.StrandCommand;
-
 /**
  * Exception that indicates that the command was rejected
  */
 public class RejectedCommandException extends StrandExecutorException {
 
-    public RejectedCommandException(StrandCommand command, String message, Object... args) {
+    private static final long serialVersionUID = 1L;
+
+    public RejectedCommandException(String message, Object... args) {
         super(message, args);
     }
 

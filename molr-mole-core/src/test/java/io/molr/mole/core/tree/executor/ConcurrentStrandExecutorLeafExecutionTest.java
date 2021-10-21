@@ -1,16 +1,17 @@
 package io.molr.mole.core.tree.executor;
 
+import static io.molr.commons.domain.Result.FAILED;
+import static io.molr.commons.domain.Result.UNDEFINED;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
 import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
-import org.junit.Test;
-import org.slf4j.Logger;
-
-import static io.molr.commons.domain.Result.FAILED;
-import static io.molr.commons.domain.Result.UNDEFINED;
 
 public class ConcurrentStrandExecutorLeafExecutionTest extends AbstractSingleMissionStrandExecutorTest {
 

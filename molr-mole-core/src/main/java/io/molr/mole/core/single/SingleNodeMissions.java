@@ -7,7 +7,7 @@ public final class SingleNodeMissions {
 
     private SingleNodeMissions() {/* only static methods*/}
 
-    public static final MissionRepresentation representationFor(SingleNodeMission mission) {
+    public static final MissionRepresentation representationFor(SingleNodeMission<?> mission) {
         return ImmutableMissionRepresentation.empty(mission.name());
     }
 }

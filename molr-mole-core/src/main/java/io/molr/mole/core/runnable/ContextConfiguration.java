@@ -1,7 +1,8 @@
 package io.molr.mole.core.runnable;
 
-import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
+
+import java.util.function.Function;
 
 import io.molr.commons.domain.In;
 import io.molr.commons.domain.Placeholder;

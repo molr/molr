@@ -1,18 +1,6 @@
 package io.molr.mole.core.single;
 
-import com.google.common.collect.ImmutableSet;
-import io.molr.commons.domain.*;
-import io.molr.commons.util.Exceptions;
-import io.molr.mole.core.tree.BlockOutputCollector;
-import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
-import io.molr.mole.core.tree.MissionExecutor;
-import io.molr.mole.core.tree.MissionOutputCollector;
-import io.molr.mole.core.tree.exception.MissionDisposeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
-import reactor.core.scheduler.Schedulers;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +11,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockCommand;
+import io.molr.commons.domain.MissionInput;
+import io.molr.commons.domain.MissionOutput;
+import io.molr.commons.domain.MissionRepresentation;
+import io.molr.commons.domain.MissionState;
+import io.molr.commons.domain.Placeholder;
+import io.molr.commons.domain.Placeholders;
+import io.molr.commons.domain.Result;
+import io.molr.commons.domain.RunState;
+import io.molr.commons.domain.Strand;
+import io.molr.commons.domain.StrandCommand;
+import io.molr.commons.util.Exceptions;
+import io.molr.mole.core.tree.BlockOutputCollector;
+import io.molr.mole.core.tree.ConcurrentMissionOutputCollector;
+import io.molr.mole.core.tree.MissionExecutor;
+import io.molr.mole.core.tree.MissionOutputCollector;
+import io.molr.mole.core.tree.exception.MissionDisposeException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Schedulers;
 
 public class SingleNodeMissionExecutor<R> implements MissionExecutor {
 

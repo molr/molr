@@ -1,12 +1,8 @@
 package io.molr.commons.domain.dto;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimaps;
-
-import io.molr.commons.domain.Block;
-import io.molr.commons.domain.BlockAttribute;
-import io.molr.commons.domain.ImmutableMissionRepresentation;
-import io.molr.commons.domain.MissionRepresentation;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,9 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimaps;
+
+import io.molr.commons.domain.Block;
+import io.molr.commons.domain.BlockAttribute;
+import io.molr.commons.domain.ImmutableMissionRepresentation;
+import io.molr.commons.domain.MissionRepresentation;
 
 public class MissionRepresentationDto {
 

@@ -1,16 +1,16 @@
 package io.molr.mole.core.support.domain;
 
+import java.util.Map;
+
 import io.molr.commons.domain.Mission;
 import io.molr.commons.domain.Placeholder;
-
-import java.util.Map;
 
 /**
  * Represents a {@link Mission} which accepts two parameters and returns a value
  *
  * @param <P1> the type for parameter 1
  * @param <P2> the type for parameter 2
- * @param <R>  the type for return value of {@link Mission} being represented
+ * @param <R> the type for return value of {@link Mission} being represented
  * @author HimanshuSahu31
  */
 public class MissionStub2<P1, P2, R> {
@@ -18,17 +18,13 @@ public class MissionStub2<P1, P2, R> {
     private StubData data;
 
     /**
-     * @param mission
+     * @param mission the mission for which the stub shall be created
      * @param returnType the type for return value of {@link Mission} being represented
-     * @param p1         the {@link Placeholder} for parameter 1
-     * @param p2         the {@link Placeholder} for parameter 2
+     * @param p1 the {@link Placeholder} for parameter 1
+     * @param p2 the {@link Placeholder} for parameter 2
      */
     MissionStub2(Mission mission, Class<R> returnType, Placeholder<P1> p1, Placeholder<P2> p2) {
-        data = StubData.from(mission)
-                .setReturnType(returnType)
-                .addParameter(p1)
-                .addParameter(p2)
-                .build();
+        data = StubData.from(mission).setReturnType(returnType).addParameter(p1).addParameter(p2).build();
     }
 
     /**

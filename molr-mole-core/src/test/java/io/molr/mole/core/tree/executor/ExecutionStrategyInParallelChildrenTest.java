@@ -1,5 +1,9 @@
 package io.molr.mole.core.tree.executor;
 
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.molr.commons.domain.Block;
 import io.molr.commons.domain.BlockAttribute;
 import io.molr.commons.domain.ExecutionStrategy;
@@ -10,10 +14,6 @@ import io.molr.mole.core.runnable.RunnableLeafsMission;
 import io.molr.mole.core.runnable.lang.OngoingSimpleBranch;
 import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.testing.strand.AbstractSingleMissionStrandExecutorTest;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,7 +38,7 @@ public class ExecutionStrategyInParallelChildrenTest extends AbstractSingleMissi
         return mission(false);
     }
 
-    private RunnableLeafsMission mission(boolean forceParallelBranchToQuit) {
+    private static RunnableLeafsMission mission(boolean forceParallelBranchToQuit) {
         return new RunnableLeafsMissionSupport() {
             {
                 executionStrategy().allowAll().defaultsTo(ExecutionStrategy.ABORT_ON_ERROR);

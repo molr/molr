@@ -1,15 +1,14 @@
 package io.molr.commons.domain;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
-import static java.util.Objects.requireNonNull;
-
-import java.util.Collection;
-import java.util.Map;
 
 public final class MissionParameter<T> {
 
@@ -47,8 +46,8 @@ public final class MissionParameter<T> {
         return new MissionParameter<>(placeholder, defaultValue, required, ImmutableSet.copyOf(newAllowedValues), meta);
     }
     
-    public MissionParameter<T> withMeta(Map<String, Object> meta){
-    	return new MissionParameter<>(placeholder, defaultValue, required, allowedValues, meta);
+    public MissionParameter<T> withMeta(Map<String, Object> newMeta){
+    	return new MissionParameter<>(placeholder, defaultValue, required, allowedValues, newMeta);
     }
     
     public boolean isRequired() {

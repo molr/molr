@@ -1,5 +1,6 @@
 package io.molr.mole.remote.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 import java.util.HashMap;
@@ -8,9 +9,6 @@ import java.util.Map;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 // for library loggers
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -20,8 +20,8 @@ public class AtomicIncrementMissionHandleFactory implements MissionHandleFactory
     public MissionHandle createHandle() {
         String className = target.getClass().getName();
         String hashCode = "" + System.identityHashCode(target);
-        String nextId = "" + this.nextId.getAndIncrement();
-        return MissionHandle.ofId(String.format("%s::%s::%s", className, hashCode, nextId));
+        String nextIdString = "" + this.nextId.getAndIncrement();
+        return MissionHandle.ofId(String.format("%s::%s::%s", className, hashCode, nextIdString));
     }
 
 }
