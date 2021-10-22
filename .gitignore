@@ -1,6 +1,10 @@
 cbng*
 */**/cbng*
 
+# Maven
+##flatten-plugin
+*.flattened-pom.xml
+
 ### Java template
 *.class
 
