@@ -14,7 +14,7 @@ script:
 - echo "phase-script-last"
 deploy:
 - provider: script
-  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG} -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
+  script: export GPG_TTY=$(tty) && mvn --settings .ci/mvn-settings.xml -DskipTests=true -Drevision=${TRAVIS_TAG:1} -Dorg.slf4j.simpleLogger.defaultLogLevel=error -Dlogging.level.root=error clean deploy
   skip_cleanup: true
   on:
     tags: true
@@ -26,10 +26,10 @@ deploy:
 after_success:
 - echo "afterSuccess"
 - bash <(curl -s https://codecov.io/bash)
-- "./print_test_reports.sh"
+- "./.ci/print_test_reports.sh"
 after_failure:
 - echo "afterFailure"
-- "./print_test_reports.sh"
+- "./.ci/print_test_reports.sh"
 env:
   global:
     - LOG_LEVEL=WARN
