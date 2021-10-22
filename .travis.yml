@@ -6,6 +6,8 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_171b1c559d7b_key -iv $encrypted_171b1c559d7b_iv -in .ci/signingkey.asc.enc -out .ci/signingkey.asc -d
 - gpg --batch --fast-import .ci/signingkey.asc
 - gpg --version
+- export VERSION="v0.0.0"
+- echo ${VERSION}
 - echo "phase-before-install-last"
 install: true
 script:
