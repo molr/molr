@@ -7,6 +7,7 @@ import static java.lang.String.format;
  */
 public final class MoleWebApi {
 
+	public static final String AGENCY_STATES = "/states";
     public static final String MISSION_HEADER = "/mission/";
     public static final String INSTANCE_HEADER = "/instance/";
     public static final String MISSION_NAME = "missionName";

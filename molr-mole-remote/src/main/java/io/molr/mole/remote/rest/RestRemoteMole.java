@@ -45,7 +45,7 @@ public class RestRemoteMole implements Mole {
 
     @Override
     public Flux<AgencyState> states() {
-        return clientUtils.flux("/states", AgencyStateDto.class)
+        return clientUtils.flux(MoleWebApi.AGENCY_STATES, AgencyStateDto.class)
                 .map(AgencyStateDto::toAgencyState);
 
     }

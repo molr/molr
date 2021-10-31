@@ -55,7 +55,7 @@
 
 	<properties>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<revision>0.3.14-GSI-SNAPSHOT</revision>
+		<revision>0.3.15-SNAPSHOT</revision>
 		<spring.version>5.2.9.RELEASE</spring.version>
 		<spring.boot.version>2.2.10.RELEASE</spring.boot.version>
 		<reactor.version>3.3.10.RELEASE</reactor.version>
