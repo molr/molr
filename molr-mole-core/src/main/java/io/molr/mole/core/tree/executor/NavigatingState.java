@@ -45,9 +45,8 @@ public class NavigatingState extends StrandExecutionState {
 
             if (structure.isLeaf(current)) {
                 context.runLeaf(current);
-
                 context.popUntilNextChildAvailableAndPush();
-                //must be pop and next otherwise we would pause again if parent is breakpoint
+                return;
             } else {
                 /*
                  * Block with parallel children to be executed by other executors

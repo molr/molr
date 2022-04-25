@@ -384,7 +384,14 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     }
                     if (executionStrategy() == ExecutionStrategy.PAUSE_ON_ERROR) {
                         LOGGER.debug("Pause Strand execution onError " + popped);
-                        updateLoopState(new PausedState(this));
+                        if(!stack.isEmpty()) {
+                        	if(moveChildIndexAndPushNextChild(stack.peek()).isPresent()) {
+                        		runStates.put(stack.peek(), RunState.PAUSED);
+                        		updateLoopState(new PausedState(this));
+                        	}
+                        }
+                        //pointer should halt at next leaf or next successor node
+                        //moveChildIndexAndPushNextChild(stack.peek());
                         return;
                     }
                     LOGGER.debug("Proceed Strand execution onError");
