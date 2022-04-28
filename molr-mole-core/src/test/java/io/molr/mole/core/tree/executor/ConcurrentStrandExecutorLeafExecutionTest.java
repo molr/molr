@@ -36,12 +36,12 @@ public class ConcurrentStrandExecutorLeafExecutionTest extends AbstractSingleMis
     }
 
     @Test
-    public void testFailingLeafPausesStrand() {
+    public void testFailingLeafPausesStrandAtSuccessor() {
         instructRootStrandSync(StrandCommand.RESUME);
 
         waitUntilRootStrandStateIs(RunState.PAUSED);
 
-        assertThatRootStrandBlock().isEqualTo(failingBlock);
+        assertThatRootStrandBlock().isEqualTo(anotherBlock);
         assertThatResultOf(failingBlock).isEqualTo(FAILED);
         assertThatResultOf(anotherBlock).isEqualTo(UNDEFINED);
         assertThatRootResult().as("root result should be failed even if there are still undefined nodes because the result of the node will not affect it")
