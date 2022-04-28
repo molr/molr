@@ -35,7 +35,7 @@ import io.molr.mole.core.tree.MissionExecutor;
 import io.molr.mole.core.tree.MissionOutputCollector;
 import io.molr.mole.core.tree.exception.MissionDisposeException;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 public class SingleNodeMissionExecutor<R> implements MissionExecutor {
@@ -47,10 +47,10 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
     private final MissionOutputCollector outputCollector = new ConcurrentMissionOutputCollector();
     private final BlockOutputCollector output;
 
-    private final ReplayProcessor<MissionState> stateSink = ReplayProcessor.cacheLast();
-    private final Flux<MissionState> stateStream = stateSink.publishOn(Schedulers.newSingle("MissionState publisher"));
+    private final Sinks.Many<MissionState> stateSink = Sinks.many().replay().latest();
+    private final Flux<MissionState> stateStream = stateSink.asFlux().publishOn(Schedulers.newSingle("MissionState publisher"));
 
-    private final ReplayProcessor<MissionRepresentation> representations = ReplayProcessor.cacheLast();
+    private final Sinks.Many<MissionRepresentation> representations = Sinks.many().replay().latest();
     private final MissionInput input;
 
     private final Strand singleStrand = Strand.ofId("0");
@@ -66,7 +66,7 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         executorService = Executors.newSingleThreadExecutor();
         this.input = MissionInput.from(parameters);
         this.representation = SingleNodeMissions.representationFor(mission);
-        this.representations.onNext(this.representation);
+        this.representations.tryEmitNext(this.representation);
         this.output = new BlockOutputCollector(outputCollector, representation.rootBlock());
         publishState();
     }
@@ -126,7 +126,7 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         builder.add(singleStrand, rootRunState, cursor(), allowedCommands());
         builder.blockRunState(rootBlock(), rootRunState);
         builder.blockResult(rootBlock(), rootResult);
-        stateSink.onNext(builder.build());
+        stateSink.tryEmitNext(builder.build());
     }
 
 
@@ -185,7 +185,7 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
 
     @Override
     public Flux<MissionRepresentation> representations() {
-        return this.representations;
+        return this.representations.asFlux();
     }
 
     @Override
@@ -193,7 +193,7 @@ public class SingleNodeMissionExecutor<R> implements MissionExecutor {
         if(this.result.get().equals(Result.UNDEFINED)) {
             throw new MissionDisposeException();
         }
-        stateSink.onComplete();
+        stateSink.tryEmitComplete();
     }
 
 }

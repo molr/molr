@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.molr.mole.core.tree.StrandExecutor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 /**
@@ -16,16 +16,16 @@ import reactor.core.scheduler.Schedulers;
 public class StrandErrorsRecorder {
 
     private final AtomicReference<ImmutableList<Exception>> exceptions;
-    private final ReplayProcessor<List<Exception>> errorsSink;
+    private final Sinks.Many<List<Exception>> errorsSink;
     private final Flux<List<Exception>> errorsStream;
 
     public StrandErrorsRecorder(StrandExecutor executor) {
         exceptions = new AtomicReference<>(ImmutableList.of());
-        errorsSink = ReplayProcessor.cacheLast();
-        errorsStream = errorsSink.publishOn(Schedulers.elastic());
+        errorsSink = Sinks.many().replay().latest();
+        errorsStream = errorsSink.asFlux().publishOn(Schedulers.boundedElastic());
 
         executor.getErrorsStream()
-                .subscribe(e -> errorsSink.onNext(exceptions.updateAndGet(exs -> addTo(exs, e))));
+                .subscribe(e -> errorsSink.tryEmitNext(exceptions.updateAndGet(exs -> addTo(exs, e))));
     }
 
     private static ImmutableList<Exception> addTo(ImmutableList<Exception> currentExceptions, Exception newException) {

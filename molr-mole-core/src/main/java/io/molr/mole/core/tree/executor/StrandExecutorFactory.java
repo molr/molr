@@ -23,8 +23,8 @@ import io.molr.mole.core.tree.StrandFactory;
 import io.molr.mole.core.tree.StrandFactoryImpl;
 import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -41,7 +41,8 @@ public class StrandExecutorFactory{
 
     // FIXME #1 change to interface!
     private final ConcurrentHashMap<Strand, ConcurrentStrandExecutor> strandExecutors;
-    private final EmitterProcessor<StrandExecutor> newStrandsSink;
+    //private final EmitterProcessor<StrandExecutor> newStrandsSink;
+    private final Sinks.Many<StrandExecutor> newStrandsSink;
     private final Flux<StrandExecutor> newStrandsStream;
     private final TreeNodeStates runStates;
 
@@ -51,9 +52,10 @@ public class StrandExecutorFactory{
         this.strandFactory = new StrandFactoryImpl();
         this.strandExecutors = new ConcurrentHashMap<>();
 
-        newStrandsSink = EmitterProcessor.create();
-        Scheduler strandsScheduler = Schedulers.elastic();
-        newStrandsStream = newStrandsSink.publishOn(strandsScheduler).doFinally(signal-> {
+        newStrandsSink = Sinks.many().multicast().onBackpressureBuffer();
+        
+        Scheduler strandsScheduler = Schedulers.boundedElastic();
+        newStrandsStream = newStrandsSink.asFlux().publishOn(strandsScheduler).doFinally(signal-> {
         	strandsScheduler.dispose();
         });
     }
@@ -82,7 +84,7 @@ public class StrandExecutorFactory{
             }
             ConcurrentStrandExecutor strandExecutor = new ConcurrentStrandExecutor(strand, structure.rootBlock(), structure, this, leafExecutor, breakpoints, blocksToBeIgnored, executionStrategy, runStates, initialState);
             strandExecutors.put(strand, strandExecutor);
-            newStrandsSink.onNext(strandExecutor);
+            newStrandsSink.tryEmitNext(strandExecutor);
             return strandExecutor;
         }
     }
@@ -114,7 +116,7 @@ public class StrandExecutorFactory{
     
     public void closeStrandsStream() {
     	LOGGER.info("Close strands stream.");
-    	newStrandsSink.onComplete();
+    	newStrandsSink.tryEmitComplete();
     }
 
 	public Optional<Strand> parentOf(Strand strand) {

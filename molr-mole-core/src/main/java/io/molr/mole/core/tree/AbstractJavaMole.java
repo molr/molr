@@ -39,15 +39,15 @@ import io.molr.mole.core.tree.exception.MissionDisposeException;
 import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 public abstract class AbstractJavaMole implements Mole {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaMole.class);
     
-    private final ReplayProcessor<AgencyState> statesSink = ReplayProcessor.create(1);
-    private final Flux<AgencyState> statesStream = statesSink.publishOn(Schedulers.elastic());
+    private final Sinks.Many<AgencyState> statesSink = Sinks.many().replay().latest();
+    private final Flux<AgencyState> statesStream = statesSink.asFlux().publishOn(Schedulers.boundedElastic());
 
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
     private final Set<MissionInstance> instances = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -184,7 +184,7 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     private void publishState() {
-        statesSink.onNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
+        statesSink.tryEmitNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
     }
 
     protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);

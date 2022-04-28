@@ -41,9 +41,8 @@ import io.molr.mole.core.tree.TreeNodeStates;
 import io.molr.mole.core.tree.TreeStructure;
 import io.molr.mole.core.tree.exception.RejectedCommandException;
 import io.molr.mole.core.utils.ThreadFactories;
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -70,13 +69,14 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     private final StrandExecutorFactory strandExecutorFactory;
     private final LeafExecutor leafExecutor;
 
-    private final ReplayProcessor<QueuedCommand> lastCommandSink;
+    private final Sinks.Many<QueuedCommand> lastCommandSink;
     private final Flux<QueuedCommand> lastCommandStream;
-    private final ReplayProcessor<RunState> stateSink;
+    private final Sinks.Many<RunState> stateSink;
     private final Flux<RunState> stateStream;
-    private final ReplayProcessor<Block> blockSink;
+    private final Sinks.Many<Block> blockSink;
     private final Flux<Block> blockStream;
-    private final EmitterProcessor<Exception> errorSink;
+    //private final EmitterProcessor<Exception> errorSink;
+    private final Sinks.Many<Exception> errorSink;
     private final Flux<Exception> errorStream;
 
     /* AtomicReference guarantee read safety while not blocking using cycleLock for the getters */
@@ -122,15 +122,16 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         this.strandExecutorFactory = requireNonNull(strandExecutorFactory, "strandExecutorFactory cannot be null");
         this.leafExecutor = requireNonNull(leafExecutor, "leafExecutor cannot be null");
 
-        this.lastCommandSink = ReplayProcessor.cacheLast();
-        this.lastCommandStream = lastCommandSink.publishOn(publishingScheduler("last-command"));
-        this.errorSink = EmitterProcessor.create();
-        this.errorStream = errorSink.publishOn(publishingScheduler("errors"));
+        this.lastCommandSink = Sinks.many().replay().latest();
+        this.lastCommandStream = lastCommandSink.asFlux().publishOn(publishingScheduler("last-command"));
+        //TODO
+        this.errorSink = Sinks.many().multicast().onBackpressureBuffer();
+        this.errorStream = errorSink.asFlux().publishOn(publishingScheduler("errors"));
 
-        this.stateSink = ReplayProcessor.cacheLast();
-        this.stateStream = stateSink.publishOn(stateStreamscheduler);//stateSink;
-        this.blockSink = ReplayProcessor.cacheLast();
-        this.blockStream = blockSink.publishOn(cursorScheduler);
+        this.stateSink = Sinks.many().replay().latest();
+        this.stateStream = stateSink.asFlux().publishOn(stateStreamscheduler);//stateSink;
+        this.blockSink = Sinks.many().replay().latest();
+        this.blockStream = blockSink.asFlux().publishOn(cursorScheduler);
 
         this.allowedCommands = new AtomicReference<>();
         this.actualBlock = new AtomicReference<>();
@@ -180,13 +181,13 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
                     if (!state.allowedCommands().contains(command.getStrandCommand())) {
                         LOGGER.warn("Command {} not allowed for state {}.", command.getStrandCommand(),
                                 state.getClass());
-                        errorSink.onNext(new RejectedCommandException("command '{}' not allowed (id={})",
+                        errorSink.tryEmitNext(new RejectedCommandException("command '{}' not allowed (id={})",
                                 command.getStrandCommand(), command.getCommandId()));
                     }
                     state.executeCommand(command.getStrandCommand());
                     log("Command {} with id={} has been processed ", command.getStrandCommand(),
                             command.getCommandId());
-                    lastCommandSink.onNext(command);
+                    lastCommandSink.tryEmitNext(command);
                     lastCommand.set(command);
                 }
                 state.run();
@@ -208,11 +209,11 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     private void closeStreams() {
         LOGGER.debug("Close streams for strand {}", strand);
-        blockSink.onComplete();
-        errorSink.onComplete();
-        lastCommandSink.onComplete();
-        stateSink.onNext(FINISHED);
-        stateSink.onComplete();
+        blockSink.tryEmitComplete();
+        errorSink.tryEmitComplete();
+        lastCommandSink.tryEmitComplete();
+        stateSink.tryEmitNext(FINISHED);
+        stateSink.tryEmitComplete();
         LOGGER.debug(strand + ": all streams closed");
     }
 
@@ -264,12 +265,12 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     void updateRunStatesForStackElements(RunState stateUpdate) {
         stack.forEach(block -> runStates.put(block, stateUpdate));
-        stateSink.onNext(stateUpdate);/* TODO replace */
+        stateSink.tryEmitNext(stateUpdate);/* TODO replace */
     }
 
     void updateRunStates(Map<Block, RunState> runStateUpdates) {
         runStateUpdates.forEach((block, st) -> runStates.put(block, st));
-        stateSink.onNext(
+        stateSink.tryEmitNext(
                 RunState.NOT_STARTED);/* TODO remove dummy and find better way to update/trigger gatherMissionState */
     }
 
@@ -281,7 +282,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
     void updateRunStateForStrandAndStackElements(RunState stateUpdate) {
         this.strandRunState.set(stateUpdate);
         stack.forEach(block -> runStates.put(block, stateUpdate));
-        stateSink.onNext(stateUpdate);
+        stateSink.tryEmitNext(stateUpdate);
     }
 
     Block currentStackElement() {
@@ -319,11 +320,6 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
         childIndices.put(block, -1);
         stack.push(block);
         updateActualBlock(block);
-    }
-
-    void addBreakpoint(Block block) {
-        breakpoints.add(block);
-        stateSink.onNext(null);//TODO
     }
 
     Optional<Block> moveChildIndexAndPushNextChild(Block block) {
@@ -466,7 +462,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
          */
         actualBlock.set(newBlock);
         updateAllowedCommands();
-        blockSink.onNext(newBlock);
+        blockSink.tryEmitNext(newBlock);
     }
 
     private void setAllowedCommands(Set<StrandCommand> allowedCommandSet) {
@@ -536,7 +532,7 @@ public class ConcurrentStrandExecutor implements StrandExecutor {
 
     void publishError(Exception error) {
         LOGGER.error("[{}] {}: {}", strand, error.getClass().getSimpleName(), error.getMessage());
-        errorSink.onNext(error);
+        errorSink.tryEmitNext(error);
     }
 
     private Scheduler publishingScheduler(String suffix) {
