@@ -44,7 +44,7 @@ public class TreeMissionExecutor implements MissionExecutor {
     private final MissionRepresentation representation;
     private final Set<Block> breakpoints;
     private final Set<Block> blocksToBeIgnored;
-    private final Sinks.Many<Object> statesSink;//FluxSink<Object> statesSink;
+    private final Sinks.Many<Object> statesSink;
     private final TreeNodeStates nodeStates;
     private final StrandExecutor rootExecutor;
     
