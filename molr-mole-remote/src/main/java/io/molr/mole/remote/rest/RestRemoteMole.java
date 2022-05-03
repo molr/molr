@@ -1,8 +1,8 @@
 package io.molr.mole.remote.rest;
 
 import static java.util.Objects.requireNonNull;
-import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;//replace with _NDJSON
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 import java.util.Map;
 
@@ -87,7 +87,7 @@ public class RestRemoteMole implements Mole {
     public Mono<MissionHandle> instantiate(Mission mission, Map<String, Object> params) {
         String uri = MoleWebApi.instantiateMission(mission.name());
         Mono<MissionHandleDto> responseBody = clientUtils
-                .postMono(uri, APPLICATION_STREAM_JSON, fromObject(params), MissionHandleDto.class);
+                .postMono(uri, APPLICATION_STREAM_JSON, fromValue(params), MissionHandleDto.class);
         return responseBody.map(MissionHandleDto::toMissionHandle);
     }
 
