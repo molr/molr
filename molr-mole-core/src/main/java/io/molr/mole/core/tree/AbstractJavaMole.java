@@ -40,6 +40,7 @@ import io.molr.mole.core.utils.ThreadFactories;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.EmitResult;
 import reactor.core.scheduler.Schedulers;
 
 public abstract class AbstractJavaMole implements Mole {
@@ -50,6 +51,7 @@ public abstract class AbstractJavaMole implements Mole {
     private final Flux<AgencyState> statesStream = statesSink.asFlux().publishOn(Schedulers.boundedElastic());
 
     private final Map<MissionHandle, MissionExecutor> executors = new ConcurrentHashMap<>();
+    private final Map<MissionHandle, Map<String, Object>> missionInputs = new ConcurrentHashMap<>();
     private final Set<MissionInstance> instances = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private final MissionHandleFactory handleFactory = new AtomicIncrementMissionHandleFactory(this);
@@ -68,6 +70,7 @@ public abstract class AbstractJavaMole implements Mole {
             validateParameterValues(mission, params);
             MissionHandle handle = handleFactory.createHandle();
             executors.put(handle, executorFor(mission, params));
+            missionInputs.put(handle, params);
             instances.add(new MissionInstance(handle, mission));
             publishState();
             return handle;
@@ -130,6 +133,17 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     @Override
+    public Mono<Map<String, Object>> inputFor(MissionHandle handle) {
+    	try {
+    		Map<String, Object> input = missionInputs.get(handle);
+    		return Mono.just(input);
+    	}
+    	catch(Exception e) {
+    		return Mono.error(e);
+    	}
+    }
+    
+    @Override
     public Mono<MissionRepresentation> representationOf(Mission mission) {
         return supplyAsync(() -> missionRepresentationOf(mission));
     }
@@ -160,6 +174,7 @@ public abstract class AbstractJavaMole implements Mole {
                     try{
                         e.dispose();
                         executors.remove(handle);
+                        missionInputs.remove(handle);
                         instances.removeIf(missionInstance -> {
                             return missionInstance.handle().equals(handle);
                         });
@@ -184,7 +199,8 @@ public abstract class AbstractJavaMole implements Mole {
     }
 
     private void publishState() {
-        statesSink.tryEmitNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
+        EmitResult result = statesSink.tryEmitNext(ImmutableAgencyState.of(ImmutableSet.copyOf(availableMissions), ImmutableList.copyOf(instances)));
+        result.orThrow();
     }
 
     protected abstract MissionExecutor executorFor(Mission mission, Map<String, Object> params);
