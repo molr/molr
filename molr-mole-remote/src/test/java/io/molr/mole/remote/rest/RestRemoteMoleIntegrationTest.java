@@ -3,11 +3,14 @@ package io.molr.mole.remote.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.util.Lists;
 import org.junit.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.runner.RunWith;
 // for library loggers
 import org.slf4j.Logger;
@@ -49,6 +52,7 @@ import io.molr.mole.server.rest.MolrMoleRestService;
 @ContextConfiguration(classes = MolrMoleRestService.class)
 @EnableAutoConfiguration
 @DirtiesContext
+@Timeout(value = 60, unit = TimeUnit.SECONDS)
 public class RestRemoteMoleIntegrationTest {
 
      private static final Logger LOGGER = LoggerFactory.getLogger(RestRemoteMoleIntegrationTest.class);
@@ -87,7 +91,7 @@ public class RestRemoteMoleIntegrationTest {
          parameters.put(ParameterTestMissions.CUSTOM.name(), new CustomTestParameter(1000, "hello", Lists.newArrayList("hello", "world")));
          parameters.put(ParameterTestMissions.SOME_STRING_ARRAY_PLACEHOLDER.name(), new String[] {"This", "is", "a","test"});
 
-         MissionHandle missionHandle = remoteMole.instantiate(parameterMission, parameters).block();
+         MissionHandle missionHandle = remoteMole.instantiate(parameterMission, parameters).block(Duration.ofSeconds(5));
          Thread.sleep(100);
          remoteMole.instructRoot(missionHandle, StrandCommand.RESUME);
          
@@ -97,7 +101,7 @@ public class RestRemoteMoleIntegrationTest {
             LOGGER.info("output: "+listOfStrings);
          });
          
-         MissionState finalState = remoteMole.statesFor(missionHandle).blockLast();
+         MissionState finalState = remoteMole.statesFor(missionHandle).blockLast(Duration.ofSeconds(5));
          LOGGER.info(finalState.blockIdsToResult().toString());
          
      }
