@@ -11,8 +11,8 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.Result;
 import io.molr.commons.domain.RunState;
 import io.molr.commons.domain.StrandCommand;
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 public class ConcurrentStrandExecutorSkipCommandTest extends TimeoutEnabledTest{
@@ -20,9 +20,9 @@ public class ConcurrentStrandExecutorSkipCommandTest extends TimeoutEnabledTest{
 	@Test
 	public void skipNodeWithChildrenButWithoutSuccessor() {
 		TestTreeContext context = TestTreeContext.builder(TestMissions.testRepresentation(2, 3)).breakPoints("0.2").build();
-		EmitterProcessor<Block> blockProcessor = EmitterProcessor.create();
-		Flux<Block> blocks = blockProcessor.cache().publishOn(Schedulers.elastic());
-		context.strandExecutor().getBlockStream().subscribe(blockProcessor::onNext, e->{}, blockProcessor::onComplete);
+		Sinks.Many<Block> blockProcessor = Sinks.many().multicast().onBackpressureBuffer();
+		Flux<Block> blocks = blockProcessor.asFlux().cache().publishOn(Schedulers.boundedElastic());
+		context.strandExecutor().getBlockStream().subscribe(blockProcessor::tryEmitNext, e->{}, blockProcessor::tryEmitComplete);
 		context.resumeRoot();
 		
 		blocks.map(Block::id).takeUntil("0.2"::equals).blockLast();
@@ -39,7 +39,7 @@ public class ConcurrentStrandExecutorSkipCommandTest extends TimeoutEnabledTest{
 				"0.2.0", "0.2.1", "0.2.2");
 		Assertions.assertThat(context.treeNodeStates().getResultStates().getSnapshot()).containsAllEntriesOf(expectedResultStates);
 		
-		List<Block> blockList = blockProcessor.collect(Collectors.toList()).block();
+		List<Block> blockList = blocks.collect(Collectors.toList()).block();
 		System.out.println(blockList);
 		List<Block> blockList2 = blocks.collect(Collectors.toList()).block();
 		System.out.println(blockList2);

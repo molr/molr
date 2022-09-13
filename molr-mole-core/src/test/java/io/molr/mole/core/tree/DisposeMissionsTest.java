@@ -2,6 +2,8 @@ package io.molr.mole.core.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,6 +26,8 @@ import io.molr.mole.core.runnable.lang.RunnableLeafsMissionSupport;
 import io.molr.mole.core.runnable.lang.SimpleBranch;
 
 public class DisposeMissionsTest {
+	
+	private final static Duration MAX_WAITING_TIME = Duration.ofSeconds(10);
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DisposeMissionsTest.class);
 
@@ -63,7 +67,7 @@ public class DisposeMissionsTest {
         MissionInstance instance1 = new MissionInstance(instance1Handle, demoMission);
         MissionInstance instance2 = new MissionInstance(instance2Handle, demoMission);
 
-        AgencyState agencyState = mole.states().blockFirst();
+        AgencyState agencyState = mole.states().blockFirst(MAX_WAITING_TIME);
         assertThat(agencyState.activeMissions()).containsExactlyInAnyOrder(instance1, instance2);
 
         mole.instructRoot(instance1Handle, StrandCommand.RESUME);
@@ -72,12 +76,12 @@ public class DisposeMissionsTest {
 
         mole.instruct(instance2Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
-        agencyState = mole.states().blockFirst();
+        agencyState = mole.states().blockFirst(MAX_WAITING_TIME);
         assertThat(agencyState.activeMissions()).containsExactly(instance1);
 
         mole.instruct(instance1Handle, MissionCommand.DISPOSE);
         sleepUnchecked(1000);
-        agencyState = mole.states().blockFirst();
+        agencyState = mole.states().blockFirst(MAX_WAITING_TIME);
         assertThat(agencyState.activeMissions()).isEmpty();
     }
 

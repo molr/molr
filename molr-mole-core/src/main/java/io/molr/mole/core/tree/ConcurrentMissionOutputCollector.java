@@ -10,8 +10,7 @@ import io.molr.commons.domain.Block;
 import io.molr.commons.domain.MissionOutput;
 import io.molr.commons.domain.Placeholder;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -24,14 +23,13 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
      * TODO instead of disposing scheduler we may use permanent shared thread pool
      */
     private final Flux<MissionOutput> outputStream;
-    private final FluxSink<MissionOutput> outputSink;
+    private final Sinks.Many<MissionOutput> outputSink;
 
     private final Map<Block, Map<String, Object>> blockOutputs = new ConcurrentHashMap<>();
 
     public ConcurrentMissionOutputCollector() {
-        ReplayProcessor<MissionOutput> outputProcessor = ReplayProcessor.cacheLast();
-        outputSink = outputProcessor.sink();
-        outputStream = outputProcessor.publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
+        outputSink = Sinks.many().replay().latest();
+        outputStream = outputSink.asFlux().publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
     }
     
     @Override
@@ -63,7 +61,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     }
 
     private void publish() {
-        outputSink.next(MissionOutput.fromBlocks(this.blockOutputs));
+        outputSink.tryEmitNext(MissionOutput.fromBlocks(this.blockOutputs));
     }
 
     @Override
@@ -73,7 +71,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     @Override
     public void onComplete() {
-        outputSink.complete();        
+        outputSink.tryEmitComplete();        
     }
 
 

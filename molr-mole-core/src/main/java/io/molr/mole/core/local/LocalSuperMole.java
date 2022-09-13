@@ -130,6 +130,11 @@ public class LocalSuperMole implements Mole {
     public Flux<MissionRepresentation> representationsFor(MissionHandle handle) {
         return fromActiveMoleOrError(handle, m -> m.representationsFor(handle));
     }
+    
+    @Override
+    public Mono<Map<String, Object>> inputFor(MissionHandle handle) {
+    	return fromActiveMoleOrErrorMono(handle, m -> m.inputFor(handle));
+    }
 
     private Mono<Mole> getMole(Mission mission) {
         Mole mole = missionMoles.get(mission);
@@ -148,6 +153,15 @@ public class LocalSuperMole implements Mole {
             }
         });
     }
+
+	private <T> Mono<T> fromActiveMoleOrErrorMono(MissionHandle handle, Function<Mole, Mono<T>> monoMapper) {
+		try {
+			return monoMapper.apply(getMoleWithId(handle));
+		} catch (Exception ex) {
+			return Mono.error(new IllegalStateException("No active mole for mission handle '" + handle
+					+ "' found. Probably no mission was instantiated with this id?", ex));
+		}
+	}
 
     private Mole getMoleWithId(MissionHandle moleHandle) {
         return ofNullable(activeMoles.get(moleHandle)).orElseThrow(() -> illegalArgumentException("Cannot find mole with handle {}", moleHandle));

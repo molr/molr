@@ -48,6 +48,12 @@ public class RunnableLeafsMission {
         this.parameterDescription = parameterDescription;
         this.contexts = builder.contextConfigurations.build();
         blockLetValues = builder.blockLetValues.build();
+        
+        treeStructure.allBlocks().forEach(block->{
+        	if(treeStructure.isLeaf(block) && !runnables.containsKey(block)) {
+        		throw new IllegalArgumentException("Invalid mission definition. Leaf without runnable detected. "+block);
+        	}
+        });
     }
 
     public TreeStructure treeStructure() {
