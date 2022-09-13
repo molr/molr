@@ -92,18 +92,20 @@ public class RestRemoteMoleIntegrationTest {
          parameters.put(ParameterTestMissions.SOME_STRING_ARRAY_PLACEHOLDER.name(), new String[] {"This", "is", "a","test"});
 
          MissionHandle missionHandle = remoteMole.instantiate(parameterMission, parameters).block(Duration.ofSeconds(5));
-         Thread.sleep(100);
-         remoteMole.instructRoot(missionHandle, StrandCommand.RESUME);
+         
+         Thread.sleep(500);
          
          remoteMole.outputsFor(missionHandle).subscribe(missionOutput->{
             //only works as list is deserialized as ArrayList and Placeholder provides converter
             ListOfStrings listOfStrings = missionOutput.get(Block.builder("1", "hello").build(), Placeholder.aListOfStrings("sequenceOut"));
             LOGGER.info("output: "+listOfStrings);
          });
+
+         Thread.sleep(500);
+         remoteMole.instructRoot(missionHandle, StrandCommand.RESUME);
          
-         MissionState finalState = remoteMole.statesFor(missionHandle).blockLast(Duration.ofSeconds(5));
+         MissionState finalState = remoteMole.statesFor(missionHandle).blockLast(Duration.ofSeconds(15));
          LOGGER.info(finalState.blockIdsToResult().toString());
-         
      }
      
 }
