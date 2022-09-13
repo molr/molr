@@ -89,6 +89,15 @@ public interface Mole {
      * @return a stream emitting whenever the representation changes, and at least once on subscription.
      */
     Flux<MissionRepresentation> representationsFor(MissionHandle handle);
+    
+    /**
+     * Delivers the input parameters the mission has been instantiated with. If no parameters has been specified the
+     * returned input will be an empty MissionInput.
+     * TODO should implementations be restricted (by contract) to deliver non-empty Monos?
+     * @param handle the handle of the instantiated mission
+     * @return the mission input used for instantiation
+     */
+    Mono<Map<String, Object>> inputFor(MissionHandle handle);
 
     /**
      * Retrieves the initial (!) representation of a mission, meaning when the mission is not instantiated/running. This

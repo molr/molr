@@ -7,6 +7,7 @@ import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -60,6 +61,10 @@ public class MoleWebClient {
 
     public <T> Mono<T> mono(String uri, Class<T> type) {
         return clientResponseForGet(uri, APPLICATION_JSON).flatMap(response -> response.bodyToMono(type));
+    }
+
+    public <T> Mono<T> mono(String uri, ParameterizedTypeReference<T> typeRef) {
+        return clientResponseForGet(uri, APPLICATION_JSON).flatMap(response -> response.bodyToMono(typeRef));
     }
 
     public void post(String uri, MediaType mediaType, BodyInserter<?, ? super ClientHttpRequest> body) {

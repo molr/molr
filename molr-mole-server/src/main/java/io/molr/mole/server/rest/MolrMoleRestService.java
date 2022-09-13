@@ -9,6 +9,7 @@ import static io.molr.mole.core.api.MoleWebApi.INSTANCE_INSTRUCT_ROOT_PATH;
 import static io.molr.mole.core.api.MoleWebApi.INSTANCE_OUTPUTS_PATH;
 import static io.molr.mole.core.api.MoleWebApi.INSTANCE_REPRESENTATIONS_PATH;
 import static io.molr.mole.core.api.MoleWebApi.INSTANCE_STATES_PATH;
+import static io.molr.mole.core.api.MoleWebApi.INSTANCE_INPUT_PATH;
 import static io.molr.mole.core.api.MoleWebApi.INSTANTIATE_MISSION_PATH;
 import static io.molr.mole.core.api.MoleWebApi.MISSION_HANDLE;
 import static io.molr.mole.core.api.MoleWebApi.MISSION_NAME;
@@ -99,6 +100,11 @@ public class MolrMoleRestService {
     @GetMapping(path = INSTANCE_REPRESENTATIONS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<MissionRepresentationDto> representationsFor(@PathVariable(MISSION_HANDLE) String missionHandle) {
         return mole.representationsFor(MissionHandle.ofId(missionHandle)).map(MissionRepresentationDto::from);
+    }
+
+    @GetMapping(path = INSTANCE_INPUT_PATH)
+    public Mono<Map<String, Object>> inputFor(@PathVariable(MISSION_HANDLE) final String missionHandle) {
+        return mole.inputFor(MissionHandle.ofId(missionHandle));
     }
 
     @SuppressWarnings("static-method")
