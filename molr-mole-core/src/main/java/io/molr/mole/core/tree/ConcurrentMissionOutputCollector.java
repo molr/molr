@@ -18,6 +18,8 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
+    //private final Scheduler scheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_POOL_SIZE,
+    	//	Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "output-scheduler");
     private final Scheduler scheduler = Schedulers.newSingle("output-collector", true);
     /*
      * TODO instead of disposing scheduler we may use permanent shared thread pool
@@ -29,7 +31,8 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     public ConcurrentMissionOutputCollector() {
         outputSink = Sinks.many().replay().latest();
-        outputStream = outputSink.asFlux().publishOn(scheduler).cache(1);
+        //doFinally(scheduler.dispose) may lead to errors,  
+        outputStream = outputSink.asFlux().publishOn(scheduler).cache(1);//.doFinally(signal -> {scheduler.dispose();});
     }
     
     @Override
