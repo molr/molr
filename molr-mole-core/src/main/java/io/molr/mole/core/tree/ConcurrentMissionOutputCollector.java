@@ -75,7 +75,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
     @Override
     public void onComplete() {
     	outputSink.tryEmitComplete();
-    	scheduler.dispose();
+    	//scheduler.dispose();
     }
 
 
