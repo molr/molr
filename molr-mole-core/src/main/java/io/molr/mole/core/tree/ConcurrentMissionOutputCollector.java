@@ -29,7 +29,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     public ConcurrentMissionOutputCollector() {
         outputSink = Sinks.many().replay().latest();
-        outputStream = outputSink.asFlux().publishOn(scheduler).cache(1).doFinally(signal -> {scheduler.dispose();});
+        outputStream = outputSink.asFlux().publishOn(scheduler).cache(1);
     }
     
     @Override
@@ -71,7 +71,7 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     @Override
     public void onComplete() {
-        outputSink.tryEmitComplete();        
+    	outputSink.tryEmitComplete();
     }
 
 
