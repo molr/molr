@@ -18,8 +18,6 @@ public class ConcurrentMissionOutputCollector implements MissionOutputCollector 
 
     private final Logger LOGGER = LoggerFactory.getLogger(ConcurrentMissionOutputCollector.class);
 
-    //private final Scheduler scheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_POOL_SIZE,
-    	//	Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "output-scheduler");
     private final Scheduler scheduler = Schedulers.newSingle("output-collector", true);
     /*
      * TODO instead of disposing scheduler we may use permanent shared thread pool
